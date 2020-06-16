@@ -24,8 +24,8 @@ class Renderer: NSObject {
         Self.device = metalView.device!
         Self.commandQueue = Renderer.device.makeCommandQueue()!
 
-        mesh = Self.cube()
-        vertexBuffer = mesh.vertexBuffers.first!.buffer
+        mesh = Self.loadTrain()
+        vertexBuffer = mesh.vertexBuffers[0].buffer
 
         let library = Self.device.makeDefaultLibrary()!
         let vertexFunction = library.makeFunction(name: "vertex_main")
@@ -50,6 +50,29 @@ class Renderer: NSObject {
 
         metalView.delegate = self
 
+    }
+
+    static func loadTrain() -> MTKMesh {
+        let allocator = MTKMeshBufferAllocator(device: Self.device)
+        let assetURL = Bundle.main.url(forResource: "train", withExtension: "obj")!
+
+        let vertexDescriptor = MTLVertexDescriptor()
+        vertexDescriptor.attributes[0].format = .float3
+        vertexDescriptor.attributes[0].offset = 0
+        vertexDescriptor.attributes[0].bufferIndex = 0
+
+        vertexDescriptor.layouts[0].stride = MemoryLayout<SIMD3<Float>>.stride
+        let meshDescriptor = MTKModelIOVertexDescriptorFromMetal(vertexDescriptor)
+        (meshDescriptor.attributes[0] as! MDLVertexAttribute).name = MDLVertexAttributePosition
+
+        let asset = MDLAsset(
+            url: assetURL,
+            vertexDescriptor: meshDescriptor,
+            bufferAllocator: allocator
+        )
+
+        let mdlMesh = asset.childObjects(of: MDLMesh.self).first! as! MDLMesh
+        return try! MTKMesh(mesh: mdlMesh, device: Self.device)
     }
 
     static func cube() -> MTKMesh {
