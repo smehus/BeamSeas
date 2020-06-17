@@ -12,7 +12,7 @@ import Metal
 import MetalKit
 import simd
 
-class Renderer: NSObject {
+final class Renderer: NSObject {
 
     static var device: MTLDevice!
     static var commandQueue: MTLCommandQueue!
