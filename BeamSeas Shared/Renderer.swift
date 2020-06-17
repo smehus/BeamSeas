@@ -20,6 +20,9 @@ final class Renderer: NSObject {
     var vertexBuffer: MTLBuffer!
     var pipelineState: MTLRenderPipelineState!
 
+    var timer: Float = 0
+    var uniforms = Uniforms()
+
     init?(metalView: MTKView) {
         Self.device = metalView.device!
         Self.commandQueue = Renderer.device.makeCommandQueue()!
@@ -50,6 +53,13 @@ final class Renderer: NSObject {
 
         metalView.delegate = self
 
+
+        let translation = float4x4(translation: [0, 0.3, 0])
+        let rotation = float4x4(rotation: [0, Float(45).degreesToRadians, 0])
+        uniforms.modelMatrix = translation * rotation
+        uniforms.viewMatrix = float4x4(translation: [0.8, 0 ,0]).inverse
+
+        mtkView(metalView, drawableSizeWillChange: metalView.drawableSize)
     }
 
     static func loadTrain() -> MTKMesh {
@@ -92,6 +102,13 @@ final class Renderer: NSObject {
 extension Renderer: MTKViewDelegate {
     func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {
 
+        let aspect = Float(size.width) / Float(size.height)
+        uniforms.projectionMatrix = float4x4(
+            projectionFov: Float(70).degreesToRadians,
+            near: 0.1,
+            far: 100,
+            aspect: aspect
+        )
     }
 
     func draw(in view: MTKView) {
@@ -105,6 +122,10 @@ extension Renderer: MTKViewDelegate {
 
         renderEncoder.setRenderPipelineState(pipelineState)
         renderEncoder.setVertexBuffer(vertexBuffer, offset: 0, index: 0)
+
+        uniforms.viewMatrix = float4x4(translation: [0, 0, -3]).inverse
+        renderEncoder.setVertexBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: 1)
+
         for submesh in mesh.submeshes {
             renderEncoder.drawIndexedPrimitives(
                 type: .triangle,

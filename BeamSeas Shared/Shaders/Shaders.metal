@@ -20,9 +20,10 @@ struct VertexIn {
     float4 position [[ attribute(0) ]];
 };
 
-vertex float4 vertex_main(const VertexIn vertex_in [[ stage_in ]])
+vertex float4 vertex_main(const VertexIn vertex_in [[ stage_in ]],
+                          constant Uniforms &uniforms [[ buffer(1) ]])
 {
-    return vertex_in.position;
+    return uniforms.projectionMatrix * uniforms.viewMatrix * uniforms.modelMatrix * vertex_in.position;
 }
 
 
