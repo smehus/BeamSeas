@@ -32,9 +32,10 @@ final class Renderer: NSObject {
 
 
     init?(metalView: MTKView) {
-        Self.device = metalView.device!
+        Self.device = MTLCreateSystemDefaultDevice()!
         Self.commandQueue = Renderer.device.makeCommandQueue()!
         Self.library = Self.device.makeDefaultLibrary()!
+        metalView.device = Self.device
 
         super.init()
 

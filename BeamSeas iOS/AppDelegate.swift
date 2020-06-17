@@ -8,6 +8,8 @@
 
 import UIKit
 
+class LocalViewController: UIViewController { }
+
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 

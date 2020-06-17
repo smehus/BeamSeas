@@ -91,11 +91,10 @@ class ArcballCamera: Camera {
 
     override func rotate(delta: float2) {
         let sensitivity: Float = 0.005
-        rotation.y += delta.x * sensitivity
-        rotation.x += delta.y * sensitivity
-        rotation.x = max(-Float.pi/2,
-                         min(rotation.x,
-                             Float.pi/2))
+        let y = rotation.y + delta.x * sensitivity
+        var x = rotation.x + delta.y * sensitivity
+        x = max(-Float.pi/2, min((x), Float.pi/2))
+        rotation = [x, y, 0]
         _viewMatrix = updateViewMatrix()
     }
 }

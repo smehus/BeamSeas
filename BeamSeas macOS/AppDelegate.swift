@@ -8,6 +8,8 @@
 
 import Cocoa
 
+class LocalViewController: NSViewController { }
+
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate {
 

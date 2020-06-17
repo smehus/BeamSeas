@@ -21,12 +21,14 @@
 		020F9861249A724200DB4850 /* train.obj in Resources */ = {isa = PBXBuildFile; fileRef = 020F985A249A724200DB4850 /* train.obj */; };
 		020F9862249A724200DB4850 /* treefir.obj in Resources */ = {isa = PBXBuildFile; fileRef = 020F985B249A724200DB4850 /* treefir.obj */; };
 		020F9863249A724200DB4850 /* treefir.obj in Resources */ = {isa = PBXBuildFile; fileRef = 020F985B249A724200DB4850 /* treefir.obj */; };
+		020F9865249A757C00DB4850 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020F9864249A757C00DB4850 /* ViewController.swift */; };
+		020F9866249A757C00DB4850 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020F9864249A757C00DB4850 /* ViewController.swift */; };
 		02419D56249850C100BCB203 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02419D55249850C100BCB203 /* AppDelegate.swift */; };
-		02419D58249850C100BCB203 /* GameViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02419D57249850C100BCB203 /* GameViewController.swift */; };
+		02419D58249850C100BCB203 /* ViewControllerExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02419D57249850C100BCB203 /* ViewControllerExtension.swift */; };
 		02419D5B249850C100BCB203 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 02419D59249850C100BCB203 /* Main.storyboard */; };
 		02419D5E249850C100BCB203 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 02419D5C249850C100BCB203 /* LaunchScreen.storyboard */; };
 		02419D67249850C100BCB203 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02419D66249850C100BCB203 /* AppDelegate.swift */; };
-		02419D69249850C100BCB203 /* GameViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02419D68249850C100BCB203 /* GameViewController.swift */; };
+		02419D69249850C100BCB203 /* ViewControllerExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02419D68249850C100BCB203 /* ViewControllerExtension.swift */; };
 		02419D6C249850C100BCB203 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 02419D6A249850C100BCB203 /* Main.storyboard */; };
 		02419D6E249850C100BCB203 /* Shaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = 02419D4A249850BF00BCB203 /* Shaders.metal */; };
 		02419D6F249850C100BCB203 /* Shaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = 02419D4A249850BF00BCB203 /* Shaders.metal */; };
@@ -52,19 +54,20 @@
 		020F9859249A724200DB4850 /* treefir.mtl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = treefir.mtl; sourceTree = "<group>"; };
 		020F985A249A724200DB4850 /* train.obj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = train.obj; sourceTree = "<group>"; };
 		020F985B249A724200DB4850 /* treefir.obj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = treefir.obj; sourceTree = "<group>"; };
+		020F9864249A757C00DB4850 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		02419D4A249850BF00BCB203 /* Shaders.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Shaders.metal; sourceTree = "<group>"; };
 		02419D4B249850BF00BCB203 /* Renderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Renderer.swift; sourceTree = "<group>"; };
 		02419D4C249850BF00BCB203 /* ShaderTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ShaderTypes.h; sourceTree = "<group>"; };
 		02419D4D249850C100BCB203 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		02419D52249850C100BCB203 /* BeamSeas.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BeamSeas.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		02419D55249850C100BCB203 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		02419D57249850C100BCB203 /* GameViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameViewController.swift; sourceTree = "<group>"; };
+		02419D57249850C100BCB203 /* ViewControllerExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewControllerExtension.swift; sourceTree = "<group>"; };
 		02419D5A249850C100BCB203 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		02419D5D249850C100BCB203 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		02419D5F249850C100BCB203 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		02419D64249850C100BCB203 /* BeamSeas.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BeamSeas.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		02419D66249850C100BCB203 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		02419D68249850C100BCB203 /* GameViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameViewController.swift; sourceTree = "<group>"; };
+		02419D68249850C100BCB203 /* ViewControllerExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewControllerExtension.swift; sourceTree = "<group>"; };
 		02419D6B249850C100BCB203 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		02419D6D249850C100BCB203 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		02419D7E249851C700BCB203 /* Math.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Math.swift; sourceTree = "<group>"; };
@@ -109,6 +112,7 @@
 				02419D81249851EF00BCB203 /* Shaders */,
 				02419D4B249850BF00BCB203 /* Renderer.swift */,
 				02419D4D249850C100BCB203 /* Assets.xcassets */,
+				020F9864249A757C00DB4850 /* ViewController.swift */,
 			);
 			path = "BeamSeas Shared";
 			sourceTree = "<group>";
@@ -126,7 +130,7 @@
 			isa = PBXGroup;
 			children = (
 				02419D55249850C100BCB203 /* AppDelegate.swift */,
-				02419D57249850C100BCB203 /* GameViewController.swift */,
+				02419D57249850C100BCB203 /* ViewControllerExtension.swift */,
 				02419D59249850C100BCB203 /* Main.storyboard */,
 				02419D5C249850C100BCB203 /* LaunchScreen.storyboard */,
 				02419D5F249850C100BCB203 /* Info.plist */,
@@ -138,7 +142,7 @@
 			isa = PBXGroup;
 			children = (
 				02419D66249850C100BCB203 /* AppDelegate.swift */,
-				02419D68249850C100BCB203 /* GameViewController.swift */,
+				02419D68249850C100BCB203 /* ViewControllerExtension.swift */,
 				02419D6A249850C100BCB203 /* Main.storyboard */,
 				02419D6D249850C100BCB203 /* Info.plist */,
 			);
@@ -299,7 +303,8 @@
 				02419D70249850C100BCB203 /* Renderer.swift in Sources */,
 				02419D6E249850C100BCB203 /* Shaders.metal in Sources */,
 				0299535D249A64D90014228F /* Camera.swift in Sources */,
-				02419D58249850C100BCB203 /* GameViewController.swift in Sources */,
+				02419D58249850C100BCB203 /* ViewControllerExtension.swift in Sources */,
+				020F9865249A757C00DB4850 /* ViewController.swift in Sources */,
 				02419D56249850C100BCB203 /* AppDelegate.swift in Sources */,
 				02419D7F249851C700BCB203 /* Math.swift in Sources */,
 				020F9853249A695900DB4850 /* Mesh.swift in Sources */,
@@ -316,7 +321,8 @@
 				02419D71249850C100BCB203 /* Renderer.swift in Sources */,
 				02419D6F249850C100BCB203 /* Shaders.metal in Sources */,
 				0299535E249A64D90014228F /* Camera.swift in Sources */,
-				02419D69249850C100BCB203 /* GameViewController.swift in Sources */,
+				02419D69249850C100BCB203 /* ViewControllerExtension.swift in Sources */,
+				020F9866249A757C00DB4850 /* ViewController.swift in Sources */,
 				02419D67249850C100BCB203 /* AppDelegate.swift in Sources */,
 				02419D80249851C700BCB203 /* Math.swift in Sources */,
 				020F9854249A695900DB4850 /* Mesh.swift in Sources */,

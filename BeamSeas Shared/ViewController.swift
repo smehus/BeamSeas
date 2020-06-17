@@ -1,0 +1,23 @@
+//
+//  ViewController.swift
+//  BeamSeas
+//
+//  Created by Scott Mehus on 6/17/20.
+//  Copyright © 2020 Scott Mehus. All rights reserved.
+//
+
+import Foundation
+import MetalKit
+
+class ViewController: LocalViewController {
+
+    var renderer: Renderer!
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        guard let metalView = view as? MTKView else { fatalError("metal view not set up in storyboard") }
+        
+        renderer = Renderer(metalView: metalView)
+        addGestureRecognizers(to: metalView)
+    }
+}
