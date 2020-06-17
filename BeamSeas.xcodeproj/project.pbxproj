@@ -13,6 +13,14 @@
 		020F9854249A695900DB4850 /* Mesh.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020F9852249A695900DB4850 /* Mesh.swift */; };
 		020F9856249A696300DB4850 /* Submesh.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020F9855249A696300DB4850 /* Submesh.swift */; };
 		020F9857249A696300DB4850 /* Submesh.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020F9855249A696300DB4850 /* Submesh.swift */; };
+		020F985C249A724200DB4850 /* train.mtl in Resources */ = {isa = PBXBuildFile; fileRef = 020F9858249A724200DB4850 /* train.mtl */; };
+		020F985D249A724200DB4850 /* train.mtl in Resources */ = {isa = PBXBuildFile; fileRef = 020F9858249A724200DB4850 /* train.mtl */; };
+		020F985E249A724200DB4850 /* treefir.mtl in Resources */ = {isa = PBXBuildFile; fileRef = 020F9859249A724200DB4850 /* treefir.mtl */; };
+		020F985F249A724200DB4850 /* treefir.mtl in Resources */ = {isa = PBXBuildFile; fileRef = 020F9859249A724200DB4850 /* treefir.mtl */; };
+		020F9860249A724200DB4850 /* train.obj in Resources */ = {isa = PBXBuildFile; fileRef = 020F985A249A724200DB4850 /* train.obj */; };
+		020F9861249A724200DB4850 /* train.obj in Resources */ = {isa = PBXBuildFile; fileRef = 020F985A249A724200DB4850 /* train.obj */; };
+		020F9862249A724200DB4850 /* treefir.obj in Resources */ = {isa = PBXBuildFile; fileRef = 020F985B249A724200DB4850 /* treefir.obj */; };
+		020F9863249A724200DB4850 /* treefir.obj in Resources */ = {isa = PBXBuildFile; fileRef = 020F985B249A724200DB4850 /* treefir.obj */; };
 		02419D56249850C100BCB203 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02419D55249850C100BCB203 /* AppDelegate.swift */; };
 		02419D58249850C100BCB203 /* GameViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02419D57249850C100BCB203 /* GameViewController.swift */; };
 		02419D5B249850C100BCB203 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 02419D59249850C100BCB203 /* Main.storyboard */; };
@@ -30,10 +38,6 @@
 		02419D75249850C100BCB203 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 02419D4D249850C100BCB203 /* Assets.xcassets */; };
 		02419D7F249851C700BCB203 /* Math.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02419D7E249851C700BCB203 /* Math.swift */; };
 		02419D80249851C700BCB203 /* Math.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02419D7E249851C700BCB203 /* Math.swift */; };
-		0299533E2499262D0014228F /* train.mtl in Resources */ = {isa = PBXBuildFile; fileRef = 0299533C2499262D0014228F /* train.mtl */; };
-		0299533F2499262D0014228F /* train.mtl in Resources */ = {isa = PBXBuildFile; fileRef = 0299533C2499262D0014228F /* train.mtl */; };
-		029953402499262D0014228F /* train.obj in Resources */ = {isa = PBXBuildFile; fileRef = 0299533D2499262D0014228F /* train.obj */; };
-		029953412499262D0014228F /* train.obj in Resources */ = {isa = PBXBuildFile; fileRef = 0299533D2499262D0014228F /* train.obj */; };
 		0299535D249A64D90014228F /* Camera.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0299535C249A64D90014228F /* Camera.swift */; };
 		0299535E249A64D90014228F /* Camera.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0299535C249A64D90014228F /* Camera.swift */; };
 		02995360249A64FD0014228F /* Node.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0299535F249A64FD0014228F /* Node.swift */; };
@@ -44,6 +48,10 @@
 		020F984F249A688A00DB4850 /* Model.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Model.swift; sourceTree = "<group>"; };
 		020F9852249A695900DB4850 /* Mesh.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Mesh.swift; sourceTree = "<group>"; };
 		020F9855249A696300DB4850 /* Submesh.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Submesh.swift; sourceTree = "<group>"; };
+		020F9858249A724200DB4850 /* train.mtl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = train.mtl; sourceTree = "<group>"; };
+		020F9859249A724200DB4850 /* treefir.mtl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = treefir.mtl; sourceTree = "<group>"; };
+		020F985A249A724200DB4850 /* train.obj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = train.obj; sourceTree = "<group>"; };
+		020F985B249A724200DB4850 /* treefir.obj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = treefir.obj; sourceTree = "<group>"; };
 		02419D4A249850BF00BCB203 /* Shaders.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Shaders.metal; sourceTree = "<group>"; };
 		02419D4B249850BF00BCB203 /* Renderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Renderer.swift; sourceTree = "<group>"; };
 		02419D4C249850BF00BCB203 /* ShaderTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ShaderTypes.h; sourceTree = "<group>"; };
@@ -60,8 +68,6 @@
 		02419D6B249850C100BCB203 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		02419D6D249850C100BCB203 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		02419D7E249851C700BCB203 /* Math.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Math.swift; sourceTree = "<group>"; };
-		0299533C2499262D0014228F /* train.mtl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = train.mtl; sourceTree = "<group>"; };
-		0299533D2499262D0014228F /* train.obj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = train.obj; sourceTree = "<group>"; };
 		0299535C249A64D90014228F /* Camera.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Camera.swift; sourceTree = "<group>"; };
 		0299535F249A64FD0014228F /* Node.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Node.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -151,8 +157,10 @@
 		0299533A249925FF0014228F /* Models */ = {
 			isa = PBXGroup;
 			children = (
-				0299533C2499262D0014228F /* train.mtl */,
-				0299533D2499262D0014228F /* train.obj */,
+				020F9858249A724200DB4850 /* train.mtl */,
+				020F985A249A724200DB4850 /* train.obj */,
+				020F9859249A724200DB4850 /* treefir.mtl */,
+				020F985B249A724200DB4850 /* treefir.obj */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -257,9 +265,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				02419D72249850C100BCB203 /* ShaderTypes.h in Resources */,
-				0299533E2499262D0014228F /* train.mtl in Resources */,
-				029953402499262D0014228F /* train.obj in Resources */,
+				020F9860249A724200DB4850 /* train.obj in Resources */,
+				020F985C249A724200DB4850 /* train.mtl in Resources */,
 				02419D5B249850C100BCB203 /* Main.storyboard in Resources */,
+				020F985E249A724200DB4850 /* treefir.mtl in Resources */,
+				020F9862249A724200DB4850 /* treefir.obj in Resources */,
 				02419D74249850C100BCB203 /* Assets.xcassets in Resources */,
 				02419D5E249850C100BCB203 /* LaunchScreen.storyboard in Resources */,
 			);
@@ -269,10 +279,12 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				020F985F249A724200DB4850 /* treefir.mtl in Resources */,
 				02419D6C249850C100BCB203 /* Main.storyboard in Resources */,
-				029953412499262D0014228F /* train.obj in Resources */,
+				020F9861249A724200DB4850 /* train.obj in Resources */,
 				02419D75249850C100BCB203 /* Assets.xcassets in Resources */,
-				0299533F2499262D0014228F /* train.mtl in Resources */,
+				020F9863249A724200DB4850 /* treefir.obj in Resources */,
+				020F985D249A724200DB4850 /* train.mtl in Resources */,
 				02419D73249850C100BCB203 /* ShaderTypes.h in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
