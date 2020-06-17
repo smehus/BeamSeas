@@ -16,6 +16,8 @@ final class Renderer: NSObject {
 
     static var device: MTLDevice!
     static var commandQueue: MTLCommandQueue!
+    static var library: MTLLibrary!
+
     var mesh: MTKMesh!
     var vertexBuffer: MTLBuffer!
     var pipelineState: MTLRenderPipelineState!
@@ -26,13 +28,14 @@ final class Renderer: NSObject {
     init?(metalView: MTKView) {
         Self.device = metalView.device!
         Self.commandQueue = Renderer.device.makeCommandQueue()!
+        Self.library = Self.device.makeDefaultLibrary()!
 
         mesh = Self.loadTrain()
         vertexBuffer = mesh.vertexBuffers[0].buffer
 
-        let library = Self.device.makeDefaultLibrary()!
-        let vertexFunction = library.makeFunction(name: "vertex_main")
-        let fragmentFunction = library.makeFunction(name: "fragment_main")
+
+        let vertexFunction = Self.library.makeFunction(name: "vertex_main")
+        let fragmentFunction = Self.library.makeFunction(name: "fragment_main")
 
         let pipelineDescriptor = MTLRenderPipelineDescriptor()
         pipelineDescriptor.vertexFunction = vertexFunction
