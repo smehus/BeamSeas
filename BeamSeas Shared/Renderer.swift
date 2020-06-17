@@ -26,17 +26,19 @@ final class Renderer: NSObject {
       return camera
     }()
 
-
     var uniforms = Uniforms()
     var models: [Model] = []
-
+    var depthStencilState: MTLDepthStencilState
 
     init?(metalView: MTKView) {
         Self.device = MTLCreateSystemDefaultDevice()!
         Self.commandQueue = Renderer.device.makeCommandQueue()!
         Self.library = Self.device.makeDefaultLibrary()!
-        metalView.device = Self.device
 
+        metalView.device = Self.device
+        metalView.depthStencilPixelFormat = .depth32Float
+
+        depthStencilState = Self.buildDepthStencilState()
         super.init()
 
         metalView.clearColor = MTLClearColor(
@@ -55,6 +57,14 @@ final class Renderer: NSObject {
 
         mtkView(metalView, drawableSizeWillChange: metalView.bounds.size)
     }
+
+    static func buildDepthStencilState() -> MTLDepthStencilState {
+        let descriptor = MTLDepthStencilDescriptor()
+        descriptor.depthCompareFunction = .less
+        descriptor.isDepthWriteEnabled = true
+
+        return Self.device.makeDepthStencilState(descriptor: descriptor)!
+    }
 }
 
 extension Renderer: MTKViewDelegate {
@@ -70,6 +80,8 @@ extension Renderer: MTKViewDelegate {
         else {
             return
         }
+
+        renderEncoder.setDepthStencilState(depthStencilState)
 
         uniforms.projectionMatrix = camera.projectionMatrix
         uniforms.viewMatrix = camera.viewMatrix

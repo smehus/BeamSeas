@@ -8,22 +8,6 @@
 
 import MetalKit
 
-extension MDLVertexDescriptor {
-    static var defaultVertexDescriptor: MDLVertexDescriptor = {
-        let vertexDescriptor = MDLVertexDescriptor()
-        var offset = 0
-        vertexDescriptor.attributes[0] = MDLVertexAttribute(name: MDLVertexAttributePosition,
-                                                            format: .float3,
-                                                            offset: 0, bufferIndex: 0)
-        offset += MemoryLayout<float3>.stride
-
-        // add the normal attribute here
-
-        vertexDescriptor.layouts[0] = MDLVertexBufferLayout(stride: offset)
-        return vertexDescriptor
-    }()
-}
-
 class Model: Node {
 
     let pipelineState: MTLRenderPipelineState
@@ -58,9 +42,10 @@ class Model: Node {
         let pipelineDescriptor = MTLRenderPipelineDescriptor()
         pipelineDescriptor.vertexFunction = vertexFunction
         pipelineDescriptor.fragmentFunction = fragmentFunction
-        let vertexDescriptor = MDLVertexDescriptor.defaultVertexDescriptor
-        pipelineDescriptor.vertexDescriptor = MTKMetalVertexDescriptorFromModelIO(vertexDescriptor)
+        pipelineDescriptor.vertexDescriptor = MTKMetalVertexDescriptorFromModelIO(.defaultVertexDescriptor)
         pipelineDescriptor.colorAttachments[0].pixelFormat = .bgra8Unorm
+        pipelineDescriptor.depthAttachmentPixelFormat = .depth32Float
+
         do {
             pipelineState = try Renderer.device.makeRenderPipelineState(descriptor: pipelineDescriptor)
         } catch let error {

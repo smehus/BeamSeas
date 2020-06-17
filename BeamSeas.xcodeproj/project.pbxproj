@@ -23,6 +23,8 @@
 		020F9863249A724200DB4850 /* treefir.obj in Resources */ = {isa = PBXBuildFile; fileRef = 020F985B249A724200DB4850 /* treefir.obj */; };
 		020F9865249A757C00DB4850 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020F9864249A757C00DB4850 /* ViewController.swift */; };
 		020F9866249A757C00DB4850 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020F9864249A757C00DB4850 /* ViewController.swift */; };
+		020F9868249A7C5900DB4850 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020F9867249A7C5900DB4850 /* Extensions.swift */; };
+		020F9869249A7C5900DB4850 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020F9867249A7C5900DB4850 /* Extensions.swift */; };
 		02419D56249850C100BCB203 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02419D55249850C100BCB203 /* AppDelegate.swift */; };
 		02419D58249850C100BCB203 /* ViewControllerExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02419D57249850C100BCB203 /* ViewControllerExtension.swift */; };
 		02419D5B249850C100BCB203 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 02419D59249850C100BCB203 /* Main.storyboard */; };
@@ -55,6 +57,7 @@
 		020F985A249A724200DB4850 /* train.obj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = train.obj; sourceTree = "<group>"; };
 		020F985B249A724200DB4850 /* treefir.obj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = treefir.obj; sourceTree = "<group>"; };
 		020F9864249A757C00DB4850 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		020F9867249A7C5900DB4850 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		02419D4A249850BF00BCB203 /* Shaders.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Shaders.metal; sourceTree = "<group>"; };
 		02419D4B249850BF00BCB203 /* Renderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Renderer.swift; sourceTree = "<group>"; };
 		02419D4C249850BF00BCB203 /* ShaderTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ShaderTypes.h; sourceTree = "<group>"; };
@@ -93,6 +96,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		020F986A249A7C6F00DB4850 /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				020F9867249A7C5900DB4850 /* Extensions.swift */,
+			);
+			path = Extensions;
+			sourceTree = "<group>";
+		};
 		02419D44249850BE00BCB203 = {
 			isa = PBXGroup;
 			children = (
@@ -106,6 +117,7 @@
 		02419D49249850BE00BCB203 /* BeamSeas Shared */ = {
 			isa = PBXGroup;
 			children = (
+				020F986A249A7C6F00DB4850 /* Extensions */,
 				0299535B249A64C80014228F /* Nodes */,
 				0299533B249926070014228F /* Utilities */,
 				0299533A249925FF0014228F /* Models */,
@@ -307,6 +319,7 @@
 				020F9865249A757C00DB4850 /* ViewController.swift in Sources */,
 				02419D56249850C100BCB203 /* AppDelegate.swift in Sources */,
 				02419D7F249851C700BCB203 /* Math.swift in Sources */,
+				020F9868249A7C5900DB4850 /* Extensions.swift in Sources */,
 				020F9853249A695900DB4850 /* Mesh.swift in Sources */,
 				020F9856249A696300DB4850 /* Submesh.swift in Sources */,
 				02995360249A64FD0014228F /* Node.swift in Sources */,
@@ -325,6 +338,7 @@
 				020F9866249A757C00DB4850 /* ViewController.swift in Sources */,
 				02419D67249850C100BCB203 /* AppDelegate.swift in Sources */,
 				02419D80249851C700BCB203 /* Math.swift in Sources */,
+				020F9869249A7C5900DB4850 /* Extensions.swift in Sources */,
 				020F9854249A695900DB4850 /* Mesh.swift in Sources */,
 				020F9857249A696300DB4850 /* Submesh.swift in Sources */,
 				02995361249A64FD0014228F /* Node.swift in Sources */,
