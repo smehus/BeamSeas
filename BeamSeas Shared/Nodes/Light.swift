@@ -26,4 +26,12 @@ class Lights {
         light.position = [1, 2, -2]
         return light
     }()
+
+    static var ambientLight: Light = {
+        var light = buildDefaultLight()
+        light.color = [0.5, 1, 0]
+        light.intensity = 0.2
+        light.type = .Ambientlight
+        return light
+    }()
 }

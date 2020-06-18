@@ -20,8 +20,8 @@ final class Renderer: NSObject {
 
     lazy var camera: Camera = {
       let camera = ArcballCamera()
-      camera.distance = 2
-      camera.target = [0, 0.5, 0]
+        camera.distance = 2.5
+        camera.target = [0.5, 0.5, 0]
       camera.rotation.x = Float(-10).degreesToRadians
       return camera
     }()
@@ -58,11 +58,16 @@ final class Renderer: NSObject {
         metalView.delegate = self
 
         lights.append(Lights.sunlight)
-
+        lights.append(Lights.ambientLight)
+        
         let train = Model(name: "train.obj")
         train.position = [0, 0, 0]
         train.rotation = [0, Float(45).degreesToRadians, 0]
         models.append(train)
+
+         let fir = Model(name: "treefir.obj")
+        fir.position = [1.4, 0, 0]
+        models.append(fir)
 
         fragmentUniforms.light_count = UInt32(lights.count)
         mtkView(metalView, drawableSizeWillChange: metalView.bounds.size)
@@ -95,6 +100,8 @@ extension Renderer: MTKViewDelegate {
 
         uniforms.projectionMatrix = camera.projectionMatrix
         uniforms.viewMatrix = camera.viewMatrix
+
+        fragmentUniforms.camera_position = camera.position
 
         for model in models {
 
