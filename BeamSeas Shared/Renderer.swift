@@ -26,8 +26,15 @@ final class Renderer: NSObject {
       return camera
     }()
 
+    /// Debug lights
+    lazy var lightPipelineState: MTLRenderPipelineState = {
+      return buildLightPipelineState()
+    }()
+
     var uniforms = Uniforms()
+    var fragmentUniforms = FragmentUniforms()
     var models: [Model] = []
+    var lights: [Light] = []
     var depthStencilState: MTLDepthStencilState
 
     init?(metalView: MTKView) {
@@ -50,11 +57,14 @@ final class Renderer: NSObject {
 
         metalView.delegate = self
 
+        lights.append(Lights.sunlight)
+
         let train = Model(name: "train.obj")
         train.position = [0, 0, 0]
         train.rotation = [0, Float(45).degreesToRadians, 0]
         models.append(train)
 
+        fragmentUniforms.light_count = UInt32(lights.count)
         mtkView(metalView, drawableSizeWillChange: metalView.bounds.size)
     }
 
@@ -89,9 +99,13 @@ extension Renderer: MTKViewDelegate {
         for model in models {
 
             uniforms.modelMatrix = model.modelMatrix
+            uniforms.normalMatrix = uniforms.modelMatrix.upperLeft
 
             renderEncoder.setVertexBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: BufferIndex.uniforms.rawValue)
             renderEncoder.setRenderPipelineState(model.pipelineState)
+
+            renderEncoder.setFragmentBytes(&lights, length: MemoryLayout<Light>.stride * lights.count, index: BufferIndex.lights.rawValue)
+            renderEncoder.setFragmentBytes(&fragmentUniforms, length: MemoryLayout<FragmentUniforms>.stride, index: BufferIndex.fragmentUniforms.rawValue)
 
             for mesh in model.meshes {
                 let vertexBuffer = mesh.mtkMesh.vertexBuffers[0].buffer
@@ -111,6 +125,7 @@ extension Renderer: MTKViewDelegate {
             }
         }
 
+        debugLights(renderEncoder: renderEncoder, lightType: .Sunlight)
         renderEncoder.endEncoding()
         if let drawable = view.currentDrawable {
             commandBuffer.present(drawable)

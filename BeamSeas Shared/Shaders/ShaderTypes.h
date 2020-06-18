@@ -23,8 +23,10 @@
 
 typedef NS_ENUM(NSInteger, BufferIndex)
 {
-    BufferIndexVertexBuffer  = 0,
-    BufferIndexUniforms      = 1
+    BufferIndexVertexBuffer     = 0,
+    BufferIndexUniforms         = 1,
+    BufferIndexLights           = 2,
+    BufferIndexFragmentUniforms = 3
 };
 
 typedef NS_ENUM(NSInteger, VertexAttribute)
@@ -43,7 +45,33 @@ typedef struct
     matrix_float4x4 projectionMatrix;
     matrix_float4x4 viewMatrix;
     matrix_float4x4 modelMatrix;
+    matrix_float3x3 normalMatrix;
 } Uniforms;
+
+typedef struct
+{
+    uint light_count;
+    vector_float3 camera_position;
+} FragmentUniforms;
+
+typedef NS_ENUM(NSInteger, LightType)
+{
+    unused = 0,
+    Sunlight = 1,
+    Spotlight = 2,
+    Pointlight = 3,
+    Ambientlight = 4
+};
+
+typedef struct
+{
+    vector_float3 position;
+    vector_float3 color;
+    vector_float3 specularColor;
+    float intensity;
+    vector_float3 attenuation;
+    LightType type;
+} Light;
 
 #endif /* ShaderTypes_h */
 
