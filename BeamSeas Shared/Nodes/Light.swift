@@ -34,4 +34,13 @@ class Lights {
         light.type = .Ambientlight
         return light
     }()
+
+    static var redLight: Light = {
+        var light = buildDefaultLight()
+        light.position = [-0, 0.5, -0.5]
+        light.color = [1, 0, 0]
+        light.attenuation = float3(1, 3, 4)
+        light.type = .Pointlight
+        return light
+    }()
 }

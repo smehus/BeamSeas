@@ -59,6 +59,7 @@ final class Renderer: NSObject {
 
         lights.append(Lights.sunlight)
         lights.append(Lights.ambientLight)
+        lights.append(Lights.redLight)
         
         let train = Model(name: "train.obj")
         train.position = [0, 0, 0]
@@ -132,7 +133,7 @@ extension Renderer: MTKViewDelegate {
             }
         }
 
-        debugLights(renderEncoder: renderEncoder, lightType: .Sunlight)
+        debugLights(renderEncoder: renderEncoder, lightType: .Pointlight)
         renderEncoder.endEncoding()
         if let drawable = view.currentDrawable {
             commandBuffer.present(drawable)
