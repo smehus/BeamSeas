@@ -57,17 +57,17 @@ extension Renderer {
   func debugLights(renderEncoder: MTLRenderCommandEncoder, lightType: LightType) {
     for light in lights where light.type == lightType {
       switch light.type {
-      case .Pointlight:
+      case Pointlight:
         drawPointLight(renderEncoder: renderEncoder, position: light.position,
                        color: light.color)
-      case .Spotlight:
+      case Spotlight:
         drawPointLight(renderEncoder: renderEncoder, position: light.position,
                        color: light.color)
    
 //        leave this commented until you define spotlights
-//        drawSpotLight(renderEncoder: renderEncoder, position: light.position,
-//                      direction: light.coneDirection, color: light.color)
-      case .Sunlight:
+        drawSpotLight(renderEncoder: renderEncoder, position: light.position,
+                      direction: light.coneDirection, color: light.color)
+      case Sunlight:
         drawDirectionalLight(renderEncoder: renderEncoder, direction: light.position,
                              color: [1, 0, 0], count: 5)
       default:

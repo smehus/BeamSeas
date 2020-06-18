@@ -17,7 +17,7 @@ class Lights {
         light.specularColor = [0.6, 0.6, 0.6]
         light.intensity = 1
         light.attenuation = float3(1, 0, 0)
-        light.type = .Sunlight
+        light.type = Sunlight
         return light
     }
 
@@ -31,7 +31,7 @@ class Lights {
         var light = buildDefaultLight()
         light.color = [0.5, 1, 0]
         light.intensity = 0.2
-        light.type = .Ambientlight
+        light.type = Ambientlight
         return light
     }()
 
@@ -40,7 +40,19 @@ class Lights {
         light.position = [-0, 0.5, -0.5]
         light.color = [1, 0, 0]
         light.attenuation = float3(1, 3, 4)
-        light.type = .Pointlight
+        light.type = Pointlight
+        return light
+    }()
+
+    static var spotlight: Light = {
+        var light = buildDefaultLight()
+        light.position = [0.4, 0.8, 1]
+        light.color = [1, 0, 1]
+        light.attenuation = float3(1, 0.5, 0)
+        light.type = Spotlight
+        light.coneAngle = Float(40).degreesToRadians
+        light.coneDirection = [-2, 0, -1.5]
+        light.coneAttenuation = 12
         return light
     }()
 }

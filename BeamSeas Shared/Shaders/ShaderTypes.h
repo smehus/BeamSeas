@@ -54,23 +54,24 @@ typedef struct
     vector_float3 camera_position;
 } FragmentUniforms;
 
-typedef NS_ENUM(NSInteger, LightType)
-{
+typedef enum {
     unused = 0,
     Sunlight = 1,
     Spotlight = 2,
     Pointlight = 3,
     Ambientlight = 4
-};
+} LightType;
 
-typedef struct
-{
+typedef struct {
     vector_float3 position;
     vector_float3 color;
     vector_float3 specularColor;
     float intensity;
     vector_float3 attenuation;
     LightType type;
+    float coneAngle;
+    vector_float3 coneDirection;
+    float coneAttenuation;
 } Light;
 
 #endif /* ShaderTypes_h */

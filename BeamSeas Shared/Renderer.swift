@@ -19,10 +19,10 @@ final class Renderer: NSObject {
     static var library: MTLLibrary!
 
     lazy var camera: Camera = {
-      let camera = ArcballCamera()
+        let camera = ArcballCamera()
         camera.distance = 2.5
         camera.target = [0.5, 0.5, 0]
-      camera.rotation.x = Float(-10).degreesToRadians
+        camera.rotation.x = Float(-10).degreesToRadians
       return camera
     }()
 
@@ -60,6 +60,7 @@ final class Renderer: NSObject {
         lights.append(Lights.sunlight)
         lights.append(Lights.ambientLight)
         lights.append(Lights.redLight)
+        lights.append(Lights.spotlight)
         
         let train = Model(name: "train.obj")
         train.position = [0, 0, 0]
@@ -133,7 +134,7 @@ extension Renderer: MTKViewDelegate {
             }
         }
 
-        debugLights(renderEncoder: renderEncoder, lightType: .Pointlight)
+        debugLights(renderEncoder: renderEncoder, lightType: Spotlight)
         renderEncoder.endEncoding()
         if let drawable = view.currentDrawable {
             commandBuffer.present(drawable)
