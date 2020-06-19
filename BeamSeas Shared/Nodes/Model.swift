@@ -39,6 +39,8 @@ class Model: Node {
         let descriptor = MTLSamplerDescriptor()
         descriptor.sAddressMode = .repeat
         descriptor.tAddressMode = .repeat
+        descriptor.mipFilter = .linear
+        descriptor.maxAnisotropy = 8
         return Renderer.device.makeSamplerState(descriptor: descriptor)!
     }
 

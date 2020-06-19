@@ -16,9 +16,16 @@ extension Texturable {
 
         let textureLoader = MTKTextureLoader(device: Renderer.device)
         let textureLoaderOptions: [MTKTextureLoader.Option: Any] = [.origin: MTKTextureLoader.Origin.bottomLeft,
-                                                                    .SRGB: false]
+                                                                    .SRGB: false,
+                                                                    .generateMipmaps: NSNumber(booleanLiteral: true)]
         let fileExtension = URL(fileURLWithPath: imageName).pathExtension.isEmpty ? "png" : nil
-        let url = Bundle.main.url(forResource: imageName, withExtension: fileExtension)!
+        guard let url = Bundle.main.url(forResource: imageName, withExtension: fileExtension) else {
+            // Read from asset catalog
+            return try! textureLoader.newTexture(name: imageName,
+                                                 scaleFactor: 1.0,
+                                                 bundle: Bundle.main,
+                                                 options: nil)
+        }
         let texture = try! textureLoader.newTexture(URL: url, options: textureLoaderOptions)
 
         print("✅ Loaded Texture \(imageName)")
