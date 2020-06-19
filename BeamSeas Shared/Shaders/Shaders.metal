@@ -19,12 +19,14 @@ using namespace metal;
 struct VertexIn {
     float4 position [[ attribute(VertexAttributePosition) ]];
     float3 normal [[ attribute(VertexAttributeNormal) ]];
+    float2 uv [[ attribute(VertexAttributeUV) ]];
 };
 
 struct VertexOut {
     float4 position [[ position ]];
     float3 worldPosition;
     float3 worldNormal;
+    float2 uv;
 };
 
 vertex VertexOut vertex_main(const VertexIn vertex_in [[ stage_in ]],
@@ -33,15 +35,21 @@ vertex VertexOut vertex_main(const VertexIn vertex_in [[ stage_in ]],
     return {
         .position = uniforms.projectionMatrix * uniforms.viewMatrix * uniforms.modelMatrix * vertex_in.position,
         .worldPosition = (uniforms.modelMatrix * vertex_in.position).xyz,
-        .worldNormal = uniforms.normalMatrix * vertex_in.normal
+        .worldNormal = uniforms.normalMatrix * vertex_in.normal,
+        .uv = vertex_in.uv
     };
 }
 
 fragment float4 fragment_main(VertexOut in [[ stage_in ]],
                               constant Light *lights [[ buffer(BufferIndexLights) ]],
-                              constant FragmentUniforms &fragmentUniforms [[ buffer(BufferIndexFragmentUniforms) ]])
+                              constant FragmentUniforms &fragmentUniforms [[ buffer(BufferIndexFragmentUniforms) ]],
+                              texture2d<float> baseColorTexture [[ texture(TextureIndexColor) ]])
 {
-    float3 baseColor = float3(1, 1  , 1);
+
+    constexpr sampler textureSampler;
+
+    float3 baseColor = baseColorTexture.sample(textureSampler, in.uv).rgb;
+    return float4(baseColor, 1);
     float3 diffuseColor = 0;
     float3 ambientColor = 0;
     float3 specularColor = 0;

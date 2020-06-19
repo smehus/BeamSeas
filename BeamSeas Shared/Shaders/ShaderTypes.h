@@ -26,13 +26,14 @@ typedef NS_ENUM(NSInteger, BufferIndex)
     BufferIndexVertexBuffer     = 0,
     BufferIndexUniforms         = 1,
     BufferIndexLights           = 2,
-    BufferIndexFragmentUniforms = 3
+    BufferIndexFragmentUniforms = 3,
 };
 
 typedef NS_ENUM(NSInteger, VertexAttribute)
 {
     VertexAttributePosition  = 0,
-    VertexAttributeNormal    = 1
+    VertexAttributeNormal    = 1,
+    VertexAttributeUV        = 2
 };
 
 typedef NS_ENUM(NSInteger, TextureIndex)

@@ -20,8 +20,8 @@ final class Renderer: NSObject {
 
     lazy var camera: Camera = {
         let camera = ArcballCamera()
-        camera.distance = 2.5
-        camera.target = [0.5, 0.5, 0]
+        camera.distance = 4.3
+        camera.target = [0.0, 1.2, 0.0]
         camera.rotation.x = Float(-10).degreesToRadians
       return camera
     }()
@@ -61,15 +61,11 @@ final class Renderer: NSObject {
         lights.append(Lights.ambientLight)
         lights.append(Lights.redLight)
         lights.append(Lights.spotlight)
-        
-        let train = Model(name: "train.obj")
-        train.position = [0, 0, 0]
-        train.rotation = [0, Float(45).degreesToRadians, 0]
-        models.append(train)
 
-         let fir = Model(name: "treefir.obj")
-        fir.position = [1.4, 0, 0]
-        models.append(fir)
+        let house = Model(name: "lowpoly-house.obj")
+        house.position = [0, 0, 0]
+        house.rotation = [0, Float(45).degreesToRadians, 0]
+        models.append(house)
 
         fragmentUniforms.light_count = UInt32(lights.count)
         mtkView(metalView, drawableSizeWillChange: metalView.bounds.size)
@@ -123,6 +119,7 @@ extension Renderer: MTKViewDelegate {
                 for submesh in mesh.submeshes {
                     let mtkMesh = submesh.mtkSubmesh
 
+                    renderEncoder.setFragmentTexture(submesh.textures.baseColor, index: TextureIndex.color.rawValue)
                     renderEncoder.drawIndexedPrimitives(
                         type: .triangle,
                         indexCount: mtkMesh.indexCount,
