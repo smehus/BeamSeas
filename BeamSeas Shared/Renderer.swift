@@ -67,6 +67,11 @@ final class Renderer: NSObject {
         house.rotation = [0, Float(45).degreesToRadians, 0]
         models.append(house)
 
+         let ground = Model(name: "plane.obj")
+        ground.scale = [40, 40, 40]
+        ground.tiling = 16
+        models.append(ground)
+
         fragmentUniforms.light_count = UInt32(lights.count)
         mtkView(metalView, drawableSizeWillChange: metalView.bounds.size)
     }
@@ -103,6 +108,7 @@ extension Renderer: MTKViewDelegate {
 
         for model in models {
 
+            fragmentUniforms.tiling = model.tiling
             uniforms.modelMatrix = model.modelMatrix
             uniforms.normalMatrix = uniforms.modelMatrix.upperLeft
 
@@ -115,7 +121,7 @@ extension Renderer: MTKViewDelegate {
             for mesh in model.meshes {
                 let vertexBuffer = mesh.mtkMesh.vertexBuffers[0].buffer
                 renderEncoder.setVertexBuffer(vertexBuffer, offset: 0, index: BufferIndex.vertexBuffer.rawValue)
-
+                renderEncoder.setFragmentSamplerState(model.samplerState, index: 0)
                 for submesh in mesh.submeshes {
                     let mtkMesh = submesh.mtkSubmesh
 

@@ -12,6 +12,8 @@ class Model: Node {
 
     let pipelineState: MTLRenderPipelineState
     let meshes: [Mesh]
+    var tiling: UInt32 = 1
+    let samplerState: MTLSamplerState?
 
     init(name: String) {
         guard let assetURL = Bundle.main.url(forResource: name, withExtension: nil) else { fatalError("Model: \(name) not found")  }
@@ -27,10 +29,17 @@ class Model: Node {
 
         meshes = zip(mdlMeshes, mtkMeshes).map { Mesh(mdlMesh: $0, mtkMesh: $1) }
         pipelineState = Self.buildPipelineState()
-
+        samplerState = Self.buildSamplerState()
         super.init()
 
         self.name = name
+    }
+
+    private static func buildSamplerState() -> MTLSamplerState {
+        let descriptor = MTLSamplerDescriptor()
+        descriptor.sAddressMode = .repeat
+        descriptor.tAddressMode = .repeat
+        return Renderer.device.makeSamplerState(descriptor: descriptor)!
     }
 
     private static func buildPipelineState() -> MTLRenderPipelineState {
