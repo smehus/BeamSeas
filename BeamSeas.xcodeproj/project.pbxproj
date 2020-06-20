@@ -13,14 +13,6 @@
 		020F9854249A695900DB4850 /* Mesh.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020F9852249A695900DB4850 /* Mesh.swift */; };
 		020F9856249A696300DB4850 /* Submesh.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020F9855249A696300DB4850 /* Submesh.swift */; };
 		020F9857249A696300DB4850 /* Submesh.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020F9855249A696300DB4850 /* Submesh.swift */; };
-		020F985C249A724200DB4850 /* train.mtl in Resources */ = {isa = PBXBuildFile; fileRef = 020F9858249A724200DB4850 /* train.mtl */; };
-		020F985D249A724200DB4850 /* train.mtl in Resources */ = {isa = PBXBuildFile; fileRef = 020F9858249A724200DB4850 /* train.mtl */; };
-		020F985E249A724200DB4850 /* treefir.mtl in Resources */ = {isa = PBXBuildFile; fileRef = 020F9859249A724200DB4850 /* treefir.mtl */; };
-		020F985F249A724200DB4850 /* treefir.mtl in Resources */ = {isa = PBXBuildFile; fileRef = 020F9859249A724200DB4850 /* treefir.mtl */; };
-		020F9860249A724200DB4850 /* train.obj in Resources */ = {isa = PBXBuildFile; fileRef = 020F985A249A724200DB4850 /* train.obj */; };
-		020F9861249A724200DB4850 /* train.obj in Resources */ = {isa = PBXBuildFile; fileRef = 020F985A249A724200DB4850 /* train.obj */; };
-		020F9862249A724200DB4850 /* treefir.obj in Resources */ = {isa = PBXBuildFile; fileRef = 020F985B249A724200DB4850 /* treefir.obj */; };
-		020F9863249A724200DB4850 /* treefir.obj in Resources */ = {isa = PBXBuildFile; fileRef = 020F985B249A724200DB4850 /* treefir.obj */; };
 		020F9865249A757C00DB4850 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020F9864249A757C00DB4850 /* ViewController.swift */; };
 		020F9866249A757C00DB4850 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020F9864249A757C00DB4850 /* ViewController.swift */; };
 		020F9868249A7C5900DB4850 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020F9867249A7C5900DB4850 /* Extensions.swift */; };
@@ -41,6 +33,18 @@
 		0236A75A249D2192008F197E /* ground.png in Resources */ = {isa = PBXBuildFile; fileRef = 0236A754249D2192008F197E /* ground.png */; };
 		0236A75F249D5DFD008F197E /* Textures.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0236A75E249D5DFD008F197E /* Textures.xcassets */; };
 		0236A760249D5DFD008F197E /* Textures.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0236A75E249D5DFD008F197E /* Textures.xcassets */; };
+		0236A76A249D8ED6008F197E /* cottage1.obj in Resources */ = {isa = PBXBuildFile; fileRef = 0236A764249D8ED5008F197E /* cottage1.obj */; };
+		0236A76B249D8ED6008F197E /* cottage1.obj in Resources */ = {isa = PBXBuildFile; fileRef = 0236A764249D8ED5008F197E /* cottage1.obj */; };
+		0236A76C249D8ED6008F197E /* cottage2.obj in Resources */ = {isa = PBXBuildFile; fileRef = 0236A765249D8ED5008F197E /* cottage2.obj */; };
+		0236A76D249D8ED6008F197E /* cottage2.obj in Resources */ = {isa = PBXBuildFile; fileRef = 0236A765249D8ED5008F197E /* cottage2.obj */; };
+		0236A76E249D8ED6008F197E /* cottage1.mtl in Resources */ = {isa = PBXBuildFile; fileRef = 0236A766249D8ED5008F197E /* cottage1.mtl */; };
+		0236A76F249D8ED6008F197E /* cottage1.mtl in Resources */ = {isa = PBXBuildFile; fileRef = 0236A766249D8ED5008F197E /* cottage1.mtl */; };
+		0236A770249D8ED6008F197E /* cube.obj in Resources */ = {isa = PBXBuildFile; fileRef = 0236A767249D8ED5008F197E /* cube.obj */; };
+		0236A771249D8ED6008F197E /* cube.obj in Resources */ = {isa = PBXBuildFile; fileRef = 0236A767249D8ED5008F197E /* cube.obj */; };
+		0236A772249D8ED6008F197E /* cube.mtl in Resources */ = {isa = PBXBuildFile; fileRef = 0236A768249D8ED5008F197E /* cube.mtl */; };
+		0236A773249D8ED6008F197E /* cube.mtl in Resources */ = {isa = PBXBuildFile; fileRef = 0236A768249D8ED5008F197E /* cube.mtl */; };
+		0236A774249D8ED6008F197E /* cottage2.mtl in Resources */ = {isa = PBXBuildFile; fileRef = 0236A769249D8ED6008F197E /* cottage2.mtl */; };
+		0236A775249D8ED6008F197E /* cottage2.mtl in Resources */ = {isa = PBXBuildFile; fileRef = 0236A769249D8ED6008F197E /* cottage2.mtl */; };
 		02419D56249850C100BCB203 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02419D55249850C100BCB203 /* AppDelegate.swift */; };
 		02419D58249850C100BCB203 /* ViewControllerExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02419D57249850C100BCB203 /* ViewControllerExtension.swift */; };
 		02419D5B249850C100BCB203 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 02419D59249850C100BCB203 /* Main.storyboard */; };
@@ -54,8 +58,6 @@
 		02419D71249850C100BCB203 /* Renderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02419D4B249850BF00BCB203 /* Renderer.swift */; };
 		02419D72249850C100BCB203 /* ShaderTypes.h in Resources */ = {isa = PBXBuildFile; fileRef = 02419D4C249850BF00BCB203 /* ShaderTypes.h */; };
 		02419D73249850C100BCB203 /* ShaderTypes.h in Resources */ = {isa = PBXBuildFile; fileRef = 02419D4C249850BF00BCB203 /* ShaderTypes.h */; };
-		02419D74249850C100BCB203 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 02419D4D249850C100BCB203 /* Assets.xcassets */; };
-		02419D75249850C100BCB203 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 02419D4D249850C100BCB203 /* Assets.xcassets */; };
 		02419D7F249851C700BCB203 /* Math.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02419D7E249851C700BCB203 /* Math.swift */; };
 		02419D80249851C700BCB203 /* Math.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02419D7E249851C700BCB203 /* Math.swift */; };
 		024B76CF249A8D290030B123 /* Light.swift in Sources */ = {isa = PBXBuildFile; fileRef = 024B76CE249A8D290030B123 /* Light.swift */; };
@@ -74,10 +76,6 @@
 		020F984F249A688A00DB4850 /* Model.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Model.swift; sourceTree = "<group>"; };
 		020F9852249A695900DB4850 /* Mesh.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Mesh.swift; sourceTree = "<group>"; };
 		020F9855249A696300DB4850 /* Submesh.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Submesh.swift; sourceTree = "<group>"; };
-		020F9858249A724200DB4850 /* train.mtl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = train.mtl; sourceTree = "<group>"; };
-		020F9859249A724200DB4850 /* treefir.mtl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = treefir.mtl; sourceTree = "<group>"; };
-		020F985A249A724200DB4850 /* train.obj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = train.obj; sourceTree = "<group>"; };
-		020F985B249A724200DB4850 /* treefir.obj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = treefir.obj; sourceTree = "<group>"; };
 		020F9864249A757C00DB4850 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		020F9867249A7C5900DB4850 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		0236A744249D0A6C008F197E /* Texturable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Texturable.swift; sourceTree = "<group>"; };
@@ -88,10 +86,15 @@
 		0236A753249D2192008F197E /* plane.mtl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = plane.mtl; sourceTree = "<group>"; };
 		0236A754249D2192008F197E /* ground.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ground.png; sourceTree = "<group>"; };
 		0236A75E249D5DFD008F197E /* Textures.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Textures.xcassets; sourceTree = "<group>"; };
+		0236A764249D8ED5008F197E /* cottage1.obj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = cottage1.obj; sourceTree = "<group>"; };
+		0236A765249D8ED5008F197E /* cottage2.obj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = cottage2.obj; sourceTree = "<group>"; };
+		0236A766249D8ED5008F197E /* cottage1.mtl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = cottage1.mtl; sourceTree = "<group>"; };
+		0236A767249D8ED5008F197E /* cube.obj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = cube.obj; sourceTree = "<group>"; };
+		0236A768249D8ED5008F197E /* cube.mtl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = cube.mtl; sourceTree = "<group>"; };
+		0236A769249D8ED6008F197E /* cottage2.mtl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = cottage2.mtl; sourceTree = "<group>"; };
 		02419D4A249850BF00BCB203 /* Shaders.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Shaders.metal; sourceTree = "<group>"; };
 		02419D4B249850BF00BCB203 /* Renderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Renderer.swift; sourceTree = "<group>"; };
 		02419D4C249850BF00BCB203 /* ShaderTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ShaderTypes.h; sourceTree = "<group>"; };
-		02419D4D249850C100BCB203 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		02419D52249850C100BCB203 /* BeamSeas.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BeamSeas.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		02419D55249850C100BCB203 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		02419D57249850C100BCB203 /* ViewControllerExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewControllerExtension.swift; sourceTree = "<group>"; };
@@ -176,7 +179,6 @@
 				0299533A249925FF0014228F /* Models */,
 				02419D81249851EF00BCB203 /* Shaders */,
 				02419D4B249850BF00BCB203 /* Renderer.swift */,
-				02419D4D249850C100BCB203 /* Assets.xcassets */,
 				020F9864249A757C00DB4850 /* ViewController.swift */,
 				0236A75E249D5DFD008F197E /* Textures.xcassets */,
 			);
@@ -227,12 +229,14 @@
 		0299533A249925FF0014228F /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				0236A766249D8ED5008F197E /* cottage1.mtl */,
+				0236A764249D8ED5008F197E /* cottage1.obj */,
+				0236A769249D8ED6008F197E /* cottage2.mtl */,
+				0236A765249D8ED5008F197E /* cottage2.obj */,
+				0236A768249D8ED5008F197E /* cube.mtl */,
+				0236A767249D8ED5008F197E /* cube.obj */,
 				0236A751249D2192008F197E /* Ground */,
 				0236A747249D182B008F197E /* LowPolyHouse */,
-				020F9858249A724200DB4850 /* train.mtl */,
-				020F985A249A724200DB4850 /* train.obj */,
-				020F9859249A724200DB4850 /* treefir.mtl */,
-				020F985B249A724200DB4850 /* treefir.obj */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -340,20 +344,21 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0236A774249D8ED6008F197E /* cottage2.mtl in Resources */,
 				0236A757249D2192008F197E /* plane.mtl in Resources */,
 				0236A74B249D182B008F197E /* lowpoly-house-color.png in Resources */,
 				0236A759249D2192008F197E /* ground.png in Resources */,
+				0236A76E249D8ED6008F197E /* cottage1.mtl in Resources */,
 				0236A75F249D5DFD008F197E /* Textures.xcassets in Resources */,
 				02419D72249850C100BCB203 /* ShaderTypes.h in Resources */,
+				0236A772249D8ED6008F197E /* cube.mtl in Resources */,
+				0236A770249D8ED6008F197E /* cube.obj in Resources */,
+				0236A76A249D8ED6008F197E /* cottage1.obj in Resources */,
 				0236A755249D2192008F197E /* plane.obj in Resources */,
-				020F9860249A724200DB4850 /* train.obj in Resources */,
-				020F985C249A724200DB4850 /* train.mtl in Resources */,
 				02419D5B249850C100BCB203 /* Main.storyboard in Resources */,
-				020F985E249A724200DB4850 /* treefir.mtl in Resources */,
-				020F9862249A724200DB4850 /* treefir.obj in Resources */,
 				0236A74D249D182B008F197E /* lowpoly-house.obj in Resources */,
 				0236A74F249D182B008F197E /* lowpoly-house.mtl in Resources */,
-				02419D74249850C100BCB203 /* Assets.xcassets in Resources */,
+				0236A76C249D8ED6008F197E /* cottage2.obj in Resources */,
 				02419D5E249850C100BCB203 /* LaunchScreen.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -362,20 +367,21 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				020F985F249A724200DB4850 /* treefir.mtl in Resources */,
+				0236A76D249D8ED6008F197E /* cottage2.obj in Resources */,
 				0236A74E249D182B008F197E /* lowpoly-house.obj in Resources */,
 				02419D6C249850C100BCB203 /* Main.storyboard in Resources */,
-				020F9861249A724200DB4850 /* train.obj in Resources */,
+				0236A771249D8ED6008F197E /* cube.obj in Resources */,
+				0236A775249D8ED6008F197E /* cottage2.mtl in Resources */,
 				0236A75A249D2192008F197E /* ground.png in Resources */,
-				02419D75249850C100BCB203 /* Assets.xcassets in Resources */,
-				020F9863249A724200DB4850 /* treefir.obj in Resources */,
 				0236A74C249D182B008F197E /* lowpoly-house-color.png in Resources */,
+				0236A773249D8ED6008F197E /* cube.mtl in Resources */,
 				0236A750249D182B008F197E /* lowpoly-house.mtl in Resources */,
 				0236A758249D2192008F197E /* plane.mtl in Resources */,
-				020F985D249A724200DB4850 /* train.mtl in Resources */,
+				0236A76F249D8ED6008F197E /* cottage1.mtl in Resources */,
 				0236A760249D5DFD008F197E /* Textures.xcassets in Resources */,
 				02419D73249850C100BCB203 /* ShaderTypes.h in Resources */,
 				0236A756249D2192008F197E /* plane.obj in Resources */,
+				0236A76B249D8ED6008F197E /* cottage1.obj in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

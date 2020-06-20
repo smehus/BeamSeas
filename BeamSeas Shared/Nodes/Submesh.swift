@@ -13,14 +13,38 @@ class Submesh {
 
     struct Textures {
         let baseColor: MTLTexture?
+        let normal: MTLTexture?
     }
 
     let textures: Textures
     var mtkSubmesh: MTKSubmesh
+    let pipelineState: MTLRenderPipelineState
     
     init(mdlSubmesh: MDLSubmesh, mtkSubmesh: MTKSubmesh) {
         self.mtkSubmesh = mtkSubmesh
         textures = Textures(material: mdlSubmesh.material)
+        pipelineState = Self.buildPipelineState()
+    }
+
+    private static func buildPipelineState() -> MTLRenderPipelineState {
+        let library = Renderer.library
+        let vertexFunction = library?.makeFunction(name: "vertex_main")
+        let fragmentFunction = library?.makeFunction(name: "fragment_main")
+
+        var pipelineState: MTLRenderPipelineState
+        let pipelineDescriptor = MTLRenderPipelineDescriptor()
+        pipelineDescriptor.vertexFunction = vertexFunction
+        pipelineDescriptor.fragmentFunction = fragmentFunction
+        pipelineDescriptor.vertexDescriptor = MTKMetalVertexDescriptorFromModelIO(.defaultVertexDescriptor)
+        pipelineDescriptor.colorAttachments[0].pixelFormat = .bgra8Unorm
+        pipelineDescriptor.depthAttachmentPixelFormat = .depth32Float
+
+        do {
+            pipelineState = try Renderer.device.makeRenderPipelineState(descriptor: pipelineDescriptor)
+        } catch let error {
+            fatalError(error.localizedDescription)
+        }
+        return pipelineState
     }
 }
 
@@ -39,5 +63,6 @@ private extension Submesh.Textures {
         }
 
         baseColor = property(with: .baseColor)
+        normal = property(with: .tangentSpaceNormal)
     }
 }

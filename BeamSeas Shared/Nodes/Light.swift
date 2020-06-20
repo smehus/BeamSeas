@@ -8,51 +8,44 @@
 
 import Foundation
 
-class Lights {
+struct Lighting {
+    // Lights
+    let sunlight: Light = {
+        var light = Lighting.buildDefaultLight()
+        light.position = [0.4, 1, -2]
+        return light
+    }()
+    let ambientLight: Light = {
+        var light = Lighting.buildDefaultLight()
+        light.color = [1, 1, 1]
+        light.intensity = 0.1
+        light.type = Ambientlight
+        return light
+    }()
+    let fillLight: Light = {
+        var light = Lighting.buildDefaultLight()
+        light.position = [0, -0.1, 0.4]
+        light.specularColor = [0, 0, 0]
+        light.color = [0.4, 0.4, 0.4]
+        return light
+    }()
+
+    let lights: [Light]
+    let count: UInt32
+
+    init() {
+        lights = [sunlight, ambientLight, fillLight]
+        count = UInt32(lights.count)
+    }
 
     static func buildDefaultLight() -> Light {
         var light = Light()
         light.position = [0, 0, 0]
         light.color = [1, 1, 1]
-        light.specularColor = [0.6, 0.6, 0.6]
-        light.intensity = 1
+        light.specularColor = [1, 1, 1]
+        light.intensity = 0.6
         light.attenuation = float3(1, 0, 0)
         light.type = Sunlight
         return light
     }
-
-    static var sunlight: Light = {
-        var light = buildDefaultLight()
-        light.position = [1, 2, -2]
-        return light
-    }()
-
-    static var ambientLight: Light = {
-        var light = buildDefaultLight()
-        light.color = [0.5, 1, 0]
-        light.intensity = 0.2
-        light.type = Ambientlight
-        return light
-    }()
-
-    static var redLight: Light = {
-        var light = buildDefaultLight()
-        light.position = [-0, 0.5, -0.5]
-        light.color = [1, 0, 0]
-        light.attenuation = float3(1, 3, 4)
-        light.type = Pointlight
-        return light
-    }()
-
-    static var spotlight: Light = {
-        var light = buildDefaultLight()
-        light.position = [0.4, 0.8, 1]
-        light.color = [1, 0, 1]
-        light.attenuation = float3(1, 0.5, 0)
-        light.type = Spotlight
-        light.coneAngle = Float(40).degreesToRadians
-        light.coneDirection = [-2, 0, -1.5]
-        light.coneAttenuation = 12
-        return light
-    }()
 }

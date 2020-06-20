@@ -10,7 +10,6 @@ import MetalKit
 
 class Model: Node {
 
-    let pipelineState: MTLRenderPipelineState
     let meshes: [Mesh]
     var tiling: UInt32 = 1
     let samplerState: MTLSamplerState?
@@ -28,7 +27,6 @@ class Model: Node {
         let (mdlMeshes, mtkMeshes) = try! MTKMesh.newMeshes(asset: asset, device: Renderer.device)
 
         meshes = zip(mdlMeshes, mtkMeshes).map { Mesh(mdlMesh: $0, mtkMesh: $1) }
-        pipelineState = Self.buildPipelineState()
         samplerState = Self.buildSamplerState()
         super.init()
 
@@ -42,26 +40,5 @@ class Model: Node {
         descriptor.mipFilter = .linear
         descriptor.maxAnisotropy = 8
         return Renderer.device.makeSamplerState(descriptor: descriptor)!
-    }
-
-    private static func buildPipelineState() -> MTLRenderPipelineState {
-        let library = Renderer.library
-        let vertexFunction = library?.makeFunction(name: "vertex_main")
-        let fragmentFunction = library?.makeFunction(name: "fragment_main")
-
-        var pipelineState: MTLRenderPipelineState
-        let pipelineDescriptor = MTLRenderPipelineDescriptor()
-        pipelineDescriptor.vertexFunction = vertexFunction
-        pipelineDescriptor.fragmentFunction = fragmentFunction
-        pipelineDescriptor.vertexDescriptor = MTKMetalVertexDescriptorFromModelIO(.defaultVertexDescriptor)
-        pipelineDescriptor.colorAttachments[0].pixelFormat = .bgra8Unorm
-        pipelineDescriptor.depthAttachmentPixelFormat = .depth32Float
-
-        do {
-            pipelineState = try Renderer.device.makeRenderPipelineState(descriptor: pipelineDescriptor)
-        } catch let error {
-            fatalError(error.localizedDescription)
-        }
-        return pipelineState
     }
 }
