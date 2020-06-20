@@ -10,6 +10,8 @@ import MetalKit
 
 class Model: Node {
 
+    static var vertexDescriptor: MDLVertexDescriptor = .defaultVertexDescriptor
+
     let meshes: [Mesh]
     var tiling: UInt32 = 1
     let samplerState: MTLSamplerState?
@@ -24,7 +26,19 @@ class Model: Node {
             bufferAllocator: allocator
         )
 
-        let (mdlMeshes, mtkMeshes) = try! MTKMesh.newMeshes(asset: asset, device: Renderer.device)
+//        let (mdlMeshes, mtkMeshes) = try! MTKMesh.newMeshes(asset: asset, device: Renderer.device)
+        var mtkMeshes: [MTKMesh] = []
+        let mdlMeshes = asset.childObjects(of: MDLMesh.self) as! [MDLMesh]
+        _ = mdlMeshes.map { mdlMesh in
+            mdlMesh.addTangentBasis(
+                forTextureCoordinateAttributeNamed: MDLVertexAttributeTextureCoordinate,
+                tangentAttributeNamed: MDLVertexAttributeTangent,
+                bitangentAttributeNamed: MDLVertexAttributeBitangent
+            )
+
+            Model.vertexDescriptor = mdlMesh.vertexDescriptor
+            mtkMeshes.append(try! MTKMesh(mesh: mdlMesh, device: Renderer.device))
+        }
 
         meshes = zip(mdlMeshes, mtkMeshes).map { Mesh(mdlMesh: $0, mtkMesh: $1) }
         samplerState = Self.buildSamplerState()
