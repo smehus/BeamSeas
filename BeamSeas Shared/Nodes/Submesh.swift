@@ -19,17 +19,21 @@ class Submesh {
     let textures: Textures
     var mtkSubmesh: MTKSubmesh
     let pipelineState: MTLRenderPipelineState
+    let material: Material
     
     init(mdlSubmesh: MDLSubmesh, mtkSubmesh: MTKSubmesh) {
         self.mtkSubmesh = mtkSubmesh
         textures = Textures(material: mdlSubmesh.material)
-        pipelineState = Self.buildPipelineState()
+        material = Material(material: mdlSubmesh.material)
+        pipelineState = Self.buildPipelineState(textures: textures)
     }
 
-    private static func buildPipelineState() -> MTLRenderPipelineState {
-        let library = Renderer.library
-        let vertexFunction = library?.makeFunction(name: "vertex_main")
-        let fragmentFunction = library?.makeFunction(name: "fragment_main")
+    private static func buildPipelineState(textures: Textures) -> MTLRenderPipelineState {
+        let library = Renderer.library!
+
+        let functionConstants = Self.makeFunctionConstants(textures: textures)
+        let vertexFunction = library.makeFunction(name: "vertex_main")
+        let fragmentFunction = try! library.makeFunction(name: "fragment_main", constantValues: functionConstants)
 
         var pipelineState: MTLRenderPipelineState
         let pipelineDescriptor = MTLRenderPipelineDescriptor()
@@ -45,6 +49,17 @@ class Submesh {
             fatalError(error.localizedDescription)
         }
         return pipelineState
+    }
+
+    private static func makeFunctionConstants(textures: Textures) -> MTLFunctionConstantValues {
+        let constants = MTLFunctionConstantValues()
+        var property = textures.baseColor != nil
+        constants.setConstantValue(&property, type: .bool, index: 0)
+
+        property = textures.normal != nil
+        constants.setConstantValue(&property, type: .bool, index: 1)
+
+        return constants
     }
 }
 
@@ -64,5 +79,23 @@ private extension Submesh.Textures {
 
         baseColor = property(with: .baseColor)
         normal = property(with: .tangentSpaceNormal)
+    }
+}
+
+private extension Material {
+    init(material: MDLMaterial?) {
+        self.init()
+
+        if let baseColor = material?.property(with: .baseColor), baseColor.type == .float3 {
+            self.baseColor = baseColor.float3Value
+        }
+
+        if let specular = material?.property(with: .specular), specular.type == .float3 {
+            self.specularColor = specular.float3Value
+        }
+
+        if let shininess = material?.property(with: .specularExponent), shininess.type == .float {
+            self.shininess = shininess.floatValue
+        }
     }
 }

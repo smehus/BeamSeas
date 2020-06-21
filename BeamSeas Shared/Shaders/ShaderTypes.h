@@ -24,16 +24,19 @@
 typedef NS_ENUM(NSInteger, BufferIndex)
 {
     BufferIndexVertexBuffer     = 0,
-    BufferIndexUniforms         = 1,
-    BufferIndexLights           = 2,
-    BufferIndexFragmentUniforms = 3,
+    BufferIndexUniforms         = 11,
+    BufferIndexLights           = 12,
+    BufferIndexFragmentUniforms = 13,
+    BufferIndexMaterials        = 14
 };
 
 typedef NS_ENUM(NSInteger, VertexAttribute)
 {
     VertexAttributePosition  = 0,
     VertexAttributeNormal    = 1,
-    VertexAttributeUV        = 2
+    VertexAttributeUV        = 2,
+    VertexAttributeTangent   = 3,
+    VertexAttributeBitangent = 4
 };
 
 typedef NS_ENUM(NSInteger, TextureIndex)
@@ -76,6 +79,12 @@ typedef struct {
     vector_float3 coneDirection;
     float coneAttenuation;
 } Light;
+
+typedef struct {
+    vector_float3 baseColor;
+    vector_float3 specularColor;
+    float shininess;
+} Material;
 
 #endif /* ShaderTypes_h */
 

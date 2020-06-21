@@ -56,3 +56,47 @@ class Model: Node {
         return Renderer.device.makeSamplerState(descriptor: descriptor)!
     }
 }
+
+extension Model: Renderable {
+    func draw(renderEncoder: MTLRenderCommandEncoder, uniforms: inout Uniforms, fragmentUniforms: inout FragmentUniforms) {
+//        var fragmentUniforms = fragmentUniforms
+
+        fragmentUniforms.tiling = tiling
+         uniforms.modelMatrix = modelMatrix
+         uniforms.normalMatrix = modelMatrix.upperLeft
+
+        renderEncoder.setFragmentSamplerState(samplerState, index: 0)
+         renderEncoder.setVertexBytes(&uniforms,
+                                      length: MemoryLayout<Uniforms>.stride,
+                                      index: BufferIndex.uniforms.rawValue)
+         renderEncoder.setFragmentBytes(&fragmentUniforms,
+                                        length: MemoryLayout<FragmentUniforms>.stride,
+                                        index: BufferIndex.fragmentUniforms.rawValue)
+
+         for mesh in meshes {
+
+             for (index, vertexBuffer) in mesh.mtkMesh.vertexBuffers.enumerated() {
+                 renderEncoder.setVertexBuffer(vertexBuffer.buffer, offset: vertexBuffer.offset, index: index)
+             }
+
+
+             for submesh in mesh.submeshes {
+                 let mtkMesh = submesh.mtkSubmesh
+
+                 renderEncoder.setRenderPipelineState(submesh.pipelineState)
+                 renderEncoder.setFragmentTexture(submesh.textures.baseColor, index: TextureIndex.color.rawValue)
+                 renderEncoder.setFragmentTexture(submesh.textures.normal, index: TextureIndex.normal.rawValue)
+                 var material = submesh.material
+                 renderEncoder.setFragmentBytes(&material, length: MemoryLayout<Material>.stride, index: BufferIndex.materials.rawValue)
+
+                 renderEncoder.drawIndexedPrimitives(
+                     type: .triangle,
+                     indexCount: mtkMesh.indexCount,
+                     indexType: mtkMesh.indexType,
+                     indexBuffer: mtkMesh.indexBuffer.buffer,
+                     indexBufferOffset: mtkMesh.indexBuffer.offset
+                 )
+             }
+         }
+    }
+}

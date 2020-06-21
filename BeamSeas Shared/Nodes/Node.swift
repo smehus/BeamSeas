@@ -8,6 +8,10 @@
 
 import MetalKit
 
+protocol Renderable {
+    func draw(renderEncoder: MTLRenderCommandEncoder, uniforms: inout Uniforms, fragmentUniforms: inout FragmentUniforms)
+}
+
 class Node {
     var name = "untitled"
     var position: float3 = [0, 0, 0]

@@ -33,7 +33,7 @@ final class Renderer: NSObject {
 
     var uniforms = Uniforms()
     var fragmentUniforms = FragmentUniforms()
-    var models: [Model] = []
+    var models: [Renderable] = []
     var lighting = Lighting()
     var depthStencilState: MTLDepthStencilState
 
@@ -89,41 +89,13 @@ extension Renderer: MTKViewDelegate {
 
         uniforms.projectionMatrix = camera.projectionMatrix
         uniforms.viewMatrix = camera.viewMatrix
-
         fragmentUniforms.camera_position = camera.position
 
+        var lights = lighting.lights
+        renderEncoder.setFragmentBytes(&lights, length: MemoryLayout<Light>.stride * lights.count, index: BufferIndex.lights.rawValue)
+
         for model in models {
-
-            fragmentUniforms.tiling = model.tiling
-            uniforms.modelMatrix = model.modelMatrix
-            uniforms.normalMatrix = uniforms.modelMatrix.upperLeft
-
-            renderEncoder.setVertexBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: BufferIndex.uniforms.rawValue)
-
-            var lights = lighting.lights
-            renderEncoder.setFragmentBytes(&lights, length: MemoryLayout<Light>.stride * lights.count, index: BufferIndex.lights.rawValue)
-            renderEncoder.setFragmentBytes(&fragmentUniforms, length: MemoryLayout<FragmentUniforms>.stride, index: BufferIndex.fragmentUniforms.rawValue)
-
-            for mesh in model.meshes {
-                let vertexBuffer = mesh.mtkMesh.vertexBuffers[0].buffer
-                renderEncoder.setVertexBuffer(vertexBuffer, offset: 0, index: BufferIndex.vertexBuffer.rawValue)
-                renderEncoder.setFragmentSamplerState(model.samplerState, index: 0)
-                for submesh in mesh.submeshes {
-                    let mtkMesh = submesh.mtkSubmesh
-
-                    renderEncoder.setRenderPipelineState(submesh.pipelineState)
-                    renderEncoder.setFragmentTexture(submesh.textures.baseColor, index: TextureIndex.color.rawValue)
-                    renderEncoder.setFragmentTexture(submesh.textures.normal, index: TextureIndex.normal.rawValue)
-
-                    renderEncoder.drawIndexedPrimitives(
-                        type: .triangle,
-                        indexCount: mtkMesh.indexCount,
-                        indexType: mtkMesh.indexType,
-                        indexBuffer: mtkMesh.indexBuffer.buffer,
-                        indexBufferOffset: mtkMesh.indexBuffer.offset
-                    )
-                }
-            }
+            model.draw(renderEncoder: renderEncoder, uniforms: &uniforms, fragmentUniforms: &fragmentUniforms)
         }
 
         debugLights(renderEncoder: renderEncoder, lightType: Spotlight)
