@@ -87,6 +87,14 @@ extension Terrain: Renderable {
             offset: 0,
             index: 2
         )
+
+        let width = min(patchCount, computePipelineState.threadExecutionWidth)
+        computeEncoder.dispatchThreadgroups(
+            MTLSizeMake(patchCount, 1, 1),
+            threadsPerThreadgroup: MTLSizeMake(width, 1, 1)
+        )
+
+        computeEncoder.endEncoding()
     }
 
     func draw(
@@ -94,7 +102,29 @@ extension Terrain: Renderable {
         uniforms: inout Uniforms,
         fragmentUniforms: inout FragmentUniforms
     ) {
-        // draw
+
+        renderEncoder.setRenderPipelineState(renderPipelineState)
+        renderEncoder.setTessellationFactorBuffer(
+            tessellationFactorsBuffer,
+            offset: 0,
+            instanceStride: 0
+        )
+
+        renderEncoder.setVertexBuffer(
+            controlPointsBuffer,
+            offset: 0,
+            index: 0
+        )
+
+        renderEncoder.drawPatches(
+            numberOfPatchControlPoints: 4,
+            patchStart: 0,
+            patchCount: patchCount,
+            patchIndexBuffer: nil,
+            patchIndexBufferOffset: 0,
+            instanceCount: 1,
+            baseInstance: 0
+        )
     }
 }
 

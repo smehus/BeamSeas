@@ -17,6 +17,8 @@
 		020F9866249A757C00DB4850 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020F9864249A757C00DB4850 /* ViewController.swift */; };
 		020F9868249A7C5900DB4850 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020F9867249A7C5900DB4850 /* Extensions.swift */; };
 		020F9869249A7C5900DB4850 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020F9867249A7C5900DB4850 /* Extensions.swift */; };
+		022B51E124B0E33B00FC5C81 /* Terrain.metal in Sources */ = {isa = PBXBuildFile; fileRef = 022B51E024B0E33B00FC5C81 /* Terrain.metal */; };
+		022B51E224B0E33B00FC5C81 /* Terrain.metal in Sources */ = {isa = PBXBuildFile; fileRef = 022B51E024B0E33B00FC5C81 /* Terrain.metal */; };
 		0236A745249D0A6C008F197E /* Texturable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0236A744249D0A6C008F197E /* Texturable.swift */; };
 		0236A746249D0A6C008F197E /* Texturable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0236A744249D0A6C008F197E /* Texturable.swift */; };
 		0236A74B249D182B008F197E /* lowpoly-house-color.png in Resources */ = {isa = PBXBuildFile; fileRef = 0236A748249D182B008F197E /* lowpoly-house-color.png */; };
@@ -80,6 +82,7 @@
 		020F9855249A696300DB4850 /* Submesh.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Submesh.swift; sourceTree = "<group>"; };
 		020F9864249A757C00DB4850 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		020F9867249A7C5900DB4850 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
+		022B51E024B0E33B00FC5C81 /* Terrain.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Terrain.metal; sourceTree = "<group>"; };
 		0236A744249D0A6C008F197E /* Texturable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Texturable.swift; sourceTree = "<group>"; };
 		0236A748249D182B008F197E /* lowpoly-house-color.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "lowpoly-house-color.png"; sourceTree = "<group>"; };
 		0236A749249D182B008F197E /* lowpoly-house.obj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "lowpoly-house.obj"; sourceTree = "<group>"; };
@@ -225,6 +228,7 @@
 			children = (
 				02419D4C249850BF00BCB203 /* ShaderTypes.h */,
 				02419D4A249850BF00BCB203 /* Shaders.metal */,
+				022B51E024B0E33B00FC5C81 /* Terrain.metal */,
 			);
 			path = Shaders;
 			sourceTree = "<group>";
@@ -397,6 +401,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				02419D70249850C100BCB203 /* Renderer.swift in Sources */,
+				022B51E124B0E33B00FC5C81 /* Terrain.metal in Sources */,
 				02419D6E249850C100BCB203 /* Shaders.metal in Sources */,
 				0299535D249A64D90014228F /* Camera.swift in Sources */,
 				02419D58249850C100BCB203 /* ViewControllerExtension.swift in Sources */,
@@ -421,6 +426,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				02419D71249850C100BCB203 /* Renderer.swift in Sources */,
+				022B51E224B0E33B00FC5C81 /* Terrain.metal in Sources */,
 				02419D6F249850C100BCB203 /* Shaders.metal in Sources */,
 				0299535E249A64D90014228F /* Camera.swift in Sources */,
 				02419D69249850C100BCB203 /* ViewControllerExtension.swift in Sources */,
