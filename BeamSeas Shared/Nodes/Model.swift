@@ -59,7 +59,6 @@ class Model: Node {
 
 extension Model: Renderable {
     func draw(renderEncoder: MTLRenderCommandEncoder, uniforms: inout Uniforms, fragmentUniforms: inout FragmentUniforms) {
-//        var fragmentUniforms = fragmentUniforms
 
         fragmentUniforms.tiling = tiling
         uniforms.modelMatrix = modelMatrix

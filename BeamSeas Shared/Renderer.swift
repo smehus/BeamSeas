@@ -58,6 +58,9 @@ final class Renderer: NSObject {
 //        house.rotation = [0, Float(50).degreesToRadians, 0]
 //        models.append(house)
 
+        let terrain = Terrain()
+        models.append(terrain)
+
         fragmentUniforms.light_count = UInt32(lighting.count)
         mtkView(metalView, drawableSizeWillChange: metalView.bounds.size)
     }
@@ -79,17 +82,25 @@ extension Renderer: MTKViewDelegate {
     func draw(in view: MTKView) {
         guard
             let descriptor = view.currentRenderPassDescriptor,
-            let commandBuffer = Self.commandQueue.makeCommandBuffer(),
-            let renderEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: descriptor)
+            let commandBuffer = Self.commandQueue.makeCommandBuffer()
         else {
             return
         }
 
-        renderEncoder.setDepthStencilState(depthStencilState)
-
         uniforms.projectionMatrix = camera.projectionMatrix
         uniforms.viewMatrix = camera.viewMatrix
         fragmentUniforms.camera_position = camera.position
+
+        // Compute Pass \\
+
+        let computeEncoder = commandBuffer.makeComputeCommandEncoder()!
+        for model in models {
+            model.compute(computeEncoder: computeEncoder, uniforms: &uniforms, fragmentUniforms: &fragmentUniforms)
+        }
+
+        // Render Pass \\
+        let renderEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: descriptor)!
+        renderEncoder.setDepthStencilState(depthStencilState)
 
         var lights = lighting.lights
         renderEncoder.setFragmentBytes(&lights, length: MemoryLayout<Light>.stride * lights.count, index: BufferIndex.lights.rawValue)
