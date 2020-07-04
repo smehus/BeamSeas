@@ -70,6 +70,8 @@
 		0299535E249A64D90014228F /* Camera.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0299535C249A64D90014228F /* Camera.swift */; };
 		02995360249A64FD0014228F /* Node.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0299535F249A64FD0014228F /* Node.swift */; };
 		02995361249A64FD0014228F /* Node.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0299535F249A64FD0014228F /* Node.swift */; };
+		02E46DB224AC2D420055167A /* Terrain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02E46DB124AC2D420055167A /* Terrain.swift */; };
+		02E46DB324AC2D420055167A /* Terrain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02E46DB124AC2D420055167A /* Terrain.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -112,6 +114,7 @@
 		028370F1249AFC83006E8AF3 /* DebugLights.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = DebugLights.metal; sourceTree = "<group>"; };
 		0299535C249A64D90014228F /* Camera.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Camera.swift; sourceTree = "<group>"; };
 		0299535F249A64FD0014228F /* Node.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Node.swift; sourceTree = "<group>"; };
+		02E46DB124AC2D420055167A /* Terrain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Terrain.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -261,6 +264,7 @@
 				020F9852249A695900DB4850 /* Mesh.swift */,
 				020F9855249A696300DB4850 /* Submesh.swift */,
 				024B76CE249A8D290030B123 /* Light.swift */,
+				02E46DB124AC2D420055167A /* Terrain.swift */,
 			);
 			path = Nodes;
 			sourceTree = "<group>";
@@ -396,6 +400,7 @@
 				02419D6E249850C100BCB203 /* Shaders.metal in Sources */,
 				0299535D249A64D90014228F /* Camera.swift in Sources */,
 				02419D58249850C100BCB203 /* ViewControllerExtension.swift in Sources */,
+				02E46DB224AC2D420055167A /* Terrain.swift in Sources */,
 				024B76CF249A8D290030B123 /* Light.swift in Sources */,
 				020F9865249A757C00DB4850 /* ViewController.swift in Sources */,
 				02419D56249850C100BCB203 /* AppDelegate.swift in Sources */,
@@ -419,6 +424,7 @@
 				02419D6F249850C100BCB203 /* Shaders.metal in Sources */,
 				0299535E249A64D90014228F /* Camera.swift in Sources */,
 				02419D69249850C100BCB203 /* ViewControllerExtension.swift in Sources */,
+				02E46DB324AC2D420055167A /* Terrain.swift in Sources */,
 				024B76D0249A8D290030B123 /* Light.swift in Sources */,
 				020F9866249A757C00DB4850 /* ViewController.swift in Sources */,
 				02419D67249850C100BCB203 /* AppDelegate.swift in Sources */,

@@ -53,10 +53,10 @@ final class Renderer: NSObject {
 
         metalView.delegate = self
 
-        let house = Model(name: "cottage1.obj")
-        house.position = [0, 0, 0]
-        house.rotation = [0, Float(50).degreesToRadians, 0]
-        models.append(house)
+//        let house = Model(name: "cottage1.obj")
+//        house.position = [0, 0, 0]
+//        house.rotation = [0, Float(50).degreesToRadians, 0]
+//        models.append(house)
 
         fragmentUniforms.light_count = UInt32(lighting.count)
         mtkView(metalView, drawableSizeWillChange: metalView.bounds.size)

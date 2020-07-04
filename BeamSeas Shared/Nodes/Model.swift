@@ -62,8 +62,8 @@ extension Model: Renderable {
 //        var fragmentUniforms = fragmentUniforms
 
         fragmentUniforms.tiling = tiling
-         uniforms.modelMatrix = modelMatrix
-         uniforms.normalMatrix = modelMatrix.upperLeft
+        uniforms.modelMatrix = modelMatrix
+        uniforms.normalMatrix = modelMatrix.upperLeft
 
         renderEncoder.setFragmentSamplerState(samplerState, index: 0)
          renderEncoder.setVertexBytes(&uniforms,

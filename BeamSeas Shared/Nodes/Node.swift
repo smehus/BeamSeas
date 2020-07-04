@@ -9,7 +9,29 @@
 import MetalKit
 
 protocol Renderable {
-    func draw(renderEncoder: MTLRenderCommandEncoder, uniforms: inout Uniforms, fragmentUniforms: inout FragmentUniforms)
+    func compute(
+        computeEncoder: MTLComputeCommandEncoder,
+        uniforms: inout Uniforms,
+        fragmentUniforms: inout FragmentUniforms
+    )
+
+    func draw(
+        renderEncoder: MTLRenderCommandEncoder,
+        uniforms: inout Uniforms,
+        fragmentUniforms: inout FragmentUniforms
+    )
+}
+
+extension Renderable {
+    func compute(
+        computeEncoder: MTLComputeCommandEncoder,
+        uniforms: inout Uniforms,
+        fragmentUniforms: inout FragmentUniforms
+    ) {
+
+        // Do stuff
+
+    }
 }
 
 class Node {
