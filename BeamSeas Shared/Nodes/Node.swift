@@ -15,6 +15,11 @@ protocol Renderable {
         fragmentUniforms: inout FragmentUniforms
     )
 
+    func computeHeight(
+        computeEncoder: MTLComputeCommandEncoder,
+        uniforms: inout Uniforms
+    )
+
     func draw(
         renderEncoder: MTLRenderCommandEncoder,
         uniforms: inout Uniforms,
@@ -28,9 +33,14 @@ extension Renderable {
         uniforms: inout Uniforms,
         fragmentUniforms: inout FragmentUniforms
     ) {
+        // Override
+    }
 
-        // Do stuff
-
+    func computeHeight(
+        computeEncoder: MTLComputeCommandEncoder,
+        uniforms: inout Uniforms
+    ) {
+        // Override
     }
 }
 

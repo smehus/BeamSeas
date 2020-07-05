@@ -15,6 +15,7 @@ class Model: Node {
     let meshes: [Mesh]
     var tiling: UInt32 = 1
     let samplerState: MTLSamplerState?
+    var heightBuffer: MTLBuffer
 
     init(name: String) {
         guard let assetURL = Bundle.main.url(forResource: name, withExtension: nil) else { fatalError("Model: \(name) not found")  }
@@ -42,6 +43,10 @@ class Model: Node {
 
         meshes = zip(mdlMeshes, mtkMeshes).map { Mesh(mdlMesh: $0, mtkMesh: $1) }
         samplerState = Self.buildSamplerState()
+
+        var startingHeight: Float = 0
+        heightBuffer = Renderer.device.makeBuffer(bytes: &startingHeight, length: MemoryLayout<Float>.size, options: .storageModeShared)!
+
         super.init()
 
         self.name = name
@@ -58,6 +63,11 @@ class Model: Node {
 }
 
 extension Model: Renderable {
+
+    func computeHeight(computeEncoder: MTLComputeCommandEncoder, uniforms: inout Uniforms) {
+
+    }
+
     func draw(renderEncoder: MTLRenderCommandEncoder, uniforms: inout Uniforms, fragmentUniforms: inout FragmentUniforms) {
 
         fragmentUniforms.tiling = tiling

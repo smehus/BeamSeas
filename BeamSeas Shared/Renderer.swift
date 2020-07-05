@@ -20,8 +20,8 @@ final class Renderer: NSObject {
 
     lazy var camera: Camera = {
         let camera = ArcballCamera()
-        camera.distance = 6
-        camera.target = [0, 0, 0]
+        camera.distance = 10
+        camera.target = [0, 0, -20]
         camera.rotation.x = Float(-10).degreesToRadians
         return camera
     }()
@@ -57,6 +57,9 @@ final class Renderer: NSObject {
         let terrain = Terrain(mapName: "Heightmap_Plateau")
         terrain.rotation = [Float(-180).degreesToRadians, 0, 0]
         models.append(terrain)
+
+        let cube = Model(name: "cube.obj")
+        models.append(cube)
 
         fragmentUniforms.light_count = UInt32(lighting.count)
         mtkView(metalView, drawableSizeWillChange: metalView.bounds.size)

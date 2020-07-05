@@ -14,18 +14,19 @@ class Terrain: Node {
     static let maxTessellation = 16
 
     var terrainParams = TerrainParams(
-        size: [8, 8],
-        height: 0.7,
+        size: [80, 80],
+        height: 5,
         maxTessellation: UInt32(Terrain.maxTessellation)
     )
 
-    let patches = (horizontal: 6, vertical: 6)
+    let patches = (horizontal: 10, vertical: 10)
     var patchCount: Int {
         return patches.horizontal * patches.vertical
     }
 
     var edgeFactors: [Float] = [4]
     var insideFactors: [Float] = [4]
+    var allPatches: [Patch] = []
 
     lazy var tessellationFactorsBuffer: MTLBuffer? = {
         let count = patchCount * (4 + 2)
@@ -50,6 +51,11 @@ class Terrain: Node {
             size: (width: terrainParams.size.x,
                    height: terrainParams.size.y)
         )
+
+        // Transform array of control points in to groups of 4 points to a patch
+        allPatches = stride(from: controlPoints.startIndex, to: controlPoints.endIndex, by: 4).map {
+            Patch(values: Array(controlPoints[$0..<min($0 + 4, controlPoints.count)]))
+        }
 
         controlPointsBuffer = Renderer.device.makeBuffer(
             bytes: controlPoints,
@@ -146,7 +152,7 @@ extension Terrain: Renderable {
         fragmentUniforms: inout FragmentUniforms
     ) {
 
-        timer += 0.008
+        timer += 0.002
         var currentTime = timer
         renderEncoder.setVertexBytes(
             &currentTime,
@@ -214,7 +220,7 @@ extension Terrain {
      - Returns: an array of patch control points. Each group of four makes one patch.
      **/
     static func createControlPoints(patches: (horizontal: Int, vertical: Int),
-                             size: (width: Float, height: Float)) -> [float3] {
+                                    size: (width: Float, height: Float)) -> [float3] {
 
         var points: [float3] = []
         // per patch width and height
@@ -225,6 +231,7 @@ extension Terrain {
             let row = Float(j)
             for i in 0..<patches.horizontal {
                 let column = Float(i)
+
                 let left = width * column
                 let bottom = height * row
                 let right = width * column + width
@@ -234,6 +241,7 @@ extension Terrain {
                 points.append([right, 0, top])
                 points.append([right, 0, bottom])
                 points.append([left, 0, bottom])
+
             }
         }
         // size and convert to Metal coordinates
@@ -243,7 +251,23 @@ extension Terrain {
              0,
              $0.z * size.height - size.height / 2]
         }
+
         return points
+    }
+}
+
+struct Patch {
+
+    let topLeft: float3
+    let topRight: float3
+    let bottomRight: float3
+    let bottomLeft: float3
+
+    init(values: [float3]) {
+        topLeft = values[0]
+        topRight = values[1]
+        bottomRight = values[2]
+        bottomLeft = values[3]
     }
 }
 
