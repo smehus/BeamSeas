@@ -27,7 +27,9 @@ typedef NS_ENUM(NSInteger, BufferIndex)
     BufferIndexUniforms         = 11,
     BufferIndexLights           = 12,
     BufferIndexFragmentUniforms = 13,
-    BufferIndexMaterials        = 14
+    BufferIndexMaterials        = 14,
+    BufferIndexControlPoints    = 15,
+    BufferIndexTerrainParams    = 16
 };
 
 typedef NS_ENUM(NSInteger, VertexAttribute)
@@ -85,6 +87,12 @@ typedef struct {
     vector_float3 specularColor;
     float shininess;
 } Material;
+
+typedef struct {
+    vector_float2 size;
+    float height;
+    uint maxTessellation;
+} TerrainParams;
 
 #endif /* ShaderTypes_h */
 

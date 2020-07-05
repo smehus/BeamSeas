@@ -14,7 +14,7 @@ import MetalKit
 extension ViewController {
     func addGestureRecognizers(to view: NSView) {
         let pan = NSPanGestureRecognizer(target: self, action: #selector(handlePan(gesture:)))
-//        view.addGestureRecognizer(pan)
+        view.addGestureRecognizer(pan)
     }
 
     @objc func handlePan(gesture: NSPanGestureRecognizer) {

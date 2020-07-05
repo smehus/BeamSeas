@@ -11,7 +11,15 @@ import MetalKit
 
 class Terrain: Node {
 
-    let patches = (horizontal: 1, vertical: 1)
+    static let maxTessellation = 16
+
+    var terrainParams = TerrainParams(
+        size: [2, 2],
+        height: 1,
+        maxTessellation: UInt32(Terrain.maxTessellation)
+    )
+
+    let patches = (horizontal: 2, vertical: 2)
     var patchCount: Int {
         return patches.horizontal * patches.vertical
     }
@@ -31,7 +39,12 @@ class Terrain: Node {
 
     override init() {
 
-        let controlPoints = Self.createControlPoints(patches: patches, size: (2, 2))
+        let controlPoints = Self.createControlPoints(
+            patches: patches,
+            size: (width: terrainParams.size.x,
+                   height: terrainParams.size.y)
+        )
+
         controlPointsBuffer = Renderer.device.makeBuffer(
             bytes: controlPoints,
             length: MemoryLayout<float3>.stride * controlPoints.count
@@ -42,6 +55,9 @@ class Terrain: Node {
         descriptor.depthAttachmentPixelFormat = .depth32Float
         descriptor.vertexFunction = Renderer.library.makeFunction(name: "vertex_terrain")
         descriptor.fragmentFunction = Renderer.library.makeFunction(name: "fragment_terrain")
+        descriptor.tessellationFactorStepFunction = .perPatch
+        descriptor.maxTessellationFactor = Self.maxTessellation
+        descriptor.tessellationPartitionMode = .fractionalEven
 
         let vertexDescriptor = MTLVertexDescriptor()
         vertexDescriptor.attributes[0].format = .float3
@@ -69,6 +85,9 @@ extension Terrain: Renderable {
         uniforms: inout Uniforms,
         fragmentUniforms: inout FragmentUniforms
     ) {
+
+        uniforms.modelMatrix = modelMatrix
+
         computeEncoder.setComputePipelineState(computePipelineState)
         computeEncoder.setBytes(
             &edgeFactors,
@@ -86,6 +105,24 @@ extension Terrain: Renderable {
             tessellationFactorsBuffer,
             offset: 0,
             index: 2
+        )
+
+        computeEncoder.setBuffer(
+            controlPointsBuffer,
+            offset: 0,
+            index: BufferIndex.controlPoints.rawValue
+        )
+
+        computeEncoder.setBytes(
+            &uniforms,
+            length: MemoryLayout<Uniforms>.stride,
+            index: BufferIndex.uniforms.rawValue
+        )
+
+        computeEncoder.setBytes(
+            &terrainParams,
+            length: MemoryLayout<TerrainParams>.stride,
+            index: BufferIndex.terrainParams.rawValue
         )
 
         let width = min(patchCount, computePipelineState.threadExecutionWidth)

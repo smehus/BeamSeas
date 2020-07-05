@@ -19,12 +19,12 @@ final class Renderer: NSObject {
     static var library: MTLLibrary!
 
     lazy var camera: Camera = {
-//        let camera = ArcballCamera()
-//        camera.distance = 6
-//        camera.target = [0, 2.2, 0]
-        //        camera.rotation.x = Float(-10).degreesToRadians
-        let camera = Camera()
-        camera.position = [0, 0, -1.8]
+        let camera = ArcballCamera()
+        camera.distance = 6
+        camera.target = [0, 0, 0]
+        camera.rotation.x = Float(-10).degreesToRadians
+//        let camera = Camera()
+//        camera.position = [0, 0, -1.8]
         return camera
     }()
 
@@ -93,6 +93,12 @@ extension Renderer: MTKViewDelegate {
         // Compute Pass \\
 
         let computeEncoder = commandBuffer.makeComputeCommandEncoder()!
+        computeEncoder.setBytes(
+            &fragmentUniforms,
+            length: MemoryLayout<FragmentUniforms>.stride,
+            index: BufferIndex.fragmentUniforms.rawValue
+        )
+
         for model in models {
             model.compute(computeEncoder: computeEncoder, uniforms: &uniforms, fragmentUniforms: &fragmentUniforms)
         }
