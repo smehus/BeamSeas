@@ -107,7 +107,19 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
 
 
     out.position = uniforms.projectionMatrix * uniforms.viewMatrix * uniforms.modelMatrix * position;
-    out.color = color.r;
+
+    // The stupid height map pngs have flipped colors?
+    // So need to reverse everything
+    float inverseValue = (1 - color.r);
+    float4 inverseColor = float4(inverseValue, inverseValue, inverseValue, 1);
+//    if (height < 0.02) {
+//        inverseColor += float4(0.2, 0.2, 0.2, 1);
+//    } else {
+//        inverseColor += float4(0, 0.3, 1.0, 1);
+//    }
+
+    inverseColor += float4(0, 0.3, 1.0, 1);
+    out.color = inverseColor;
 
 
     return out;
