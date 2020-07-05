@@ -37,6 +37,7 @@ class Terrain: Node {
     private let computePipelineState: MTLComputePipelineState
     private var controlPointsBuffer: MTLBuffer!
     private let heightMap: MTLTexture
+    private var timer: Float = 0
 
     override init() {
 
@@ -142,6 +143,14 @@ extension Terrain: Renderable {
         uniforms: inout Uniforms,
         fragmentUniforms: inout FragmentUniforms
     ) {
+
+        timer += 0.01
+        var currentTime = sin(timer)
+        renderEncoder.setVertexBytes(
+            &currentTime,
+            length: MemoryLayout<Float>.stride,
+            index: 6
+        )
 
         uniforms.modelMatrix = modelMatrix
 

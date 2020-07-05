@@ -57,7 +57,8 @@ kernel void tessellation_main(constant float *edge_factors [[ buffer(0) ]],
                                               control_points[pointBIndex + index],
                                               fragmentUniforms.camera_position.xyz,
                                               uniforms.modelMatrix);
-        float tessellation = max(4.0, terrainParams.maxTessellation / camera_distance);
+
+        float tessellation = terrainParams.maxTessellation;// max(4.0, terrainParams.maxTessellation / camera_distance);
         factors[pid].edgeTessellationFactor[edgeIndex] = tessellation;
         totalTessellation += tessellation;
     }
@@ -70,6 +71,7 @@ kernel void tessellation_main(constant float *edge_factors [[ buffer(0) ]],
 vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control_points [[ stage_in ]],
                                        float2 patch_coord [[ position_in_patch ]],
                                        texture2d<float> heightMap [[ texture(0) ]],
+                                       constant float &timer [[ buffer(6) ]],
                                        constant TerrainParams &terrainParams [[ buffer(BufferIndexTerrainParams) ]],
                                        uint patchID [[ patch_id ]],
                                        constant Uniforms &uniforms [[ buffer(BufferIndexUniforms) ]])
@@ -86,7 +88,7 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
     float2 interpolated = mix(top, bottom, v);
     float4 position = float4(interpolated.x, 0.0, interpolated.y, 1.0);
 
-    float2 xy = (position.xz + terrainParams.size / 2.0) / terrainParams.size;
+    float2 xy = ((position.xz + terrainParams.size / 2.0) / terrainParams.size) + timer;
     constexpr sampler sample;
     float4 color = heightMap.sample(sample, xy);
     float height = (color.r * 2 - 1) * terrainParams.height;
