@@ -39,12 +39,21 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
                                 float2 patch_coord [[ position_in_patch ]],
                                 constant Uniforms &uniforms [[ buffer(BufferIndexUniforms) ]])
 {
-
     float u = patch_coord.x;
     float v = patch_coord.y;
+    float2 top = mix(control_points[0].position.xz,
+                     control_points[1].position.xz,
+                     u);
+    float2 bottom = mix(control_points[3].position.xz,
+                        control_points[2].position.xz,
+                        u);
+
+    float2 interpolated = mix(top, bottom, v);
+    float4 position = float4(interpolated.x, 0.0, interpolated.y, 1.0);
+
 
     return {
-        .position = float4(u, v, 0, 1),
+        .position = uniforms.projectionMatrix * uniforms.viewMatrix * uniforms.modelMatrix * position,
         .color = float4(u, v, 0, 1)
     };
 }

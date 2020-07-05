@@ -19,11 +19,13 @@ final class Renderer: NSObject {
     static var library: MTLLibrary!
 
     lazy var camera: Camera = {
-        let camera = ArcballCamera()
-        camera.distance = 6
-        camera.target = [0, 2.2, 0]
-        camera.rotation.x = Float(-10).degreesToRadians
-      return camera
+//        let camera = ArcballCamera()
+//        camera.distance = 6
+//        camera.target = [0, 2.2, 0]
+        //        camera.rotation.x = Float(-10).degreesToRadians
+        let camera = Camera()
+        camera.position = [0, 0, -1.8]
+        return camera
     }()
 
     /// Debug lights
@@ -53,12 +55,9 @@ final class Renderer: NSObject {
 
         metalView.delegate = self
 
-//        let house = Model(name: "cottage1.obj")
-//        house.position = [0, 0, 0]
-//        house.rotation = [0, Float(50).degreesToRadians, 0]
-//        models.append(house)
-
+        
         let terrain = Terrain()
+        terrain.rotation = [Float(-90).degreesToRadians, 0, 0]
         models.append(terrain)
 
         fragmentUniforms.light_count = UInt32(lighting.count)

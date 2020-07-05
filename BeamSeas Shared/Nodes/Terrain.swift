@@ -103,8 +103,16 @@ extension Terrain: Renderable {
         fragmentUniforms: inout FragmentUniforms
     ) {
 
-        renderEncoder.setTriangleFillMode(.fill)
+        uniforms.modelMatrix = modelMatrix
+
+        renderEncoder.setTriangleFillMode(.lines)
         renderEncoder.setRenderPipelineState(renderPipelineState)
+        renderEncoder.setVertexBytes(
+            &uniforms,
+            length: MemoryLayout<Uniforms>.stride,
+            index: BufferIndex.uniforms.rawValue
+        )
+
         renderEncoder.setTessellationFactorBuffer(
             tessellationFactorsBuffer,
             offset: 0,
