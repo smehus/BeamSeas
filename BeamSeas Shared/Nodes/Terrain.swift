@@ -37,11 +37,13 @@ class Terrain: Node {
     private let computePipelineState: MTLComputePipelineState
     private var controlPointsBuffer: MTLBuffer!
     private let heightMap: MTLTexture
+    private let altHeightMap: MTLTexture
     private var timer: Float = 0
 
     init(mapName: String) {
 
         heightMap = Self.loadTexture(imageName: mapName)
+        altHeightMap = Self.loadTexture(imageName: "Heightmap_Billow")
 
         let controlPoints = Self.createControlPoints(
             patches: patches,
@@ -144,7 +146,7 @@ extension Terrain: Renderable {
         fragmentUniforms: inout FragmentUniforms
     ) {
 
-        timer += 0.005
+        timer += 0.008
         var currentTime = timer
         renderEncoder.setVertexBytes(
             &currentTime,
@@ -174,9 +176,15 @@ extension Terrain: Renderable {
             index: 0
         )
 
+        // TODO: - Need to implement argument buffers & resource heaps
         renderEncoder.setVertexTexture(
             heightMap,
             index: 0
+        )
+
+        renderEncoder.setVertexTexture(
+            altHeightMap,
+            index: 1
         )
 
         renderEncoder.setVertexBytes(

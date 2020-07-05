@@ -54,8 +54,8 @@ final class Renderer: NSObject {
         metalView.delegate = self
 
         
-        let terrain = Terrain(mapName: "Heightmap_Billow")
-        terrain.rotation = [Float(-20).degreesToRadians, 0, 0]
+        let terrain = Terrain(mapName: "Heightmap_Plateau")
+        terrain.rotation = [Float(-180).degreesToRadians, 0, 0]
         models.append(terrain)
 
         fragmentUniforms.light_count = UInt32(lighting.count)
