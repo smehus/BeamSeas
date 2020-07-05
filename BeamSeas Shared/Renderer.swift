@@ -23,8 +23,6 @@ final class Renderer: NSObject {
         camera.distance = 6
         camera.target = [0, 0, 0]
         camera.rotation.x = Float(-10).degreesToRadians
-//        let camera = Camera()
-//        camera.position = [0, 0, -1.8]
         return camera
     }()
 
@@ -57,7 +55,7 @@ final class Renderer: NSObject {
 
         
         let terrain = Terrain()
-        terrain.rotation = [Float(-90).degreesToRadians, 0, 0]
+        terrain.rotation = [Float(-20).degreesToRadians, 0, 0]
         models.append(terrain)
 
         fragmentUniforms.light_count = UInt32(lighting.count)

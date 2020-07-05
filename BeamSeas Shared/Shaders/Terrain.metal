@@ -69,6 +69,8 @@ kernel void tessellation_main(constant float *edge_factors [[ buffer(0) ]],
 [[ patch(quad, 4) ]]
 vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control_points [[ stage_in ]],
                                        float2 patch_coord [[ position_in_patch ]],
+                                       texture2d<float> heightMap [[ texture(0) ]],
+                                       constant TerrainParams &terrainParams [[ buffer(BufferIndexTerrainParams) ]],
                                        uint patchID [[ patch_id ]],
                                        constant Uniforms &uniforms [[ buffer(BufferIndexUniforms) ]])
 {
@@ -83,14 +85,16 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
 
     float2 interpolated = mix(top, bottom, v);
     float4 position = float4(interpolated.x, 0.0, interpolated.y, 1.0);
-    float4 color = float(0);
-    if (patchID == 0){
-        color = float4(1, 0, 0, 1);
-    }
+
+    float2 xy = (position.xz + terrainParams.size / 2.0) / terrainParams.size;
+    constexpr sampler sample;
+    float4 color = heightMap.sample(sample, xy);
+    float height = (color.r * 2 - 1) * terrainParams.height;
+    position.y = height;
 
     return {
         .position = uniforms.projectionMatrix * uniforms.viewMatrix * uniforms.modelMatrix * position,
-        .color = color
+        .color = color.r
     };
 }
 

@@ -14,12 +14,12 @@ class Terrain: Node {
     static let maxTessellation = 16
 
     var terrainParams = TerrainParams(
-        size: [2, 2],
+        size: [8, 8],
         height: 1,
         maxTessellation: UInt32(Terrain.maxTessellation)
     )
 
-    let patches = (horizontal: 2, vertical: 2)
+    let patches = (horizontal: 6, vertical: 6)
     var patchCount: Int {
         return patches.horizontal * patches.vertical
     }
@@ -36,8 +36,11 @@ class Terrain: Node {
     private let renderPipelineState: MTLRenderPipelineState
     private let computePipelineState: MTLComputePipelineState
     private var controlPointsBuffer: MTLBuffer!
+    private let heightMap: MTLTexture
 
     override init() {
+
+        heightMap = Self.loadTexture(imageName: "mountain")
 
         let controlPoints = Self.createControlPoints(
             patches: patches,
@@ -57,7 +60,7 @@ class Terrain: Node {
         descriptor.fragmentFunction = Renderer.library.makeFunction(name: "fragment_terrain")
         descriptor.tessellationFactorStepFunction = .perPatch
         descriptor.maxTessellationFactor = Self.maxTessellation
-        descriptor.tessellationPartitionMode = .fractionalEven
+        descriptor.tessellationPartitionMode = .pow2
 
         let vertexDescriptor = MTLVertexDescriptor()
         vertexDescriptor.attributes[0].format = .float3
@@ -142,7 +145,7 @@ extension Terrain: Renderable {
 
         uniforms.modelMatrix = modelMatrix
 
-        renderEncoder.setTriangleFillMode(.lines)
+        renderEncoder.setTriangleFillMode(.fill)
         renderEncoder.setRenderPipelineState(renderPipelineState)
         renderEncoder.setVertexBytes(
             &uniforms,
@@ -160,6 +163,17 @@ extension Terrain: Renderable {
             controlPointsBuffer,
             offset: 0,
             index: 0
+        )
+
+        renderEncoder.setVertexTexture(
+            heightMap,
+            index: 0
+        )
+
+        renderEncoder.setVertexBytes(
+            &terrainParams,
+            length: MemoryLayout<TerrainParams>.stride,
+            index: BufferIndex.terrainParams.rawValue
         )
 
         renderEncoder.drawPatches(
@@ -215,3 +229,5 @@ extension Terrain {
         return points
     }
 }
+
+extension Terrain: Texturable { }
