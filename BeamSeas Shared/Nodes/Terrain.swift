@@ -15,7 +15,7 @@ class Terrain: Node {
 
     var terrainParams = TerrainParams(
         size: [8, 8],
-        height: 1,
+        height: 0.7,
         maxTessellation: UInt32(Terrain.maxTessellation)
     )
 
@@ -39,9 +39,9 @@ class Terrain: Node {
     private let heightMap: MTLTexture
     private var timer: Float = 0
 
-    override init() {
+    init(mapName: String) {
 
-        heightMap = Self.loadTexture(imageName: "mountain")
+        heightMap = Self.loadTexture(imageName: mapName)
 
         let controlPoints = Self.createControlPoints(
             patches: patches,
@@ -144,8 +144,8 @@ extension Terrain: Renderable {
         fragmentUniforms: inout FragmentUniforms
     ) {
 
-        timer += 0.01
-        var currentTime = sin(timer)
+        timer += 0.005
+        var currentTime = timer
         renderEncoder.setVertexBytes(
             &currentTime,
             length: MemoryLayout<Float>.stride,

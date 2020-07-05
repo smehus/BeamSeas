@@ -21,6 +21,14 @@
 		022B51E224B0E33B00FC5C81 /* Terrain.metal in Sources */ = {isa = PBXBuildFile; fileRef = 022B51E024B0E33B00FC5C81 /* Terrain.metal */; };
 		022B51E424B1772300FC5C81 /* mountain.png in Resources */ = {isa = PBXBuildFile; fileRef = 022B51E324B1772300FC5C81 /* mountain.png */; };
 		022B51E524B1772300FC5C81 /* mountain.png in Resources */ = {isa = PBXBuildFile; fileRef = 022B51E324B1772300FC5C81 /* mountain.png */; };
+		022B51EA24B22D2200FC5C81 /* Heightmap_Plateau.png in Resources */ = {isa = PBXBuildFile; fileRef = 022B51E624B22D2200FC5C81 /* Heightmap_Plateau.png */; };
+		022B51EB24B22D2200FC5C81 /* Heightmap_Plateau.png in Resources */ = {isa = PBXBuildFile; fileRef = 022B51E624B22D2200FC5C81 /* Heightmap_Plateau.png */; };
+		022B51EC24B22D2200FC5C81 /* Heightmap_Billow.png in Resources */ = {isa = PBXBuildFile; fileRef = 022B51E724B22D2200FC5C81 /* Heightmap_Billow.png */; };
+		022B51ED24B22D2200FC5C81 /* Heightmap_Billow.png in Resources */ = {isa = PBXBuildFile; fileRef = 022B51E724B22D2200FC5C81 /* Heightmap_Billow.png */; };
+		022B51EE24B22D2200FC5C81 /* Heightmap_Rocky.png in Resources */ = {isa = PBXBuildFile; fileRef = 022B51E824B22D2200FC5C81 /* Heightmap_Rocky.png */; };
+		022B51EF24B22D2200FC5C81 /* Heightmap_Rocky.png in Resources */ = {isa = PBXBuildFile; fileRef = 022B51E824B22D2200FC5C81 /* Heightmap_Rocky.png */; };
+		022B51F024B22D2200FC5C81 /* Heightmap_Mountain.png in Resources */ = {isa = PBXBuildFile; fileRef = 022B51E924B22D2200FC5C81 /* Heightmap_Mountain.png */; };
+		022B51F124B22D2200FC5C81 /* Heightmap_Mountain.png in Resources */ = {isa = PBXBuildFile; fileRef = 022B51E924B22D2200FC5C81 /* Heightmap_Mountain.png */; };
 		0236A745249D0A6C008F197E /* Texturable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0236A744249D0A6C008F197E /* Texturable.swift */; };
 		0236A746249D0A6C008F197E /* Texturable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0236A744249D0A6C008F197E /* Texturable.swift */; };
 		0236A74B249D182B008F197E /* lowpoly-house-color.png in Resources */ = {isa = PBXBuildFile; fileRef = 0236A748249D182B008F197E /* lowpoly-house-color.png */; };
@@ -86,6 +94,10 @@
 		020F9867249A7C5900DB4850 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		022B51E024B0E33B00FC5C81 /* Terrain.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Terrain.metal; sourceTree = "<group>"; };
 		022B51E324B1772300FC5C81 /* mountain.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = mountain.png; sourceTree = "<group>"; };
+		022B51E624B22D2200FC5C81 /* Heightmap_Plateau.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Heightmap_Plateau.png; sourceTree = "<group>"; };
+		022B51E724B22D2200FC5C81 /* Heightmap_Billow.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Heightmap_Billow.png; sourceTree = "<group>"; };
+		022B51E824B22D2200FC5C81 /* Heightmap_Rocky.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Heightmap_Rocky.png; sourceTree = "<group>"; };
+		022B51E924B22D2200FC5C81 /* Heightmap_Mountain.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Heightmap_Mountain.png; sourceTree = "<group>"; };
 		0236A744249D0A6C008F197E /* Texturable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Texturable.swift; sourceTree = "<group>"; };
 		0236A748249D182B008F197E /* lowpoly-house-color.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "lowpoly-house-color.png"; sourceTree = "<group>"; };
 		0236A749249D182B008F197E /* lowpoly-house.obj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "lowpoly-house.obj"; sourceTree = "<group>"; };
@@ -239,6 +251,10 @@
 		0299533A249925FF0014228F /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				022B51E724B22D2200FC5C81 /* Heightmap_Billow.png */,
+				022B51E924B22D2200FC5C81 /* Heightmap_Mountain.png */,
+				022B51E624B22D2200FC5C81 /* Heightmap_Plateau.png */,
+				022B51E824B22D2200FC5C81 /* Heightmap_Rocky.png */,
 				022B51E324B1772300FC5C81 /* mountain.png */,
 				0236A766249D8ED5008F197E /* cottage1.mtl */,
 				0236A764249D8ED5008F197E /* cottage1.obj */,
@@ -358,14 +374,18 @@
 			files = (
 				0236A774249D8ED6008F197E /* cottage2.mtl in Resources */,
 				0236A757249D2192008F197E /* plane.mtl in Resources */,
+				022B51EC24B22D2200FC5C81 /* Heightmap_Billow.png in Resources */,
 				0236A74B249D182B008F197E /* lowpoly-house-color.png in Resources */,
 				022B51E424B1772300FC5C81 /* mountain.png in Resources */,
 				0236A759249D2192008F197E /* ground.png in Resources */,
 				0236A76E249D8ED6008F197E /* cottage1.mtl in Resources */,
 				0236A75F249D5DFD008F197E /* Textures.xcassets in Resources */,
 				02419D72249850C100BCB203 /* ShaderTypes.h in Resources */,
+				022B51F024B22D2200FC5C81 /* Heightmap_Mountain.png in Resources */,
+				022B51EA24B22D2200FC5C81 /* Heightmap_Plateau.png in Resources */,
 				0236A772249D8ED6008F197E /* cube.mtl in Resources */,
 				0236A770249D8ED6008F197E /* cube.obj in Resources */,
+				022B51EE24B22D2200FC5C81 /* Heightmap_Rocky.png in Resources */,
 				0236A76A249D8ED6008F197E /* cottage1.obj in Resources */,
 				0236A755249D2192008F197E /* plane.obj in Resources */,
 				02419D5B249850C100BCB203 /* Main.storyboard in Resources */,
@@ -382,11 +402,15 @@
 			files = (
 				0236A76D249D8ED6008F197E /* cottage2.obj in Resources */,
 				0236A74E249D182B008F197E /* lowpoly-house.obj in Resources */,
+				022B51F124B22D2200FC5C81 /* Heightmap_Mountain.png in Resources */,
+				022B51EB24B22D2200FC5C81 /* Heightmap_Plateau.png in Resources */,
 				02419D6C249850C100BCB203 /* Main.storyboard in Resources */,
 				0236A771249D8ED6008F197E /* cube.obj in Resources */,
 				0236A775249D8ED6008F197E /* cottage2.mtl in Resources */,
+				022B51EF24B22D2200FC5C81 /* Heightmap_Rocky.png in Resources */,
 				0236A75A249D2192008F197E /* ground.png in Resources */,
 				0236A74C249D182B008F197E /* lowpoly-house-color.png in Resources */,
+				022B51ED24B22D2200FC5C81 /* Heightmap_Billow.png in Resources */,
 				0236A773249D8ED6008F197E /* cube.mtl in Resources */,
 				0236A750249D182B008F197E /* lowpoly-house.mtl in Resources */,
 				0236A758249D2192008F197E /* plane.mtl in Resources */,

@@ -54,7 +54,7 @@ final class Renderer: NSObject {
         metalView.delegate = self
 
         
-        let terrain = Terrain()
+        let terrain = Terrain(mapName: "Heightmap_Billow")
         terrain.rotation = [Float(-20).degreesToRadians, 0, 0]
         models.append(terrain)
 

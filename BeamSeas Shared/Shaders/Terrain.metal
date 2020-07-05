@@ -76,6 +76,7 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
                                        uint patchID [[ patch_id ]],
                                        constant Uniforms &uniforms [[ buffer(BufferIndexUniforms) ]])
 {
+    TerrainVertexOut out;
     float u = patch_coord.x;
     float v = patch_coord.y;
     float2 top = mix(control_points[0].position.xz,
@@ -88,16 +89,21 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
     float2 interpolated = mix(top, bottom, v);
     float4 position = float4(interpolated.x, 0.0, interpolated.y, 1.0);
 
-    float2 xy = ((position.xz + terrainParams.size / 2.0) / terrainParams.size) + timer;
+
+    float2 xy = ((position.xz + terrainParams.size / 2) / terrainParams.size);
+    xy.x = fmod(xy.x + timer, 1);
+
     constexpr sampler sample;
     float4 color = heightMap.sample(sample, xy);
     float height = (color.r * 2 - 1) * terrainParams.height;
     position.y = height;
 
-    return {
-        .position = uniforms.projectionMatrix * uniforms.viewMatrix * uniforms.modelMatrix * position,
-        .color = color.r
-    };
+
+    out.position = uniforms.projectionMatrix * uniforms.viewMatrix * uniforms.modelMatrix * position;
+    out.color = color.r;
+
+
+    return out;
 }
 
 fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]])
