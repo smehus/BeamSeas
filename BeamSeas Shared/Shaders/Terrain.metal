@@ -29,7 +29,7 @@ kernel void compute_height(constant float3 &position [[ buffer(0) ]],
                            texture2d<float> altHeightMap [[ texture(2) ]])
 {
     uint total = terrain.numberOfPatches * 4; // 4 points per patch
-    for (uint i = 0; i < total; i++) {
+    for (uint i = 0; i < total; i += 4) {
         float3 topLeft = control_points[i];
         float3 topRight = control_points[i + 1];
         float3 bottomRight = control_points[i + 2];
@@ -62,7 +62,7 @@ kernel void compute_height(constant float3 &position [[ buffer(0) ]],
             xy.x = fmod(xy.x + uniforms.deltaTime, 1);
             float4 primaryColor = heightMap.sample(sample, xy);
 
-            xy = ((position.xz + terrain.size / 2) / terrain.size);
+            xy = ((interpolatedPosition.xz + terrain.size / 2) / terrain.size);
             xy.x = fmod(xy.x + (uniforms.deltaTime / 2), 1);
 
             float4 secondaryColor = altHeightMap.sample(sample, xy);
