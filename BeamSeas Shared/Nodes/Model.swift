@@ -81,7 +81,7 @@ extension Model: Renderable {
                        terrainParams: inout TerrainParams) {
 
         var currentPosition = modelMatrix.columns.3.xyz
-//        print("*** CURENT \(currentPosition)")
+        
         computeEncoder.setComputePipelineState(heightComputePipelineState)
         computeEncoder.setBytes(&currentPosition, length: MemoryLayout<float3>.size, index: 0)
         computeEncoder.setBuffer(controlPoints, offset: 0, index: 1)

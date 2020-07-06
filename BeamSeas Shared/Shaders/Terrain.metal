@@ -25,8 +25,8 @@ kernel void compute_height(constant float3 &position [[ buffer(0) ]],
                            constant TerrainParams &terrain [[ buffer(2) ]],
                            device float &height_buffer [[ buffer(3) ]],
                            constant Uniforms &uniforms [[ buffer(4) ]],
-                           texture2d<float> heightMap [[ texture(1) ]],
-                           texture2d<float> altHeightMap [[ texture(2) ]])
+                           texture2d<float> heightMap [[ texture(0) ]],
+                           texture2d<float> altHeightMap [[ texture(1) ]])
 {
     uint total = terrain.numberOfPatches * 4; // 4 points per patch
     for (uint i = 0; i < total; i += 4) {
@@ -65,15 +65,14 @@ kernel void compute_height(constant float3 &position [[ buffer(0) ]],
             xy = ((interpolatedPosition.xz + terrain.size / 2) / terrain.size);
             xy.x = fmod(xy.x + (uniforms.deltaTime / 2), 1);
 
-            float4 secondaryColor = altHeightMap.sample(sample, xy);
+            constexpr sampler alterSample;
+            float4 secondaryColor = altHeightMap.sample(alterSample, xy);
 
             float4 color = mix(primaryColor, secondaryColor, 0.5);
             float inverseColor = 1 - color.r;
             float height = (inverseColor * 2 - 1) * terrain.height;
 
             height_buffer = height;
-
-
             return;
         }
     }
