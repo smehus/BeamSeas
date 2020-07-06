@@ -56,7 +56,6 @@ final class Renderer: NSObject {
 
         
         let terrain = Terrain(mapName: "Heightmap_Plateau")
-        terrain.rotation = [Float(0).degreesToRadians, 0, 0]
         models.append(terrain)
 
         let cube = Model(name: "cube.obj")

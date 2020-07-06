@@ -162,7 +162,8 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
     float4 secondaryColor = altHeightMap.sample(sample, xy);
 
     float4 color = mix(primaryColor, secondaryColor, 0.5);
-    float height = (color.r * 2 - 1) * terrainParams.height;
+    float invHeight = 1 - color.r;
+    float height = (invHeight * 2 - 1) * terrainParams.height;
     position.y = height;
 
 
