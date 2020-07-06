@@ -12,7 +12,7 @@ import MetalKit
 class Terrain: Node {
 
     static let maxTessellation = 16
-    static var heightMapName = "Heightmap_Rocky"
+    static var heightMapName = "Heightmap_Billow"
     static var alterHeightMapName = "Heightmap_Billow"
 
     static var terrainParams = TerrainParams(
