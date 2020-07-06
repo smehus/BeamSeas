@@ -49,8 +49,8 @@ class Model: Node {
         meshes = zip(mdlMeshes, mtkMeshes).map { Mesh(mdlMesh: $0, mtkMesh: $1) }
         samplerState = Self.buildSamplerState()
 
-        heightMap = Submesh.loadTexture(imageName: "Heightmap_Plateau")
-        altHeightMap = Submesh.loadTexture(imageName: "Heightmap_Billow")
+        heightMap = Submesh.loadTexture(imageName: Terrain.heightMapName)
+        altHeightMap = Submesh.loadTexture(imageName: Terrain.alterHeightMapName)
 
         var startingHeight: Float = 0
         heightBuffer = Renderer.device.makeBuffer(bytes: &startingHeight, length: MemoryLayout<Float>.size, options: .storageModeShared)!

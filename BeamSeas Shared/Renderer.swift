@@ -55,7 +55,7 @@ final class Renderer: NSObject {
         metalView.delegate = self
 
         
-        let terrain = Terrain(mapName: "Heightmap_Plateau")
+        let terrain = Terrain(mapName: Terrain.heightMapName)
         models.append(terrain)
 
         let cube = Model(name: "cube.obj")

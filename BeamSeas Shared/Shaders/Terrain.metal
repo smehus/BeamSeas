@@ -68,7 +68,8 @@ kernel void compute_height(constant float3 &position [[ buffer(0) ]],
             float4 secondaryColor = altHeightMap.sample(sample, xy);
 
             float4 color = mix(primaryColor, secondaryColor, 0.5);
-            float height = (color.r * 2 - 1) * terrain.height;
+            float inverseColor = 1 - color.r;
+            float height = (inverseColor * 2 - 1) * terrain.height;
 
             height_buffer = height;
 
@@ -162,26 +163,16 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
     float4 secondaryColor = altHeightMap.sample(sample, xy);
 
     float4 color = mix(primaryColor, secondaryColor, 0.5);
-    float invHeight = 1 - color.r;
-    float height = (invHeight * 2 - 1) * terrainParams.height;
+    float inverseColor = 1 - color.r;
+    float height = (inverseColor * 2 - 1) * terrainParams.height;
     position.y = height;
 
 
     out.position = uniforms.projectionMatrix * uniforms.viewMatrix * uniforms.modelMatrix * position;
+    float4 finalColor = float4(inverseColor, inverseColor, inverseColor, 1);
 
-    // The stupid height map pngs have flipped colors?
-    // So need to reverse everything
-    float inverseValue = (1 - color.r);
-    float4 inverseColor = float4(inverseValue, inverseValue, inverseValue, 1);
-//    if (height < 0.02) {
-//        inverseColor += float4(0.2, 0.2, 0.2, 1);
-//    } else {
-//        inverseColor += float4(0, 0.3, 1.0, 1);
-//    }
-
-    inverseColor += float4(0, 0.3, 1.0, 1);
-    out.color = inverseColor;
-
+    finalColor += float4(0, 0.3, 1.0, 1);
+    out.color = finalColor;
 
     return out;
 }

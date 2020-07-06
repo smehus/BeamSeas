@@ -12,6 +12,8 @@ import MetalKit
 class Terrain: Node {
 
     static let maxTessellation = 16
+    static var heightMapName = "Heightmap_Plateau"
+    static var alterHeightMapName = "Heightmap_Billow"
 
     static var terrainParams = TerrainParams(
         size: [80, 80],
@@ -45,7 +47,7 @@ class Terrain: Node {
     init(mapName: String) {
 
         heightMap = Self.loadTexture(imageName: mapName)
-        altHeightMap = Self.loadTexture(imageName: "Heightmap_Billow")
+        altHeightMap = Self.loadTexture(imageName: Self.alterHeightMapName)
 
         let controlPoints = Self.createControlPoints(
             patches: patches,
