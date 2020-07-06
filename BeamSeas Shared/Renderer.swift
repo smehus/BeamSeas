@@ -36,6 +36,7 @@ final class Renderer: NSObject {
     var models: [Renderable] = []
     var lighting = Lighting()
     var depthStencilState: MTLDepthStencilState
+    var delta: Float = 0
 
     init?(metalView: MTKView) {
         Self.device = MTLCreateSystemDefaultDevice()!
@@ -87,6 +88,8 @@ extension Renderer: MTKViewDelegate {
             return
         }
 
+        delta += 0.002
+        uniforms.deltaTime = delta
         uniforms.projectionMatrix = camera.projectionMatrix
         uniforms.viewMatrix = camera.viewMatrix
         fragmentUniforms.camera_position = camera.position
@@ -94,6 +97,7 @@ extension Renderer: MTKViewDelegate {
         // Compute Pass \\
 
         let computeEncoder = commandBuffer.makeComputeCommandEncoder()!
+        computeEncoder.pushDebugGroup("Tessellation")
         computeEncoder.setBytes(
             &fragmentUniforms,
             length: MemoryLayout<FragmentUniforms>.stride,
@@ -104,15 +108,21 @@ extension Renderer: MTKViewDelegate {
             model.compute(computeEncoder: computeEncoder, uniforms: &uniforms, fragmentUniforms: &fragmentUniforms)
         }
 
+        computeEncoder.popDebugGroup()
         computeEncoder.endEncoding()
 
 
         let computeHeightEncoder = commandBuffer.makeComputeCommandEncoder()!
-
+        computeHeightEncoder.pushDebugGroup("Calc Height")
         for model in models {
-            model.computeHeight(computeEncoder: computeHeightEncoder, uniforms: &uniforms)
+            model.computeHeight(
+                computeEncoder: computeHeightEncoder,
+                uniforms: &uniforms,
+                controlPoints: Terrain.controlPointsBuffer,
+                terrainParams: &Terrain.terrainParams)
         }
 
+        computeHeightEncoder.popDebugGroup()
         computeHeightEncoder.endEncoding()
 
         // Render Pass \\

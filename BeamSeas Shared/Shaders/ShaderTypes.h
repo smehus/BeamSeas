@@ -53,6 +53,7 @@ typedef struct
     matrix_float4x4 viewMatrix;
     matrix_float4x4 modelMatrix;
     matrix_float3x3 normalMatrix;
+    float deltaTime;
 } Uniforms;
 
 typedef struct

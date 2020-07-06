@@ -17,7 +17,9 @@ protocol Renderable {
 
     func computeHeight(
         computeEncoder: MTLComputeCommandEncoder,
-        uniforms: inout Uniforms
+        uniforms: inout Uniforms,
+        controlPoints: MTLBuffer,
+        terrainParams: inout TerrainParams
     )
 
     func draw(
@@ -38,7 +40,9 @@ extension Renderable {
 
     func computeHeight(
         computeEncoder: MTLComputeCommandEncoder,
-        uniforms: inout Uniforms
+        uniforms: inout Uniforms,
+        controlPoints: MTLBuffer,
+        terrainParams: inout TerrainParams
     ) {
         // Override
     }

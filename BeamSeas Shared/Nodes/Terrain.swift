@@ -13,7 +13,7 @@ class Terrain: Node {
 
     static let maxTessellation = 16
 
-    var terrainParams = TerrainParams(
+    static var terrainParams = TerrainParams(
         size: [80, 80],
         height: 5,
         maxTessellation: UInt32(Terrain.maxTessellation),
@@ -41,10 +41,6 @@ class Terrain: Node {
     static var controlPointsBuffer: MTLBuffer!
     private let heightMap: MTLTexture
     private let altHeightMap: MTLTexture
-    // TODO: - I think this will need to be a universal timer
-    // To deal with calculating height & displacing in vertex shader
-    private var timer: Float = 0
-
 
     init(mapName: String) {
 
@@ -53,8 +49,8 @@ class Terrain: Node {
 
         let controlPoints = Self.createControlPoints(
             patches: patches,
-            size: (width: terrainParams.size.x,
-                   height: terrainParams.size.y)
+            size: (width: Terrain.terrainParams.size.x,
+                   height: Terrain.terrainParams.size.y)
         )
 
         // Transform array of control points in to groups of 4 points to a patch
@@ -138,7 +134,7 @@ extension Terrain: Renderable {
         )
 
         computeEncoder.setBytes(
-            &terrainParams,
+            &Terrain.terrainParams,
             length: MemoryLayout<TerrainParams>.stride,
             index: BufferIndex.terrainParams.rawValue
         )
@@ -155,14 +151,6 @@ extension Terrain: Renderable {
         uniforms: inout Uniforms,
         fragmentUniforms: inout FragmentUniforms
     ) {
-
-        timer += 0.002
-        var currentTime = timer
-        renderEncoder.setVertexBytes(
-            &currentTime,
-            length: MemoryLayout<Float>.stride,
-            index: 6
-        )
 
         uniforms.modelMatrix = modelMatrix
 
@@ -198,7 +186,7 @@ extension Terrain: Renderable {
         )
 
         renderEncoder.setVertexBytes(
-            &terrainParams,
+            &Terrain.terrainParams,
             length: MemoryLayout<TerrainParams>.stride,
             index: BufferIndex.terrainParams.rawValue
         )

@@ -24,27 +24,29 @@ kernel void compute_height(constant float3 &position [[ buffer(0) ]],
                            constant float3 *control_points [[ buffer(1) ]],
                            constant TerrainParams &terrain [[ buffer(2) ]],
                            device float &height_buffer [[ buffer(3) ]],
+                           constant Uniforms &uniforms [[ buffer(4) ]],
                            texture2d<float> heightMap [[ texture(1) ]],
                            texture2d<float> altHeightMap [[ texture(2) ]])
 {
-    for (uint i = 0; i < terrain.numberOfPatches; i += 4) {
+    uint total = terrain.numberOfPatches * 4; // 4 points per patch
+    for (uint i = 0; i < total; i++) {
         float3 topLeft = control_points[i];
         float3 topRight = control_points[i + 1];
         float3 bottomRight = control_points[i + 2];
         float3 bottomLeft = control_points[i + 3];
 
-        bool insideTopLeft = position.x > topLeft.x && position.z < topLeft.z;
-        bool insideTopRight = position.x < topRight.x && position.z < topRight.z;
-        bool insideBottomRight = position.x < bottomRight.x && position.z > bottomRight.z;
-        bool insideBottomLeft = position.x > bottomLeft.x && position.z > bottomLeft.z;
+        bool insideTopLeft = position.x >= topLeft.x && position.z <= topLeft.z;
+        bool insideTopRight = position.x <= topRight.x && position.z <= topRight.z;
+        bool insideBottomRight = position.x <= bottomRight.x && position.z >= bottomRight.z;
+        bool insideBottomLeft = position.x >= bottomLeft.x && position.z >= bottomLeft.z;
 
         if (insideTopLeft && insideBottomLeft && insideTopRight && insideBottomRight) {
             // Can push the boat up or down rather than hard setting the value
             // Might turn out physicsy
 
             // Player percentage position between control points
-            float u = 0.5;
-            float v = 0.5;
+            float u = (position.x - topLeft.x) / (topRight.x - topLeft.x);
+            float v = (position.z - bottomLeft.z) / (topLeft.z - bottomLeft.z);
             float2 top = mix(topLeft.xz,
                              topRight.xz,
                              u);
@@ -56,17 +58,26 @@ kernel void compute_height(constant float3 &position [[ buffer(0) ]],
             float4 interpolatedPosition = float4(interpolated.x, 0.0, interpolated.y, 1.0);
             float2 xy = ((interpolatedPosition.xz + terrain.size / 2) / terrain.size);
 
-            constexpr sampler sample(filter::linear, address::repeat);
-            float4 color = heightMap.sample(sample, xy);
+            constexpr sampler sample;
+            xy.x = fmod(xy.x + uniforms.deltaTime, 1);
+            float4 primaryColor = heightMap.sample(sample, xy);
 
+            xy = ((position.xz + terrain.size / 2) / terrain.size);
+            xy.x = fmod(xy.x + (uniforms.deltaTime / 2), 1);
+
+            float4 secondaryColor = altHeightMap.sample(sample, xy);
+
+            float4 color = mix(primaryColor, secondaryColor, 0.5);
             float height = (color.r * 2 - 1) * terrain.height;
+
             height_buffer = height;
+
 
             return;
         }
     }
 
-    return;
+    height_buffer = -10;
 }
 
 float calc_distance(float3 pointA,
@@ -122,7 +133,6 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
                                        float2 patch_coord [[ position_in_patch ]],
                                        texture2d<float> heightMap [[ texture(0) ]],
                                        texture2d<float> altHeightMap [[ texture(1) ]],
-                                       constant float &timer [[ buffer(6) ]],
                                        constant TerrainParams &terrainParams [[ buffer(BufferIndexTerrainParams) ]],
                                        uint patchID [[ patch_id ]],
                                        constant Uniforms &uniforms [[ buffer(BufferIndexUniforms) ]])
@@ -143,11 +153,11 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
 
     constexpr sampler sample;
     float2 xy = ((position.xz + terrainParams.size / 2) / terrainParams.size);
-    xy.x = fmod(xy.x + timer, 1);
+    xy.x = fmod(xy.x + uniforms.deltaTime, 1);
     float4 primaryColor = heightMap.sample(sample, xy);
 
     xy = ((position.xz + terrainParams.size / 2) / terrainParams.size);
-    xy.x = fmod(xy.x + (timer / 2), 1);
+    xy.x = fmod(xy.x + (uniforms.deltaTime / 2), 1);
 
     float4 secondaryColor = altHeightMap.sample(sample, xy);
 
