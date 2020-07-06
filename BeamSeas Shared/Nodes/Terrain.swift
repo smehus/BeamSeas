@@ -16,7 +16,8 @@ class Terrain: Node {
     var terrainParams = TerrainParams(
         size: [80, 80],
         height: 5,
-        maxTessellation: UInt32(Terrain.maxTessellation)
+        maxTessellation: UInt32(Terrain.maxTessellation),
+        numberOfPatches: 10 * 10 // TODO: - use the actual patchCount here
     )
 
     let patches = (horizontal: 10, vertical: 10)
@@ -36,10 +37,14 @@ class Terrain: Node {
 
     private let renderPipelineState: MTLRenderPipelineState
     private let computePipelineState: MTLComputePipelineState
-    private var controlPointsBuffer: MTLBuffer!
+
+    static var controlPointsBuffer: MTLBuffer!
     private let heightMap: MTLTexture
     private let altHeightMap: MTLTexture
+    // TODO: - I think this will need to be a universal timer
+    // To deal with calculating height & displacing in vertex shader
     private var timer: Float = 0
+
 
     init(mapName: String) {
 
@@ -53,11 +58,12 @@ class Terrain: Node {
         )
 
         // Transform array of control points in to groups of 4 points to a patch
+        // Instead of doing this on the cpu, i should just find the patch on the gpu
         allPatches = stride(from: controlPoints.startIndex, to: controlPoints.endIndex, by: 4).map {
             Patch(values: Array(controlPoints[$0..<min($0 + 4, controlPoints.count)]))
         }
 
-        controlPointsBuffer = Renderer.device.makeBuffer(
+        Self.controlPointsBuffer = Renderer.device.makeBuffer(
             bytes: controlPoints,
             length: MemoryLayout<float3>.stride * controlPoints.count
         )
@@ -120,7 +126,7 @@ extension Terrain: Renderable {
         )
 
         computeEncoder.setBuffer(
-            controlPointsBuffer,
+            Self.controlPointsBuffer,
             offset: 0,
             index: BufferIndex.controlPoints.rawValue
         )
@@ -142,8 +148,6 @@ extension Terrain: Renderable {
             MTLSizeMake(patchCount, 1, 1),
             threadsPerThreadgroup: MTLSizeMake(width, 1, 1)
         )
-
-        computeEncoder.endEncoding()
     }
 
     func draw(
@@ -177,7 +181,7 @@ extension Terrain: Renderable {
         )
 
         renderEncoder.setVertexBuffer(
-            controlPointsBuffer,
+            Self.controlPointsBuffer,
             offset: 0,
             index: 0
         )

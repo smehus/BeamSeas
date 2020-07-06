@@ -104,6 +104,17 @@ extension Renderer: MTKViewDelegate {
             model.compute(computeEncoder: computeEncoder, uniforms: &uniforms, fragmentUniforms: &fragmentUniforms)
         }
 
+        computeEncoder.endEncoding()
+
+
+        let computeHeightEncoder = commandBuffer.makeComputeCommandEncoder()!
+
+        for model in models {
+            model.computeHeight(computeEncoder: computeHeightEncoder, uniforms: &uniforms)
+        }
+
+        computeHeightEncoder.endEncoding()
+
         // Render Pass \\
         let renderEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: descriptor)!
         renderEncoder.setDepthStencilState(depthStencilState)
