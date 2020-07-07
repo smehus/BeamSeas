@@ -59,14 +59,14 @@ kernel void compute_height(constant float3 &position [[ buffer(0) ]],
             float2 xy = ((interpolatedPosition.xz + terrain.size / 2) / terrain.size);
 
             constexpr sampler sample;
-            xy.x = fmod(xy.x + uniforms.deltaTime, 1);
+//            xy.x = fmod(xy.x + uniforms.deltaTime, 1);
             float4 primaryColor = heightMap.sample(sample, xy);
 
-            xy = ((interpolatedPosition.xz + terrain.size / 2) / terrain.size);
-            xy.x = fmod(xy.x + (uniforms.deltaTime / 2), 1);
-
-            constexpr sampler alterSample;
-            float4 secondaryColor = altHeightMap.sample(alterSample, xy);
+//            xy = ((interpolatedPosition.xz + terrain.size / 2) / terrain.size);
+//            xy.x = fmod(xy.x + (uniforms.deltaTime / 2), 1);
+//
+//            constexpr sampler alterSample;
+//            float4 secondaryColor = altHeightMap.sample(alterSample, xy);
 
             float4 color = primaryColor;//mix(primaryColor, secondaryColor, 0.5);
             float inverseColor = 1 - color.r;
@@ -153,13 +153,13 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
 
     constexpr sampler sample;
     float2 xy = ((position.xz + terrainParams.size / 2) / terrainParams.size);
-    xy.x = fmod(xy.x + uniforms.deltaTime, 1);
+//    xy.x = fmod(xy.x + uniforms.deltaTime, 1);
     float4 primaryColor = heightMap.sample(sample, xy);
 
-    xy = ((position.xz + terrainParams.size / 2) / terrainParams.size);
-    xy.x = fmod(xy.x + (uniforms.deltaTime / 2), 1);
-
-    float4 secondaryColor = altHeightMap.sample(sample, xy);
+//    xy = ((position.xz + terrainParams.size / 2) / terrainParams.size);
+//    xy.x = fmod(xy.x + (uniforms.deltaTime / 2), 1);
+//
+//    float4 secondaryColor = altHeightMap.sample(sample, xy);
 
     float4 color = primaryColor;//mix(primaryColor, secondaryColor, 0.5);
     float inverseColor = 1 - color.r;

@@ -19,7 +19,6 @@ class Model: Node {
 
     private let heightMap: MTLTexture
     private let altHeightMap: MTLTexture
-
     private let heightComputePipelineState: MTLComputePipelineState
 
     init(name: String) {
@@ -99,7 +98,10 @@ extension Model: Renderable {
 
 
         let heightValue = heightBuffer.contents().bindMemory(to: Float.self, capacity: 1).pointee
-        position.y = heightValue
+        assert(meshes.count == 1)
+
+        let size = meshes.first!.mdlMesh.boundingBox.maxBounds - meshes.first!.mdlMesh.boundingBox.minBounds
+        position.y = heightValue + (size.y / 2)
         print(heightValue)
 
         fragmentUniforms.tiling = tiling
