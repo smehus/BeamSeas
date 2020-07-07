@@ -19,10 +19,10 @@ class Terrain: Node {
         size: [80, 80],
         height: 5,
         maxTessellation: UInt32(Terrain.maxTessellation),
-        numberOfPatches: 10 * 10 // TODO: - use the actual patchCount here
+        numberOfPatches: 15 * 15 // TODO: - use the actual patchCount here
     )
 
-    let patches = (horizontal: 10, vertical: 10)
+    let patches = (horizontal: 15, vertical: 15)
     var patchCount: Int {
         return patches.horizontal * patches.vertical
     }
@@ -153,7 +153,7 @@ extension Terrain: Renderable {
         uniforms: inout Uniforms,
         fragmentUniforms: inout FragmentUniforms
     ) {
-
+        renderEncoder.pushDebugGroup("Terrain Vertex")
         uniforms.modelMatrix = modelMatrix
 
         renderEncoder.setTriangleFillMode(.fill)
@@ -202,6 +202,8 @@ extension Terrain: Renderable {
             instanceCount: 1,
             baseInstance: 0
         )
+
+        renderEncoder.popDebugGroup()
     }
 }
 
