@@ -102,7 +102,6 @@ extension Model: Renderable {
 
         let size = meshes.first!.mdlMesh.boundingBox.maxBounds - meshes.first!.mdlMesh.boundingBox.minBounds
         position.y = heightValue + (size.y / 2)
-        print(heightValue)
 
         fragmentUniforms.tiling = tiling
         uniforms.modelMatrix = modelMatrix

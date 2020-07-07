@@ -12,12 +12,12 @@ import MetalKit
 class Terrain: Node {
 
     static let maxTessellation = 16
-    static var heightMapName = "Heightmap_Billow"
+    static var heightMapName = "Heightmap_Plateau"
     static var alterHeightMapName = "Heightmap_Billow"
 
     static var terrainParams = TerrainParams(
         size: [80, 80],
-        height: 5,
+        height: 7,
         maxTessellation: UInt32(Terrain.maxTessellation),
         numberOfPatches: 15 * 15 // TODO: - use the actual patchCount here
     )
