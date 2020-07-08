@@ -22,7 +22,7 @@ class Model: Node {
     private let heightComputePipelineState: MTLComputePipelineState
 
     init(name: String) {
-        guard let assetURL = Bundle.main.url(forResource: name, withExtension: nil) else { fatalError("Model: \(name) not found")  }
+        guard let assetURL = Bundle.main.url(forResource: name, withExtension: "usdz") else { fatalError("Model: \(name) not found")  }
 
         let allocator = MTKMeshBufferAllocator(device: Renderer.device)
         let asset = MDLAsset(
@@ -30,6 +30,8 @@ class Model: Node {
             vertexDescriptor: .defaultVertexDescriptor,
             bufferAllocator: allocator
         )
+
+        asset.loadTextures()
 
 //        let (mdlMeshes, mtkMeshes) = try! MTKMesh.newMeshes(asset: asset, device: Renderer.device)
         var mtkMeshes: [MTKMesh] = []

@@ -38,7 +38,8 @@ typedef NS_ENUM(NSInteger, VertexAttribute)
     VertexAttributeNormal    = 1,
     VertexAttributeUV        = 2,
     VertexAttributeTangent   = 3,
-    VertexAttributeBitangent = 4
+    VertexAttributeBitangent = 4,
+    VertexAttributeColor     = 5
 };
 
 typedef NS_ENUM(NSInteger, TextureIndex)
