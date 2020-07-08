@@ -74,6 +74,8 @@
 		02419D80249851C700BCB203 /* Math.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02419D7E249851C700BCB203 /* Math.swift */; };
 		024B76CF249A8D290030B123 /* Light.swift in Sources */ = {isa = PBXBuildFile; fileRef = 024B76CE249A8D290030B123 /* Light.swift */; };
 		024B76D0249A8D290030B123 /* Light.swift in Sources */ = {isa = PBXBuildFile; fileRef = 024B76CE249A8D290030B123 /* Light.swift */; };
+		026A999D24B56A2A0002D4EA /* Ship.usdz in Resources */ = {isa = PBXBuildFile; fileRef = 026A999C24B56A2A0002D4EA /* Ship.usdz */; };
+		026A999E24B56A2A0002D4EA /* Ship.usdz in Resources */ = {isa = PBXBuildFile; fileRef = 026A999C24B56A2A0002D4EA /* Ship.usdz */; };
 		028370F2249AFC84006E8AF3 /* DebugLights.swift in Sources */ = {isa = PBXBuildFile; fileRef = 028370F0249AFC83006E8AF3 /* DebugLights.swift */; };
 		028370F3249AFC84006E8AF3 /* DebugLights.swift in Sources */ = {isa = PBXBuildFile; fileRef = 028370F0249AFC83006E8AF3 /* DebugLights.swift */; };
 		028370F4249AFC84006E8AF3 /* DebugLights.metal in Sources */ = {isa = PBXBuildFile; fileRef = 028370F1249AFC83006E8AF3 /* DebugLights.metal */; };
@@ -128,6 +130,7 @@
 		02419D6D249850C100BCB203 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		02419D7E249851C700BCB203 /* Math.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Math.swift; sourceTree = "<group>"; };
 		024B76CE249A8D290030B123 /* Light.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Light.swift; sourceTree = "<group>"; };
+		026A999C24B56A2A0002D4EA /* Ship.usdz */ = {isa = PBXFileReference; lastKnownFileType = file.usdz; path = Ship.usdz; sourceTree = SOURCE_ROOT; };
 		028370F0249AFC83006E8AF3 /* DebugLights.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DebugLights.swift; sourceTree = "<group>"; };
 		028370F1249AFC83006E8AF3 /* DebugLights.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = DebugLights.metal; sourceTree = "<group>"; };
 		0299535C249A64D90014228F /* Camera.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Camera.swift; sourceTree = "<group>"; };
@@ -248,9 +251,18 @@
 			path = Shaders;
 			sourceTree = "<group>";
 		};
+		026A999B24B56A0F0002D4EA /* Ship */ = {
+			isa = PBXGroup;
+			children = (
+				026A999C24B56A2A0002D4EA /* Ship.usdz */,
+			);
+			path = Ship;
+			sourceTree = "<group>";
+		};
 		0299533A249925FF0014228F /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				026A999B24B56A0F0002D4EA /* Ship */,
 				022B51E724B22D2200FC5C81 /* Heightmap_Billow.png */,
 				022B51E924B22D2200FC5C81 /* Heightmap_Mountain.png */,
 				022B51E624B22D2200FC5C81 /* Heightmap_Plateau.png */,
@@ -383,6 +395,7 @@
 				02419D72249850C100BCB203 /* ShaderTypes.h in Resources */,
 				022B51F024B22D2200FC5C81 /* Heightmap_Mountain.png in Resources */,
 				022B51EA24B22D2200FC5C81 /* Heightmap_Plateau.png in Resources */,
+				026A999D24B56A2A0002D4EA /* Ship.usdz in Resources */,
 				0236A772249D8ED6008F197E /* cube.mtl in Resources */,
 				0236A770249D8ED6008F197E /* cube.obj in Resources */,
 				022B51EE24B22D2200FC5C81 /* Heightmap_Rocky.png in Resources */,
@@ -408,6 +421,7 @@
 				0236A771249D8ED6008F197E /* cube.obj in Resources */,
 				0236A775249D8ED6008F197E /* cottage2.mtl in Resources */,
 				022B51EF24B22D2200FC5C81 /* Heightmap_Rocky.png in Resources */,
+				026A999E24B56A2A0002D4EA /* Ship.usdz in Resources */,
 				0236A75A249D2192008F197E /* ground.png in Resources */,
 				0236A74C249D182B008F197E /* lowpoly-house-color.png in Resources */,
 				022B51ED24B22D2200FC5C81 /* Heightmap_Billow.png in Resources */,
