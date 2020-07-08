@@ -71,8 +71,16 @@ kernel void compute_height(constant float3 &position [[ buffer(0) ]],
             float4 color = mix(primaryColor, secondaryColor, 0.5);
             float inverseColor = 1 - color.r;
             float height = (inverseColor * 2 - 1) * terrain.height;
+            float delta = height - height_buffer;
 
-            height_buffer = height;
+
+            if (delta < 0) {
+                height_buffer += (delta * 0.5);
+            } else {
+                height_buffer += (delta * 0.05);
+            }
+
+
             return;
         }
     }
