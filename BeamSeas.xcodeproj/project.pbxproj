@@ -84,6 +84,8 @@
 		0299535E249A64D90014228F /* Camera.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0299535C249A64D90014228F /* Camera.swift */; };
 		02995360249A64FD0014228F /* Node.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0299535F249A64FD0014228F /* Node.swift */; };
 		02995361249A64FD0014228F /* Node.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0299535F249A64FD0014228F /* Node.swift */; };
+		02D773EF24B7571900811B88 /* PBR.metal in Sources */ = {isa = PBXBuildFile; fileRef = 02D773EE24B7571900811B88 /* PBR.metal */; };
+		02D773F024B7571900811B88 /* PBR.metal in Sources */ = {isa = PBXBuildFile; fileRef = 02D773EE24B7571900811B88 /* PBR.metal */; };
 		02E46DB224AC2D420055167A /* Terrain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02E46DB124AC2D420055167A /* Terrain.swift */; };
 		02E46DB324AC2D420055167A /* Terrain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02E46DB124AC2D420055167A /* Terrain.swift */; };
 /* End PBXBuildFile section */
@@ -135,6 +137,7 @@
 		028370F1249AFC83006E8AF3 /* DebugLights.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = DebugLights.metal; sourceTree = "<group>"; };
 		0299535C249A64D90014228F /* Camera.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Camera.swift; sourceTree = "<group>"; };
 		0299535F249A64FD0014228F /* Node.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Node.swift; sourceTree = "<group>"; };
+		02D773EE24B7571900811B88 /* PBR.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = PBR.metal; sourceTree = "<group>"; };
 		02E46DB124AC2D420055167A /* Terrain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Terrain.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -244,6 +247,7 @@
 		02419D81249851EF00BCB203 /* Shaders */ = {
 			isa = PBXGroup;
 			children = (
+				02D773EE24B7571900811B88 /* PBR.metal */,
 				02419D4C249850BF00BCB203 /* ShaderTypes.h */,
 				02419D4A249850BF00BCB203 /* Shaders.metal */,
 				022B51E024B0E33B00FC5C81 /* Terrain.metal */,
@@ -444,6 +448,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				02D773EF24B7571900811B88 /* PBR.metal in Sources */,
 				02419D70249850C100BCB203 /* Renderer.swift in Sources */,
 				022B51E124B0E33B00FC5C81 /* Terrain.metal in Sources */,
 				02419D6E249850C100BCB203 /* Shaders.metal in Sources */,
@@ -469,6 +474,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				02D773F024B7571900811B88 /* PBR.metal in Sources */,
 				02419D71249850C100BCB203 /* Renderer.swift in Sources */,
 				022B51E224B0E33B00FC5C81 /* Terrain.metal in Sources */,
 				02419D6F249850C100BCB203 /* Shaders.metal in Sources */,

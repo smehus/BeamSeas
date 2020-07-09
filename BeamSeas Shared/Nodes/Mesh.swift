@@ -13,11 +13,11 @@ struct Mesh {
     let mdlMesh: MDLMesh
     let submeshes: [Submesh]
 
-    init(mdlMesh: MDLMesh, mtkMesh: MTKMesh) {
+    init(mdlMesh: MDLMesh, mtkMesh: MTKMesh, fragment: String) {
         self.mtkMesh = mtkMesh
         self.mdlMesh = mdlMesh
         submeshes = zip(mdlMesh.submeshes!, mtkMesh.submeshes).map { mesh in
-            Submesh(mdlSubmesh: mesh.0 as! MDLSubmesh, mtkSubmesh: mesh.1)
+            Submesh(mdlSubmesh: mesh.0 as! MDLSubmesh, mtkSubmesh: mesh.1, fragmentName: fragment)
         }
     }
 }

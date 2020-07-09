@@ -21,19 +21,19 @@ class Submesh {
     let pipelineState: MTLRenderPipelineState
     let material: Material
     
-    init(mdlSubmesh: MDLSubmesh, mtkSubmesh: MTKSubmesh) {
+    init(mdlSubmesh: MDLSubmesh, mtkSubmesh: MTKSubmesh, fragmentName: String) {
         self.mtkSubmesh = mtkSubmesh
         textures = Textures(material: mdlSubmesh.material)
         material = Material(material: mdlSubmesh.material)
-        pipelineState = Self.buildPipelineState(textures: textures)
+        pipelineState = Self.buildPipelineState(textures: textures, fragmentName: fragmentName)
     }
 
-    private static func buildPipelineState(textures: Textures) -> MTLRenderPipelineState {
+    private static func buildPipelineState(textures: Textures, fragmentName: String) -> MTLRenderPipelineState {
         let library = Renderer.library!
 
         let functionConstants = Self.makeFunctionConstants(textures: textures)
         let vertexFunction = library.makeFunction(name: "vertex_main")
-        let fragmentFunction = try! library.makeFunction(name: "fragment_main", constantValues: functionConstants)
+        let fragmentFunction = try! library.makeFunction(name: fragmentName, constantValues: functionConstants)
 
         var pipelineState: MTLRenderPipelineState
         let pipelineDescriptor = MTLRenderPipelineDescriptor()

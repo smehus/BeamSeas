@@ -58,7 +58,7 @@ final class Renderer: NSObject {
         let terrain = Terrain(mapName: Terrain.heightMapName)
         models.append(terrain)
 
-        let cube = Model(name: "Ship")
+        let cube = Model(name: "Ship", fragment: "fragment_main")
         cube.rotation = [Float(90).radiansToDegrees, 0, 0]
         models.append(cube)
 

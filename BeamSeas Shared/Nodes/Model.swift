@@ -21,7 +21,7 @@ class Model: Node {
     private let altHeightMap: MTLTexture
     private let heightComputePipelineState: MTLComputePipelineState
 
-    init(name: String) {
+    init(name: String, fragment: String) {
         guard let assetURL = Bundle.main.url(forResource: name, withExtension: "usdz") else { fatalError("Model: \(name) not found")  }
 
         let allocator = MTKMeshBufferAllocator(device: Renderer.device)
@@ -47,7 +47,7 @@ class Model: Node {
             mtkMeshes.append(try! MTKMesh(mesh: mdlMesh, device: Renderer.device))
         }
 
-        meshes = zip(mdlMeshes, mtkMeshes).map { Mesh(mdlMesh: $0, mtkMesh: $1) }
+        meshes = zip(mdlMeshes, mtkMeshes).map { Mesh(mdlMesh: $0, mtkMesh: $1, fragment: fragment) }
         samplerState = Self.buildSamplerState()
 
         heightMap = Submesh.loadTexture(imageName: Terrain.heightMapName)

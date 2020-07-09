@@ -87,6 +87,9 @@ typedef struct {
 typedef struct {
     vector_float3 baseColor;
     vector_float3 specularColor;
+    float roughness;
+    float metallic;
+    vector_float3 ambientOcclusion;
     float shininess;
 } Material;
 
