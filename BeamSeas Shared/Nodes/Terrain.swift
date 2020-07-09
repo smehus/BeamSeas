@@ -16,8 +16,8 @@ class Terrain: Node {
     static var alterHeightMapName = "Heightmap_Billow"
 
     static var terrainParams = TerrainParams(
-        size: [80, 80],
-        height: 7,
+        size: [150, 150],
+        height: 15,
         maxTessellation: UInt32(Terrain.maxTessellation),
         numberOfPatches: 15 * 15 // TODO: - use the actual patchCount here
     )

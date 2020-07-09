@@ -50,6 +50,46 @@ vertex VertexOut vertex_main(const VertexIn vertex_in [[ stage_in ]],
     };
 }
 
+float3 diffuseLighting(float3 normal,
+                       float3 position,
+                       constant FragmentUniforms &fragmentUniforms,
+                       constant Light *lights,
+                       float3 baseColor) {
+  float3 diffuseColor = 0;
+  float3 normalDirection = normalize(normal);
+  for (uint i = 0; i < fragmentUniforms.light_count; i++) {
+    Light light = lights[i];
+    if (light.type == Sunlight) {
+      float3 lightDirection = normalize(light.position);
+      float diffuseIntensity = saturate(dot(lightDirection, normalDirection));
+      diffuseColor += light.color * light.intensity * baseColor * diffuseIntensity;
+    } else if (light.type == Pointlight) {
+      float d = distance(light.position, position);
+      float3 lightDirection = normalize(light.position - position);
+      float attenuation = 1.0 / (light.attenuation.x + light.attenuation.y * d + light.attenuation.z * d * d);
+      float diffuseIntensity = saturate(dot(lightDirection, normalDirection));
+      float3 color = light.color * baseColor * diffuseIntensity;
+      color *= attenuation;
+      diffuseColor += color;
+    } else if (light.type == Spotlight) {
+      float d = distance(light.position, position);
+      float3 lightDirection = normalize(light.position - position);
+      float3 coneDirection = normalize(-light.coneDirection);
+      float spotResult = (dot(lightDirection, coneDirection));
+      if (spotResult > cos(light.coneAngle)) {
+        float attenuation = 1.0 / (light.attenuation.x + light.attenuation.y * d + light.attenuation.z * d * d);
+        attenuation *= pow(spotResult, light.coneAttenuation);
+        float diffuseIntensity = saturate(dot(lightDirection, normalDirection));
+        float3 color = light.color * baseColor * diffuseIntensity;
+        color *= attenuation;
+        diffuseColor += color;
+      }
+    }
+  }
+  return diffuseColor;
+}
+
+
 fragment float4 fragment_main(VertexOut in [[ stage_in ]],
                               constant Light *lights [[ buffer(BufferIndexLights) ]],
                               constant FragmentUniforms &fragmentUniforms [[ buffer(BufferIndexFragmentUniforms) ]],

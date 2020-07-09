@@ -58,7 +58,8 @@ final class Renderer: NSObject {
         let terrain = Terrain(mapName: Terrain.heightMapName)
         models.append(terrain)
 
-        let cube = Model(name: "cube.obj")
+        let cube = Model(name: "Ship")
+        cube.rotation = [Float(90).radiansToDegrees, 0, 0]
         models.append(cube)
 
         fragmentUniforms.light_count = UInt32(lighting.count)
@@ -135,7 +136,7 @@ extension Renderer: MTKViewDelegate {
             model.draw(renderEncoder: renderEncoder, uniforms: &uniforms, fragmentUniforms: &fragmentUniforms)
         }
 
-        debugLights(renderEncoder: renderEncoder, lightType: Spotlight)
+        debugLights(renderEncoder: renderEncoder, lightType: Sunlight)
         renderEncoder.endEncoding()
         if let drawable = view.currentDrawable {
             commandBuffer.present(drawable)

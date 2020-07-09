@@ -73,7 +73,13 @@ private extension Submesh.Textures {
                 property.type == .string,
                 let fileName = property.stringValue
             else {
-                // Load the mdlMesh embedded texture
+                if let property = material?.property(with: semantic),
+                    property.type == .texture,
+                    let mdlTexture = property.textureSamplerValue?.texture,
+                    let texture = try? Submesh.loadTexture(texture: mdlTexture){
+                    return texture
+                }
+
                 return nil
             }
 
