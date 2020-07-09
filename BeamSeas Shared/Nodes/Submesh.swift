@@ -53,12 +53,27 @@ class Submesh {
 
     private static func makeFunctionConstants(textures: Textures) -> MTLFunctionConstantValues {
         let constants = MTLFunctionConstantValues()
+
+//        constant bool hasColorTexture [[function_constant(0)]];
         var property = textures.baseColor != nil
         constants.setConstantValue(&property, type: .bool, index: 0)
 
+//        constant bool hasNormalTexture [[function_constant(1)]];
         property = textures.normal != nil
         constants.setConstantValue(&property, type: .bool, index: 1)
 
+//        constant bool hasRoughnessTexture [[function_constant(2)]];
+        property = false
+        constants.setConstantValue(&property, type: .bool, index: 2)
+
+//        constant bool hasMetallicTexture [[function_constant(3)]];
+        constants.setConstantValue(&property, type: .bool, index: 3)
+
+//        constant bool hasAOTexture [[function_constant(4)]];
+        constants.setConstantValue(&property, type: .bool, index: 4)
+
+
+        // TODO: - Setup roughness textures
         return constants
     }
 }

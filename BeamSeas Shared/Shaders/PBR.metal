@@ -63,13 +63,13 @@ typedef struct Lighting {
 
 float3 render(Lighting lighting);
 
-fragment float4 fragment_mainPBR(VertexOut in [[stage_in]],
+fragment float4 fragment_pbr(VertexOut in [[stage_in]],
           constant Light *lights [[buffer(BufferIndexLights)]],
           constant Material &material [[buffer(BufferIndexMaterials)]],
           sampler textureSampler [[sampler(0)]],
           constant FragmentUniforms &fragmentUniforms [[buffer(BufferIndexFragmentUniforms)]],
-          texture2d<float> baseColorTexture [[texture(0), function_constant(hasColorTexture)]],
-          texture2d<float> normalTexture [[texture(1), function_constant(hasNormalTexture)]],
+          texture2d<float> baseColorTexture [[texture(TextureIndexColor), function_constant(hasColorTexture)]],
+          texture2d<float> normalTexture [[texture(TextureIndexNormal), function_constant(hasNormalTexture)]],
           texture2d<float> roughnessTexture [[texture(2), function_constant(hasRoughnessTexture)]],
           texture2d<float> metallicTexture [[texture(3), function_constant(hasMetallicTexture)]],
           texture2d<float> aoTexture [[texture(4), function_constant(hasAOTexture)]]){
