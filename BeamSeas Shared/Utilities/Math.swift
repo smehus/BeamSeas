@@ -172,7 +172,7 @@ extension float3x3 {
 
 // MARK:- float4
 extension float4 {
-  var xyz: float3 {
+  var _xyz: float3 {
     get {
       float3(x, y, z)
     }

@@ -12,34 +12,34 @@ import simd
 //    case irradiance = 9
 //}
 
-enum VertexBufferIndex: Int {
-    case attributes
-    case uniforms
-}
-
-enum FragmentBufferIndex: Int {
-    case uniforms
-}
-
-struct Uniforms {
-    var modelMatrix: float4x4
-    let modelViewProjectionMatrix: float4x4
-    var normalMatrix: float3x3
-    let cameraPosition: float3
-    let lightDirection: float3
-    let lightPosition: float3
-    
-    init(modelMatrix: float4x4, viewMatrix: float4x4, projectionMatrix: float4x4,
-         cameraPosition: float3, lightDirection: float3, lightPosition: float3)
-    {
-        self.modelMatrix = modelMatrix
-        self.modelViewProjectionMatrix = projectionMatrix * viewMatrix * modelMatrix
-        self.normalMatrix = modelMatrix.normalMatrix
-        self.cameraPosition = cameraPosition
-        self.lightDirection = lightDirection
-        self.lightPosition = lightPosition
-    }
-}
+//enum VertexBufferIndex: Int {
+//    case attributes
+//    case uniforms
+//}
+//
+//enum FragmentBufferIndex: Int {
+//    case uniforms
+//}
+//
+//struct Uniforms {
+//    var modelMatrix: float4x4
+//    let modelViewProjectionMatrix: float4x4
+//    var normalMatrix: float3x3
+//    let cameraPosition: float3
+//    let lightDirection: float3
+//    let lightPosition: float3
+//
+//    init(modelMatrix: float4x4, viewMatrix: float4x4, projectionMatrix: float4x4,
+//         cameraPosition: float3, lightDirection: float3, lightPosition: float3)
+//    {
+//        self.modelMatrix = modelMatrix
+//        self.modelViewProjectionMatrix = projectionMatrix * viewMatrix * modelMatrix
+//        self.normalMatrix = modelMatrix.normalMatrix
+//        self.cameraPosition = cameraPosition
+//        self.lightDirection = lightDirection
+//        self.lightPosition = lightPosition
+//    }
+//}
 
 class Material {
     var baseColor: MTLTexture?
@@ -91,7 +91,9 @@ class Renderer: NSObject, MTKViewDelegate {
     let defaultNormalMap: MTLTexture
 //    let irradianceCubeMap: MTLTexture
 
+    let lighting = Lighting()
     var nodes = [Node]()
+    var fragmentUniforms = FragmentUniforms()
 
     var viewMatrix = matrix_identity_float4x4
     var projectionMatrix = matrix_identity_float4x4
@@ -140,20 +142,20 @@ class Renderer: NSObject, MTKViewDelegate {
         vertexDescriptor.attributes[0] = MDLVertexAttribute(name: MDLVertexAttributePosition,
                                                             format: .float3,
                                                             offset: 0,
-                                                            bufferIndex: VertexBufferIndex.attributes.rawValue)
+                                                            bufferIndex: BufferIndex.vertexBuffer.rawValue)
         vertexDescriptor.attributes[1] = MDLVertexAttribute(name: MDLVertexAttributeNormal,
                                                             format: .float3,
                                                             offset: MemoryLayout<Float>.size * 3,
-                                                            bufferIndex: VertexBufferIndex.attributes.rawValue)
+                                                            bufferIndex: BufferIndex.vertexBuffer.rawValue)
         vertexDescriptor.attributes[2] = MDLVertexAttribute(name: MDLVertexAttributeTangent,
                                                             format: .float3,
                                                             offset: MemoryLayout<Float>.size * 6,
-                                                            bufferIndex: VertexBufferIndex.attributes.rawValue)
+                                                            bufferIndex: BufferIndex.vertexBuffer.rawValue)
         vertexDescriptor.attributes[3] = MDLVertexAttribute(name: MDLVertexAttributeTextureCoordinate,
                                                             format: .float2,
                                                             offset: MemoryLayout<Float>.size * 9,
-                                                            bufferIndex: VertexBufferIndex.attributes.rawValue)
-        vertexDescriptor.layouts[VertexBufferIndex.attributes.rawValue] = MDLVertexBufferLayout(stride: MemoryLayout<Float>.size * 11)
+                                                            bufferIndex: BufferIndex.vertexBuffer.rawValue)
+        vertexDescriptor.layouts[BufferIndex.vertexBuffer.rawValue] = MDLVertexBufferLayout(stride: MemoryLayout<Float>.size * 11)
         return vertexDescriptor
     }
     
@@ -258,15 +260,7 @@ class Renderer: NSObject, MTKViewDelegate {
         lightWorldPosition = cameraWorldPosition
         lightWorldDirection = normalize(cameraWorldPosition)
     }
-//
-//    func bindTextures(_ material: Material, _ commandEncoder: MTLRenderCommandEncoder) {
-//        commandEncoder.setFragmentTexture(material.baseColor ?? defaultTexture, index: TextureIndex.baseColor.rawValue)
-//        commandEncoder.setFragmentTexture(material.metallic ?? defaultTexture, index: TextureIndex.metallic.rawValue)
-//        commandEncoder.setFragmentTexture(material.roughness ?? defaultTexture, index: TextureIndex.roughness.rawValue)
-//        commandEncoder.setFragmentTexture(material.normal ?? defaultNormalMap, index: TextureIndex.normal.rawValue)
-//        commandEncoder.setFragmentTexture(material.emissive ?? defaultTexture, index: TextureIndex.emissive.rawValue)
-//    }
-    
+
     func draw(in view: MTKView) {
         updateScene(view: view)
         
@@ -276,9 +270,7 @@ class Renderer: NSObject, MTKViewDelegate {
             let commandEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: renderPassDescriptor)!
             commandEncoder.setRenderPipelineState(renderPipeline)
             commandEncoder.setDepthStencilState(depthStencilState)
-            
-//            commandEncoder.setFragmentTexture(irradianceCubeMap, index: TextureIndex.irradiance.rawValue)
-            
+
             for node in nodes {
                 draw(node, in: commandEncoder)
             }
@@ -293,16 +285,27 @@ class Renderer: NSObject, MTKViewDelegate {
     
     func draw(_ node: Node, in commandEncoder: MTLRenderCommandEncoder) {
 
-        var uniforms = Uniforms(modelMatrix: node.modelMatrix,
-                                viewMatrix: viewMatrix,
-                                projectionMatrix: projectionMatrix,
-                                cameraPosition: cameraWorldPosition,
-                                lightDirection: lightWorldDirection,
-                                lightPosition: lightWorldPosition)
+//        var uniforms = Uniforms(modelMatrix: node.modelMatrix,
+//                                viewMatrix: viewMatrix,
+//                                projectionMatrix: projectionMatrix,
+//                                cameraPosition: cameraWorldPosition,
+//                                lightDirection: lightWorldDirection,
+//                                lightPosition: lightWorldPosition)
+
+
+        var uniforms = Uniforms(
+            projectionMatrix: projectionMatrix,
+            viewMatrix: viewMatrix,
+            modelMatrix: node.modelMatrix,
+            normalMatrix: node.modelMatrix.normalMatrix,
+            deltaTime: 0
+        )
+
+        var lights = lighting.lights
+        commandEncoder.setFragmentBytes(&lights, length: MemoryLayout<Light>.stride * lights.count, index: 7)
 
         if let renderable = node as? Renderable {
-            var frag = FragmentUniforms()
-            renderable.draw(renderEncoder: commandEncoder, uniforms: &uniforms, fragmentUniforms: &frag)
+            renderable.draw(renderEncoder: commandEncoder, uniforms: &uniforms, fragmentUniforms: &fragmentUniforms)
         }
     }
 }

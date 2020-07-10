@@ -14,8 +14,8 @@
             filePath = "BeamSeas Shared/Extensions/Renderer.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "296"
-            endingLineNumber = "296"
+            startingLineNumber = "288"
+            endingLineNumber = "288"
             landmarkName = "draw(_:in:)"
             landmarkType = "7">
          </BreakpointContent>

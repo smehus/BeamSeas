@@ -2,22 +2,24 @@
 #include <metal_stdlib>
 using namespace metal;
 
-enum {
-    textureIndexBaseColor,
-    textureIndexMetallic,
-    textureIndexRoughness,
-    textureIndexNormal,
-    textureIndexEmissive,
-    textureIndexIrradiance = 9
-};
+#import "../Shaders/ShaderTypes.h"
 
-enum {
-    vertexBufferIndexUniforms = 1
-};
-
-enum {
-    fragmentBufferIndexUniforms = 0
-};
+//enum {
+//    textureIndexBaseColor,
+//    textureIndexMetallic,
+//    textureIndexRoughness,
+//    textureIndexNormal,
+//    textureIndexEmissive,
+//    textureIndexIrradiance = 9
+//};
+//
+//enum {
+//    vertexBufferIndexUniforms = 1
+//};
+//
+//enum {
+//    fragmentBufferIndexUniforms = 0
+//};
 
 struct Vertex {
     float3 position  [[attribute(0)]];
@@ -33,15 +35,6 @@ struct VertexOut {
     float3 normal;
     float3 bitangent;
     float3 tangent;
-};
-
-struct Uniforms {
-    float4x4 modelMatrix;
-    float4x4 modelViewProjectionMatrix;
-    float3x3 normalMatrix;
-    float3 cameraPos;
-    float3 directionalLightInvDirection;
-    float3 lightPosition;
 };
 
 struct LightingParameters {
@@ -76,10 +69,10 @@ float3 linear_from_srgb(float3 rgb) {
 }
 
 vertex VertexOut vertex_main(Vertex in [[stage_in]],
-                             constant Uniforms &uniforms [[buffer(vertexBufferIndexUniforms)]])
+                             constant Uniforms &uniforms [[buffer(1)]])
 {
     VertexOut out;
-    out.position = uniforms.modelViewProjectionMatrix * float4(in.position, 1.0);
+    out.position = uniforms.projectionMatrix * uniforms.viewMatrix * uniforms.modelMatrix * float4(in.position, 1.0);
     out.texCoords = in.texCoords;
     out.normal = uniforms.normalMatrix * in.normal;
     out.tangent = uniforms.normalMatrix * in.tangent;
@@ -130,13 +123,14 @@ static float3 specularTerm(LightingParameters parameters) {
 }
 
 fragment half4 fragment_main(VertexOut in                     [[stage_in]],
-                             constant Uniforms &uniforms      [[buffer(fragmentBufferIndexUniforms)]],
-                             texture2d<float> baseColorMap    [[texture(textureIndexBaseColor)]],
-                             texture2d<float> metallicMap     [[texture(textureIndexMetallic)]],
-                             texture2d<float> roughnessMap    [[texture(textureIndexRoughness)]],
-                             texture2d<float> normalMap       [[texture(textureIndexNormal)]],
-                             texture2d<float> emissiveMap     [[texture(textureIndexEmissive)]],
-                             texturecube<float> irradianceMap [[texture(textureIndexIrradiance)]])
+                             constant Light *lights [[ buffer(7) ]],
+                             constant FragmentUniforms &uniforms      [[buffer(BufferIndexFragmentUniforms)]],
+                             texture2d<float> baseColorMap    [[texture(0)]],
+                             texture2d<float> metallicMap     [[texture(2)]],
+                             texture2d<float> roughnessMap    [[texture(3)]],
+                             texture2d<float> normalMap       [[texture(1)]],
+                             texture2d<float> emissiveMap     [[texture(5)]],
+                             texturecube<float> irradianceMap [[texture(6)]])
 {
     constexpr sampler linearSampler (mip_filter::linear, mag_filter::linear, min_filter::linear);
     constexpr sampler mipSampler(min_filter::linear, mag_filter::linear, mip_filter::linear);
@@ -156,8 +150,8 @@ fragment half4 fragment_main(VertexOut in                     [[stage_in]],
     parameters.normal = normalize(TBN * mapNormal);
 
     parameters.diffuseLightColor = diffuseLightColor;
-    parameters.lightDir = uniforms.directionalLightInvDirection;
-    parameters.viewDir = normalize(uniforms.cameraPos - in.worldPos);
+    parameters.lightDir = normalize(lights[0].position);
+    parameters.viewDir = normalize(uniforms.camera_position - in.worldPos);
     parameters.halfVector = normalize(parameters.lightDir + parameters.viewDir);
     parameters.reflectedVector = reflect(-parameters.viewDir, parameters.normal);
 

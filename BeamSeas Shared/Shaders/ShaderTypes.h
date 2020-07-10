@@ -31,22 +31,22 @@ typedef NS_ENUM(NSInteger, BufferIndex)
     BufferIndexControlPoints    = 15,
     BufferIndexTerrainParams    = 16
 };
-
-typedef NS_ENUM(NSInteger, VertexAttribute)
-{
-    VertexAttributePosition  = 0,
-    VertexAttributeNormal    = 1,
-    VertexAttributeUV        = 2,
-    VertexAttributeTangent   = 3,
-    VertexAttributeBitangent = 4,
-    VertexAttributeColor     = 5
-};
-
-typedef NS_ENUM(NSInteger, TextureIndex)
-{
-    TextureIndexColor    = 0,
-    TextureIndexNormal   = 1
-};
+//
+//typedef NS_ENUM(NSInteger, VertexAttribute)
+//{
+//    VertexAttributePosition  = 0,
+//    VertexAttributeNormal    = 1,
+//    VertexAttributeUV        = 2,
+//    VertexAttributeTangent   = 3,
+//    VertexAttributeBitangent = 4,
+//    VertexAttributeColor     = 5
+//};
+//
+//typedef NS_ENUM(NSInteger, TextureIndex)
+//{
+//    TextureIndexColor    = 0,
+//    TextureIndexNormal   = 1
+//};
 
 typedef struct
 {
@@ -84,21 +84,21 @@ typedef struct {
     float coneAttenuation;
 } Light;
 
-typedef struct {
-    vector_float3 baseColor;
-    vector_float3 specularColor;
-    float roughness;
-    float metallic;
-    vector_float3 ambientOcclusion;
-    float shininess;
-} Material;
-
-typedef struct {
-    vector_float2 size;
-    float height;
-    uint maxTessellation;
-    uint numberOfPatches;
-} TerrainParams;
+//typedef struct {
+//    vector_float3 baseColor;
+//    vector_float3 specularColor;
+//    float roughness;
+//    float metallic;
+//    vector_float3 ambientOcclusion;
+//    float shininess;
+//} Material;
+//
+//typedef struct {
+//    vector_float2 size;
+//    float height;
+//    uint maxTessellation;
+//    uint numberOfPatches;
+//} TerrainParams;
 
 #endif /* ShaderTypes_h */
 

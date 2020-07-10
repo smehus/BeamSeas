@@ -14,7 +14,7 @@ extension MDLVertexDescriptor {
 
         var offset = 0
         // position attribute
-        vertexDescriptor.attributes[Int(VertexAttribute.position.rawValue)]
+        vertexDescriptor.attributes[Int(0)]
             = MDLVertexAttribute(name: MDLVertexAttributePosition,
                                  format: .float3,
                                  offset: 0,
@@ -22,7 +22,7 @@ extension MDLVertexDescriptor {
         offset += MemoryLayout<SIMD3<Float>>.stride
 
         // normal attribute
-        vertexDescriptor.attributes[Int(VertexAttribute.normal.rawValue)] =
+        vertexDescriptor.attributes[Int(0)] =
             MDLVertexAttribute(name: MDLVertexAttributeNormal,
                                format: .float3,
                                offset: offset,
@@ -30,14 +30,14 @@ extension MDLVertexDescriptor {
         offset += MemoryLayout<SIMD3<Float>>.stride
 
         // add the uv attribute here
-        vertexDescriptor.attributes[Int(VertexAttribute.UV.rawValue)] =
+        vertexDescriptor.attributes[Int(0)] =
             MDLVertexAttribute(name: MDLVertexAttributeTextureCoordinate,
                                format: .float2,
                                offset: offset,
                                bufferIndex: Int(BufferIndex.vertexBuffer.rawValue))
         offset += MemoryLayout<SIMD2<Float>>.stride
 
-        vertexDescriptor.attributes[Int(VertexAttribute.tangent.rawValue)] =
+        vertexDescriptor.attributes[Int(0)] =
             MDLVertexAttribute(name: MDLVertexAttributeTangent,
                                format: .float3,
                                offset: 0,
