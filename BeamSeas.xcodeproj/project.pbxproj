@@ -60,6 +60,10 @@
 		028071DD24B81DD70087E249 /* Math.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02419D7E249851C700BCB203 /* Math.swift */; };
 		028071EF24B8ABBB0087E249 /* Camera.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0299535C249A64D90014228F /* Camera.swift */; };
 		028071F024B8ABBB0087E249 /* Camera.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0299535C249A64D90014228F /* Camera.swift */; };
+		028071F124B8D0240087E249 /* Terrain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02E46DB124AC2D420055167A /* Terrain.swift */; };
+		028071F224B8D0240087E249 /* Terrain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02E46DB124AC2D420055167A /* Terrain.swift */; };
+		028071F324B8D02F0087E249 /* Terrain.metal in Sources */ = {isa = PBXBuildFile; fileRef = 022B51E024B0E33B00FC5C81 /* Terrain.metal */; };
+		028071F424B8D0300087E249 /* Terrain.metal in Sources */ = {isa = PBXBuildFile; fileRef = 022B51E024B0E33B00FC5C81 /* Terrain.metal */; };
 		02EE3EAD24B80BDE00D4BD63 /* Renderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02EE3EA924B80BDE00D4BD63 /* Renderer.swift */; };
 		02EE3EAE24B80BDE00D4BD63 /* Renderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02EE3EA924B80BDE00D4BD63 /* Renderer.swift */; };
 		02EE3EAF24B80BDE00D4BD63 /* Shaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = 02EE3EAA24B80BDE00D4BD63 /* Shaders.metal */; };
@@ -441,10 +445,12 @@
 				02EE3EB924B8112300D4BD63 /* Submesh.swift in Sources */,
 				02419D58249850C100BCB203 /* ViewControllerExtension.swift in Sources */,
 				02EE3EB124B80CEF00D4BD63 /* MathUtilities.swift in Sources */,
+				028071F324B8D02F0087E249 /* Terrain.metal in Sources */,
 				028071DC24B81DD70087E249 /* Math.swift in Sources */,
 				02EE3EAF24B80BDE00D4BD63 /* Shaders.metal in Sources */,
 				02EE3EB524B80F9D00D4BD63 /* Node.swift in Sources */,
 				02EE3EB724B8112100D4BD63 /* Mesh.swift in Sources */,
+				028071F124B8D0240087E249 /* Terrain.swift in Sources */,
 				020F9865249A757C00DB4850 /* ViewController.swift in Sources */,
 				02EE3EBD24B816EA00D4BD63 /* Light.swift in Sources */,
 				02EE3EBB24B8118300D4BD63 /* Texturable.swift in Sources */,
@@ -462,10 +468,12 @@
 				02EE3EBA24B8112300D4BD63 /* Submesh.swift in Sources */,
 				02419D69249850C100BCB203 /* ViewControllerExtension.swift in Sources */,
 				02EE3EB224B80CEF00D4BD63 /* MathUtilities.swift in Sources */,
+				028071F424B8D0300087E249 /* Terrain.metal in Sources */,
 				028071DD24B81DD70087E249 /* Math.swift in Sources */,
 				02EE3EB024B80BDE00D4BD63 /* Shaders.metal in Sources */,
 				02EE3EB624B80F9E00D4BD63 /* Node.swift in Sources */,
 				02EE3EB824B8112100D4BD63 /* Mesh.swift in Sources */,
+				028071F224B8D0240087E249 /* Terrain.swift in Sources */,
 				020F9866249A757C00DB4850 /* ViewController.swift in Sources */,
 				02EE3EBE24B816EA00D4BD63 /* Light.swift in Sources */,
 				02EE3EBC24B8118400D4BD63 /* Texturable.swift in Sources */,

@@ -15,12 +15,12 @@ protocol Renderable {
         fragmentUniforms: inout FragmentUniforms
     )
 
-//    func computeHeight(
-//        computeEncoder: MTLComputeCommandEncoder,
-//        uniforms: inout Uniforms,
-//        controlPoints: MTLBuffer,
-//        terrainParams: inout TerrainParams
-//    )
+    func computeHeight(
+        computeEncoder: MTLComputeCommandEncoder,
+        uniforms: inout Uniforms,
+        controlPoints: MTLBuffer,
+        terrainParams: inout TerrainParams
+    )
 
     func draw(
         renderEncoder: MTLRenderCommandEncoder,
@@ -38,14 +38,14 @@ extension Renderable {
         // Override
     }
 
-//    func computeHeight(
-//        computeEncoder: MTLComputeCommandEncoder,
-//        uniforms: inout Uniforms,
-//        controlPoints: MTLBuffer,
-//        terrainParams: inout TerrainParams
-//    ) {
-//        // Override
-//    }
+    func computeHeight(
+        computeEncoder: MTLComputeCommandEncoder,
+        uniforms: inout Uniforms,
+        controlPoints: MTLBuffer,
+        terrainParams: inout TerrainParams
+    ) {
+        // Override
+    }
 }
 
 class Node {

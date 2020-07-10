@@ -50,7 +50,7 @@ class Renderer: NSObject, MTKViewDelegate {
 
 
         character = Model(name: "Ship", fragment: "fragment_main")
-        character.rotation = [Float(90).radiansToDegrees, 0, Float(90).radiansToDegrees]
+        character.rotation = [Float(90).radiansToDegrees, 0, 0]
         nodes.append(character)
     }
     
