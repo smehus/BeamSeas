@@ -27,6 +27,8 @@ protocol Renderable {
         uniforms: inout Uniforms,
         fragmentUniforms: inout FragmentUniforms
     )
+
+    func generateTerrainNormals(computeEncoder: MTLComputeCommandEncoder)
 }
 
 extension Renderable {
@@ -46,6 +48,8 @@ extension Renderable {
     ) {
         // Override
     }
+
+    func generateTerrainNormals(computeEncoder: MTLComputeCommandEncoder) { }
 }
 
 class Node {

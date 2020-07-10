@@ -39,10 +39,12 @@ class Terrain: Node {
 
     private let renderPipelineState: MTLRenderPipelineState
     private let computePipelineState: MTLComputePipelineState
+    private let normalPipelineState: MTLComputePipelineState
 
     static var controlPointsBuffer: MTLBuffer!
     private let heightMap: MTLTexture
     private let altHeightMap: MTLTexture
+    private let normalMapTexture: MTLTexture
 
     init(mapName: String) {
 
@@ -89,12 +91,42 @@ class Terrain: Node {
         let kernelFunction = Renderer.library.makeFunction(name: "tessellation_main")!
         computePipelineState = try! Renderer.device.makeComputePipelineState(function: kernelFunction)
 
+        normalPipelineState = Self.buildNormalMapPipelineState()
+
+        // Taken from apple example
+        let texDesc = MTLTextureDescriptor()
+        texDesc.width = heightMap.width
+        texDesc.height = heightMap.height
+        texDesc.pixelFormat = .rg11b10Float
+        texDesc.usage = [.shaderRead, .shaderWrite]
+        texDesc.mipmapLevelCount = Int(log2(Double(max(heightMap.width, heightMap.height))) + 1);
+        texDesc.storageMode = .private
+        normalMapTexture = Renderer.device.makeTexture(descriptor: texDesc)!
 
         super.init()
+    }
+
+    static func buildNormalMapPipelineState() -> MTLComputePipelineState {
+        guard let kernelFunction = Renderer.library?.makeFunction(name: "TerrainKnl_ComputeNormalsFromHeightmap") else {
+            fatalError("Tessellation shader function not found")
+        }
+
+        return try! Renderer.device.makeComputePipelineState(function: kernelFunction)
     }
 }
 
 extension Terrain: Renderable {
+
+    func generateTerrainNormals(computeEncoder: MTLComputeCommandEncoder) {
+        let threadsPerGroup = MTLSize(width: 16, height: 16, depth: 1)
+
+        computeEncoder.setComputePipelineState(normalPipelineState)
+        computeEncoder.setTexture(heightMap, index: 0)
+        computeEncoder.setTexture(altHeightMap, index: 1)
+        computeEncoder.setTexture(normalMapTexture, index: 1)
+        computeEncoder.setBytes(&Terrain.terrainParams, length: MemoryLayout<TerrainParams>.size, index: 3)
+        computeEncoder.dispatchThreadgroups(MTLSizeMake(heightMap.width, heightMap.height, 1), threadsPerThreadgroup: threadsPerGroup)
+    }
 
     func compute(
         computeEncoder: MTLComputeCommandEncoder,
