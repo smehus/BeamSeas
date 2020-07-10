@@ -26,8 +26,8 @@ class Renderer: NSObject, MTKViewDelegate {
 
     lazy var camera: ThirdPersonCamera = {
         let camera = ThirdPersonCamera()
-        camera.focusDistance = 6
-        camera.focusHeight = 6
+        camera.focusDistance = 20
+        camera.focusHeight = 30
         return camera
     }()
 

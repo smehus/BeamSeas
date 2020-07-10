@@ -50,6 +50,7 @@ class ThirdPersonCamera: Camera {
     var focus: Node!
     var focusDistance: Float = 3
     var focusHeight: Float = 10
+    var yRotation: Float = 90
 
     // the rotation is is all 0's because its never actually set
 
@@ -64,7 +65,7 @@ class ThirdPersonCamera: Camera {
 
     override var viewMatrix: float4x4 {
         setRotatingCamera()
-        return float4x4(lookAtRHEye: position, target: focus.position, up: [0, 1, 0])
+        return float4x4(lookAtRHEye: position, target: focus.position, up: [0, 1, 0]) * float4x4(rotationAbout: [0, 1, 0], by: Float(yRotation).radiansToDegrees)
 //        return float4x4(eye: position, center: focus.position, up: [0, 1, 0])
 
 //        setNonRotatingCamera()
@@ -82,9 +83,22 @@ class ThirdPersonCamera: Camera {
         rotation.y = focus.rotation.y
     }
 
+    override func rotate(delta: float2) {
+        let sensitivity: Float = 0.001
+        let y = rotation.y + delta.x * sensitivity
+        var x = rotation.x + delta.y * sensitivity
+        x = max(-Float.pi/2, min((x), Float.pi/2))
+        print("*** x \(x)  *** y \(y)")
+        yRotation += y
+//        rotation = [0, Float(y).radiansToDegrees, 0]
+    }
+
     override func zoom(delta: Float) {
         let sensitivity: Float = 0.05
         focusDistance -= delta * sensitivity
+//        if focusHeight > 0 {
+//            focusHeight -= delta * sensitivity
+//        }
     }
 }
 
