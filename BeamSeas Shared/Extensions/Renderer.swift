@@ -18,16 +18,13 @@ class Renderer: NSObject, MTKViewDelegate {
     let commandQueue: MTLCommandQueue
 
     let lighting = Lighting()
-    var nodes = [Node]()
+    var models: [Renderable] = []
     var fragmentUniforms = FragmentUniforms()
     var uniforms = Uniforms()
     var fragmetnUniforms = FragmentUniforms()
 
-    var character: Node!
-
-    lazy var camera: Camera = {
+    lazy var camera: ThirdPersonCamera = {
         let camera = ThirdPersonCamera()
-        camera.focus = character
         camera.focusDistance = 6
         camera.focusHeight = 6
         return camera
@@ -48,10 +45,14 @@ class Renderer: NSObject, MTKViewDelegate {
 
         super.init()
 
+        let terrain = Terrain()
+        models.append(terrain)
 
-        character = Model(name: "Ship", fragment: "fragment_main")
+        let character = Model(name: "Ship", fragment: "fragment_main")
         character.rotation = [Float(90).radiansToDegrees, 0, 0]
-        nodes.append(character)
+        models.append(character)
+
+        camera.focus = character
     }
     
     static func buildVertexDescriptor(device: MTLDevice) -> MDLVertexDescriptor {
@@ -95,32 +96,60 @@ class Renderer: NSObject, MTKViewDelegate {
         uniforms.viewMatrix = camera.viewMatrix
         fragmetnUniforms.camera_position = camera.position
 
-        if let remderEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: renderPassDescriptor) {
-            remderEncoder.setDepthStencilState(depthStencilState)
 
-            for node in nodes {
-                draw(node, in: remderEncoder)
-            }
-            
-            remderEncoder.endEncoding()
+        // Compute Pass \\
 
+        let computeEncoder = commandBuffer.makeComputeCommandEncoder()!
+        computeEncoder.pushDebugGroup("Tessellation")
+        computeEncoder.setBytes(
+            &fragmentUniforms,
+            length: MemoryLayout<FragmentUniforms>.stride,
+            index: BufferIndex.fragmentUniforms.rawValue
+        )
 
-            if let drawable = view.currentDrawable {
-                commandBuffer.present(drawable)
-            }
-            commandBuffer.commit()
+        for model in models {
+            model.compute(computeEncoder: computeEncoder, uniforms: &uniforms, fragmentUniforms: &fragmentUniforms)
         }
-    }
-    
-    func draw(_ node: Node, in commandEncoder: MTLRenderCommandEncoder) {
 
+        computeEncoder.popDebugGroup()
+        computeEncoder.endEncoding()
+
+
+        let computeHeightEncoder = commandBuffer.makeComputeCommandEncoder()!
+        computeHeightEncoder.pushDebugGroup("Calc Height")
+        for model in models {
+//            model.computeHeight(
+//                computeEncoder: computeHeightEncoder,
+//                uniforms: &uniforms,
+//                controlPoints: Terrain.controlPointsBuffer,
+//                terrainParams: &Terrain.terrainParams)
+        }
+
+        computeHeightEncoder.popDebugGroup()
+        computeHeightEncoder.endEncoding()
+
+
+
+        let mainRenderEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: renderPassDescriptor)!
+        mainRenderEncoder.setDepthStencilState(depthStencilState)
 
         var lights = lighting.lights
-        commandEncoder.setFragmentBytes(&lights, length: MemoryLayout<Light>.stride * lights.count, index: 7)
+        mainRenderEncoder.setFragmentBytes(&lights, length: MemoryLayout<Light>.stride * lights.count, index: 7)
 
-        if let renderable = node as? Renderable {
-            renderable.draw(renderEncoder: commandEncoder, uniforms: &uniforms, fragmentUniforms: &fragmentUniforms)
+        for model in models {
+            model.draw(
+                renderEncoder: mainRenderEncoder,
+                uniforms: &uniforms,
+                fragmentUniforms: &fragmentUniforms
+            )
         }
+
+        mainRenderEncoder.endEncoding()
+        if let drawable = view.currentDrawable {
+            commandBuffer.present(drawable)
+        }
+        commandBuffer.commit()
+
     }
 }
 

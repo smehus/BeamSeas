@@ -44,9 +44,8 @@ class Terrain: Node {
     private let heightMap: MTLTexture
     private let altHeightMap: MTLTexture
 
-    init(mapName: String) {
-
-        heightMap = Self.loadTexture(imageName: mapName)
+    override init() {
+        heightMap = Self.loadTexture(imageName: Self.heightMapName)
         altHeightMap = Self.loadTexture(imageName: Self.alterHeightMapName)
 
         let controlPoints = Self.createControlPoints(
@@ -67,8 +66,9 @@ class Terrain: Node {
         )
 
         let descriptor = MTLRenderPipelineDescriptor()
-        descriptor.colorAttachments[0].pixelFormat = .bgra8Unorm
-        descriptor.depthAttachmentPixelFormat = .depth32Float
+        descriptor.colorAttachments[0].pixelFormat = Renderer.colorPixelFormat
+        descriptor.depthAttachmentPixelFormat = Renderer.depthStencilFormat
+        descriptor.sampleCount = Renderer.sampleCount
         descriptor.vertexFunction = Renderer.library.makeFunction(name: "vertex_terrain")
         descriptor.fragmentFunction = Renderer.library.makeFunction(name: "fragment_terrain")
         descriptor.tessellationFactorStepFunction = .perPatch
