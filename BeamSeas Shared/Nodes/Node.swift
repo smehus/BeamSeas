@@ -55,10 +55,10 @@ class Node {
     var scale: float3 = [1, 1, 1]
 
     var modelMatrix: float4x4 {
-        let translationMatrix = float4x4(translation: position)
-        let rotationMatrix = float4x4(rotation: rotation)
-        let scaleMatrix = float4x4(scaling: scale)
+//        let translationMatrix = float4x4(translation: position)
+//        let rotationMatrix = float4x4(rotation: rotation)
+//        let scaleMatrix = float4x4(scaling: scale)
 
-        return translationMatrix * rotationMatrix * scaleMatrix
+        return matrix_identity_float4x4//translationMatrix * rotationMatrix * scaleMatrix
     }
 }

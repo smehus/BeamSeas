@@ -15,11 +15,11 @@ class Model: Node {
     let meshes: [Mesh]
     var tiling: UInt32 = 1
     let samplerState: MTLSamplerState?
-    var heightBuffer: MTLBuffer
+//    var heightBuffer: MTLBuffer
 
-    private let heightMap: MTLTexture
-    private let altHeightMap: MTLTexture
-    private let heightComputePipelineState: MTLComputePipelineState
+//    private let heightMap: MTLTexture
+//    private let altHeightMap: MTLTexture
+//    private let heightComputePipelineState: MTLComputePipelineState
 
     init(name: String, fragment: String) {
         guard let assetURL = Bundle.main.url(forResource: name, withExtension: "usdz") else { fatalError("Model: \(name) not found")  }
@@ -54,14 +54,14 @@ class Model: Node {
         meshes = zip(mdlMeshes, mtkMeshes).map { Mesh(mdlMesh: $0, mtkMesh: $1, fragment: fragment) }
         samplerState = Self.buildSamplerState()
 
-        heightMap = Submesh.loadTexture(imageName: Terrain.heightMapName)
-        altHeightMap = Submesh.loadTexture(imageName: Terrain.alterHeightMapName)
-
-        var startingHeight: Float = 0
-        heightBuffer = Renderer.device.makeBuffer(bytes: &startingHeight, length: MemoryLayout<Float>.size, options: .storageModeShared)!
-
-        let heightKernel = Renderer.library.makeFunction(name: "compute_height")!
-        heightComputePipelineState = try! Renderer.device.makeComputePipelineState(function: heightKernel)
+//        heightMap = Submesh.loadTexture(imageName: Terrain.heightMapName)
+//        altHeightMap = Submesh.loadTexture(imageName: Terrain.alterHeightMapName)
+//
+//        var startingHeight: Float = 0
+//        heightBuffer = Renderer.device.makeBuffer(bytes: &startingHeight, length: MemoryLayout<Float>.size, options: .storageModeShared)!
+//
+//        let heightKernel = Renderer.library.makeFunction(name: "compute_height")!
+//        heightComputePipelineState = try! Renderer.device.makeComputePipelineState(function: heightKernel)
 
         super.init()
 
@@ -87,14 +87,14 @@ extension Model: Renderable {
 
         var currentPosition = modelMatrix.columns.3.xyz
         
-        computeEncoder.setComputePipelineState(heightComputePipelineState)
+//        computeEncoder.setComputePipelineState(heightComputePipelineState)
         computeEncoder.setBytes(&currentPosition, length: MemoryLayout<float3>.size, index: 0)
         computeEncoder.setBuffer(controlPoints, offset: 0, index: 1)
         computeEncoder.setBytes(&terrainParams, length: MemoryLayout<TerrainParams>.stride, index: 2)
-        computeEncoder.setBuffer(heightBuffer, offset: 0, index: 3)
+//        computeEncoder.setBuffer(heightBuffer, offset: 0, index: 3)
         computeEncoder.setBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: 4)
-        computeEncoder.setTexture(heightMap, index: 0)
-        computeEncoder.setTexture(altHeightMap, index: 1)
+//        computeEncoder.setTexture(heightMap, index: 0)
+//        computeEncoder.setTexture(altHeightMap, index: 1)
 
         computeEncoder.dispatchThreads(MTLSizeMake(1, 1, 1),
                                         threadsPerThreadgroup: MTLSizeMake(1, 1, 1))
@@ -103,20 +103,22 @@ extension Model: Renderable {
     func draw(renderEncoder: MTLRenderCommandEncoder, uniforms: inout Uniforms, fragmentUniforms: inout FragmentUniforms) {
         renderEncoder.pushDebugGroup(name)
 
-        let heightValue = heightBuffer.contents().bindMemory(to: Float.self, capacity: 1).pointee
-        assert(meshes.count == 1)
+//        let heightValue = heightBuffer.contents().bindMemory(to: Float.self, capacity: 1).pointee
+//        assert(meshes.count == 1)
 
         let size = meshes.first!.mdlMesh.boundingBox.maxBounds - meshes.first!.mdlMesh.boundingBox.minBounds
-        position.y = heightValue + (size.y / 2)
+//        position.y = heightValue + (size.y / 2)
 
         fragmentUniforms.tiling = tiling
         uniforms.modelMatrix = modelMatrix
-        uniforms.normalMatrix = modelMatrix.upperLeft
+        uniforms.normalMatrix = modelMatrix.normalMatrix
 
         renderEncoder.setFragmentSamplerState(samplerState, index: 0)
          renderEncoder.setVertexBytes(&uniforms,
                                       length: MemoryLayout<Uniforms>.stride,
-                                      index: BufferIndex.uniforms.rawValue)
+                                      index: 1)
+
+        renderEncoder.setFragmentBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: 0)
          renderEncoder.setFragmentBytes(&fragmentUniforms,
                                         length: MemoryLayout<FragmentUniforms>.stride,
                                         index: BufferIndex.fragmentUniforms.rawValue)
@@ -133,8 +135,8 @@ extension Model: Renderable {
                  renderEncoder.setRenderPipelineState(submesh.pipelineState)
                  renderEncoder.setFragmentTexture(submesh.textures.baseColor, index: TextureIndex.color.rawValue)
                  renderEncoder.setFragmentTexture(submesh.textures.normal, index: TextureIndex.normal.rawValue)
-                 var material = submesh.material
-                 renderEncoder.setFragmentBytes(&material, length: MemoryLayout<Material>.stride, index: BufferIndex.materials.rawValue)
+//                 var material = submesh.material
+//                 renderEncoder.setFragmentBytes(&material, length: MemoryLayout<Material>.stride, index: BufferIndex.materials.rawValue)
 
                  renderEncoder.drawIndexedPrimitives(
                      type: .triangle,
