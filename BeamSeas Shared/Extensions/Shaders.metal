@@ -4,22 +4,6 @@ using namespace metal;
 
 #import "../Shaders/ShaderTypes.h"
 
-//enum {
-//    textureIndexBaseColor,
-//    textureIndexMetallic,
-//    textureIndexRoughness,
-//    textureIndexNormal,
-//    textureIndexEmissive,
-//    textureIndexIrradiance = 9
-//};
-//
-//enum {
-//    vertexBufferIndexUniforms = 1
-//};
-//
-//enum {
-//    fragmentBufferIndexUniforms = 0
-//};
 
 struct Vertex {
     float3 position  [[attribute(0)]];

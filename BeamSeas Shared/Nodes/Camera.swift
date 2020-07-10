@@ -20,20 +20,13 @@ class Camera: Node {
     var far: Float = 500
 
     var projectionMatrix: float4x4 {
-
-        return float4x4(perspectiveProjectionFov: Float.pi / 3, aspectRatio: aspect, nearZ: 0.1, farZ: 100)
-//        return float4x4(
-//            projectionFov: fovRadians,
-//            near: near,
-//            far: far,
-//            aspect: aspect
-//        )
+        return float4x4(perspectiveProjectionFov: fovRadians, aspectRatio: aspect, nearZ: 0.1, farZ: 100)
     }
 
     var viewMatrix: float4x4 {
-        let translateMatrix = float4x4(translation: position)
-        let rotateMatrix = float4x4(rotation: rotation)
-        let scaleMatrix = float4x4(scaling: scale)
+        let translateMatrix = float4x4(translationBy: [0, 0, 0])
+        let rotateMatrix = matrix_identity_float4x4
+        let scaleMatrix = matrix_identity_float4x4
 
         // move camera to the right means everything else in world should move left
         return (translateMatrix * rotateMatrix * scaleMatrix).inverse
@@ -76,11 +69,11 @@ class ArcballCamera: Camera {
     }
 
     private func updateViewMatrix() -> float4x4 {
-        let translateMatrix = float4x4(translation: [target.x, target.y, target.z - distance])
+        let translateMatrix = float4x4(translation: [target.x, target.y + 3, target.z - distance])
         let rotateMatrix = float4x4(rotationYXZ: [-rotation.x,
                                                   rotation.y,
                                                   0])
-        let matrix = (rotateMatrix * translateMatrix).inverse
+        let matrix = (rotateMatrix * translateMatrix)
         position = rotateMatrix.upperLeft * -matrix.columns.3.xyz
         return matrix
     }

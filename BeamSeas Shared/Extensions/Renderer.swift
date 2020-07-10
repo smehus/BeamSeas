@@ -2,84 +2,15 @@
 import Foundation
 import MetalKit
 import simd
-//
-//enum TextureIndex: Int {
-//    case baseColor
-//    case metallic
-//    case roughness
-//    case normal
-//    case emissive
-//    case irradiance = 9
-//}
-
-//enum VertexBufferIndex: Int {
-//    case attributes
-//    case uniforms
-//}
-//
-//enum FragmentBufferIndex: Int {
-//    case uniforms
-//}
-//
-//struct Uniforms {
-//    var modelMatrix: float4x4
-//    let modelViewProjectionMatrix: float4x4
-//    var normalMatrix: float3x3
-//    let cameraPosition: float3
-//    let lightDirection: float3
-//    let lightPosition: float3
-//
-//    init(modelMatrix: float4x4, viewMatrix: float4x4, projectionMatrix: float4x4,
-//         cameraPosition: float3, lightDirection: float3, lightPosition: float3)
-//    {
-//        self.modelMatrix = modelMatrix
-//        self.modelViewProjectionMatrix = projectionMatrix * viewMatrix * modelMatrix
-//        self.normalMatrix = modelMatrix.normalMatrix
-//        self.cameraPosition = cameraPosition
-//        self.lightDirection = lightDirection
-//        self.lightPosition = lightPosition
-//    }
-//}
-
-class Material {
-    var baseColor: MTLTexture?
-    var metallic: MTLTexture?
-    var roughness: MTLTexture?
-    var normal: MTLTexture?
-    var emissive: MTLTexture?
-    
-    func texture(for semantic: MDLMaterialSemantic, in material: MDLMaterial?, textureLoader: MTKTextureLoader) -> MTLTexture? {
-        guard let materialProperty = material?.property(with: semantic) else { return nil }
-        guard let sourceTexture = materialProperty.textureSamplerValue?.texture else { return nil }
-        let wantMips = materialProperty.semantic != .tangentSpaceNormal
-        let options: [MTKTextureLoader.Option : Any] = [ .generateMipmaps : wantMips ]
-        return try? textureLoader.newTexture(texture: sourceTexture, options: options)
-    }
-
-    init(material sourceMaterial: MDLMaterial?, textureLoader: MTKTextureLoader) {
-        baseColor = texture(for: .baseColor, in: sourceMaterial, textureLoader: textureLoader)
-        metallic = texture(for: .metallic, in: sourceMaterial, textureLoader: textureLoader)
-        roughness = texture(for: .roughness, in: sourceMaterial, textureLoader: textureLoader)
-        normal = texture(for: .tangentSpaceNormal, in: sourceMaterial, textureLoader: textureLoader)
-        emissive = texture(for: .emission, in: sourceMaterial, textureLoader: textureLoader)
-    }
-}
-
-//class Node {
-//    var modelMatrix: float4x4
-//    let mesh: MTKMesh
-//    let materials: [Material]
-//
-//    init(mesh: MTKMesh, materials: [Material]) {
-//        assert(mesh.submeshes.count == materials.count)
-//
-//        modelMatrix = matrix_identity_float4x4
-//        self.mesh = mesh
-//        self.materials = materials
-//    }
-//}
 
 class Renderer: NSObject, MTKViewDelegate {
+
+    static var library: MTLLibrary!
+    static var colorPixelFormat: MTLPixelFormat!
+    static var depthStencilFormat: MTLPixelFormat!
+    static var device: MTLDevice!
+    static var sampleCount: Int!
+    static var vertexDescriptor: MDLVertexDescriptor!
 
     let device: MTLDevice
     let depthStencilState: MTLDepthStencilState
@@ -89,20 +20,14 @@ class Renderer: NSObject, MTKViewDelegate {
     let lighting = Lighting()
     var nodes = [Node]()
     var fragmentUniforms = FragmentUniforms()
-    var viewMatrix = matrix_identity_float4x4
-    var cameraWorldPosition = float3(0, 0, 10)
-    var lightWorldDirection = float3(0, 1, 0)
-    var lightWorldPosition = float3(0, 5, -5)
-    var time: Float = 0
     var uniforms = Uniforms()
     var fragmetnUniforms = FragmentUniforms()
 
-    static var library: MTLLibrary!
-    static var colorPixelFormat: MTLPixelFormat!
-    static var depthStencilFormat: MTLPixelFormat!
-    static var device: MTLDevice!
-    static var sampleCount: Int!
-    static var vertexDescriptor: MDLVertexDescriptor!
+    lazy var camera: Camera = {
+        let camera = Camera()
+//        camera.target = [0, 0, 0]
+        return camera
+    }()
 
     init(view: MTKView, device: MTLDevice) {
         Self.sampleCount = view.sampleCount
@@ -155,27 +80,16 @@ class Renderer: NSObject, MTKViewDelegate {
     }
 
     func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {
-
-    }
-    
-    func updateScene(view: MTKView) {
-        time += 1 / Float(view.preferredFramesPerSecond)
-        let aspectRatio = Float(view.drawableSize.width / view.drawableSize.height)
-
-        uniforms.projectionMatrix = float4x4(perspectiveProjectionFov: Float.pi / 3, aspectRatio: aspectRatio, nearZ: 0.1, farZ: 100)
-        uniforms.viewMatrix = viewMatrix
-
-        cameraWorldPosition = viewMatrix.inverse[3].xyz
-        
-        lightWorldPosition = cameraWorldPosition
-        lightWorldDirection = normalize(cameraWorldPosition)
+        camera.aspect = Float(view.bounds.width) / Float(view.bounds.height)
     }
 
     func draw(in view: MTKView) {
         guard let renderPassDescriptor = view.currentRenderPassDescriptor else { return }
         guard let commandBuffer = commandQueue.makeCommandBuffer() else { return }
 
-        updateScene(view: view)
+        uniforms.projectionMatrix = camera.projectionMatrix
+        uniforms.viewMatrix = camera.viewMatrix
+        fragmetnUniforms.camera_position = camera.position
 
         if let remderEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: renderPassDescriptor) {
             remderEncoder.setDepthStencilState(depthStencilState)
@@ -205,3 +119,6 @@ class Renderer: NSObject, MTKViewDelegate {
         }
     }
 }
+
+
+

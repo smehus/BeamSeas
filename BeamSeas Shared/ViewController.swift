@@ -29,63 +29,6 @@ class ViewController: LocalViewController {
         renderer = Renderer(view: mtkView, device: device)
         mtkView.delegate = renderer
 
-//        addGestureRecognizers(to: mtkView)
-
-        cameraController = CameraController()
-        renderer.viewMatrix = cameraController.viewMatrix
+        addGestureRecognizers(to: mtkView)
     }
-
-
-    #if os(iOS)
-        var trackedTouch: UITouch?
-
-        override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-            if trackedTouch == nil {
-                if let newlyTrackedTouch = touches.first {
-                    trackedTouch = newlyTrackedTouch
-                    let point = newlyTrackedTouch.location(in: view)
-                    cameraController.startedInteraction(at: point)
-                }
-            }
-        }
-
-        override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-            if let previouslyTrackedTouch = trackedTouch {
-                if touches.contains(previouslyTrackedTouch) {
-                    let point = previouslyTrackedTouch.location(in: view)
-                    cameraController.dragged(to: point)
-                    renderer.viewMatrix = cameraController.viewMatrix
-                }
-            }
-        }
-
-        override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-            if let previouslyTrackedTouch = trackedTouch {
-                if touches.contains(previouslyTrackedTouch) {
-                    self.trackedTouch = nil
-                }
-            }
-        }
-
-        override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
-            if let previouslyTrackedTouch = trackedTouch {
-                if touches.contains(previouslyTrackedTouch) {
-                    self.trackedTouch = nil
-                }
-            }
-        }
-    #elseif os(macOS)
-        override func mouseDown(with event: NSEvent) {
-            var point = view.convert(event.locationInWindow, from: nil)
-            point.y = view.bounds.size.height - point.y
-            cameraController.startedInteraction(at: point)
-        }
-
-        override func mouseDragged(with event: NSEvent) {
-            var point = view.convert(event.locationInWindow, from: nil)
-            point.y = view.bounds.size.height - point.y
-            cameraController.dragged(to: point)
-            renderer.viewMatrix = cameraController.viewMatrix
-        }
-    #endif
 }
