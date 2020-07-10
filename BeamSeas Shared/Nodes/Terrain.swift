@@ -117,7 +117,7 @@ class Terrain: Node {
 
 extension Terrain: Renderable {
 
-    func generateTerrainNormals(computeEncoder: MTLComputeCommandEncoder) {
+    func generateTerrainNormals(computeEncoder: MTLComputeCommandEncoder, uniforms: inout Uniforms) {
         let threadsPerGroup = MTLSize(width: 16, height: 16, depth: 1)
 
         computeEncoder.setComputePipelineState(normalPipelineState)
@@ -125,6 +125,7 @@ extension Terrain: Renderable {
         computeEncoder.setTexture(altHeightMap, index: 1)
         computeEncoder.setTexture(normalMapTexture, index: 2)
         computeEncoder.setBytes(&Terrain.terrainParams, length: MemoryLayout<TerrainParams>.size, index: 3)
+        computeEncoder.setBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: BufferIndex.uniforms.rawValue)
         computeEncoder.dispatchThreadgroups(MTLSizeMake(altHeightMap.width, altHeightMap.height, 1), threadsPerThreadgroup: threadsPerGroup)
     }
 

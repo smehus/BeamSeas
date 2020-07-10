@@ -95,7 +95,7 @@ extension Renderer: MTKViewDelegate {
         fragmentUniforms.camera_position = camera.position
 
         // Terrain Pass \\
-
+g
         let computeEncoder = commandBuffer.makeComputeCommandEncoder()!
         computeEncoder.pushDebugGroup("Tessellation")
         computeEncoder.setBytes(
@@ -118,7 +118,7 @@ extension Renderer: MTKViewDelegate {
         // Should this just go into the compute pass? unclear
 
         for model in models {
-            model.generateTerrainNormals(computeEncoder: normalEncoder)
+            model.generateTerrainNormals(computeEncoder: normalEncoder, uniforms: &uniforms)
         }
 
 
