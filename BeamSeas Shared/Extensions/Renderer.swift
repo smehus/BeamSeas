@@ -80,27 +80,22 @@ class Material {
 //}
 
 class Renderer: NSObject, MTKViewDelegate {
+
     let device: MTLDevice
-    let commandQueue: MTLCommandQueue
-    let renderPipeline: MTLRenderPipelineState
     let depthStencilState: MTLDepthStencilState
     let vertexDescriptor: MDLVertexDescriptor
-    
-    let textureLoader: MTKTextureLoader
-    let defaultTexture: MTLTexture
-    let defaultNormalMap: MTLTexture
-//    let irradianceCubeMap: MTLTexture
+    let commandQueue: MTLCommandQueue
 
     let lighting = Lighting()
     var nodes = [Node]()
     var fragmentUniforms = FragmentUniforms()
-
     var viewMatrix = matrix_identity_float4x4
-    var projectionMatrix = matrix_identity_float4x4
     var cameraWorldPosition = float3(0, 0, 10)
     var lightWorldDirection = float3(0, 1, 0)
     var lightWorldPosition = float3(0, 5, -5)
     var time: Float = 0
+    var uniforms = Uniforms()
+    var fragmetnUniforms = FragmentUniforms()
 
     static var library: MTLLibrary!
     static var colorPixelFormat: MTLPixelFormat!
@@ -117,19 +112,12 @@ class Renderer: NSObject, MTKViewDelegate {
         Self.depthStencilFormat = view.depthStencilPixelFormat
         self.device = device
         Self.library = device.makeDefaultLibrary()
+
         commandQueue = device.makeCommandQueue()!
         vertexDescriptor = Renderer.buildVertexDescriptor(device: device)
-        renderPipeline = Renderer.buildPipeline(device: device, view: view, vertexDescriptor: vertexDescriptor)
         depthStencilState = Renderer.buildDepthStencilState(device: device)
-        textureLoader = MTKTextureLoader(device: device)
-        (defaultTexture, defaultNormalMap) = Renderer.buildDefaultTextures(device: device)
-//        irradianceCubeMap = Renderer.buildEnvironmentTexture("garage_pmrem.ktx", device: device)
+
         super.init()
-        
-        guard let modelURL = Bundle.main.url(forResource: "Ship", withExtension: "usdz") else {
-            fatalError("Could not find model file in app bundle")
-        }
-//        buildScene(url: modelURL, device: device, vertexDescriptor: vertexDescriptor)
 
 
         let model = Model(name: "Ship", fragment: "fragment_main")
@@ -158,102 +146,24 @@ class Renderer: NSObject, MTKViewDelegate {
         vertexDescriptor.layouts[BufferIndex.vertexBuffer.rawValue] = MDLVertexBufferLayout(stride: MemoryLayout<Float>.size * 11)
         return vertexDescriptor
     }
-    
-    static func buildPipeline(device: MTLDevice, view: MTKView, vertexDescriptor: MDLVertexDescriptor) -> MTLRenderPipelineState {
-        
-        let vertexFunction = library.makeFunction(name: "vertex_main")
-        let fragmentFunction = library.makeFunction(name: "fragment_main")
-        
-        let pipelineDescriptor = MTLRenderPipelineDescriptor()
-        pipelineDescriptor.vertexFunction = vertexFunction
-        pipelineDescriptor.fragmentFunction = fragmentFunction
-        
-        pipelineDescriptor.colorAttachments[0].pixelFormat = view.colorPixelFormat
-        pipelineDescriptor.depthAttachmentPixelFormat = view.depthStencilPixelFormat
-        pipelineDescriptor.sampleCount = view.sampleCount
-        
-        let mtlVertexDescriptor = MTKMetalVertexDescriptorFromModelIO(vertexDescriptor)
-        pipelineDescriptor.vertexDescriptor = mtlVertexDescriptor
-        
-        do {
-            return try device.makeRenderPipelineState(descriptor: pipelineDescriptor)
-        } catch {
-            fatalError("Could not create render pipeline state object: \(error)")
-        }
-    }
-    
+
     static func buildDepthStencilState(device: MTLDevice) -> MTLDepthStencilState {
         let depthStencilDescriptor = MTLDepthStencilDescriptor()
         depthStencilDescriptor.depthCompareFunction = .less
         depthStencilDescriptor.isDepthWriteEnabled = true
         return device.makeDepthStencilState(descriptor: depthStencilDescriptor)!
     }
-    
-    static func buildDefaultTextures(device: MTLDevice) -> (MTLTexture, MTLTexture) {
-        let bounds = MTLRegionMake2D(0, 0, 1, 1)
-        let descriptor = MTLTextureDescriptor.texture2DDescriptor(pixelFormat: .rgba8Unorm,
-                                                                  width: bounds.size.width,
-                                                                  height: bounds.size.height,
-                                                                  mipmapped: false)
-        descriptor.usage = .shaderRead
-        let defaultTexture = device.makeTexture(descriptor: descriptor)!
-        let defaultColor: [UInt8] = [ 0, 0, 0, 255 ]
-        defaultTexture.replace(region: bounds, mipmapLevel: 0, withBytes: defaultColor, bytesPerRow: 4)
-        let defaultNormalMap = device.makeTexture(descriptor: descriptor)!
-        let defaultNormal: [UInt8] = [ 127, 127, 255, 255 ]
-        defaultNormalMap.replace(region: bounds, mipmapLevel: 0, withBytes: defaultNormal, bytesPerRow: 4)
-        return (defaultTexture, defaultNormalMap)
-    }
-    
-    static func buildEnvironmentTexture(_ name: String, device:MTLDevice) -> MTLTexture {
-        let textureLoader = MTKTextureLoader(device: device)
-        let options: [MTKTextureLoader.Option : Any] = [:]
-        do {
-            let textureURL = Bundle.main.url(forResource: name, withExtension: nil)!
-            let texture = try textureLoader.newTexture(URL: textureURL, options: options)
-            return texture
-        } catch {
-            fatalError("Could not load irradiance map from asset catalog: \(error)")
-        }
-    }
-    
-//    func buildScene(url: URL, device: MTLDevice, vertexDescriptor: MDLVertexDescriptor) {
-//        let bufferAllocator = MTKMeshBufferAllocator(device: device)
-//        let asset = MDLAsset(url: url, vertexDescriptor: nil, bufferAllocator: bufferAllocator)
-//
-//        asset.loadTextures()
-//
-//        for sourceMesh in asset.childObjects(of: MDLMesh.self) as! [MDLMesh] {
-//            sourceMesh.addOrthTanBasis(forTextureCoordinateAttributeNamed: MDLVertexAttributeTextureCoordinate,
-//                                       normalAttributeNamed: MDLVertexAttributeNormal,
-//                                       tangentAttributeNamed: MDLVertexAttributeTangent)
-//            sourceMesh.vertexDescriptor = vertexDescriptor
-//        }
-//
-//        guard let (sourceMeshes, meshes) = try? MTKMesh.newMeshes(asset: asset, device: device) else {
-//            fatalError("Could not convert ModelIO meshes to MetalKit meshes")
-//        }
-//
-//        for (sourceMesh, mesh) in zip(sourceMeshes, meshes) {
-//            var materials = [Material]()
-//            for sourceSubmesh in sourceMesh.submeshes as! [MDLSubmesh] {
-//                let material = Material(material: sourceSubmesh.material, textureLoader: textureLoader)
-//                materials.append(material)
-//            }
-//            let node = Node(mesh: mesh, materials: materials)
-//
-//            nodes.append(node)
-//        }
-//    }
 
     func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {
+
     }
     
     func updateScene(view: MTKView) {
         time += 1 / Float(view.preferredFramesPerSecond)
-        
         let aspectRatio = Float(view.drawableSize.width / view.drawableSize.height)
-        projectionMatrix = float4x4(perspectiveProjectionFov: Float.pi / 3, aspectRatio: aspectRatio, nearZ: 0.1, farZ: 100)
+
+        uniforms.projectionMatrix = float4x4(perspectiveProjectionFov: Float.pi / 3, aspectRatio: aspectRatio, nearZ: 0.1, farZ: 100)
+        uniforms.viewMatrix = viewMatrix
 
         cameraWorldPosition = viewMatrix.inverse[3].xyz
         
@@ -262,20 +172,21 @@ class Renderer: NSObject, MTKViewDelegate {
     }
 
     func draw(in view: MTKView) {
+        guard let renderPassDescriptor = view.currentRenderPassDescriptor else { return }
+        guard let commandBuffer = commandQueue.makeCommandBuffer() else { return }
+
         updateScene(view: view)
-        
-        let commandBuffer = commandQueue.makeCommandBuffer()!
-        
-        if let renderPassDescriptor = view.currentRenderPassDescriptor {
-            let commandEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: renderPassDescriptor)!
-            commandEncoder.setRenderPipelineState(renderPipeline)
-            commandEncoder.setDepthStencilState(depthStencilState)
+
+        if let remderEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: renderPassDescriptor) {
+            remderEncoder.setDepthStencilState(depthStencilState)
 
             for node in nodes {
-                draw(node, in: commandEncoder)
+                draw(node, in: remderEncoder)
             }
             
-            commandEncoder.endEncoding()
+            remderEncoder.endEncoding()
+
+
             if let drawable = view.currentDrawable {
                 commandBuffer.present(drawable)
             }
@@ -285,21 +196,6 @@ class Renderer: NSObject, MTKViewDelegate {
     
     func draw(_ node: Node, in commandEncoder: MTLRenderCommandEncoder) {
 
-//        var uniforms = Uniforms(modelMatrix: node.modelMatrix,
-//                                viewMatrix: viewMatrix,
-//                                projectionMatrix: projectionMatrix,
-//                                cameraPosition: cameraWorldPosition,
-//                                lightDirection: lightWorldDirection,
-//                                lightPosition: lightWorldPosition)
-
-
-        var uniforms = Uniforms(
-            projectionMatrix: projectionMatrix,
-            viewMatrix: viewMatrix,
-            modelMatrix: node.modelMatrix,
-            normalMatrix: node.modelMatrix.normalMatrix,
-            deltaTime: 0
-        )
 
         var lights = lighting.lights
         commandEncoder.setFragmentBytes(&lights, length: MemoryLayout<Light>.stride * lights.count, index: 7)

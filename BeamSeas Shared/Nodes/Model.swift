@@ -10,8 +10,6 @@ import MetalKit
 
 class Model: Node {
 
-    static var vertexDescriptor: MDLVertexDescriptor = .defaultVertexDescriptor
-
     let meshes: [Mesh]
     var tiling: UInt32 = 1
     let samplerState: MTLSamplerState?
@@ -46,7 +44,6 @@ class Model: Node {
                                        normalAttributeNamed: MDLVertexAttributeNormal,
                                        tangentAttributeNamed: MDLVertexAttributeTangent)
 
-//            Model.vertexDescriptor = mdlMesh.vertexDescriptor
             mdlMesh.vertexDescriptor = Renderer.vertexDescriptor
             mtkMeshes.append(try! MTKMesh(mesh: mdlMesh, device: Renderer.device))
         }

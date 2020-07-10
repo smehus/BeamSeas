@@ -9,8 +9,6 @@
 /* Begin PBXBuildFile section */
 		020F9865249A757C00DB4850 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020F9864249A757C00DB4850 /* ViewController.swift */; };
 		020F9866249A757C00DB4850 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020F9864249A757C00DB4850 /* ViewController.swift */; };
-		020F9868249A7C5900DB4850 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020F9867249A7C5900DB4850 /* Extensions.swift */; };
-		020F9869249A7C5900DB4850 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020F9867249A7C5900DB4850 /* Extensions.swift */; };
 		022B51E424B1772300FC5C81 /* mountain.png in Resources */ = {isa = PBXBuildFile; fileRef = 022B51E324B1772300FC5C81 /* mountain.png */; };
 		022B51E524B1772300FC5C81 /* mountain.png in Resources */ = {isa = PBXBuildFile; fileRef = 022B51E324B1772300FC5C81 /* mountain.png */; };
 		022B51EA24B22D2200FC5C81 /* Heightmap_Plateau.png in Resources */ = {isa = PBXBuildFile; fileRef = 022B51E624B22D2200FC5C81 /* Heightmap_Plateau.png */; };
@@ -85,7 +83,6 @@
 		020F9852249A695900DB4850 /* Mesh.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Mesh.swift; sourceTree = "<group>"; };
 		020F9855249A696300DB4850 /* Submesh.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Submesh.swift; sourceTree = "<group>"; };
 		020F9864249A757C00DB4850 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
-		020F9867249A7C5900DB4850 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		022B51E024B0E33B00FC5C81 /* Terrain.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Terrain.metal; sourceTree = "<group>"; };
 		022B51E324B1772300FC5C81 /* mountain.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = mountain.png; sourceTree = "<group>"; };
 		022B51E624B22D2200FC5C81 /* Heightmap_Plateau.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Heightmap_Plateau.png; sourceTree = "<group>"; };
@@ -156,7 +153,6 @@
 				02EE3EA824B80BDE00D4BD63 /* MathUtilities.swift */,
 				02EE3EA924B80BDE00D4BD63 /* Renderer.swift */,
 				02EE3EAA24B80BDE00D4BD63 /* Shaders.metal */,
-				020F9867249A7C5900DB4850 /* Extensions.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -451,7 +447,6 @@
 				02EE3EBD24B816EA00D4BD63 /* Light.swift in Sources */,
 				02EE3EBB24B8118300D4BD63 /* Texturable.swift in Sources */,
 				02419D56249850C100BCB203 /* AppDelegate.swift in Sources */,
-				020F9868249A7C5900DB4850 /* Extensions.swift in Sources */,
 				02EE3EAD24B80BDE00D4BD63 /* Renderer.swift in Sources */,
 				02EE3EB324B80F8700D4BD63 /* Model.swift in Sources */,
 			);
@@ -472,7 +467,6 @@
 				02EE3EBE24B816EA00D4BD63 /* Light.swift in Sources */,
 				02EE3EBC24B8118400D4BD63 /* Texturable.swift in Sources */,
 				02419D67249850C100BCB203 /* AppDelegate.swift in Sources */,
-				020F9869249A7C5900DB4850 /* Extensions.swift in Sources */,
 				02EE3EAE24B80BDE00D4BD63 /* Renderer.swift in Sources */,
 				02EE3EB424B80F8800D4BD63 /* Model.swift in Sources */,
 			);
