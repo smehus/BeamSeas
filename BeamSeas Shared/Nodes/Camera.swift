@@ -20,20 +20,72 @@ class Camera: Node {
     var far: Float = 500
 
     var projectionMatrix: float4x4 {
-        return float4x4(perspectiveProjectionFov: fovRadians, aspectRatio: aspect, nearZ: 0.1, farZ: 100)
+        return float4x4(perspectiveProjectionFov: fovRadians, aspectRatio: aspect, nearZ: near, farZ: far)
+//        return float4x4(projectionFov: fovRadians, near: near, far: far, aspect: aspect)
     }
 
     var viewMatrix: float4x4 {
-        let translateMatrix = float4x4(translationBy: [0, 0, 0])
-        let rotateMatrix = matrix_identity_float4x4
+        let translateMatrix = float4x4(translationBy: position)
+        let rotateMatrix = float4x4(rotation: rotation)//float4x4(rotationAbout: [1, 0, 0], by: rotation.x) * float4x4(rotationAbout: [0, 1, 0], by: rotation.y) * float4x4(rotationAbout: [0, 0, 1], by: rotation.z)
         let scaleMatrix = matrix_identity_float4x4
 
         // move camera to the right means everything else in world should move left
         return (translateMatrix * rotateMatrix * scaleMatrix).inverse
     }
 
-    func zoom(delta: Float) { }
-    func rotate(delta: float2) { }
+    func zoom(delta: Float) {
+        position.z -= delta
+    }
+    func rotate(delta: float2) {
+        let sensitivity: Float = 0.005
+        let y = rotation.y + delta.x * sensitivity
+        var x = rotation.x + delta.y * sensitivity
+        x = max(-Float.pi/2, min((x), Float.pi/2))
+        rotation = [x, y, 0]
+    }
+}
+
+class ThirdPersonCamera: Camera {
+
+    var focus: Node!
+    var focusDistance: Float = 3
+    var focusHeight: Float = 10
+
+    // the rotation is is all 0's because its never actually set
+
+    override init() {
+        super.init()
+    }
+
+    init(focus: Node) {
+        self.focus = focus
+        super.init()
+    }
+
+    override var viewMatrix: float4x4 {
+        setRotatingCamera()
+        return float4x4(lookAtRHEye: position, target: focus.position, up: [0, 1, 0])
+//        return float4x4(eye: position, center: focus.position, up: [0, 1, 0])
+
+//        setNonRotatingCamera()
+//        return super.viewMatrix
+    }
+
+    private func setNonRotatingCamera() {
+        position = float3(focus.position.x, focus.position.y - focusDistance, focus.position.z - focusDistance)
+        position.y = 3
+    }
+
+    private func setRotatingCamera() {
+        position = focus.position - focusDistance * focus.forwardVector
+        position.y = focus.position.y + focusHeight
+        rotation.y = focus.rotation.y
+    }
+
+    override func zoom(delta: Float) {
+        let sensitivity: Float = 0.05
+        focusDistance -= delta * sensitivity
+    }
 }
 
 class ArcballCamera: Camera {

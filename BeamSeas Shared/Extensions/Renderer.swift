@@ -23,9 +23,13 @@ class Renderer: NSObject, MTKViewDelegate {
     var uniforms = Uniforms()
     var fragmetnUniforms = FragmentUniforms()
 
+    var character: Node!
+
     lazy var camera: Camera = {
-        let camera = Camera()
-//        camera.target = [0, 0, 0]
+        let camera = ThirdPersonCamera()
+        camera.focus = character
+        camera.focusDistance = 6
+        camera.focusHeight = 6
         return camera
     }()
 
@@ -45,9 +49,9 @@ class Renderer: NSObject, MTKViewDelegate {
         super.init()
 
 
-        let model = Model(name: "Ship", fragment: "fragment_main")
-
-        nodes.append(model)
+        character = Model(name: "Ship", fragment: "fragment_main")
+        character.rotation = [Float(90).radiansToDegrees, 0, Float(90).radiansToDegrees]
+        nodes.append(character)
     }
     
     static func buildVertexDescriptor(device: MTLDevice) -> MDLVertexDescriptor {

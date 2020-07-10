@@ -55,10 +55,14 @@ class Node {
     var scale: float3 = [1, 1, 1]
 
     var modelMatrix: float4x4 {
-//        let translationMatrix = float4x4(translation: position)
-//        let rotationMatrix = float4x4(rotation: rotation)
-//        let scaleMatrix = float4x4(scaling: scale)
+        let translationMatrix = float4x4(translation: position)
+        let rotationMatrix = float4x4(rotationAbout: [1, 0, 0], by: rotation.x) * float4x4(rotationAbout: [0, 1, 0], by: rotation.y) * float4x4(rotationAbout: [0, 0, 1], by: rotation.z)
+        let scaleMatrix = matrix_identity_float4x4// float4x4(scaling: scale)
 
-        return matrix_identity_float4x4//translationMatrix * rotationMatrix * scaleMatrix
+        return translationMatrix * rotationMatrix * scaleMatrix
+    }
+
+    var forwardVector: SIMD3<Float> {
+        return normalize([sin(rotation.y), 0, cos(rotation.y)])
     }
 }

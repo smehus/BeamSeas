@@ -13,7 +13,6 @@ import Metal
 class ViewController: LocalViewController {
 
     var renderer: Renderer!
-    var cameraController: CameraController!
 
     override func viewDidLoad() {
         super.viewDidLoad()

@@ -7,13 +7,45 @@ extension float4 {
 }
 
 extension float4x4 {
+
+    init(array: [Float]) {
+        guard array.count == 16 else {
+            fatalError("presented array has \(array.count) elements - a float4x4 needs 16 elements")
+        }
+
+        self = matrix_identity_float4x4
+        columns = (
+            SIMD4<Float>( array[0],  array[1],  array[2],  array[3]),
+            SIMD4<Float>( array[4],  array[5],  array[6],  array[7]),
+            SIMD4<Float>( array[8],  array[9],  array[10], array[11]),
+            SIMD4<Float>( array[12],  array[13],  array[14],  array[15])
+        )
+    }
+
     init(scaleBy s: Float) {
         self.init(float4(s, 0, 0, 0),
                   float4(0, s, 0, 0),
                   float4(0, 0, s, 0),
                   float4(0, 0, 0, 1))
     }
-    
+
+    init(lookAtRHEye eye: vector_float3, target: vector_float3, up: vector_float3) {
+
+        // LH: Target - Camera
+        // RH: Camera - Target
+
+        let z: vector_float3  = simd_normalize(eye - target);
+        let x: vector_float3  = simd_normalize(simd_cross(up, z));
+        let y: vector_float3  = simd_cross(z, x);
+        let t: vector_float3 = vector_float3(-simd_dot(x, eye), -simd_dot(y, eye), -simd_dot(z, eye));
+
+
+        self.init(array: [x.x, y.x, z.x, 0,
+                          x.y, y.y, z.y, 0,
+                          x.z, y.z, z.z, 0,
+                          t.x, t.y, t.z, 1])
+    }
+
     init(rotationAbout axis: float3, by angleRadians: Float) {
         let a = normalize(axis)
         let x = a.x, y = a.y, z = a.z
@@ -55,38 +87,5 @@ extension float4x4 {
     var normalMatrix: float3x3 {
         let upperLeft = float3x3(self[0].xyz, self[1].xyz, self[2].xyz)
         return upperLeft.transpose.inverse
-    }
-}
-
-class CameraController {
-    var viewMatrix: float4x4 {
-        return float4x4(translationBy: float3(0, 0, -radius)) *
-               float4x4(rotationAbout: float3(1, 0, 0), by: altitude) *
-               float4x4(rotationAbout: float3(0, 1, 0), by: azimuth)
-
-    }
-
-    var radius: Float = 50
-    var sensitivity: Float = 0.01
-    let minAltitude: Float = -.pi / 4
-    let maxAltitude: Float = .pi / 2
-
-
-    private var altitude: Float = 0
-    private var azimuth: Float = 0
-
-    private var lastPoint: CGPoint = .zero
-
-    func startedInteraction(at point: CGPoint) {
-        lastPoint = point
-    }
-
-    func dragged(to point: CGPoint) {
-        let deltaX = Float(lastPoint.x - point.x)
-        let deltaY = Float(lastPoint.y - point.y)
-        azimuth += -deltaX * sensitivity
-        altitude += -deltaY * sensitivity
-        altitude = min(max(minAltitude, altitude), maxAltitude)
-        lastPoint = point
     }
 }
