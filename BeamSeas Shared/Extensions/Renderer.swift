@@ -22,6 +22,7 @@ class Renderer: NSObject, MTKViewDelegate {
     var fragmentUniforms = FragmentUniforms()
     var uniforms = Uniforms()
     var fragmetnUniforms = FragmentUniforms()
+    var delta: Float = 0
 
     lazy var camera: ThirdPersonCamera = {
         let camera = ThirdPersonCamera()
@@ -92,6 +93,8 @@ class Renderer: NSObject, MTKViewDelegate {
         guard let renderPassDescriptor = view.currentRenderPassDescriptor else { return }
         guard let commandBuffer = commandQueue.makeCommandBuffer() else { return }
 
+        delta += 0.001
+        uniforms.deltaTime = delta
         uniforms.projectionMatrix = camera.projectionMatrix
         uniforms.viewMatrix = camera.viewMatrix
         fragmetnUniforms.camera_position = camera.position
@@ -118,11 +121,12 @@ class Renderer: NSObject, MTKViewDelegate {
         let computeHeightEncoder = commandBuffer.makeComputeCommandEncoder()!
         computeHeightEncoder.pushDebugGroup("Calc Height")
         for model in models {
-//            model.computeHeight(
-//                computeEncoder: computeHeightEncoder,
-//                uniforms: &uniforms,
-//                controlPoints: Terrain.controlPointsBuffer,
-//                terrainParams: &Terrain.terrainParams)
+            model.computeHeight(
+                computeEncoder: computeHeightEncoder,
+                uniforms: &uniforms,
+                controlPoints: Terrain.controlPointsBuffer,
+                terrainParams: &Terrain.terrainParams
+            )
         }
 
         computeHeightEncoder.popDebugGroup()
