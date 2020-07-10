@@ -43,18 +43,18 @@ extension MDLVertexDescriptor {
                                offset: 0,
                                bufferIndex: 1)
 
-        vertexDescriptor.attributes[Int(VertexAttribute.bitangent.rawValue)] =
-            MDLVertexAttribute(name: MDLVertexAttributeBitangent,
-                               format: .float3,
-                               offset: 0,
-                               bufferIndex: 2)
+//        vertexDescriptor.attributes[Int(VertexAttribute.bitangent.rawValue)] =
+//            MDLVertexAttribute(name: MDLVertexAttributeBitangent,
+//                               format: .float3,
+//                               offset: 0,
+//                               bufferIndex: 2)
 
         // color attribute
-        vertexDescriptor.attributes[Int(VertexAttribute.color.rawValue)] =
-            MDLVertexAttribute(name: MDLVertexAttributeColor,
-                               format: .float3,
-                               offset: offset,
-                               bufferIndex: Int(BufferIndex.vertexBuffer.rawValue))
+//        vertexDescriptor.attributes[Int(VertexAttribute.color.rawValue)] =
+//            MDLVertexAttribute(name: MDLVertexAttributeColor,
+//                               format: .float3,
+//                               offset: offset,
+//                               bufferIndex: Int(BufferIndex.vertexBuffer.rawValue))
 
         offset += MemoryLayout<SIMD3<Float>>.stride
 
@@ -74,10 +74,10 @@ extension MDLVertexDescriptor {
 //        offset += MemoryLayout<SIMD4<Float>>.stride
 
         vertexDescriptor.layouts[0] = MDLVertexBufferLayout(stride: offset)
-        vertexDescriptor.layouts[1] =
-            MDLVertexBufferLayout(stride: MemoryLayout<SIMD3<Float>>.stride)
-        vertexDescriptor.layouts[2] =
-            MDLVertexBufferLayout(stride: MemoryLayout<SIMD3<Float>>.stride)
+//        vertexDescriptor.layouts[1] =
+//            MDLVertexBufferLayout(stride: MemoryLayout<SIMD3<Float>>.stride)
+//        vertexDescriptor.layouts[2] =
+//            MDLVertexBufferLayout(stride: MemoryLayout<SIMD3<Float>>.stride)
         return vertexDescriptor
 
     }()

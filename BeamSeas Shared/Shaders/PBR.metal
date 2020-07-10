@@ -72,7 +72,7 @@ fragment float4 fragment_pbr(VertexOut in [[stage_in]],
           texture2d<float> normalTexture [[texture(TextureIndexNormal), function_constant(hasNormalTexture)]],
           texture2d<float> roughnessTexture [[texture(2), function_constant(hasRoughnessTexture)]],
           texture2d<float> metallicTexture [[texture(3), function_constant(hasMetallicTexture)]],
-          texture2d<float> aoTexture [[texture(4), function_constant(hasAOTexture)]]){
+          texture2d<float> aoTexture [[texture(4), function_constant(hasAOTexture)]]) {
     // extract color
   float3 baseColor;
   if (hasColorTexture) {
@@ -81,6 +81,7 @@ fragment float4 fragment_pbr(VertexOut in [[stage_in]],
   } else {
     baseColor = material.baseColor;
   }
+    
   // extract metallic
   float metallic;
   if (hasMetallicTexture) {
@@ -104,17 +105,33 @@ fragment float4 fragment_pbr(VertexOut in [[stage_in]],
   }
   
   // normal map
-  float3 normal;
-  if (hasNormalTexture) {
-    float3 normalValue = normalTexture.sample(textureSampler, in.uv * fragmentUniforms.tiling).xyz * 2.0 - 1.0;
-    normal = in.worldNormal * normalValue.z
-    + in.worldTangent * normalValue.x
-    + in.worldBitangent * normalValue.y;
-  } else {
-    normal = in.worldNormal;
-  }
-  normal = normalize(normal);
-  
+//  float3 normal;
+//  if (hasNormalTexture) {
+//    float3 normalValue = normalTexture.sample(textureSampler, in.uv * fragmentUniforms.tiling).xyz * 2.0 - 1.0;
+//    normal = in.worldNormal * normalValue.z + in.worldTangent * normalValue.x + in.worldBitangent * normalValue.y;
+//  } else {
+//    normal = in.worldNormal;
+//  }
+//
+//  normal = normalize(normal);
+
+    float3 normalValue;
+    if (hasNormalTexture) {
+        normalValue = normalTexture.sample(textureSampler, in.uv * fragmentUniforms.tiling).xyz;
+        //This redistributes the normal value to be within the range -1 to 1.
+        normalValue = normalValue * 2 - 1;
+    } else {
+        normalValue = in.worldNormal;
+    }
+
+    normalValue = normalize(normalValue);
+
+    // idk - chapter 7 - pg 199
+    float3 normalDirection = float3x3(in.worldTangent, in.worldBitangent, in.worldNormal) * normalValue;
+    normalDirection = normalize(normalDirection);
+
+
+
   float3 viewDirection = normalize(fragmentUniforms.camera_position - in.worldPosition);
   
   Light light = lights[0];
@@ -125,7 +142,7 @@ fragment float4 fragment_pbr(VertexOut in [[stage_in]],
   lighting.lightDirection = lightDirection;
   lighting.viewDirection = viewDirection;
   lighting.baseColor = baseColor;
-  lighting.normal = normal;
+  lighting.normal = normalDirection;
   lighting.metallic = metallic;
   lighting.roughness = roughness;
   lighting.ambientOcclusion = ambientOcclusion;
@@ -194,5 +211,138 @@ float3 render(Lighting lighting) {
   specularOutput = specularOutput * lighting.ambientOcclusion;
   
   return specularOutput;
+}
+
+struct LightingParameters {
+    float3 lightDir;
+    float3 viewDir;
+    float3 halfVector;
+    float3 reflectedVector;
+    float3 normal;
+    float3 reflectedColor;
+    float3 irradiatedColor;
+    float3 baseColor;
+    float3 diffuseLightColor;
+    float  NdotH;
+    float  NdotV;
+    float  NdotL;
+    float  HdotL;
+    float  metalness;
+    float  roughness;
+};
+
+#define SRGB_ALPHA 0.055
+
+float linear_from_srgb(float x) {
+    if (x <= 0.04045)
+        return x / 12.92;
+    else
+        return powr((x + SRGB_ALPHA) / (1.0 + SRGB_ALPHA), 2.4);
+}
+
+float3 linear_from_srgb(float3 rgb) {
+    return float3(linear_from_srgb(rgb.r), linear_from_srgb(rgb.g), linear_from_srgb(rgb.b));
+}
+
+//vertex VertexOut vertex_main(Vertex in [[stage_in]],
+//                             constant Uniforms &uniforms [[buffer(vertexBufferIndexUniforms)]])
+//{
+//    VertexOut out;
+//    out.position = uniforms.modelViewProjectionMatrix * float4(in.position, 1.0);
+//    out.texCoords = in.texCoords;
+//    out.normal = uniforms.normalMatrix * in.normal;
+//    out.tangent = uniforms.normalMatrix * in.tangent;
+//    out.bitangent = uniforms.normalMatrix * cross(in.normal, in.tangent);
+//    out.worldPos = (uniforms.modelMatrix * float4(in.position, 1.0)).xyz;
+//    return out;
+//}
+
+static float3 diffuseTerm(LightingParameters parameters) {
+    float3 diffuseColor = (parameters.baseColor.rgb / M_PI_F) * (1.0 - parameters.metalness);
+    return diffuseColor * parameters.NdotL * parameters.diffuseLightColor;
+}
+
+static float SchlickFresnel(float dotProduct) {
+    return pow(clamp(1.0 - dotProduct, 0.0, 1.0), 5.0);
+}
+
+static float Geometry(float NdotV, float alphaG) {
+    float a = alphaG * alphaG;
+    float b = NdotV * NdotV;
+    return 1.0 / (NdotV + sqrt(a + b - a * b));
+}
+
+static float TrowbridgeReitzNDF(float NdotH, float roughness) {
+    if (roughness >= 1.0)
+        return 1.0 / M_PI_F;
+
+    float roughnessSqr = roughness * roughness;
+
+    float d = (NdotH * roughnessSqr - NdotH) * NdotH + 1;
+    return roughnessSqr / (M_PI_F * d * d);
+}
+
+static float3 specularTerm(LightingParameters parameters) {
+    float specularRoughness = parameters.roughness * (1.0 - parameters.metalness) + parameters.metalness;
+
+    float D = TrowbridgeReitzNDF(parameters.NdotH, specularRoughness);
+
+    float Cspec0 = 0.04;
+    float3 F = mix(Cspec0, 1, SchlickFresnel(parameters.HdotL));
+    float alphaG = powr(specularRoughness * 0.5 + 0.5, 2);
+    float G = Geometry(parameters.NdotL, alphaG) * Geometry(parameters.NdotV, alphaG);
+
+    float3 specularOutput = (D * G * F * parameters.irradiatedColor) * (1.0 + parameters.metalness * parameters.baseColor) +
+                                                 parameters.irradiatedColor * parameters.metalness * parameters.baseColor;
+
+    return specularOutput;
+}
+
+fragment half4 fragment_warren(VertexOut in [[stage_in]],
+                             constant Light *lights [[buffer(BufferIndexLights)]],
+                             constant Material &material [[buffer(BufferIndexMaterials)]],
+                             sampler textureSampler [[sampler(0)]],
+                             constant FragmentUniforms &fragmentUniforms [[buffer(BufferIndexFragmentUniforms)]],
+                             texture2d<float> baseColorTexture [[texture(TextureIndexColor), function_constant(hasColorTexture)]],
+                             texture2d<float> normalTexture [[texture(TextureIndexNormal), function_constant(hasNormalTexture)]],
+                             texture2d<float> roughnessTexture [[texture(2), function_constant(hasRoughnessTexture)]],
+                             texture2d<float> metallicTexture [[texture(3), function_constant(hasMetallicTexture)]],
+                             texture2d<float> aoTexture [[texture(4), function_constant(hasAOTexture)]]) {
+    constexpr sampler linearSampler (mip_filter::linear, mag_filter::linear, min_filter::linear);
+    constexpr sampler mipSampler(min_filter::linear, mag_filter::linear, mip_filter::linear);
+    constexpr sampler normalSampler(filter::nearest);
+
+    const float3 diffuseLightColor(4);
+
+    LightingParameters parameters;
+
+    float4 baseColor = baseColorTexture.sample(linearSampler, in.uv);
+    parameters.baseColor = linear_from_srgb(baseColor.rgb);
+    parameters.roughness = roughnessTexture.sample(linearSampler, in.uv).g;
+    parameters.metalness = metallicTexture.sample(linearSampler, in.uv).b;
+    float3 mapNormal = normalTexture.sample(normalSampler, in.uv).rgb * 2.0 - 1.0;
+    //mapNormal.y = -mapNormal.y; // Flip normal map Y-axis if necessary
+    float3x3 TBN(in.worldTangent, in.worldBitangent, in.worldNormal);
+    parameters.normal = normalize(TBN * mapNormal);
+
+    parameters.diffuseLightColor = diffuseLightColor;
+    parameters.lightDir = normalize(lights[0].position);
+    parameters.viewDir = normalize(fragmentUniforms.camera_position - in.worldPosition);
+    parameters.halfVector = normalize(parameters.lightDir + parameters.viewDir);
+    parameters.reflectedVector = reflect(-parameters.viewDir, parameters.normal);
+
+    parameters.NdotL = saturate(dot(parameters.normal, parameters.lightDir));
+    parameters.NdotH = saturate(dot(parameters.normal, parameters.halfVector));
+    parameters.NdotV = saturate(dot(parameters.normal, parameters.viewDir));
+    parameters.HdotL = saturate(dot(parameters.lightDir, parameters.halfVector));
+
+//    float mipLevel = parameters.roughness * irradianceMap.get_num_mip_levels();
+//    parameters.irradiatedColor = irradianceMap.sample(mipSampler, parameters.reflectedVector, level(mipLevel)).rgb;
+
+//    float3 emissiveColor = emissiveMap.sample(linearSampler, in.uv).rgb;
+
+    float3 color = diffuseTerm(parameters) + specularTerm(parameters);// + emissiveColor;
+
+    return half4(half3(color), baseColor.a);
 }
 

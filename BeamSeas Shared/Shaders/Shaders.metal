@@ -46,7 +46,7 @@ vertex VertexOut vertex_main(const VertexIn vertex_in [[ stage_in ]],
         .uv = vertex_in.uv,
         // normal matrix is the upper left of the model matrix aka world space
         .worldTangent = uniforms.normalMatrix * vertex_in.tangent,
-        .worldBitangent = uniforms.normalMatrix * vertex_in.bitangent
+        .worldBitangent = uniforms.normalMatrix * cross(vertex_in.normal, vertex_in.tangent)
     };
 }
 
@@ -172,3 +172,51 @@ fragment float4 fragment_main(VertexOut in [[ stage_in ]],
     float3 color = diffuseColor + ambientColor + specularColor;
     return float4(color, 1);
 }
+
+//
+//
+//#include <metal_stdlib>
+//using namespace metal;
+//
+//enum {
+//    textureIndexBaseColor,
+//    textureIndexMetallic,
+//    textureIndexRoughness,
+//    textureIndexNormal,
+//    textureIndexEmissive,
+//    textureIndexIrradiance = 9
+//};
+//
+//enum {
+//    vertexBufferIndexUniforms = 1
+//};
+//
+//enum {
+//    fragmentBufferIndexUniforms = 0
+//};
+//
+//struct Vertex {
+//    float3 position  [[attribute(0)]];
+//    float3 normal    [[attribute(1)]];
+//    float3 tangent   [[attribute(2)]];
+//    float2 texCoords [[attribute(3)]];
+//};
+//
+//struct VertexOut {
+//    float4 position [[position]];
+//    float2 texCoords;
+//    float3 worldPos;
+//    float3 normal;
+//    float3 bitangent;
+//    float3 tangent;
+//};
+//
+//struct Uniforms {
+//    float4x4 modelMatrix;
+//    float4x4 modelViewProjectionMatrix;
+//    float3x3 normalMatrix;
+//    float3 cameraPos;
+//    float3 directionalLightInvDirection;
+//    float3 lightPosition;
+//};
+

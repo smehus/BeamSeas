@@ -23,11 +23,10 @@ class Model: Node {
 
     init(name: String, fragment: String) {
         guard let assetURL = Bundle.main.url(forResource: name, withExtension: "usdz") else { fatalError("Model: \(name) not found")  }
-
         let allocator = MTKMeshBufferAllocator(device: Renderer.device)
         let asset = MDLAsset(
             url: assetURL,
-            vertexDescriptor: .defaultVertexDescriptor,
+            vertexDescriptor: nil,
             bufferAllocator: allocator
         )
 
@@ -37,13 +36,18 @@ class Model: Node {
         var mtkMeshes: [MTKMesh] = []
         let mdlMeshes = asset.childObjects(of: MDLMesh.self) as! [MDLMesh]
         _ = mdlMeshes.map { mdlMesh in
-            mdlMesh.addTangentBasis(
-                forTextureCoordinateAttributeNamed: MDLVertexAttributeTextureCoordinate,
-                tangentAttributeNamed: MDLVertexAttributeTangent,
-                bitangentAttributeNamed: MDLVertexAttributeBitangent
-            )
+//            mdlMesh.addTangentBasis(
+//                forTextureCoordinateAttributeNamed: MDLVertexAttributeTextureCoordinate,
+//                tangentAttributeNamed: MDLVertexAttributeTangent,
+//                bitangentAttributeNamed: MDLVertexAttributeBitangent
+//            )
 
-            Model.vertexDescriptor = mdlMesh.vertexDescriptor
+            mdlMesh.addOrthTanBasis(forTextureCoordinateAttributeNamed: MDLVertexAttributeTextureCoordinate,
+                                       normalAttributeNamed: MDLVertexAttributeNormal,
+                                       tangentAttributeNamed: MDLVertexAttributeTangent)
+
+//            Model.vertexDescriptor = mdlMesh.vertexDescriptor
+            mdlMesh.vertexDescriptor = Renderer.vertexDescriptor
             mtkMeshes.append(try! MTKMesh(mesh: mdlMesh, device: Renderer.device))
         }
 
@@ -97,7 +101,7 @@ extension Model: Renderable {
     }
 
     func draw(renderEncoder: MTLRenderCommandEncoder, uniforms: inout Uniforms, fragmentUniforms: inout FragmentUniforms) {
-
+        renderEncoder.pushDebugGroup(name)
 
         let heightValue = heightBuffer.contents().bindMemory(to: Float.self, capacity: 1).pointee
         assert(meshes.count == 1)
@@ -141,6 +145,8 @@ extension Model: Renderable {
                  )
              }
          }
+
+        renderEncoder.popDebugGroup()
     }
 }
 

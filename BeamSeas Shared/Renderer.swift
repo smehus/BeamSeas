@@ -38,13 +38,49 @@ final class Renderer: NSObject {
     var depthStencilState: MTLDepthStencilState
     var delta: Float = 0
 
+    static func buildVertexDescriptor(device: MTLDevice) -> MDLVertexDescriptor {
+        let vertexDescriptor = MDLVertexDescriptor()
+        vertexDescriptor.attributes[0] = MDLVertexAttribute(name: MDLVertexAttributePosition,
+                                                            format: .float3,
+                                                            offset: 0,
+                                                            bufferIndex: BufferIndex.vertexBuffer.rawValue)
+        vertexDescriptor.attributes[1] = MDLVertexAttribute(name: MDLVertexAttributeNormal,
+                                                            format: .float3,
+                                                            offset: MemoryLayout<Float>.size * 3,
+                                                            bufferIndex: BufferIndex.vertexBuffer.rawValue)
+        vertexDescriptor.attributes[2] = MDLVertexAttribute(name: MDLVertexAttributeTangent,
+                                                            format: .float3,
+                                                            offset: MemoryLayout<Float>.size * 6,
+                                                            bufferIndex: BufferIndex.vertexBuffer.rawValue)
+        vertexDescriptor.attributes[3] = MDLVertexAttribute(name: MDLVertexAttributeTextureCoordinate,
+                                                            format: .float2,
+                                                            offset: MemoryLayout<Float>.size * 9,
+                                                            bufferIndex: BufferIndex.vertexBuffer.rawValue)
+        vertexDescriptor.layouts[BufferIndex.vertexBuffer.rawValue] = MDLVertexBufferLayout(stride: MemoryLayout<Float>.size * 11)
+        return vertexDescriptor
+    }
+
+    static var vertexDescriptor: MDLVertexDescriptor!
+    static var sampleCount: Int!
+    static var colorPixelFormat: MTLPixelFormat!
+    static var depthStencilFormat: MTLPixelFormat!
+
     init?(metalView: MTKView) {
+
+        metalView.colorPixelFormat = .bgra8Unorm_srgb
+        metalView.depthStencilPixelFormat = .depth32Float
+        metalView.sampleCount = 4
+
         Self.device = MTLCreateSystemDefaultDevice()!
+        Self.vertexDescriptor = Self.buildVertexDescriptor(device: Renderer.device)
         Self.commandQueue = Renderer.device.makeCommandQueue()!
         Self.library = Self.device.makeDefaultLibrary()!
 
+        Self.depthStencilFormat = metalView.depthStencilPixelFormat
+        Self.colorPixelFormat = metalView.colorPixelFormat
+        Self.sampleCount = metalView.sampleCount
         metalView.device = Self.device
-        metalView.depthStencilPixelFormat = .depth32Float
+//        metalView.depthStencilPixelFormat = .depth 32Float
 
         depthStencilState = Self.buildDepthStencilState()
         super.init()
@@ -55,10 +91,10 @@ final class Renderer: NSObject {
         metalView.delegate = self
 
         
-        let terrain = Terrain(mapName: Terrain.heightMapName)
-        models.append(terrain)
+//        let terrain = Terrain(mapName: Terrain.heightMapName)
+//        models.append(terrain)
 
-        let cube = Model(name: "Ship", fragment: "fragment_pbr")
+        let cube = Model(name: "Ship", fragment: "fragment_warren")
         cube.rotation = [Float(90).radiansToDegrees, 0, 0]
         models.append(cube)
 
@@ -115,11 +151,11 @@ extension Renderer: MTKViewDelegate {
         let computeHeightEncoder = commandBuffer.makeComputeCommandEncoder()!
         computeHeightEncoder.pushDebugGroup("Calc Height")
         for model in models {
-            model.computeHeight(
-                computeEncoder: computeHeightEncoder,
-                uniforms: &uniforms,
-                controlPoints: Terrain.controlPointsBuffer,
-                terrainParams: &Terrain.terrainParams)
+//            model.computeHeight(
+//                computeEncoder: computeHeightEncoder,
+//                uniforms: &uniforms,
+//                controlPoints: Terrain.controlPointsBuffer,
+//                terrainParams: &Terrain.terrainParams)
         }
 
         computeHeightEncoder.popDebugGroup()
@@ -136,7 +172,7 @@ extension Renderer: MTKViewDelegate {
             model.draw(renderEncoder: renderEncoder, uniforms: &uniforms, fragmentUniforms: &fragmentUniforms)
         }
 
-        debugLights(renderEncoder: renderEncoder, lightType: Sunlight)
+//        debugLights(renderEncoder: renderEncoder, lightType: Sunlight)
         renderEncoder.endEncoding()
         if let drawable = view.currentDrawable {
             commandBuffer.present(drawable)

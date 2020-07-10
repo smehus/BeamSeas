@@ -39,10 +39,10 @@ class Submesh {
         let pipelineDescriptor = MTLRenderPipelineDescriptor()
         pipelineDescriptor.vertexFunction = vertexFunction
         pipelineDescriptor.fragmentFunction = fragmentFunction
-        pipelineDescriptor.vertexDescriptor = MTKMetalVertexDescriptorFromModelIO(Model.vertexDescriptor)
-        pipelineDescriptor.colorAttachments[0].pixelFormat = .bgra8Unorm
-        pipelineDescriptor.depthAttachmentPixelFormat = .depth32Float
-
+        pipelineDescriptor.vertexDescriptor = MTKMetalVertexDescriptorFromModelIO(Renderer.vertexDescriptor)
+        pipelineDescriptor.colorAttachments[0].pixelFormat = Renderer.colorPixelFormat
+        pipelineDescriptor.depthAttachmentPixelFormat = Renderer.depthStencilFormat
+        pipelineDescriptor.sampleCount = Renderer.sampleCount
         do {
             pipelineState = try Renderer.device.makeRenderPipelineState(descriptor: pipelineDescriptor)
         } catch let error {
@@ -91,7 +91,7 @@ private extension Submesh.Textures {
                 if let property = material?.property(with: semantic),
                     property.type == .texture,
                     let mdlTexture = property.textureSamplerValue?.texture,
-                    let texture = try? Submesh.loadTexture(texture: mdlTexture){
+                    let texture = try? Submesh.loadTexture(texture: mdlTexture, useMips: property.semantic != .tangentSpaceNormal){
                     return texture
                 }
 
