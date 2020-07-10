@@ -161,7 +161,7 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
 
     constexpr sampler sample;
     float2 xy = ((position.xz + terrainParams.size / 2) / terrainParams.size);
-    xy.x = fmod(xy.x + uniforms.deltaTime, 1);
+    xy.x = fmod(xy.x + (uniforms.deltaTime), 1);
     float4 primaryColor = heightMap.sample(sample, xy);
 
     xy = ((position.xz + terrainParams.size / 2) / terrainParams.size);
@@ -192,7 +192,8 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]])
 
 // This is pulled directly from apples example: DynamicTerrainWithArgumentBuffers
 kernel void TerrainKnl_ComputeNormalsFromHeightmap(texture2d<float> height [[texture(0)]],
-                                                   texture2d<float, access::write> normal [[texture(1)]],
+                                                   texture2d<float> altHeight [[texture(1)]],
+                                                   texture2d<float, access::write> normal [[texture(2)]],
                                                    constant TerrainParams &terrain [[ buffer(3) ]],
                                                    uint2 tid [[thread_position_in_grid]])
 {

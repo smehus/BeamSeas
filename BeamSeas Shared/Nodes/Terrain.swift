@@ -12,7 +12,7 @@ import MetalKit
 class Terrain: Node {
 
     static let maxTessellation = 16
-    static var heightMapName = "Heightmap_Plateau"
+    static var heightMapName = "Heightmap_Billow"
     static var alterHeightMapName = "Heightmap_Billow"
 
     static var terrainParams = TerrainParams(
@@ -123,9 +123,9 @@ extension Terrain: Renderable {
         computeEncoder.setComputePipelineState(normalPipelineState)
         computeEncoder.setTexture(heightMap, index: 0)
         computeEncoder.setTexture(altHeightMap, index: 1)
-        computeEncoder.setTexture(normalMapTexture, index: 1)
+        computeEncoder.setTexture(normalMapTexture, index: 2)
         computeEncoder.setBytes(&Terrain.terrainParams, length: MemoryLayout<TerrainParams>.size, index: 3)
-        computeEncoder.dispatchThreadgroups(MTLSizeMake(heightMap.width, heightMap.height, 1), threadsPerThreadgroup: threadsPerGroup)
+        computeEncoder.dispatchThreadgroups(MTLSizeMake(altHeightMap.width, altHeightMap.height, 1), threadsPerThreadgroup: threadsPerGroup)
     }
 
     func compute(
