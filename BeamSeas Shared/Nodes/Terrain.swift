@@ -7,23 +7,25 @@
 //
 
 import MetalKit
-
+import MetalPerformanceShaders
 
 class Terrain: Node {
 
-    static let maxTessellation = 16
+    static let maxTessellation = 64
     static var heightMapName = "Heightmap_Billow"
     static var alterHeightMapName = "Heightmap_Billow"
     static var normalMapTexture: MTLTexture!
+    static var primarySlopeMap: MTLTexture!
+    static var secondarySlopeMap: MTLTexture!
 
     static var terrainParams = TerrainParams(
         size: [150, 150],
-        height: 15,
+        height: 20,
         maxTessellation: UInt32(Terrain.maxTessellation),
         numberOfPatches: UInt32(Terrain.patchNum * Terrain.patchNum)
     )
 
-    private static var patchNum = 16
+    private static var patchNum = 15
 
     let patches = (horizontal: Terrain.patchNum, vertical: Terrain.patchNum)
     var patchCount: Int {
@@ -47,7 +49,6 @@ class Terrain: Node {
     static var controlPointsBuffer: MTLBuffer!
     private let heightMap: MTLTexture
     private let altHeightMap: MTLTexture
-
 
     override init() {
 
@@ -105,6 +106,35 @@ class Terrain: Node {
         texDesc.mipmapLevelCount = Int(log2(Double(max(heightMap.width, heightMap.height))) + 1);
         texDesc.storageMode = .private
         Self.normalMapTexture = Renderer.device.makeTexture(descriptor: texDesc)!
+
+
+        let primarySlopeDescriptor: MTLTextureDescriptor = .texture2DDescriptor(
+            pixelFormat: heightMap.pixelFormat,
+            width: heightMap.width,
+            height: heightMap.height,
+            mipmapped: false
+        )
+        primarySlopeDescriptor.usage = [.shaderRead, .shaderWrite]
+
+        Self.primarySlopeMap = Renderer.device.makeTexture(descriptor: primarySlopeDescriptor)!
+        Self.secondarySlopeMap = Renderer.device.makeTexture(descriptor: primarySlopeDescriptor)!
+
+        let commandBuffer = Renderer.commandQueue.makeCommandBuffer()!
+        let slopeShader = MPSImageSobel(device: Renderer.device)
+
+        slopeShader.encode(
+            commandBuffer: commandBuffer,
+            sourceTexture: heightMap,
+            destinationTexture: Self.primarySlopeMap
+        )
+
+        slopeShader.encode(
+            commandBuffer: commandBuffer,
+            sourceTexture: altHeightMap,
+            destinationTexture: Self.secondarySlopeMap
+        )
+
+        commandBuffer.commit()
 
         super.init()
     }
