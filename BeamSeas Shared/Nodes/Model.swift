@@ -122,6 +122,11 @@ extension Model: Renderable {
             index: BufferIndex.fragmentUniforms.rawValue
         )
 
+        renderEncoder.setVertexBytes(
+            &Terrain.terrainParams,
+            length: MemoryLayout<TerrainParams>.stride,
+            index: BufferIndex.terrainParams.rawValue
+        )
 
         renderEncoder.setVertexTexture(
             Terrain.primarySlopeMap,
