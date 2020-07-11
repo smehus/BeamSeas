@@ -122,6 +122,9 @@ extension Terrain: Renderable {
     func generateTerrainNormals(computeEncoder: MTLComputeCommandEncoder, uniforms: inout Uniforms) {
         let threadsPerGroup = MTLSize(width: 16, height: 16, depth: 1)
 
+        assert(((heightMap.width / 16) * 16) == heightMap.width)
+        assert(((heightMap.height / 16) * 16) == heightMap.height)
+
         computeEncoder.setComputePipelineState(normalPipelineState)
         computeEncoder.setTexture(heightMap, index: 0)
         computeEncoder.setTexture(altHeightMap, index: 1)

@@ -280,6 +280,9 @@ kernel void TerrainKnl_ComputeNormalsFromHeightmap(texture2d<float> height [[tex
 //    h_center_xy.x = fmod(h_center_xy.x + uniforms.deltaTime, 1);
     float h_center = height.sample(sam, h_center_xy).r;
 */
+
+
+    
     if (tid.x < height.get_width() && tid.y < height.get_height()) {
         float h_up     = mix(height.sample(sam, (float2)(tid + uint2(0, 1))).r, altHeight.sample(sam, (float2)(tid + uint2(0, 1))).r, 0.5);
         float h_down   = mix(height.sample(sam, (float2)(tid - uint2(0, 1))).r, altHeight.sample(sam, (float2)(tid - uint2(0, 1))).r, 0.5);
