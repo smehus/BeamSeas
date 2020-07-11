@@ -33,7 +33,7 @@ class Model: Node {
 
         asset.loadTextures()
 
-//        let (mdlMeshes, mtkMeshes) = try! MTKMesh.newMeshes(asset: asset, device: Renderer.device)
+        //        let (mdlMeshes, mtkMeshes) = try! MTKMesh.newMeshes(asset: asset, device: Renderer.device)
         var mtkMeshes: [MTKMesh] = []
         let mdlMeshes = asset.childObjects(of: MDLMesh.self) as! [MDLMesh]
         _ = mdlMeshes.map { mdlMesh in
@@ -93,7 +93,7 @@ extension Model: Renderable {
         computeEncoder.setTexture(altHeightMap, index: 1)
 
         computeEncoder.dispatchThreads(MTLSizeMake(1, 1, 1),
-                                        threadsPerThreadgroup: MTLSizeMake(1, 1, 1))
+                                       threadsPerThreadgroup: MTLSizeMake(1, 1, 1))
     }
 
     func draw(renderEncoder: MTLRenderCommandEncoder, uniforms: inout Uniforms, fragmentUniforms: inout FragmentUniforms) {
@@ -110,37 +110,38 @@ extension Model: Renderable {
         uniforms.normalMatrix = modelMatrix.upperLeft
 
         renderEncoder.setFragmentSamplerState(samplerState, index: 0)
-         renderEncoder.setVertexBytes(&uniforms,
-                                      length: MemoryLayout<Uniforms>.stride,
-                                      index: BufferIndex.uniforms.rawValue)
-         renderEncoder.setFragmentBytes(&fragmentUniforms,
-                                        length: MemoryLayout<FragmentUniforms>.stride,
-                                        index: BufferIndex.fragmentUniforms.rawValue)
+        renderEncoder.setVertexBytes(&uniforms,
+                                     length: MemoryLayout<Uniforms>.stride,
+                                     index: BufferIndex.uniforms.rawValue)
+        renderEncoder.setFragmentBytes(&fragmentUniforms,
+                                       length: MemoryLayout<FragmentUniforms>.stride,
+                                       index: BufferIndex.fragmentUniforms.rawValue)
 
-         for mesh in meshes {
+        for mesh in meshes {
 
-             for (index, vertexBuffer) in mesh.mtkMesh.vertexBuffers.enumerated() {
-                 renderEncoder.setVertexBuffer(vertexBuffer.buffer, offset: vertexBuffer.offset, index: index)
-             }
+            for (index, vertexBuffer) in mesh.mtkMesh.vertexBuffers.enumerated() {
+                renderEncoder.setVertexBuffer(vertexBuffer.buffer, offset: vertexBuffer.offset, index: index)
+            }
 
-             for submesh in mesh.submeshes {
-                 let mtkMesh = submesh.mtkSubmesh
+            for submesh in mesh.submeshes {
+                let mtkMesh = submesh.mtkSubmesh
 
-                 renderEncoder.setRenderPipelineState(submesh.pipelineState)
-                 renderEncoder.setFragmentTexture(submesh.textures.baseColor, index: TextureIndex.color.rawValue)
-                 renderEncoder.setFragmentTexture(submesh.textures.normal, index: TextureIndex.normal.rawValue)
-                 var material = submesh.material
-                 renderEncoder.setFragmentBytes(&material, length: MemoryLayout<Material>.stride, index: BufferIndex.materials.rawValue)
+                renderEncoder.setRenderPipelineState(submesh.pipelineState)
+                renderEncoder.setVertexTexture(Terrain.normalMapTexture, index: TextureIndex.normal.rawValue)
+                renderEncoder.setFragmentTexture(submesh.textures.baseColor, index: TextureIndex.color.rawValue)
+                renderEncoder.setFragmentTexture(submesh.textures.normal, index: TextureIndex.normal.rawValue)
+                var material = submesh.material
+                renderEncoder.setFragmentBytes(&material, length: MemoryLayout<Material>.stride, index: BufferIndex.materials.rawValue)
 
-                 renderEncoder.drawIndexedPrimitives(
-                     type: .triangle,
-                     indexCount: mtkMesh.indexCount,
-                     indexType: mtkMesh.indexType,
-                     indexBuffer: mtkMesh.indexBuffer.buffer,
-                     indexBufferOffset: mtkMesh.indexBuffer.offset
-                 )
-             }
-         }
+                renderEncoder.drawIndexedPrimitives(
+                    type: .triangle,
+                    indexCount: mtkMesh.indexCount,
+                    indexType: mtkMesh.indexType,
+                    indexBuffer: mtkMesh.indexBuffer.buffer,
+                    indexBufferOffset: mtkMesh.indexBuffer.offset
+                )
+            }
+        }
     }
 }
 

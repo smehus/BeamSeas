@@ -14,6 +14,7 @@ class Terrain: Node {
     static let maxTessellation = 16
     static var heightMapName = "Heightmap_Billow"
     static var alterHeightMapName = "Heightmap_Billow"
+    static var normalMapTexture: MTLTexture!
 
     static var terrainParams = TerrainParams(
         size: [150, 150],
@@ -44,7 +45,7 @@ class Terrain: Node {
     static var controlPointsBuffer: MTLBuffer!
     private let heightMap: MTLTexture
     private let altHeightMap: MTLTexture
-    private let normalMapTexture: MTLTexture
+
 
     init(mapName: String) {
 
@@ -101,7 +102,7 @@ class Terrain: Node {
         texDesc.usage = [.shaderRead, .shaderWrite]
         texDesc.mipmapLevelCount = Int(log2(Double(max(heightMap.width, heightMap.height))) + 1);
         texDesc.storageMode = .private
-        normalMapTexture = Renderer.device.makeTexture(descriptor: texDesc)!
+        Self.normalMapTexture = Renderer.device.makeTexture(descriptor: texDesc)!
 
         super.init()
     }
@@ -123,7 +124,7 @@ extension Terrain: Renderable {
         computeEncoder.setComputePipelineState(normalPipelineState)
         computeEncoder.setTexture(heightMap, index: 0)
         computeEncoder.setTexture(altHeightMap, index: 1)
-        computeEncoder.setTexture(normalMapTexture, index: 2)
+        computeEncoder.setTexture(Self.normalMapTexture, index: 2)
         computeEncoder.setBytes(&Terrain.terrainParams, length: MemoryLayout<TerrainParams>.size, index: 3)
         computeEncoder.setBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: BufferIndex.uniforms.rawValue)
         computeEncoder.dispatchThreadgroups(MTLSizeMake(altHeightMap.width, altHeightMap.height, 1), threadsPerThreadgroup: threadsPerGroup)
@@ -188,6 +189,7 @@ extension Terrain: Renderable {
     ) {
         renderEncoder.pushDebugGroup("Terrain Vertex")
         uniforms.modelMatrix = modelMatrix
+        uniforms.normalMatrix = modelMatrix.upperLeft
 
         renderEncoder.setTriangleFillMode(.fill)
         renderEncoder.setRenderPipelineState(renderPipelineState)
@@ -220,10 +222,21 @@ extension Terrain: Renderable {
             index: 1
         )
 
+        renderEncoder.setVertexTexture(
+            Self.normalMapTexture,
+            index: 2
+        )
+
         renderEncoder.setVertexBytes(
             &Terrain.terrainParams,
             length: MemoryLayout<TerrainParams>.stride,
             index: BufferIndex.terrainParams.rawValue
+        )
+
+        renderEncoder.setFragmentBytes(
+            &fragmentUniforms,
+            length: MemoryLayout<FragmentUniforms>.stride,
+            index: BufferIndex.fragmentUniforms.rawValue
         )
 
         renderEncoder.drawPatches(

@@ -18,6 +18,7 @@ struct ControlPoint {
 struct TerrainVertexOut {
     float4 position [[ position ]];
     float4 color;
+    float3 normal;
 };
 
 kernel void compute_height(constant float3 &position [[ buffer(0) ]],
@@ -136,11 +137,51 @@ kernel void tessellation_main(constant float *edge_factors [[ buffer(0) ]],
     factors[pid].insideTessellationFactor[1] = totalTessellation * 0.25;
 }
 
+float3 terrainDiffuseLighting(float3 normal,
+                       float3 position,
+                       constant FragmentUniforms &fragmentUniforms,
+                       constant Light *lights,
+                       float3 baseColor) {
+    float3 diffuseColor = 0;
+    float3 normalDirection = normalize(normal);
+    for (uint i = 0; i < fragmentUniforms.light_count; i++) {
+        Light light = lights[i];
+        if (light.type == Sunlight) {
+            float3 lightDirection = normalize(light.position);
+            float diffuseIntensity = saturate(dot(lightDirection, normalDirection));
+            diffuseColor += light.color * light.intensity * baseColor * diffuseIntensity;
+        } else if (light.type == Pointlight) {
+            float d = distance(light.position, position);
+            float3 lightDirection = normalize(light.position - position);
+            float attenuation = 1.0 / (light.attenuation.x + light.attenuation.y * d + light.attenuation.z * d * d);
+            float diffuseIntensity = saturate(dot(lightDirection, normalDirection));
+            float3 color = light.color * baseColor * diffuseIntensity;
+            color *= attenuation;
+            diffuseColor += color;
+        } else if (light.type == Spotlight) {
+            float d = distance(light.position, position);
+            float3 lightDirection = normalize(light.position - position);
+            float3 coneDirection = normalize(-light.coneDirection);
+            float spotResult = (dot(lightDirection, coneDirection));
+            if (spotResult > cos(light.coneAngle)) {
+                float attenuation = 1.0 / (light.attenuation.x + light.attenuation.y * d + light.attenuation.z * d * d);
+                attenuation *= pow(spotResult, light.coneAttenuation);
+                float diffuseIntensity = saturate(dot(lightDirection, normalDirection));
+                float3 color = light.color * baseColor * diffuseIntensity;
+                color *= attenuation;
+                diffuseColor += color;
+            }
+        }
+    }
+    return diffuseColor;
+}
+
 [[ patch(quad, 4) ]]
 vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control_points [[ stage_in ]],
                                        float2 patch_coord [[ position_in_patch ]],
                                        texture2d<float> heightMap [[ texture(0) ]],
                                        texture2d<float> altHeightMap [[ texture(1) ]],
+                                       texture2d<float> normalMap [[ texture(2) ]],
                                        constant TerrainParams &terrainParams [[ buffer(BufferIndexTerrainParams) ]],
                                        uint patchID [[ patch_id ]],
                                        constant Uniforms &uniforms [[ buffer(BufferIndexUniforms) ]])
@@ -160,6 +201,7 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
 
 
     constexpr sampler sample;
+    // Can i just combine the two textures so I don't have to do this big dance
     float2 xy = ((position.xz + terrainParams.size / 2) / terrainParams.size);
     xy.x = fmod(xy.x + (uniforms.deltaTime), 1);
     float4 primaryColor = heightMap.sample(sample, xy);
@@ -178,15 +220,25 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
     out.position = uniforms.projectionMatrix * uniforms.viewMatrix * uniforms.modelMatrix * position;
     float4 finalColor = float4(inverseColor, inverseColor, inverseColor, 1);
 
+    constexpr sampler sam(min_filter::linear, mag_filter::linear);
+
+    // reference AAPLTerrainRenderer in DynamicTerrainWithArgumentBuffers exmaple: EvaluateTerrainAtLocation line 235 -> EvaluateTerrainAtLocation in AAPLTerrainRendererUtilities line: 91
+    float3 localNormal = normalize(normalMap.sample(sam, xy).xzy * 2.0f - 1.0f);
+    out.normal = uniforms.normalMatrix * localNormal;
+
     finalColor += float4(0, 0.3, 1.0, 1);
     out.color = finalColor;
 
     return out;
 }
 
-fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]])
+fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
+                                 constant Light *lights [[ buffer(BufferIndexLights) ]],
+                                 constant FragmentUniforms &fragmentUniforms [[ buffer(BufferIndexFragmentUniforms) ]])
 {
-    return fragment_in.color;
+
+    float3 d = terrainDiffuseLighting(fragment_in.normal, fragment_in.position.xyz, fragmentUniforms, lights, fragment_in.color.rgb);
+    return float4(d, 1);
 }
 
 

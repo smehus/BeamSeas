@@ -59,7 +59,7 @@ final class Renderer: NSObject {
         models.append(terrain)
 
         let cube = Model(name: "Ship", fragment: "fragment_pbr")
-        cube.rotation = [Float(90).radiansToDegrees, 0, 0]
+        cube.rotation = [Float(-90).degreesToRadians, Float(-20).degreesToRadians, 0]
         models.append(cube)
 
         fragmentUniforms.light_count = UInt32(lighting.count)
@@ -95,7 +95,7 @@ extension Renderer: MTKViewDelegate {
         fragmentUniforms.camera_position = camera.position
 
         // Terrain Pass \\
-g
+
         let computeEncoder = commandBuffer.makeComputeCommandEncoder()!
         computeEncoder.pushDebugGroup("Tessellation")
         computeEncoder.setBytes(
