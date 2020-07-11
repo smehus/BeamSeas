@@ -13,7 +13,7 @@ class Terrain: Node {
 
     static let maxTessellation = 16
     static var heightMapName = "Heightmap_Billow"
-    static var alterHeightMapName = "Heightmap_Rocky"
+    static var alterHeightMapName = "Heightmap_Billow"
     static var normalMapTexture: MTLTexture!
 
     static var terrainParams = TerrainParams(

@@ -289,8 +289,8 @@ kernel void TerrainKnl_ComputeNormalsFromHeightmap(texture2d<float> height [[tex
 
         float3 v_up    = float3( 0,        (h_up    - h_center) * y_scale,  xz_scale);
         float3 v_down  = float3( 0,        (h_down  - h_center) * y_scale, -xz_scale);
-        float3 v_right = float3( xz_scale, (h_right - h_center) * y_scale,  0);
-        float3 v_left  = float3(-xz_scale, (h_left  - h_center) * y_scale,  0);
+        float3 v_right = float3( xz_scale, (h_center - h_right) * y_scale,  0);
+        float3 v_left  = float3(-xz_scale, (h_center - h_left) * y_scale,  0);
 
         float3 n0 = cross(v_up, v_right);
         float3 n1 = cross(v_left, v_up);
