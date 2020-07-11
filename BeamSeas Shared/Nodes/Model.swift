@@ -110,12 +110,28 @@ extension Model: Renderable {
         uniforms.normalMatrix = modelMatrix.upperLeft
 
         renderEncoder.setFragmentSamplerState(samplerState, index: 0)
-        renderEncoder.setVertexBytes(&uniforms,
-                                     length: MemoryLayout<Uniforms>.stride,
-                                     index: BufferIndex.uniforms.rawValue)
-        renderEncoder.setFragmentBytes(&fragmentUniforms,
-                                       length: MemoryLayout<FragmentUniforms>.stride,
-                                       index: BufferIndex.fragmentUniforms.rawValue)
+        renderEncoder.setVertexBytes(
+            &uniforms,
+            length: MemoryLayout<Uniforms>.stride,
+            index: BufferIndex.uniforms.rawValue
+        )
+
+        renderEncoder.setFragmentBytes(
+            &fragmentUniforms,
+            length: MemoryLayout<FragmentUniforms>.stride,
+            index: BufferIndex.fragmentUniforms.rawValue
+        )
+
+
+        renderEncoder.setVertexTexture(
+            Terrain.primarySlopeMap,
+            index: TextureIndex.primarySlope.rawValue
+        )
+
+        renderEncoder.setVertexTexture(
+            Terrain.secondarySlopeMap,
+            index: TextureIndex.secondarySlope.rawValue
+        )
 
         for mesh in meshes {
 

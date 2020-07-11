@@ -37,17 +37,20 @@ struct VertexOut {
 };
 
 vertex VertexOut vertex_main(const VertexIn vertex_in [[ stage_in ]],
+                             texture2d<float> primarySlopMap [[ texture(TextureIndexPrimarySlope) ]],
+                            texture2d<float> seconarySlopeMap [[ texture(TextureIndexSecondarySlope) ]],
                              constant Uniforms &uniforms [[ buffer(BufferIndexUniforms) ]])
 {
-    return {
-        .position = uniforms.projectionMatrix * uniforms.viewMatrix * uniforms.modelMatrix * vertex_in.position,
-        .worldPosition = (uniforms.modelMatrix * vertex_in.position).xyz,
-        .worldNormal = uniforms.normalMatrix * vertex_in.normal,
-        .uv = vertex_in.uv,
-        // normal matrix is the upper left of the model matrix aka world space
-        .worldTangent = uniforms.normalMatrix * vertex_in.tangent,
-        .worldBitangent = uniforms.normalMatrix * vertex_in.bitangent
-    };
+
+    VertexOut out;
+    out.position = uniforms.projectionMatrix * uniforms.viewMatrix * uniforms.modelMatrix * vertex_in.position;
+    out.worldPosition = (uniforms.modelMatrix * vertex_in.position).xyz;
+    out.worldNormal = uniforms.normalMatrix * vertex_in.normal;
+    out.uv = vertex_in.uv;
+    out.worldTangent = uniforms.normalMatrix * vertex_in.tangent;
+    out.worldBitangent = uniforms.normalMatrix * vertex_in.bitangent;
+
+    return out;
 }
 
 float3 diffuseLighting(float3 normal,
