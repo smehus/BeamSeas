@@ -47,9 +47,9 @@ class Terrain: Node {
     private let altHeightMap: MTLTexture
 
 
-    init(mapName: String) {
+    override init() {
 
-        heightMap = Self.loadTexture(imageName: mapName)
+        heightMap = Self.loadTexture(imageName: Terrain.heightMapName)
         altHeightMap = Self.loadTexture(imageName: Self.alterHeightMapName)
 
         let controlPoints = Self.createControlPoints(
