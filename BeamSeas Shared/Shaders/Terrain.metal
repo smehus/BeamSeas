@@ -280,16 +280,23 @@ kernel void TerrainKnl_ComputeNormalsFromHeightmap(texture2d<float> height [[tex
 //    float h_center = height.sample(sam, h_center_xy).r;
 
     if (tid.x < height.get_width() && tid.y < height.get_height()) {
-        float h_up     = height.sample(sam, (float2)(tid + uint2(0, 1))).r;
-        float h_down   = height.sample(sam, (float2)(tid - uint2(0, 1))).r;
-        float h_right  = height.sample(sam, (float2)(tid + uint2(1, 0))).r;
-        float h_left   = height.sample(sam, (float2)(tid - uint2(1, 0))).r;
-        float h_center = height.sample(sam, (float2)(tid + uint2(0, 0))).r;
+//        float h_up     = height.sample(sam, (float2)(tid + uint2(0, 1))).r;
+//        float h_down   = height.sample(sam, (float2)(tid - uint2(0, 1))).r;
+//        float h_right  = height.sample(sam, (float2)(tid + uint2(1, 0))).r;
+//        float h_left   = height.sample(sam, (float2)(tid - uint2(1, 0))).r;
+//        float h_center = height.sample(sam, (float2)(tid + uint2(0, 0))).r;
 
+
+        float h_up     = mix(height.sample(sam, (float2)(tid + uint2(0, 1))).r, altHeight.sample(sam, (float2)(tid + uint2(0, 1))).r, 0.5);
+        float h_down   = mix(height.sample(sam, (float2)(tid - uint2(0, 1))).r, altHeight.sample(sam, (float2)(tid - uint2(0, 1))).r, 0.5);
+        float h_right  = mix(height.sample(sam, (float2)(tid + uint2(1, 0))).r, altHeight.sample(sam, (float2)(tid + uint2(1, 0))).r, 0.5);
+        float h_left   = mix(height.sample(sam, (float2)(tid - uint2(1, 0))).r, altHeight.sample(sam, (float2)(tid - uint2(1, 0))).r, 0.5);
+        float h_center = mix(height.sample(sam, (float2)(tid + uint2(0, 0))).r, altHeight.sample(sam, (float2)(tid + uint2(0, 0))).r, 0.5);
 
         float3 v_up    = float3( 0,        (h_up    - h_center) * y_scale,  xz_scale);
         float3 v_down  = float3( 0,        (h_down  - h_center) * y_scale, -xz_scale);
         // Swapped h_center & h_right / left because the height map colors are inversed
+        // Although some of the texutres aren't reversed?? idkg
         float3 v_right = float3( xz_scale, (h_center - h_right) * y_scale,  0);
         float3 v_left  = float3(-xz_scale, (h_center - h_left) * y_scale,  0);
 
