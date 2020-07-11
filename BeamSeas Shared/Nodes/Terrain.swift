@@ -11,7 +11,7 @@ import MetalKit
 
 class Terrain: Node {
 
-    static let maxTessellation = 64
+    static let maxTessellation = 16
     static var heightMapName = "Heightmap_Billow"
     static var alterHeightMapName = "Heightmap_Billow"
     static var normalMapTexture: MTLTexture!
@@ -20,7 +20,7 @@ class Terrain: Node {
         size: [150, 150],
         height: 15,
         maxTessellation: UInt32(Terrain.maxTessellation),
-        numberOfPatches: UInt32(Terrain.patchNum * Terrain.patchNum) // TODO: - use the actual patchCount here
+        numberOfPatches: UInt32(Terrain.patchNum * Terrain.patchNum)
     )
 
     private static var patchNum = 16

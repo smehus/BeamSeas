@@ -68,16 +68,16 @@ kernel void compute_height(constant float3 &position [[ buffer(0) ]],
             xy.x = fmod(xy.x + (uniforms.deltaTime / 2), 1);
             float4 secondaryColor = altHeightMap.sample(sample, xy);
 
-            float4 color = primaryColor;//mix(primaryColor, secondaryColor, 0.5);
+            float4 color = mix(primaryColor, secondaryColor, 0.5);
             float inverseColor = 1 - color.r;
             float height = (inverseColor * 2 - 1) * terrain.height;
             float delta = height - height_buffer;
 
 
             if (delta < 0) {
-                height_buffer = height;//+= (delta * 0.5);
+                height_buffer += (delta * 0.5);
             } else {
-                height_buffer = height;//+= (delta * 0.05);
+                height_buffer += (delta * 0.05);
             }
 
 
@@ -214,7 +214,7 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
     float4 secondaryColor = altHeightMap.sample(sample, xy);
     float3 secondarLocalNormal = normalize(normalMap.sample(normalSampler, xy).xzy * 2.0f - 1.0f);
 
-    float4 color = primaryColor;//mix(primaryColor, secondaryColor, 0.5);
+    float4 color = mix(primaryColor, secondaryColor, 0.5);
     float inverseColor = 1 - color.r;
     float height = (inverseColor * 2 - 1) * terrainParams.height;
     position.y = height;
