@@ -13,7 +13,8 @@ class Terrain: Node {
 
     static let maxTessellation = 16
     static var heightMapName = "Heightmap_Billow"
-    static var alterHeightMapName = "Heightmap_Billow"
+    // Use plateaue but need to resize the png
+    static var alterHeightMapName = "Heightmap_Plateau"
     static var normalMapTexture: MTLTexture!
 
     static var terrainParams = TerrainParams(
