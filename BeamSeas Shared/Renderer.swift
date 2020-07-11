@@ -59,7 +59,7 @@ final class Renderer: NSObject {
         models.append(terrain)
 
         let cube = Model(name: "Ship", fragment: "fragment_pbr")
-        cube.rotation = [Float(-90).degreesToRadians, Float(-20).degreesToRadians, 0]
+        cube.rotation = [Float(-90).degreesToRadians, 0/*Float(-20).degreesToRadians*/, 0]
         models.append(cube)
 
         fragmentUniforms.light_count = UInt32(lighting.count)

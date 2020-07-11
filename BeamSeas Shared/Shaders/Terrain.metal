@@ -57,28 +57,27 @@ kernel void compute_height(constant float3 &position [[ buffer(0) ]],
 
             float2 interpolated = mix(top, bottom, v);
             float4 interpolatedPosition = float4(interpolated.x, 0.0, interpolated.y, 1.0);
-            float2 xy = ((interpolatedPosition.xz + terrain.size / 2) / terrain.size);
+
 
             constexpr sampler sample;
+            float2 xy = ((interpolatedPosition.xz + terrain.size / 2) / terrain.size);
             xy.x = fmod(xy.x + uniforms.deltaTime, 1);
             float4 primaryColor = heightMap.sample(sample, xy);
 
             xy = ((interpolatedPosition.xz + terrain.size / 2) / terrain.size);
             xy.x = fmod(xy.x + (uniforms.deltaTime / 2), 1);
+            float4 secondaryColor = altHeightMap.sample(sample, xy);
 
-            constexpr sampler alterSample;
-            float4 secondaryColor = altHeightMap.sample(alterSample, xy);
-
-            float4 color = mix(primaryColor, secondaryColor, 0.5);
+            float4 color = primaryColor;//mix(primaryColor, secondaryColor, 0.5);
             float inverseColor = 1 - color.r;
             float height = (inverseColor * 2 - 1) * terrain.height;
             float delta = height - height_buffer;
 
 
             if (delta < 0) {
-                height_buffer += (delta * 0.5);
+                height_buffer = height;//+= (delta * 0.5);
             } else {
-                height_buffer += (delta * 0.05);
+                height_buffer = height;//+= (delta * 0.05);
             }
 
 
@@ -201,17 +200,21 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
 
 
     constexpr sampler sample;
+    constexpr sampler normalSampler(min_filter::linear, mag_filter::linear);
+
+
     // Can i just combine the two textures so I don't have to do this big dance
     float2 xy = ((position.xz + terrainParams.size / 2) / terrainParams.size);
     xy.x = fmod(xy.x + (uniforms.deltaTime), 1);
     float4 primaryColor = heightMap.sample(sample, xy);
+    float3 primaryLocalNormal = normalize(normalMap.sample(normalSampler, xy).xzy * 2.0f - 1.0f);
 
     xy = ((position.xz + terrainParams.size / 2) / terrainParams.size);
     xy.x = fmod(xy.x + (uniforms.deltaTime / 2), 1);
-
     float4 secondaryColor = altHeightMap.sample(sample, xy);
+    float3 secondarLocalNormal = normalize(normalMap.sample(normalSampler, xy).xzy * 2.0f - 1.0f);
 
-    float4 color = mix(primaryColor, secondaryColor, 0.5);
+    float4 color = primaryColor;//mix(primaryColor, secondaryColor, 0.5);
     float inverseColor = 1 - color.r;
     float height = (inverseColor * 2 - 1) * terrainParams.height;
     position.y = height;
@@ -220,11 +223,8 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
     out.position = uniforms.projectionMatrix * uniforms.viewMatrix * uniforms.modelMatrix * position;
     float4 finalColor = float4(inverseColor, inverseColor, inverseColor, 1);
 
-    constexpr sampler sam(min_filter::linear, mag_filter::linear);
-
     // reference AAPLTerrainRenderer in DynamicTerrainWithArgumentBuffers exmaple: EvaluateTerrainAtLocation line 235 -> EvaluateTerrainAtLocation in AAPLTerrainRendererUtilities line: 91
-    float3 localNormal = normalize(normalMap.sample(sam, xy).xzy * 2.0f - 1.0f);
-    out.normal = uniforms.normalMatrix * localNormal;
+    out.normal = uniforms.normalMatrix * mix(primaryLocalNormal, secondarLocalNormal, 0.5);
 
     finalColor += float4(0, 0.3, 1.0, 1);
     out.color = finalColor;
@@ -238,7 +238,7 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
 {
 
     float3 d = terrainDiffuseLighting(fragment_in.normal, fragment_in.position.xyz, fragmentUniforms, lights, fragment_in.color.rgb);
-    return float4(d, 1);//float4(fragment_in.normal, 1);
+    return float4(d, 1);//fragment_in.color;
 }
 
 
