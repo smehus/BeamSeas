@@ -49,10 +49,11 @@ vertex VertexOut vertex_main(const VertexIn vertex_in [[ stage_in ]],
     float2 xy = ((uniforms.modelMatrix.columns[3].xy + terrain.size / 2) / terrain.size);
     float4 primarySlope = primarySlopMap.sample(sample, xy);
     float4 secondarySlope = secondarySlopeMap.sample(sample, xy);
-    float angle = 90;//mix(primarySlope, secondarySlope, 0.5).r;
+    float angle = (mix(primarySlope, secondarySlope, 0.5).r * 100);
     angle = (angle / 180) * M_PI_F;
 
 
+    // LOL this doesn't work at all
     float4x4 modelMatrix = float4x4(1); // Creates identity matrix
     modelMatrix.columns[0][0] = cos(angle);
     modelMatrix.columns[0][2] = sin(angle);
