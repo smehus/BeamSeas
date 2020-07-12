@@ -53,16 +53,25 @@ vertex VertexOut vertex_main(const VertexIn vertex_in [[ stage_in ]],
     float4 primarySlope = primarySlopMap.sample(sample, xy);
     float4 secondarySlope = secondarySlopeMap.sample(sample, xy);
     // gotta find the dot prods?
-    float normalMapValue = terrainNormalMap.sample(sample, xy).r;
+    float3 normalMapValue = terrainNormalMap.sample(sample, xy).rgb;
 
 
     float slopeAngle = (mix(primarySlope, secondarySlope, 0.5).r * 100);
     slopeAngle = (slopeAngle / 180) * M_PI_F;
 
 
-    float dotProd = saturate(dot(normalize(worldPosition.xyz), normalMapValue));
+    float3 normalizedWorldPosition = normalize(worldPosition.xyz);
+    float dotProd = saturate(dot(normalizedWorldPosition, normalMapValue));
     float normalAngle = dotProd * 100;
+
+    if (dotProd > 0.5) {
+        normalAngle = 90;
+    } else {
+        normalAngle = 0;
+    }
+
     float radiansNormalAngle = (normalAngle / 180) * M_PI_F;
+
 
     float angle = radiansNormalAngle;
 

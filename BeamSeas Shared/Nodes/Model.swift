@@ -16,6 +16,7 @@ class Model: Node {
     var tiling: UInt32 = 1
     let samplerState: MTLSamplerState?
     var heightBuffer: MTLBuffer
+    var normalBuffer: MTLBuffer
 
     private let heightMap: MTLTexture
     private let altHeightMap: MTLTexture
@@ -56,6 +57,9 @@ class Model: Node {
         var startingHeight: Float = 0
         heightBuffer = Renderer.device.makeBuffer(bytes: &startingHeight, length: MemoryLayout<Float>.size, options: .storageModeShared)!
 
+        var normalValue = 0
+        normalBuffer = Renderer.device.makeBuffer(bytes: &normalValue, length: MemoryLayout<SIMD3<Float>>.size, options: .storageModeShared)!
+
         let heightKernel = Renderer.library.makeFunction(name: "compute_height")!
         heightComputePipelineState = try! Renderer.device.makeComputePipelineState(function: heightKernel)
 
@@ -91,7 +95,8 @@ extension Model: Renderable {
         computeEncoder.setBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: 4)
         computeEncoder.setTexture(heightMap, index: 0)
         computeEncoder.setTexture(altHeightMap, index: 1)
-
+        computeEncoder.setTexture(Terrain.normalMapTexture, index: 2)
+        computeEncoder.setBuffer(normalBuffer, offset: 0, index: 5)
         computeEncoder.dispatchThreads(MTLSizeMake(1, 1, 1),
                                        threadsPerThreadgroup: MTLSizeMake(1, 1, 1))
     }
@@ -102,19 +107,15 @@ extension Model: Renderable {
         renderEncoder.pushDebugGroup("Model")
         let heightValue = heightBuffer.contents().bindMemory(to: Float.self, capacity: 1).pointee
         assert(meshes.count == 1)
-
         let size = meshes.first!.mdlMesh.boundingBox.maxBounds - meshes.first!.mdlMesh.boundingBox.minBounds
         position.y = heightValue + (size.y / 2)
 
+
+        let normalMapValue = normalBuffer.contents().bindMemory(to: SIMD3<Float>.self, capacity: 1).pointee
+        print("*** normal value \(normalMapValue)")
+
         fragmentUniforms.tiling = tiling
-        let rot = (90 / 180) * Float.pi;
-
-        var f = float4x4([cos(rot), 0, sin(rot), 0],
-                         [0, 1, 0, 0],
-                         [-sin(rot), 0,  cos(rot), 0],
-                         [0, 0, 0, 1])
-
-        uniforms.modelMatrix = modelMatrix //* f
+        uniforms.modelMatrix = modelMatrix
         uniforms.normalMatrix = modelMatrix.upperLeft
 
         renderEncoder.setFragmentSamplerState(samplerState, index: 0)
