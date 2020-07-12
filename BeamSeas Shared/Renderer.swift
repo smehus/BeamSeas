@@ -84,7 +84,7 @@ extension Renderer: MTKViewDelegate {
         guard
             let descriptor = view.currentRenderPassDescriptor,
             let commandBuffer = Self.commandQueue.makeCommandBuffer()
-        else {g
+        else {
             return
         }
 
