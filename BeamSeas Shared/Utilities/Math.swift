@@ -23,6 +23,14 @@ extension Float {
     }
 }
 
+//infix operator |=
+//func |=(lhs: Float, rhs: Float, max: Float) -> Float {
+//
+//
+//    return 0
+//}
+
+
 // MARK:- float4
 extension float4x4 {
     // MARK:- Translate
