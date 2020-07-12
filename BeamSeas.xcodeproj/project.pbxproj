@@ -57,6 +57,7 @@
 		0236A773249D8ED6008F197E /* cube.mtl in Resources */ = {isa = PBXBuildFile; fileRef = 0236A768249D8ED5008F197E /* cube.mtl */; };
 		0236A774249D8ED6008F197E /* cottage2.mtl in Resources */ = {isa = PBXBuildFile; fileRef = 0236A769249D8ED6008F197E /* cottage2.mtl */; };
 		0236A775249D8ED6008F197E /* cottage2.mtl in Resources */ = {isa = PBXBuildFile; fileRef = 0236A769249D8ED6008F197E /* cottage2.mtl */; };
+		023ADEF324BB543200478C87 /* Notes in Resources */ = {isa = PBXBuildFile; fileRef = 023ADEF224BB543200478C87 /* Notes */; };
 		02419D56249850C100BCB203 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02419D55249850C100BCB203 /* AppDelegate.swift */; };
 		02419D58249850C100BCB203 /* ViewControllerExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02419D57249850C100BCB203 /* ViewControllerExtension.swift */; };
 		02419D5B249850C100BCB203 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 02419D59249850C100BCB203 /* Main.storyboard */; };
@@ -116,6 +117,7 @@
 		0236A767249D8ED5008F197E /* cube.obj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = cube.obj; sourceTree = "<group>"; };
 		0236A768249D8ED5008F197E /* cube.mtl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = cube.mtl; sourceTree = "<group>"; };
 		0236A769249D8ED6008F197E /* cottage2.mtl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = cottage2.mtl; sourceTree = "<group>"; };
+		023ADEF224BB543200478C87 /* Notes */ = {isa = PBXFileReference; lastKnownFileType = text; path = Notes; sourceTree = "<group>"; };
 		02419D4A249850BF00BCB203 /* Shaders.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Shaders.metal; sourceTree = "<group>"; };
 		02419D4B249850BF00BCB203 /* Renderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Renderer.swift; sourceTree = "<group>"; };
 		02419D4C249850BF00BCB203 /* ShaderTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ShaderTypes.h; sourceTree = "<group>"; };
@@ -208,6 +210,7 @@
 				02419D4B249850BF00BCB203 /* Renderer.swift */,
 				020F9864249A757C00DB4850 /* ViewController.swift */,
 				0236A75E249D5DFD008F197E /* Textures.xcassets */,
+				023ADEF224BB543200478C87 /* Notes */,
 			);
 			path = "BeamSeas Shared";
 			sourceTree = "<group>";
@@ -406,6 +409,7 @@
 				0236A76A249D8ED6008F197E /* cottage1.obj in Resources */,
 				0236A755249D2192008F197E /* plane.obj in Resources */,
 				02419D5B249850C100BCB203 /* Main.storyboard in Resources */,
+				023ADEF324BB543200478C87 /* Notes in Resources */,
 				0236A74D249D182B008F197E /* lowpoly-house.obj in Resources */,
 				0236A74F249D182B008F197E /* lowpoly-house.mtl in Resources */,
 				0236A76C249D8ED6008F197E /* cottage2.obj in Resources */,
