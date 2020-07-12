@@ -84,11 +84,11 @@ extension Renderer: MTKViewDelegate {
         guard
             let descriptor = view.currentRenderPassDescriptor,
             let commandBuffer = Self.commandQueue.makeCommandBuffer()
-        else {
+        else {g
             return
         }
 
-        delta += 0.0001
+        delta += 0.001
         uniforms.deltaTime = delta
         uniforms.projectionMatrix = camera.projectionMatrix
         uniforms.viewMatrix = camera.viewMatrix

@@ -113,8 +113,9 @@ extension Model: Renderable {
 
         var normalMapValue = normalBuffer.contents().bindMemory(to: SIMD3<Float>.self, capacity: 1).pointee
         // transform normal values from between 0 - 1 to -1 - 1
-        normalMapValue = normalMapValue * 2 - 1
-        print("*** normal value \(normalMapValue)")
+        normalMapValue = ((normalMapValue * 2 - 1) * 100)
+        print("*** normal value \(normalMapValue.x)")
+        rotation.y = normalMapValue.x.degreesToRadians
 
         fragmentUniforms.tiling = tiling
         uniforms.modelMatrix = modelMatrix
