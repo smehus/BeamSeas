@@ -47,12 +47,10 @@ vertex VertexOut vertex_main(const VertexIn vertex_in [[ stage_in ]],
 
     constexpr sampler sample;
     float2 xy = ((uniforms.modelMatrix.columns[3].xy + terrain.size / 2) / terrain.size);
-    float4 primarySlope = primarySlopMap.sample(sample, xy);
-    float4 secondarySlope = secondarySlopeMap.sample(sample, xy);
-    float slope = mix(primarySlope, secondarySlope, 0.5).r;
-    float4x4 modelMatrix = uniforms.modelMatrix;
-
-
+//    float4 primarySlope = primarySlopMap.sample(sample, xy);
+//    float4 secondarySlope = secondarySlopeMap.sample(sample, xy);
+    float slope = 90;//mix(primarySlope, secondarySlope, 0.5).r;
+    slope = (slope / 180) * M_PI_F;
 
     // X angle
 //    let matrix = float4x4(
@@ -70,27 +68,27 @@ vertex VertexOut vertex_main(const VertexIn vertex_in [[ stage_in ]],
 //        [          0,          0, 0, 1]
 //    )
 
-    modelMatrix.columns[0][0] += cos(slope);
-    modelMatrix.columns[0][1] += sin(slope);
-    modelMatrix.columns[1][0] += -sin(slope);
-    modelMatrix.columns[1][1] += cos(slope);
-
-
-// Y angle
-//    let matrix = float4x4(
-//        [cos(angle), 0, -sin(angle), 0],
-//        [         0, 1,           0, 0],
-//        [sin(angle), 0,  cos(angle), 0],
-//        [         0, 0,           0, 1]
-//    )
-
 //    modelMatrix.columns[0][0] += cos(slope);
+//    modelMatrix.columns[0][1] += sin(slope);
+//    modelMatrix.columns[1][0] += -sin(slope);
+//    modelMatrix.columns[1][1] += cos(slope);
+
+
+    //
+    float4x4 matrix ={ cos(slope), 0, sin(slope), 0,
+        0, 1, 0, 0,
+        -sin(slope), 0,  cos(slope), 0,
+        0, 0, 0, 1};
+
+    //    modelMatrix.columns[0][0] += cos(slope);
 //    modelMatrix.columns[0][2] += -sin(slope);
 //    modelMatrix.columns[2][0] += sin(slope);
 //    modelMatrix.columns[2][2] += cos(slope);
 
 
-    out.position = uniforms.projectionMatrix * uniforms.viewMatrix * modelMatrix * vertex_in.position;
+    float4x4 model = uniforms.modelMatrix * matrix;
+
+    out.position = uniforms.projectionMatrix * uniforms.viewMatrix * uniforms.modelMatrix * vertex_in.position;
     out.worldPosition = (uniforms.modelMatrix * vertex_in.position).xyz;
     out.worldNormal = uniforms.normalMatrix * vertex_in.normal;
     out.uv = vertex_in.uv;

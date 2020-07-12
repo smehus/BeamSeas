@@ -7,7 +7,7 @@
 //
 
 import MetalKit
-
+import Foundation
 class Model: Node {
 
     static var vertexDescriptor: MDLVertexDescriptor = .defaultVertexDescriptor
@@ -106,7 +106,15 @@ extension Model: Renderable {
         position.y = heightValue + (size.y / 2)
 
         fragmentUniforms.tiling = tiling
-        uniforms.modelMatrix = modelMatrix
+        let rot = (90 / 180) * Float.pi;
+
+        let f = float4x4([cos(rot), 0, sin(rot), 0],
+                         [0, 1, 0, 0],
+                         [-sin(rot), 0,  cos(rot), 0],
+                         [0, 0, 0, 1])
+
+
+        uniforms.modelMatrix = modelMatrix * f
         uniforms.normalMatrix = modelMatrix.upperLeft
 
         renderEncoder.setFragmentSamplerState(samplerState, index: 0)
