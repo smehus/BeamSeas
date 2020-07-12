@@ -38,6 +38,7 @@ struct VertexOut {
 
 vertex VertexOut vertex_main(const VertexIn vertex_in [[ stage_in ]],
                              constant TerrainParams &terrain [[ buffer(BufferIndexTerrainParams) ]],
+                             texture2d<float> terrainNormalMap [[ texture(TextureIndexNormal) ]],
                              texture2d<float> primarySlopMap [[ texture(TextureIndexPrimarySlope) ]],
                              texture2d<float> secondarySlopeMap [[ texture(TextureIndexSecondarySlope) ]],
                              constant Uniforms &uniforms [[ buffer(BufferIndexUniforms) ]])
@@ -46,24 +47,34 @@ vertex VertexOut vertex_main(const VertexIn vertex_in [[ stage_in ]],
     VertexOut out;
 
     constexpr sampler sample;
-    float2 xy = ((uniforms.modelMatrix.columns[3].xy + terrain.size / 2) / terrain.size);
+    float3 worldPosition = uniforms.modelMatrix.columns[3].xyz;
+    float2 xy = ((worldPosition.xy + terrain.size / 2) / terrain.size);
+
     float4 primarySlope = primarySlopMap.sample(sample, xy);
     float4 secondarySlope = secondarySlopeMap.sample(sample, xy);
-    float angle = (mix(primarySlope, secondarySlope, 0.5).r * 100);
-    angle = (angle / 180) * M_PI_F;
+    // gotta find the dot prods?
+    float normalMapValue = terrainNormalMap.sample(sample, xy).r;
 
 
-    // LOL this doesn't work at all
+    float slopeAngle = (mix(primarySlope, secondarySlope, 0.5).r * 100);
+    slopeAngle = (slopeAngle / 180) * M_PI_F;
+
+
+    float dotProd = saturate(dot(normalize(worldPosition.xyz), normalMapValue));
+    float normalAngle = dotProd * 100;
+    float radiansNormalAngle = (normalAngle / 180) * M_PI_F;
+
+    float angle = radiansNormalAngle;
+
     float4x4 modelMatrix = float4x4(1); // Creates identity matrix
     modelMatrix.columns[0][0] = cos(angle);
     modelMatrix.columns[0][2] = sin(angle);
     modelMatrix.columns[2][0] = -sin(angle);
     modelMatrix.columns[2][2] = cos(angle);
+    float4x4 slopeModelVertex = uniforms.modelMatrix * modelMatrix;
 
 
-    float4x4 model = uniforms.modelMatrix * modelMatrix;
-
-    out.position = uniforms.projectionMatrix * uniforms.viewMatrix * model * vertex_in.position;
+    out.position = uniforms.projectionMatrix * uniforms.viewMatrix * slopeModelVertex * vertex_in.position;
     out.worldPosition = (uniforms.modelMatrix * vertex_in.position).xyz;
     out.worldNormal = uniforms.normalMatrix * vertex_in.normal;
     out.uv = vertex_in.uv;
@@ -83,9 +94,11 @@ float3 diffuseLighting(float3 normal,
     for (uint i = 0; i < fragmentUniforms.light_count; i++) {
         Light light = lights[i];
         if (light.type == Sunlight) {
+
             float3 lightDirection = normalize(light.position);
             float diffuseIntensity = saturate(dot(lightDirection, normalDirection));
             diffuseColor += light.color * light.intensity * baseColor * diffuseIntensity;
+
         } else if (light.type == Pointlight) {
             float d = distance(light.position, position);
             float3 lightDirection = normalize(light.position - position);

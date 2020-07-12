@@ -146,6 +146,11 @@ extension Model: Renderable {
             index: TextureIndex.secondarySlope.rawValue
         )
 
+        renderEncoder.setVertexTexture(
+            Terrain.normalMapTexture,
+            index: TextureIndex.normal.rawValue
+        )
+
         for mesh in meshes {
 
             for (index, vertexBuffer) in mesh.mtkMesh.vertexBuffers.enumerated() {
