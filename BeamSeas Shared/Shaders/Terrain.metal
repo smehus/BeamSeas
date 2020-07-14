@@ -66,11 +66,17 @@ kernel void compute_height(constant float3 &position [[ buffer(0) ]],
             xy.x = fmod(xy.x + uniforms.deltaTime, 1);
             float4 primaryColor = heightMap.sample(sample, xy);
 
+
+            float4 normal = normalMap.sample(sample, xy);
+
+            normal_buffer = normal.rgb;
+
+
             xy = ((interpolatedPosition.xz + terrain.size / 2) / terrain.size);
             xy.x = fmod(xy.x + (uniforms.deltaTime / 2), 1);
             float4 secondaryColor = altHeightMap.sample(sample, xy);
 
-            float4 color = mix(primaryColor, secondaryColor, 0.5);
+            float4 color = primaryColor;//mix(primaryColor, secondaryColor, 0.5);
             float inverseColor = 1 - color.r;
             float height = (inverseColor * 2 - 1) * terrain.height;
             float delta = height - height_buffer;
@@ -81,10 +87,6 @@ kernel void compute_height(constant float3 &position [[ buffer(0) ]],
             } else {
                 height_buffer += (delta * 0.05);
             }
-
-            float4 normal = normalMap.sample(sample, xy);
-
-            normal_buffer = normal.rgb;
 
             return;
         }
@@ -219,7 +221,7 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
     float4 secondaryColor = altHeightMap.sample(sample, xy);
     float3 secondarLocalNormal = normalize(normalMap.sample(normalSampler, xy).xzy * 2.0f - 1.0f);
 
-    float4 color = mix(primaryColor, secondaryColor, 0.5);
+    float4 color = primaryColor;//mix(primaryColor, secondaryColor, 0.5);
     float inverseColor = 1 - color.r;
     float height = (inverseColor * 2 - 1) * terrainParams.height;
     position.y = height;
@@ -243,7 +245,18 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
 {
 
     float3 d = terrainDiffuseLighting(fragment_in.normal, fragment_in.position.xyz, fragmentUniforms, lights, fragment_in.color.rgb);
-    return float4(d, 1);//fragment_in.color;
+    return float4(fragment_in.normal, 1);//float4(d, 1);//fragment_in.color;
+}
+
+
+float normalCoordinates(uint2 coords, texture2d<float> map, sampler s, float delta)
+{
+
+    float2 xy = float2(coords.x, coords.y);
+    xy.x = fmod(xy.x + delta, 1);
+    float4 d = map.sample(s, xy);
+
+    return d.r;
 }
 
 
@@ -292,11 +305,20 @@ kernel void TerrainKnl_ComputeNormalsFromHeightmap(texture2d<float> height [[tex
 //        float h_center = height.sample(sam, (float2)(tid + uint2(0, 0))).r;
 
 
-        float h_up     = mix(height.sample(sam, (float2)(tid + uint2(0, 1))).r, altHeight.sample(sam, ((float2)(tid + uint2(0, 1))) + (uniforms.deltaTime / 2)).r, 0.5);
-        float h_down   = mix(height.sample(sam, (float2)(tid - uint2(0, 1))).r, altHeight.sample(sam, ((float2)(tid - uint2(0, 1))) + (uniforms.deltaTime / 2)).r, 0.5);
-        float h_right  = mix(height.sample(sam, (float2)(tid + uint2(1, 0))).r, altHeight.sample(sam, ((float2)(tid + uint2(1, 0))) + (uniforms.deltaTime / 2)).r, 0.5);
-        float h_left   = mix(height.sample(sam, (float2)(tid - uint2(1, 0))).r, altHeight.sample(sam, ((float2)(tid - uint2(1, 0))) + (uniforms.deltaTime / 2)).r, 0.5);
-        float h_center = mix(height.sample(sam, (float2)(tid + uint2(0, 0))).r, altHeight.sample(sam, ((float2)(tid + uint2(0, 0))) + (uniforms.deltaTime / 2)).r, 0.5);
+        // F'ed up becausee i'm not fmod
+        float h_up = normalCoordinates(tid + uint2(0, 1), height, sam, uniforms.deltaTime);
+        float h_down = normalCoordinates(tid - uint2(0, 1), height, sam, uniforms.deltaTime);
+        float h_right = normalCoordinates(tid + uint2(1, 0), height, sam, uniforms.deltaTime);
+        float h_left = normalCoordinates(tid - uint2(1, 0), height, sam, uniforms.deltaTime);
+        float h_center = normalCoordinates(tid + uint2(0, 0), height, sam, uniforms.deltaTime);
+
+
+
+//        float h_up     = mix(height.sample(sam, (float2)(tid + uint2(0, 1))).r, altHeight.sample(sam, ((float2)(tid + uint2(0, 1))) + (uniforms.deltaTime / 2)).r, 0.5);
+//        float h_down   = mix(height.sample(sam, (float2)(tid - uint2(0, 1))).r, altHeight.sample(sam, ((float2)(tid - uint2(0, 1))) + (uniforms.deltaTime / 2)).r, 0.5);
+//        float h_right  = mix(height.sample(sam, (float2)(tid + uint2(1, 0))).r, altHeight.sample(sam, ((float2)(tid + uint2(1, 0))) + (uniforms.deltaTime / 2)).r, 0.5);
+//        float h_left   = mix(height.sample(sam, (float2)(tid - uint2(1, 0))).r, altHeight.sample(sam, ((float2)(tid - uint2(1, 0))) + (uniforms.deltaTime / 2)).r, 0.5);
+//        float h_center = mix(height.sample(sam, (float2)(tid + uint2(0, 0))).r, altHeight.sample(sam, ((float2)(tid + uint2(0, 0))) + (uniforms.deltaTime / 2)).r, 0.5);
 
         float3 v_up    = float3( 0,        (h_up    - h_center) * y_scale,  xz_scale);
         float3 v_down  = float3( 0,        (h_down  - h_center) * y_scale, -xz_scale);
