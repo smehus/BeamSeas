@@ -11,7 +11,7 @@ import MetalPerformanceShaders
 
 class Terrain: Node {
 
-    static let maxTessellation = 16
+    static let maxTessellation = 64
     static var heightMapName = "Heightmap_Billow"
     static var alterHeightMapName = "Heightmap_Billow"
     static var normalMapTexture: MTLTexture!

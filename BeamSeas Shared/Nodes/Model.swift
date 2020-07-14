@@ -8,6 +8,8 @@
 
 import MetalKit
 import Foundation
+import simd
+
 class Model: Node {
 
     static var vertexDescriptor: MDLVertexDescriptor = .defaultVertexDescriptor
@@ -116,6 +118,9 @@ extension Model: Renderable {
         normalMapValue = ((normalMapValue * 2 - 1) * 100)
         var currentDegreeRotation = rotation.y.radiansToDegrees
         let delta = max(currentDegreeRotation, normalMapValue.x) - min(currentDegreeRotation, normalMapValue.x)
+
+//        let b = simd_mix(<#T##x: Double##Double#>, <#T##y: Double##Double#>, <#T##t: Double##Double#>)
+
 
         if currentDegreeRotation > normalMapValue.x {
             currentDegreeRotation -= (delta * 0.05)
