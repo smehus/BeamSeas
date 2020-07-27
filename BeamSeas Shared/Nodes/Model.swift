@@ -98,6 +98,7 @@ extension Model: Renderable {
         computeEncoder.setTexture(heightMap, index: 0)
         computeEncoder.setTexture(altHeightMap, index: 1)
         computeEncoder.setTexture(Terrain.normalMapTexture, index: 2)
+        computeEncoder.setTexture(Terrain.secondaryNormalMapTexture, index: 3)
         computeEncoder.setBuffer(normalBuffer, offset: 0, index: 5)
         computeEncoder.dispatchThreads(MTLSizeMake(1, 1, 1),
                                        threadsPerThreadgroup: MTLSizeMake(1, 1, 1))
@@ -120,7 +121,6 @@ extension Model: Renderable {
         let delta = max(currentDegreeRotation, normalMapValue.x) - min(currentDegreeRotation, normalMapValue.x)
 
 //        let b = simd_mix(<#T##x: Double##Double#>, <#T##y: Double##Double#>, <#T##t: Double##Double#>)
-
 
         if currentDegreeRotation > normalMapValue.x {
             currentDegreeRotation -= (delta * 0.05)

@@ -29,6 +29,7 @@ kernel void compute_height(constant float3 &position [[ buffer(0) ]],
                            texture2d<float> heightMap [[ texture(0) ]],
                            texture2d<float> altHeightMap [[ texture(1) ]],
                            texture2d<float> normalMap [[ texture(2) ]],
+                           texture2d<float> secondaryNormalMap [[ texture(3) ]],
                            device float3 &normal_buffer [[ buffer(5) ]])
 {
     uint total = terrain.numberOfPatches * 4; // 4 points per patch
@@ -62,21 +63,22 @@ kernel void compute_height(constant float3 &position [[ buffer(0) ]],
 
 
             constexpr sampler sample;
+
+            // primary
             float2 xy = ((interpolatedPosition.xz + terrain.size / 2) / terrain.size);
             xy.x = fmod(xy.x + uniforms.deltaTime, 1);
             float4 primaryColor = heightMap.sample(sample, xy);
+            float4 primaryNormal = normalMap.sample(sample, xy);
 
 
-            float4 normal = normalMap.sample(sample, xy);
-
-            normal_buffer = normal.rgb;
-
-
+            // /secondary
             xy = ((interpolatedPosition.xz + terrain.size / 2) / terrain.size);
             xy.x = fmod(xy.x + (uniforms.deltaTime / 2), 1);
             float4 secondaryColor = altHeightMap.sample(sample, xy);
+            float4 secondaryNormal = secondaryNormalMap.sample(sample, xy);
 
-            float4 color = primaryColor;//mix(primaryColor, secondaryColor, 0.5);
+            normal_buffer = mix(primaryNormal, secondaryNormal, 0.5).rgb;
+            float4 color = mix(primaryColor, secondaryColor, 0.5);
             float inverseColor = 1 - color.r;
             float height = (inverseColor * 2 - 1) * terrain.height;
             float delta = height - height_buffer;
@@ -188,6 +190,7 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
                                        texture2d<float> heightMap [[ texture(0) ]],
                                        texture2d<float> altHeightMap [[ texture(1) ]],
                                        texture2d<float> normalMap [[ texture(2) ]],
+                                       texture2d<float> secondaryNormalMap [[ texture(3) ]],
                                        constant TerrainParams &terrainParams [[ buffer(BufferIndexTerrainParams) ]],
                                        uint patchID [[ patch_id ]],
                                        constant Uniforms &uniforms [[ buffer(BufferIndexUniforms) ]])
@@ -219,9 +222,9 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
     xy = ((position.xz + terrainParams.size / 2) / terrainParams.size);
     xy.x = fmod(xy.x + (uniforms.deltaTime / 2), 1);
     float4 secondaryColor = altHeightMap.sample(sample, xy);
-    float3 secondarLocalNormal = normalize(normalMap.sample(normalSampler, xy).xzy * 2.0f - 1.0f);
+    float3 secondarLocalNormal = normalize(secondaryNormalMap.sample(normalSampler, xy).xzy * 2.0f - 1.0f);
 
-    float4 color = primaryColor;//mix(primaryColor, secondaryColor, 0.5);
+    float4 color = mix(primaryColor, secondaryColor, 0.5);
     float inverseColor = 1 - color.r;
     float height = (inverseColor * 2 - 1) * terrainParams.height;
     position.y = height;
@@ -262,7 +265,6 @@ float normalCoordinates(uint2 coords, texture2d<float> map, sampler s, float del
 
 // This is pulled directly from apples example: DynamicTerrainWithArgumentBuffers
 kernel void TerrainKnl_ComputeNormalsFromHeightmap(texture2d<float> height [[texture(0)]],
-                                                   texture2d<float> altHeight [[texture(1)]],
                                                    texture2d<float, access::write> normal [[texture(2)]],
                                                    constant TerrainParams &terrain [[ buffer(3) ]],
                                                    constant Uniforms &uniforms [[ buffer(BufferIndexUniforms) ]],
@@ -275,55 +277,20 @@ kernel void TerrainKnl_ComputeNormalsFromHeightmap(texture2d<float> height [[tex
     float xz_scale = terrain.size.x / height.get_width();
     float y_scale = terrain.height;
 
-//    float2 h_up_xy = (float2)(tid + uint2(0, 1));
-////    h_up_xy.x = fmod(h_up_xy.x + uniforms.deltaTime, 1);
-//    float h_up = height.sample(sam, h_up_xy).r;
-//
-//
-//    float2 h_down_xy = (float2)(tid - uint2(0, 1));
-////    h_down_xy.x = fmod(h_down_xy.x + uniforms.deltaTime, 1);
-//    float h_down = height.sample(sam, h_down_xy).r;
-//
-//
-//    float2 h_right_xy = (float2)(tid + uint2(1, 0));
-////    h_right_xy.x = fmod(h_right_xy.x + uniforms.deltaTime, 1);
-//    float h_right  = height.sample(sam, h_right_xy).r;
-//
-//    float2 h_left_xy = (float2)(tid - uint2(1, 0));
-////    h_left_xy.x = fmod(h_left_xy.x + uniforms.deltaTime, 1);
-//    float h_left = height.sample(sam, h_left_xy).r;
-//
-//    float2 h_center_xy = (float2)(tid + uint2(0, 0));
-////    h_center_xy.x = fmod(h_center_xy.x + uniforms.deltaTime, 1);
-//    float h_center = height.sample(sam, h_center_xy).r;
 
     if (tid.x < height.get_width() && tid.y < height.get_height()) {
-//        float h_up     = height.sample(sam, (float2)(tid + uint2(0, 1))).r;
-//        float h_down   = height.sample(sam, (float2)(tid - uint2(0, 1))).r;
-//        float h_right  = height.sample(sam, (float2)(tid + uint2(1, 0))).r;
-//        float h_left   = height.sample(sam, (float2)(tid - uint2(1, 0))).r;
-//        float h_center = height.sample(sam, (float2)(tid + uint2(0, 0))).r;
-
-
-        // F'ed up becausee i'm not fmod
-        float h_up = normalCoordinates(tid + uint2(0, 1), height, sam, uniforms.deltaTime);
-        float h_down = normalCoordinates(tid - uint2(0, 1), height, sam, uniforms.deltaTime);
-        float h_right = normalCoordinates(tid + uint2(1, 0), height, sam, uniforms.deltaTime);
-        float h_left = normalCoordinates(tid - uint2(1, 0), height, sam, uniforms.deltaTime);
-        float h_center = normalCoordinates(tid + uint2(0, 0), height, sam, uniforms.deltaTime);
-
-
-
-//        float h_up     = mix(height.sample(sam, (float2)(tid + uint2(0, 1))).r, altHeight.sample(sam, ((float2)(tid + uint2(0, 1))) + (uniforms.deltaTime / 2)).r, 0.5);
-//        float h_down   = mix(height.sample(sam, (float2)(tid - uint2(0, 1))).r, altHeight.sample(sam, ((float2)(tid - uint2(0, 1))) + (uniforms.deltaTime / 2)).r, 0.5);
-//        float h_right  = mix(height.sample(sam, (float2)(tid + uint2(1, 0))).r, altHeight.sample(sam, ((float2)(tid + uint2(1, 0))) + (uniforms.deltaTime / 2)).r, 0.5);
-//        float h_left   = mix(height.sample(sam, (float2)(tid - uint2(1, 0))).r, altHeight.sample(sam, ((float2)(tid - uint2(1, 0))) + (uniforms.deltaTime / 2)).r, 0.5);
-//        float h_center = mix(height.sample(sam, (float2)(tid + uint2(0, 0))).r, altHeight.sample(sam, ((float2)(tid + uint2(0, 0))) + (uniforms.deltaTime / 2)).r, 0.5);
+        // I think we can just compute the normals once for each map - pass both maps into the vertex shader
+        // And mix the two samples. Don't need to do anything else other than handle the mix between maps & fmod something...
+        // Which we're already doing in the vertex shader. So I think we can just add an altNormalMap to the vetex shader & use that for secondary shader
+        float h_up     = height.sample(sam, (float2)(tid + uint2(0, 1))).r;
+        float h_down   = height.sample(sam, (float2)(tid - uint2(0, 1))).r;
+        float h_right  = height.sample(sam, (float2)(tid + uint2(1, 0))).r;
+        float h_left   = height.sample(sam, (float2)(tid - uint2(1, 0))).r;
+        float h_center = height.sample(sam, (float2)(tid + uint2(0, 0))).r;
 
         float3 v_up    = float3( 0,        (h_up    - h_center) * y_scale,  xz_scale);
         float3 v_down  = float3( 0,        (h_down  - h_center) * y_scale, -xz_scale);
-        // Swapped h_center & h_right / left because the height map colors are inversed
-        // Although some of the texutres aren't reversed?? idkg
+        // switched h_right & h_center to accomodate for map weirdness
         float3 v_right = float3( xz_scale, (h_center - h_right) * y_scale,  0);
         float3 v_left  = float3(-xz_scale, (h_center - h_left) * y_scale,  0);
 
@@ -337,3 +304,39 @@ kernel void TerrainKnl_ComputeNormalsFromHeightmap(texture2d<float> height [[tex
         normal.write(float4(n.xzy, 1), tid);
     }
 }
+
+// Original
+//kernel void TerrainKnl_ComputeNormalsFromHeightmap(texture2d<float> height [[texture(0)]],
+//                                                   texture2d<float, access::write> normal [[texture(1)]],
+//                                                   constant TerrainParams &terrain [[ buffer(3) ]],
+//                                                   uint2 tid [[thread_position_in_grid]])
+//{
+//    constexpr sampler sam(min_filter::nearest, mag_filter::nearest, mip_filter::none,
+//                          address::clamp_to_edge, coord::pixel);
+//
+////    float xz_scale = TERRAIN_SCALE / height.get_width();
+//    float xz_scale = terrain.size.x / height.get_width();
+//    float y_scale = terrain.height;
+//
+//    if (tid.x < height.get_width() && tid.y < height.get_height()) {
+//        float h_up     = height.sample(sam, (float2)(tid + uint2(0, 1))).r;
+//        float h_down   = height.sample(sam, (float2)(tid - uint2(0, 1))).r;
+//        float h_right  = height.sample(sam, (float2)(tid + uint2(1, 0))).r;
+//        float h_left   = height.sample(sam, (float2)(tid - uint2(1, 0))).r;
+//        float h_center = height.sample(sam, (float2)(tid + uint2(0, 0))).r;
+//
+//        float3 v_up    = float3( 0,        (h_up    - h_center) * y_scale,  xz_scale);
+//        float3 v_down  = float3( 0,        (h_down  - h_center) * y_scale, -xz_scale);
+//        float3 v_right = float3( xz_scale, (h_right - h_center) * y_scale,  0);
+//        float3 v_left  = float3(-xz_scale, (h_left  - h_center) * y_scale,  0);
+//
+//        float3 n0 = cross(v_up, v_right);
+//        float3 n1 = cross(v_left, v_up);
+//        float3 n2 = cross(v_down, v_left);
+//        float3 n3 = cross(v_right, v_down);
+//
+//        float3 n = normalize(n0 + n1 + n2 + n3) * 0.5f + 0.5f;
+//
+//        normal.write(float4(n.xzy, 1), tid);
+//    }
+//}
