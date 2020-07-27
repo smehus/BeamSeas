@@ -12,7 +12,7 @@ import MetalPerformanceShaders
 class Terrain: Node {
 
     static let maxTessellation = 64
-    static var heightMapName = "Heightmap_Billow"
+    static var heightMapName = "simuwater"
     static var alterHeightMapName = "Heightmap_Plateau"
     static var normalMapTexture: MTLTexture!
     static var secondaryNormalMapTexture: MTLTexture!
@@ -53,7 +53,7 @@ class Terrain: Node {
 
     override init() {
 
-        heightMap = Self.loadTexture(imageName: Terrain.heightMapName)
+        heightMap = Self.loadTexture(imageName: Terrain.heightMapName, path: "jpg")
         altHeightMap = Self.loadTexture(imageName: Self.alterHeightMapName)
 
         let controlPoints = Self.createControlPoints(
@@ -114,33 +114,33 @@ class Terrain: Node {
         texDesc.mipmapLevelCount = Int(log2(Double(max(altHeightMap.width, altHeightMap.height))) + 1);
         Self.secondaryNormalMapTexture = Renderer.device.makeTexture(descriptor: texDesc)!
 
-        let primarySlopeDescriptor: MTLTextureDescriptor = .texture2DDescriptor(
-            pixelFormat: heightMap.pixelFormat,
-            width: heightMap.width,
-            height: heightMap.height,
-            mipmapped: false
-        )
-        primarySlopeDescriptor.usage = [.shaderRead, .shaderWrite]
+//        let primarySlopeDescriptor: MTLTextureDescriptor = .texture2DDescriptor(
+//            pixelFormat: heightMap.pixelFormat,
+//            width: heightMap.width,
+//            height: heightMap.height,
+//            mipmapped: false
+//        )
+//        primarySlopeDescriptor.usage = [.shaderRead, .shaderWrite]
+//
+//        Self.primarySlopeMap = Renderer.device.makeTexture(descriptor: primarySlopeDescriptor)!
+//        Self.secondarySlopeMap = Renderer.device.makeTexture(descriptor: primarySlopeDescriptor)!
+//
+//        let commandBuffer = Renderer.commandQueue.makeCommandBuffer()!
+//        let slopeShader = MPSImageSobel(device: Renderer.device)
 
-        Self.primarySlopeMap = Renderer.device.makeTexture(descriptor: primarySlopeDescriptor)!
-        Self.secondarySlopeMap = Renderer.device.makeTexture(descriptor: primarySlopeDescriptor)!
+//        slopeShader.encode(
+//            commandBuffer: commandBuffer,
+//            sourceTexture: heightMap,
+//            destinationTexture: Self.primarySlopeMap
+//        )
+//
+//        slopeShader.encode(
+//            commandBuffer: commandBuffer,
+//            sourceTexture: altHeightMap,
+//            destinationTexture: Self.secondarySlopeMap
+//        )
 
-        let commandBuffer = Renderer.commandQueue.makeCommandBuffer()!
-        let slopeShader = MPSImageSobel(device: Renderer.device)
-
-        slopeShader.encode(
-            commandBuffer: commandBuffer,
-            sourceTexture: heightMap,
-            destinationTexture: Self.primarySlopeMap
-        )
-
-        slopeShader.encode(
-            commandBuffer: commandBuffer,
-            sourceTexture: altHeightMap,
-            destinationTexture: Self.secondarySlopeMap
-        )
-
-        commandBuffer.commit()
+//        commandBuffer.commit()
 
         super.init()
     }

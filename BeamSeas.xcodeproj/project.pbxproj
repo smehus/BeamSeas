@@ -29,6 +29,12 @@
 		022B51EF24B22D2200FC5C81 /* Heightmap_Rocky.png in Resources */ = {isa = PBXBuildFile; fileRef = 022B51E824B22D2200FC5C81 /* Heightmap_Rocky.png */; };
 		022B51F024B22D2200FC5C81 /* Heightmap_Mountain.png in Resources */ = {isa = PBXBuildFile; fileRef = 022B51E924B22D2200FC5C81 /* Heightmap_Mountain.png */; };
 		022B51F124B22D2200FC5C81 /* Heightmap_Mountain.png in Resources */ = {isa = PBXBuildFile; fileRef = 022B51E924B22D2200FC5C81 /* Heightmap_Mountain.png */; };
+		0231B80224CE877800C794B8 /* simuwater.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 0231B80024CE877700C794B8 /* simuwater.jpg */; };
+		0231B80324CE877800C794B8 /* simuwater.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 0231B80024CE877700C794B8 /* simuwater.jpg */; };
+		0231B80424CE877800C794B8 /* SimulatingWaterImage.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 0231B80124CE877800C794B8 /* SimulatingWaterImage.jpg */; };
+		0231B80524CE877800C794B8 /* SimulatingWaterImage.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 0231B80124CE877800C794B8 /* SimulatingWaterImage.jpg */; };
+		0231B80724CE87CB00C794B8 /* simuwater2.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 0231B80624CE87CB00C794B8 /* simuwater2.jpg */; };
+		0231B80824CE87CB00C794B8 /* simuwater2.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 0231B80624CE87CB00C794B8 /* simuwater2.jpg */; };
 		0236A745249D0A6C008F197E /* Texturable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0236A744249D0A6C008F197E /* Texturable.swift */; };
 		0236A746249D0A6C008F197E /* Texturable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0236A744249D0A6C008F197E /* Texturable.swift */; };
 		0236A74B249D182B008F197E /* lowpoly-house-color.png in Resources */ = {isa = PBXBuildFile; fileRef = 0236A748249D182B008F197E /* lowpoly-house-color.png */; };
@@ -103,6 +109,9 @@
 		022B51E724B22D2200FC5C81 /* Heightmap_Billow.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Heightmap_Billow.png; sourceTree = "<group>"; };
 		022B51E824B22D2200FC5C81 /* Heightmap_Rocky.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Heightmap_Rocky.png; sourceTree = "<group>"; };
 		022B51E924B22D2200FC5C81 /* Heightmap_Mountain.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Heightmap_Mountain.png; sourceTree = "<group>"; };
+		0231B80024CE877700C794B8 /* simuwater.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = simuwater.jpg; sourceTree = "<group>"; };
+		0231B80124CE877800C794B8 /* SimulatingWaterImage.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = SimulatingWaterImage.jpg; sourceTree = "<group>"; };
+		0231B80624CE87CB00C794B8 /* simuwater2.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = simuwater2.jpg; sourceTree = "<group>"; };
 		0236A744249D0A6C008F197E /* Texturable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Texturable.swift; sourceTree = "<group>"; };
 		0236A748249D182B008F197E /* lowpoly-house-color.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "lowpoly-house-color.png"; sourceTree = "<group>"; };
 		0236A749249D182B008F197E /* lowpoly-house.obj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "lowpoly-house.obj"; sourceTree = "<group>"; };
@@ -269,6 +278,9 @@
 		0299533A249925FF0014228F /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				0231B80624CE87CB00C794B8 /* simuwater2.jpg */,
+				0231B80124CE877800C794B8 /* SimulatingWaterImage.jpg */,
+				0231B80024CE877700C794B8 /* simuwater.jpg */,
 				026A999B24B56A0F0002D4EA /* Ship */,
 				022B51E724B22D2200FC5C81 /* Heightmap_Billow.png */,
 				022B51E924B22D2200FC5C81 /* Heightmap_Mountain.png */,
@@ -404,15 +416,18 @@
 				022B51EA24B22D2200FC5C81 /* Heightmap_Plateau.png in Resources */,
 				026A999D24B56A2A0002D4EA /* Ship.usdz in Resources */,
 				0236A772249D8ED6008F197E /* cube.mtl in Resources */,
+				0231B80224CE877800C794B8 /* simuwater.jpg in Resources */,
 				0236A770249D8ED6008F197E /* cube.obj in Resources */,
 				022B51EE24B22D2200FC5C81 /* Heightmap_Rocky.png in Resources */,
 				0236A76A249D8ED6008F197E /* cottage1.obj in Resources */,
+				0231B80424CE877800C794B8 /* SimulatingWaterImage.jpg in Resources */,
 				0236A755249D2192008F197E /* plane.obj in Resources */,
 				02419D5B249850C100BCB203 /* Main.storyboard in Resources */,
 				023ADEF324BB543200478C87 /* Notes in Resources */,
 				0236A74D249D182B008F197E /* lowpoly-house.obj in Resources */,
 				0236A74F249D182B008F197E /* lowpoly-house.mtl in Resources */,
 				0236A76C249D8ED6008F197E /* cottage2.obj in Resources */,
+				0231B80724CE87CB00C794B8 /* simuwater2.jpg in Resources */,
 				02419D5E249850C100BCB203 /* LaunchScreen.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -421,9 +436,12 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0231B80824CE87CB00C794B8 /* simuwater2.jpg in Resources */,
+				0231B80524CE877800C794B8 /* SimulatingWaterImage.jpg in Resources */,
 				0236A76D249D8ED6008F197E /* cottage2.obj in Resources */,
 				0236A74E249D182B008F197E /* lowpoly-house.obj in Resources */,
 				022B51F124B22D2200FC5C81 /* Heightmap_Mountain.png in Resources */,
+				0231B80324CE877800C794B8 /* simuwater.jpg in Resources */,
 				022B51EB24B22D2200FC5C81 /* Heightmap_Plateau.png in Resources */,
 				02419D6C249850C100BCB203 /* Main.storyboard in Resources */,
 				0236A771249D8ED6008F197E /* cube.obj in Resources */,

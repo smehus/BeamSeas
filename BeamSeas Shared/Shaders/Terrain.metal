@@ -62,7 +62,7 @@ kernel void compute_height(constant float3 &position [[ buffer(0) ]],
             float4 interpolatedPosition = float4(interpolated.x, 0.0, interpolated.y, 1.0);
 
 
-            constexpr sampler sample;
+            constexpr sampler sample(filter::linear);
 
             // primary
             float2 xy = ((interpolatedPosition.xz + terrain.size / 2) / terrain.size);
@@ -208,8 +208,9 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
     float2 interpolated = mix(top, bottom, v);
     float4 position = float4(interpolated.x, 0.0, interpolated.y, 1.0);
 
-
-    constexpr sampler sample;
+    // Changing this to filter linear smoothes out the texture
+    // Which ends up smoothing out the rendering
+    constexpr sampler sample(filter::linear);
     constexpr sampler normalSampler(min_filter::linear, mag_filter::linear);
 
 
@@ -273,6 +274,7 @@ kernel void TerrainKnl_ComputeNormalsFromHeightmap(texture2d<float> height [[tex
     constexpr sampler sam(min_filter::nearest, mag_filter::nearest, mip_filter::none,
                           address::clamp_to_edge, coord::pixel);
 
+//    constexpr sampler sam(filter::linear);
 //    float xz_scale = TERRAIN_SCALE / height.get_width();
     float xz_scale = terrain.size.x / height.get_width();
     float y_scale = terrain.height;

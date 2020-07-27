@@ -53,7 +53,7 @@ class Model: Node {
         meshes = zip(mdlMeshes, mtkMeshes).map { Mesh(mdlMesh: $0, mtkMesh: $1, fragment: fragment) }
         samplerState = Self.buildSamplerState()
 
-        heightMap = Submesh.loadTexture(imageName: Terrain.heightMapName)
+        heightMap = Submesh.loadTexture(imageName: Terrain.heightMapName, path: "jpg")
         altHeightMap = Submesh.loadTexture(imageName: Terrain.alterHeightMapName)
 
         var startingHeight: Float = 0
