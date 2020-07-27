@@ -18,7 +18,7 @@ struct ControlPoint {
 struct TerrainVertexOut {
     float4 position [[ position ]];
     float4 color;
-    float3 normal [[flat]];
+    float3 normal;// [[flat]];
 };
 
 kernel void compute_height(constant float3 &position [[ buffer(0) ]],
@@ -236,7 +236,7 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
     // reference AAPLTerrainRenderer in DynamicTerrainWithArgumentBuffers exmaple: EvaluateTerrainAtLocation line 235 -> EvaluateTerrainAtLocation in AAPLTerrainRendererUtilities line: 91
     out.normal = uniforms.normalMatrix * mix(primaryLocalNormal, secondarLocalNormal, 0.5);
 
-    finalColor += float4(0, 0.3, 1.0, 1);
+    finalColor += float4(0.2, 0.6, 0.7, 1);
     out.color = finalColor;
 
     return out;
@@ -248,7 +248,7 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
 {
 
     float3 d = terrainDiffuseLighting(fragment_in.normal, fragment_in.position.xyz, fragmentUniforms, lights, fragment_in.color.rgb);
-    return float4(fragment_in.normal, 1);//float4(d, 1);//fragment_in.color;
+    return float4(d, 1);
 }
 
 

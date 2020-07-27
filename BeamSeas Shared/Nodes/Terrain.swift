@@ -161,7 +161,6 @@ extension Terrain: Renderable {
         computeEncoder.pushDebugGroup("Generate Normals")
         computeEncoder.setComputePipelineState(normalPipelineState)
         computeEncoder.setTexture(heightMap, index: 0)
-        computeEncoder.setTexture(altHeightMap, index: 1) // Can get rid of this
         computeEncoder.setTexture(Self.normalMapTexture, index: 2)
         computeEncoder.setBytes(&Terrain.terrainParams, length: MemoryLayout<TerrainParams>.size, index: 3)
         computeEncoder.setBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: BufferIndex.uniforms.rawValue)

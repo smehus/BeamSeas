@@ -114,6 +114,7 @@ extension Model: Renderable {
         position.y = heightValue + (size.y / 2)
 
 
+        // TODO: - Transfer all this over to gpu
         var normalMapValue = normalBuffer.contents().bindMemory(to: SIMD3<Float>.self, capacity: 1).pointee
         // transform normal values from between 0 - 1 to -1 - 1
         normalMapValue = ((normalMapValue * 2 - 1) * 100)
