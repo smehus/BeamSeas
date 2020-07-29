@@ -8,7 +8,7 @@
 
 import MetalKit
 import simd
-import Accelerate
+import GameplayKit
 
 class Water {
 
@@ -26,6 +26,7 @@ class Water {
     private let displacement_downsample: Int
     private var distribution: [Float]
     private var distribution_normal: [Float]
+    private var distribution_displacement: [Float]
 
     init(
         amplitude: Float,
@@ -49,14 +50,44 @@ class Water {
 
         distribution = Array(repeating: 0, count: Nx * Nz)
         distribution_normal = Array(repeating: 0, count: Nx * Nz)
+        // bitwise right shift to downsample displacment array.
+        // I probably don't need this
+        distribution_displacement = Array(repeating: 0, count: (Nx * Nz) >> (displacement_downsample * 2))
 
         // Normalize amplitude a bit based on the hightmap size
         let normalizedAmplitutde = amplitude * 0.3 / sqrt(size.x * size.y)
 
         generate_distribution(distribution: &distribution, size: size, amplitude: amplitude, max_l: 0.02)
         generate_distribution(distribution: &distribution_normal, size: size_normal, amplitude: amplitude * sqrt(normalmap_freq_mod.x * normalmap_freq_mod.y), max_l: 0.02)
+
+
+
     }
 
+
+    func downsample_distribution(out: inout [Float], _in: [Float], rate_log2: UInt) {
+
+        // Pick out the lower frequency samples onlly hwich is the same as downsampling 'perfectly'
+        let out_width = Nx >> rate_log2
+        let out_height = Nz >> rate_log2
+
+        for var z in 0..<out_height {
+            for var x in 0..<out_width {
+                var alias_x = alias(x: &x, N: out_width)
+                var alias_z = alias(x: &z, N: out_height)
+
+                if alias_x < 0 {
+                    alias_x += Nx
+                }
+
+                if alias_z < 0 {
+                    alias_z += Nz
+                }
+
+                out[z * out_width + x] = _in[alias_z * Nx + alias_x]
+            }
+        }
+    }
 
     func generate_distribution(
         distribution: inout [Float],
@@ -70,15 +101,22 @@ class Water {
         for var z in 0..<Nz {
             for var x in 0..<Nx {
                 let k: SIMD2<Float> = mod * SIMD2<Float>(Float(alias(x: &x, N: Nx)), Float(alias(x: &z, N: Nz)))
+
+
                 // Needs to get ported over differently??
-                let dist = DSPComplex(real: .random(in: 0...1), imag: .random(in: 0...1)).real
+
+                // Gaussian distributed noise with unit variance
+                // Theres posts indicting gameplay kit is not right to use here. Lets try it though.
+                let engine = GKRandomSource()
+                let dist = GKGaussianDistribution(randomSource: engine, lowestValue: 0, highestValue: 1).nextUniform()
                 distribution[z * Nx + x] = dist * amplitude * sqrt(0.5 * phillips(k: k, max_l: max_l))
             }
         }
     }
 
-    // Phillips spectrum??
     func phillips(k: SIMD2<Float>, max_l: Float) -> Float {
+
+        // See Tessendorf paper for details
         let k_len = simd_length(k)
         if k_len == 0 {
             return 0
