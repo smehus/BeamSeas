@@ -15,6 +15,7 @@ import simd
 final class Renderer: NSObject {
 
     static var device: MTLDevice!
+    static var metalView: MTKView!
     static var commandQueue: MTLCommandQueue!
     static var library: MTLLibrary!
 
@@ -39,6 +40,7 @@ final class Renderer: NSObject {
     var delta: Float = 0
 
     init?(metalView: MTKView) {
+        Self.metalView = metalView
         Self.device = MTLCreateSystemDefaultDevice()!
         Self.commandQueue = Renderer.device.makeCommandQueue()!
         Self.library = Self.device.makeDefaultLibrary()!
@@ -47,6 +49,10 @@ final class Renderer: NSObject {
         metalView.depthStencilPixelFormat = .depth32Float
 
         depthStencilState = Self.buildDepthStencilState()
+
+//        water = Water(amplitude: 1, wind_velocity: float2(x: 26, y: -22), resolution: SIMD2<Int>(x: 12, y: 12), size: float2(x: 200, y: 200), normalmap_freq_mod: float2(repeating: 7.3))
+
+        
         super.init()
 
         metalView.clearColor = MTLClearColor(red: 0.0, green: 0.0,
@@ -54,7 +60,8 @@ final class Renderer: NSObject {
 
         metalView.delegate = self
 
-        
+
+
         let terrain = Terrain()
         models.append(terrain)
 
@@ -62,6 +69,8 @@ final class Renderer: NSObject {
         cube.rotation = [Float(-90).degreesToRadians, 0/*Float(-20).degreesToRadians*/, 0]
         models.append(cube)
 
+        let fft = BasicFFT()
+        models.append(fft)
         fragmentUniforms.light_count = UInt32(lighting.count)
         mtkView(metalView, drawableSizeWillChange: metalView.bounds.size)
     }

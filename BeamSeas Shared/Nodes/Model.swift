@@ -169,6 +169,8 @@ extension Model: Renderable {
             index: TextureIndex.normal.rawValue
         )
 
+        renderEncoder.setVertexTexture(BasicFFT.drawTexture, index: 20)
+
         for mesh in meshes {
 
             for (index, vertexBuffer) in mesh.mtkMesh.vertexBuffers.enumerated() {

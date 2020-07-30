@@ -9,6 +9,42 @@
 import MetalKit
 import simd
 import GameplayKit
+import Accelerate
+
+struct Complex<T: FloatingPoint> {
+    let real: T
+    let imaginary: T
+
+    static func +(lhs: Complex<T>, rhs: Complex<T>) -> Complex<T> {
+        return Complex(real: lhs.real + rhs.real, imaginary: lhs.imaginary + rhs.imaginary)
+    }
+
+    static func -(lhs: Complex<T>, rhs: Complex<T>) -> Complex<T> {
+        return Complex(real: lhs.real - rhs.real, imaginary: lhs.imaginary - rhs.imaginary)
+    }
+
+    static func *(lhs: Complex<T>, rhs: Complex<T>) -> Complex<T> {
+        return Complex(real: lhs.real * rhs.real - lhs.imaginary * rhs.imaginary,
+                       imaginary: lhs.imaginary * rhs.real + lhs.real * rhs.imaginary)
+    }
+}
+
+// you can print it any way you want, but I'd probably do:
+
+extension Complex: CustomStringConvertible {
+    var description: String {
+        switch (real, imaginary) {
+        case (_, 0):
+            return "\(real)"
+        case (0, _):
+            return "\(imaginary)i"
+        case (_, let b) where b < 0:
+            return "\(real) - \(abs(imaginary))i"
+        default:
+            return "\(real) + \(imaginary)i"
+        }
+    }
+}
 
 class Water {
 
@@ -24,9 +60,7 @@ class Water {
     static var G: Float = 9.81
 
     private let displacement_downsample: Int
-    private var distribution: [Float]
-    private var distribution_normal: [Float]
-    private var distribution_displacement: [Float]
+    private var distribution: [Complex<Float>]
 
     init(
         amplitude: Float,
@@ -49,45 +83,17 @@ class Water {
         displacement_downsample = 1
 
         distribution = Array(repeating: 0, count: Nx * Nz)
-        distribution_normal = Array(repeating: 0, count: Nx * Nz)
-        // bitwise right shift to downsample displacment array.
-        // I probably don't need this
-        distribution_displacement = Array(repeating: 0, count: (Nx * Nz) >> (displacement_downsample * 2))
 
         // Normalize amplitude a bit based on the hightmap size
-        let normalizedAmplitutde = amplitude * 0.3 / sqrt(size.x * size.y)
+        var amplitude = amplitude
+        amplitude *=  0.3 / sqrt(size.x * size.y)
 
         generate_distribution(distribution: &distribution, size: size, amplitude: amplitude, max_l: 0.02)
-        generate_distribution(distribution: &distribution_normal, size: size_normal, amplitude: amplitude * sqrt(normalmap_freq_mod.x * normalmap_freq_mod.y), max_l: 0.02)
-
 
 
     }
 
 
-    func downsample_distribution(out: inout [Float], _in: [Float], rate_log2: UInt) {
-
-        // Pick out the lower frequency samples onlly hwich is the same as downsampling 'perfectly'
-        let out_width = Nx >> rate_log2
-        let out_height = Nz >> rate_log2
-
-        for var z in 0..<out_height {
-            for var x in 0..<out_width {
-                var alias_x = alias(x: &x, N: out_width)
-                var alias_z = alias(x: &z, N: out_height)
-
-                if alias_x < 0 {
-                    alias_x += Nx
-                }
-
-                if alias_z < 0 {
-                    alias_z += Nz
-                }
-
-                out[z * out_width + x] = _in[alias_z * Nx + alias_x]
-            }
-        }
-    }
 
     func generate_distribution(
         distribution: inout [Float],
@@ -98,18 +104,20 @@ class Water {
         // Modifier to find spatial frequency
         let mod = SIMD2<Float>(repeating: 2.0 * Float.pi) / size
 
-        for var z in 0..<Nz {
-            for var x in 0..<Nx {
-                let k: SIMD2<Float> = mod * SIMD2<Float>(Float(alias(x: &x, N: Nx)), Float(alias(x: &z, N: Nz)))
 
+        let engine = MyGaussianDistribution(randomSource: GKRandomSource(), mean: 0, deviation: 1)
+        for z in 0..<Nz {
+            var inoutZ = z
+            for x in 0..<Nx {
+                var inoutX = x
+                let k: SIMD2<Float> = mod * SIMD2<Float>(Float(alias(x: &inoutX, N: Nx)), Float(alias(x: &inoutZ, N: Nz)))
 
                 // Needs to get ported over differently??
-
                 // Gaussian distributed noise with unit variance
                 // Theres posts indicting gameplay kit is not right to use here. Lets try it though.
-                let engine = GKRandomSource()
-                let dist = GKGaussianDistribution(randomSource: engine, lowestValue: 0, highestValue: 1).nextUniform()
-                distribution[z * Nx + x] = dist * amplitude * sqrt(0.5 * phillips(k: k, max_l: max_l))
+                let nextDist = engine.nextFloat()
+                print("*** \(nextDist)")
+                distribution[z * Nx + x] = nextDist * amplitude * sqrt(0.5 * phillips(k: k, max_l: max_l))
             }
         }
     }
@@ -135,10 +143,34 @@ class Water {
     }
 
     func alias(x: inout Int, N: Int) -> Int {
-        if x > N / 2 {
+        if x > (N / 2) {
             x -= N
         }
 
         return x
+    }
+}
+
+class MyGaussianDistribution {
+    private let randomSource: GKRandomSource
+    let mean: Float
+    let deviation: Float
+
+    init(randomSource: GKRandomSource, mean: Float, deviation: Float) {
+        precondition(deviation >= 0)
+        self.randomSource = randomSource
+        self.mean = mean
+        self.deviation = deviation
+    }
+
+    func nextFloat() -> Float {
+        guard deviation > 0 else { return mean }
+
+        let x1 = randomSource.nextUniform() // a random number between 0 and 1
+        let x2 = randomSource.nextUniform() // a random number between 0 and 1
+        let z1 = sqrt(-2 * log(x1)) * cos(2 * Float.pi * x2) // z1 is normally distributed
+
+        // Convert z1 from the Standard Normal Distribution to our Normal Distribution
+        return z1 * deviation + mean
     }
 }
