@@ -11,12 +11,14 @@ import Accelerate
 
 class BasicFFT {
 
+    private var signalCount: Int = 0
+
     private let pipelineState: MTLComputePipelineState
     static var drawTexture: MTLTexture!
     private let dataBuffer: MTLBuffer!
 
     init() {
-        let n = vDSP_Length(256)
+        let n = vDSP_Length(2048)
 
         let frequencies: [Float] = [5]
 
@@ -27,7 +29,7 @@ class BasicFFT {
                 return accumulator + sin(normalizedIndex * frequency * tau)
             }
         }
-
+        signalCount = signal.count
 
         let log2n = vDSP_Length(log2(Float(n)))
 
@@ -170,7 +172,7 @@ extension BasicFFT: Renderable {
                                          Int(16), 1)
 
         computeEncoder.dispatchThreadgroups(threadsPerGrid, threadsPerThreadgroup: threadsPerGroup)
-        computeEncoder.popDebugGroup()g
+        computeEncoder.popDebugGroup()
     }
 
     func draw(renderEncoder: MTLRenderCommandEncoder, uniforms: inout Uniforms, fragmentUniforms: inout FragmentUniforms) {
