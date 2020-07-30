@@ -68,7 +68,7 @@ final class Renderer: NSObject {
 
         let water = Water(amplitude: 1, wind_velocity: float2(x: 26, y: -22), resolution: SIMD2<Int>(x: 12, y: 12), size: float2(x: 200, y: 200), normalmap_freq_mod: float2(repeating: 7.3))
 
-        let fft = BasicFFT()
+        let fft = BasicFFT(source: water)
         models.append(fft)
         fragmentUniforms.light_count = UInt32(lighting.count)
         mtkView(metalView, drawableSizeWillChange: metalView.bounds.size)

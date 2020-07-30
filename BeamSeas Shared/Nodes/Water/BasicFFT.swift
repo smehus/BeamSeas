@@ -17,22 +17,23 @@ class BasicFFT {
     static var drawTexture: MTLTexture!
     private let dataBuffer: MTLBuffer!
 
-    init() {
+    init(source: Water) {
         let n = vDSP_Length(2048)
 
-        var frequencies: [Float] = [1, 2, 4, 8, 12, 33, 53, 55, 9, 5, 25, 30, 75, 100,
-        300, 500, 512, 1023]
-
-
-        let tau: Float = .pi * 2
-        let signal: [Float] = (0 ... n).map { index in
-            frequencies.reduce(0) { accumulator, frequency in
-                let normalizedIndex = Float(index) / Float(n)
-                return accumulator + sin(normalizedIndex * frequency * tau)
-            }
-        }
-        signalCount = signal.count
-
+//        var frequencies: [Float] = [1, 2, 4, 8, 12, 33, 53, 55, 9, 5, 25, 30, 75, 100,
+//        300, 500, 512, 1023]
+//
+//
+//
+//        let tau: Float = .pi * 2
+//        let signal: [Float] = (0 ... n).map { index in
+//            frequencies.reduce(0) { accumulator, frequency in
+//                let normalizedIndex = Float(index) / Float(n)
+//                return accumulator + sin(normalizedIndex * frequency * tau)
+//            }
+//        }
+//        signalCount = signal.count
+//
         let log2n = vDSP_Length(log2(Float(n)))
 
         guard let fftSetUp = vDSP.FFT(log2n: log2n,
@@ -40,55 +41,55 @@ class BasicFFT {
                                       ofType: DSPSplitComplex.self) else {
                                         fatalError("Can't create FFT Setup.")
         }
-
-
+//
+//
         let halfN = Int(n / 2)
-
-        var forwardInputReal = [Float](repeating: 0,
-                                       count: halfN)
-        var forwardInputImag = [Float](repeating: 0,
-                                       count: halfN)
-        var forwardOutputReal = [Float](repeating: 0,
-                                        count: halfN)
-        var forwardOutputImag = [Float](repeating: 0,
-                                        count: halfN)
-
-        forwardInputReal.withUnsafeMutableBufferPointer { forwardInputRealPtr in
-            forwardInputImag.withUnsafeMutableBufferPointer { forwardInputImagPtr in
-                forwardOutputReal.withUnsafeMutableBufferPointer { forwardOutputRealPtr in
-                    forwardOutputImag.withUnsafeMutableBufferPointer { forwardOutputImagPtr in
-
-                        // 1: Create a `DSPSplitComplex` to contain the signal.
-                        var forwardInput = DSPSplitComplex(realp: forwardInputRealPtr.baseAddress!,
-                                                           imagp: forwardInputImagPtr.baseAddress!)
-
-                        // 2: Convert the real values in `signal` to complex numbers.
-                        signal.withUnsafeBytes {
-                            vDSP.convert(interleavedComplexVector: [DSPComplex]($0.bindMemory(to: DSPComplex.self)),
-                                         toSplitComplexVector: &forwardInput)
-                        }
-
-                        // 3: Create a `DSPSplitComplex` to receive the FFT result.
-                        var forwardOutput = DSPSplitComplex(realp: forwardOutputRealPtr.baseAddress!,
-                                                            imagp: forwardOutputImagPtr.baseAddress!)
-
-                        // 4: Perform the forward FFT.
-                        fftSetUp.forward(input: forwardInput,
-                                         output: &forwardOutput)
-                    }
-                }
-            }
-        }
-
-
-        let componentFrequencies = forwardOutputImag.enumerated().filter {
-            $0.element < -1
-        }.map {
-            return $0.offset
-        }
-
-        // Prints "[1, 5, 25, 30, 75, 100, 300, 500, 512, 1023]"
-        print(componentFrequencies)
+//
+//        var forwardInputReal = [Float](repeating: 0,
+//                                       count: halfN)
+//        var forwardInputImag = [Float](repeating: 0,
+//                                       count: halfN)
+//        var forwardOutputReal = [Float](repeating: 0,
+//                                        count: halfN)
+//        var forwardOutputImag = [Float](repeating: 0,
+//                                        count: halfN)
+//
+//        forwardInputReal.withUnsafeMutableBufferPointer { forwardInputRealPtr in
+//            forwardInputImag.withUnsafeMutableBufferPointer { forwardInputImagPtr in
+//                forwardOutputReal.withUnsafeMutableBufferPointer { forwardOutputRealPtr in
+//                    forwardOutputImag.withUnsafeMutableBufferPointer { forwardOutputImagPtr in
+//
+//                        // 1: Create a `DSPSplitComplex` to contain the signal.
+//                        var forwardInput = DSPSplitComplex(realp: forwardInputRealPtr.baseAddress!,
+//                                                           imagp: forwardInputImagPtr.baseAddress!)
+//
+//                        // 2: Convert the real values in `signal` to complex numbers.
+//                        signal.withUnsafeBytes {
+//                            vDSP.convert(interleavedComplexVector: [DSPComplex]($0.bindMemory(to: DSPComplex.self)),
+//                                         toSplitComplexVector: &forwardInput)
+//                        }
+//
+//                        // 3: Create a `DSPSplitComplex` to receive the FFT result.
+//                        var forwardOutput = DSPSplitComplex(realp: forwardOutputRealPtr.baseAddress!,
+//                                                            imagp: forwardOutputImagPtr.baseAddress!)
+//
+//                        // 4: Perform the forward FFT.
+//                        fftSetUp.forward(input: forwardInput,
+//                                         output: &forwardOutput)
+//                    }
+//                }
+//            }
+//        }
+//
+//
+//        let componentFrequencies = forwardOutputImag.enumerated().filter {
+//            $0.element < -1
+//        }.map {
+//            return $0.offset
+//        }
+//
+//        // Prints "[1, 5, 25, 30, 75, 100, 300, 500, 512, 1023]"
+//        print(componentFrequencies)
 
 
         var inverseOutputReal = [Float](repeating: 0,
@@ -97,8 +98,8 @@ class BasicFFT {
                                         count: halfN)
 
         let recreatedSignal: [Float] =
-            forwardOutputReal.withUnsafeMutableBufferPointer { forwardOutputRealPtr in
-                forwardOutputImag.withUnsafeMutableBufferPointer { forwardOutputImagPtr in
+            source.distribution_real.withUnsafeMutableBufferPointer { forwardOutputRealPtr in
+                source.distribution_imag.withUnsafeMutableBufferPointer { forwardOutputImagPtr in
                     inverseOutputReal.withUnsafeMutableBufferPointer { inverseOutputRealPtr in
                         inverseOutputImag.withUnsafeMutableBufferPointer { inverseOutputImagPtr in
 
@@ -136,7 +137,7 @@ class BasicFFT {
         texDesc.storageMode = .private
         Self.drawTexture = Renderer.device.makeTexture(descriptor: texDesc)!
 
-        dataBuffer = Renderer.device.makeBuffer(bytes: signal, length: MemoryLayout<Float>.stride * signal.count, options: [])
+        dataBuffer = Renderer.device.makeBuffer(bytes: recreatedSignal, length: MemoryLayout<Float>.stride * recreatedSignal.count, options: [])
         pipelineState = Self.buildPipelineState()
 
     } // init
@@ -152,13 +153,6 @@ class BasicFFT {
 }
 
 extension BasicFFT: Renderable {
-
-//    let w = pipelineState.threadExecutionWidth
-//    let h = pipelineState.maxTotalThreadsPerThreadgroup / w
-//    let threadsPerGroup = MTLSizeMake(w, h, 1)
-//    let threadsPerGrid = MTLSizeMake(Int(view.drawableSize.width),
-//                                     Int(view.drawableSize.height), 1)
-//    commandEncoder.dispatchThreads(threadsPerGrid, threadsPerThreadgroup: threadsPerGroup)
 
     // Not used for normals but i'm creating a texture so what the hell
     func generateTerrainNormals(computeEncoder: MTLComputeCommandEncoder, uniforms: inout Uniforms) {

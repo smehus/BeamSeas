@@ -47,6 +47,8 @@ extension Complex: CustomStringConvertible {
 }
 
 class Water {
+    var distribution_real: [Float]
+    var distribution_imag: [Float]
 
     private let wind_velocity: SIMD2<Float>
     private let wind_dir: SIMD2<Float>
@@ -60,8 +62,7 @@ class Water {
     static var G: Float = 9.81
 
     private let displacement_downsample: Int = 1
-    private var distribution_real: [Float]
-    private var distribution_imag: [Float]
+
 
     init(
         amplitude: Float,
