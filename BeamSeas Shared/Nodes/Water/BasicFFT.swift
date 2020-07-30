@@ -166,11 +166,11 @@ extension BasicFFT: Renderable {
         let w = pipelineState.threadExecutionWidth
         let h = pipelineState.maxTotalThreadsPerThreadgroup / w
         let threadsPerGroup = MTLSizeMake(w, h, 1)
-        let threadsPerGrid = MTLSizeMake(Int(Renderer.metalView.drawableSize.width),
-                                         Int(Renderer.metalView.drawableSize.height), 1)
+        let threadsPerGrid = MTLSizeMake(Int(16),
+                                         Int(16), 1)
 
         computeEncoder.dispatchThreadgroups(threadsPerGrid, threadsPerThreadgroup: threadsPerGroup)
-        computeEncoder.popDebugGroup()
+        computeEncoder.popDebugGroup()g
     }
 
     func draw(renderEncoder: MTLRenderCommandEncoder, uniforms: inout Uniforms, fragmentUniforms: inout FragmentUniforms) {
