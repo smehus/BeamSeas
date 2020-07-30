@@ -20,7 +20,9 @@ class BasicFFT {
     init() {
         let n = vDSP_Length(2048)
 
-        let frequencies: [Float] = [5]
+        var frequencies: [Float] = [1, 2, 4, 8, 12, 33, 53, 55, 9, 5, 25, 30, 75, 100,
+        300, 500, 512, 1023]
+
 
         let tau: Float = .pi * 2
         let signal: [Float] = (0 ... n).map { index in
@@ -89,37 +91,38 @@ class BasicFFT {
         print(componentFrequencies)
 
 
-//        var inverseOutputReal = [Float](repeating: 0,
-//                                        count: halfN)
-//        var inverseOutputImag = [Float](repeating: 0,
-//                                        count: halfN)
-//
-//        let recreatedSignal: [Float] = forwardOutputReal.withUnsafeMutableBufferPointer { forwardOutputRealPtr in
-//            forwardOutputImag.withUnsafeMutableBufferPointer { forwardOutputImagPtr in
-//                inverseOutputReal.withUnsafeMutableBufferPointer { inverseOutputRealPtr in
-//                    inverseOutputImag.withUnsafeMutableBufferPointer { inverseOutputImagPtr in
-//
-//                        // 1: Create a `DSPSplitComplex` that contains the frequency domain data.
-//                        let forwardOutput = DSPSplitComplex(realp: forwardOutputRealPtr.baseAddress!,
-//                                                            imagp: forwardOutputImagPtr.baseAddress!)
-//
-//                        // 2: Create a `DSPSplitComplex` structure to receive the FFT result.
-//                        var inverseOutput = DSPSplitComplex(realp: inverseOutputRealPtr.baseAddress!,
-//                                                            imagp: inverseOutputImagPtr.baseAddress!)
-//
-//                        // 3: Perform the inverse FFT.
-//                        fftSetUp.inverse(input: forwardOutput,
-//                                         output: &inverseOutput)
-//
-//                        // 4: Return an array of real values from the FFT result.
-//                        let scale = 1 / Float(n * 2)
-//                        return [Float](fromSplitComplex: inverseOutput,
-//                                       scale: scale,
-//                                       count: Int(n))
-//                    }
-//                }
-//            }
-//        }
+        var inverseOutputReal = [Float](repeating: 0,
+                                        count: halfN)
+        var inverseOutputImag = [Float](repeating: 0,
+                                        count: halfN)
+
+        let recreatedSignal: [Float] =
+            forwardOutputReal.withUnsafeMutableBufferPointer { forwardOutputRealPtr in
+                forwardOutputImag.withUnsafeMutableBufferPointer { forwardOutputImagPtr in
+                    inverseOutputReal.withUnsafeMutableBufferPointer { inverseOutputRealPtr in
+                        inverseOutputImag.withUnsafeMutableBufferPointer { inverseOutputImagPtr in
+
+                            // 1: Create a `DSPSplitComplex` that contains the frequency domain data.
+                            let forwardOutput = DSPSplitComplex(realp: forwardOutputRealPtr.baseAddress!,
+                                                                imagp: forwardOutputImagPtr.baseAddress!)
+
+                            // 2: Create a `DSPSplitComplex` structure to receive the FFT result.
+                            var inverseOutput = DSPSplitComplex(realp: inverseOutputRealPtr.baseAddress!,
+                                                                imagp: inverseOutputImagPtr.baseAddress!)
+
+                            // 3: Perform the inverse FFT.
+                            fftSetUp.inverse(input: forwardOutput,
+                                             output: &inverseOutput)
+
+                            // 4: Return an array of real values from the FFT result.
+                            let scale = 1 / Float(n * 2)
+                            return [Float](fromSplitComplex: inverseOutput,
+                                           scale: scale,
+                                           count: Int(n))
+                        }
+                    }
+                }
+        }
 
 
 //        print(signl)

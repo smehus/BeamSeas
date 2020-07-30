@@ -59,8 +59,9 @@ class Water {
     private let L: Float
     static var G: Float = 9.81
 
-    private let displacement_downsample: Int
-    private var distribution: [Complex<Float>]
+    private let displacement_downsample: Int = 1
+    private var distribution_real: [Float]
+    private var distribution_imag: [Float]
 
     init(
         amplitude: Float,
@@ -76,73 +77,63 @@ class Water {
         self.size = size
         self.size_normal = size / normalmap_freq_mod
 
-        // Factor in Phillips spectrum
-        L = simd_dot(wind_velocity, wind_velocity) / Self.G
 
-        // Use half-res for displacemnetmap since its so low resolution
-        displacement_downsample = 1
+        // Factor in phillips spectrum
+        L = simd_dot(wind_velocity, wind_velocity) / Self.G;
 
-        distribution = Array(repeating: 0, count: Nx * Nz)
+        distribution_real = [Float](repeating: 0, count: Nx * Nz)
+        distribution_imag = [Float](repeating: 0, count: Nx * Nz)
 
-        // Normalize amplitude a bit based on the hightmap size
         var amplitude = amplitude
-        amplitude *=  0.3 / sqrt(size.x * size.y)
-
-        generate_distribution(distribution: &distribution, size: size, amplitude: amplitude, max_l: 0.02)
-
-
+        amplitude *= 0.3 / sqrt(size.x * size.y)
     }
 
 
-
-    func generate_distribution(
-        distribution: inout [Float],
-        size: SIMD2<Float>,
-        amplitude: Float,
-        max_l: Float
-    ) {
+    private func generate_distribution(distribution_real: inout [Float], distribution_imag: inout [Float], size: SIMD2<Float>, amplitude: Float, max_l: Float) {
         // Modifier to find spatial frequency
         let mod = SIMD2<Float>(repeating: 2.0 * Float.pi) / size
 
-
-        let engine = MyGaussianDistribution(randomSource: GKRandomSource(), mean: 0, deviation: 1)
+        let normal_distribution = MyGaussianDistribution(randomSource: GKRandomSource(), mean: 0, deviation: 1)
         for z in 0..<Nz {
-            var inoutZ = z
+            var ioZ = z
             for x in 0..<Nx {
-                var inoutX = x
-                let k: SIMD2<Float> = mod * SIMD2<Float>(Float(alias(x: &inoutX, N: Nx)), Float(alias(x: &inoutZ, N: Nz)))
+                var ioX = x
 
-                // Needs to get ported over differently??
-                // Gaussian distributed noise with unit variance
-                // Theres posts indicting gameplay kit is not right to use here. Lets try it though.
-                let nextDist = engine.nextFloat()
-                print("*** \(nextDist)")
-                distribution[z * Nx + x] = nextDist * amplitude * sqrt(0.5 * phillips(k: k, max_l: max_l))
+                let k = mod * SIMD2<Float>(x: Float(alias(x: &ioX, N: Nx)), y: Float(alias(x: &ioZ, N: Nz)))
+                let realRand = normal_distribution.nextFloat()
+                let imagRand = normal_distribution.nextFloat()
+
+                let phillips = philliphs(k: k, max_l: max_l)
+                let newReal = realRand * amplitude * sqrt(0.5 * phillips)
+                let newImag = imagRand * amplitude * sqrt(0.5 * phillips)
+
+
+                let idx = z * Nx + x
+                distribution_real[idx] = newReal
+                distribution_imag[idx] = newImag
             }
         }
     }
 
-    func phillips(k: SIMD2<Float>, max_l: Float) -> Float {
+    private func philliphs(k: SIMD2<Float>, max_l: Float) -> Float {
 
-        // See Tessendorf paper for details
         let k_len = simd_length(k)
         if k_len == 0 {
             return 0
         }
 
         let kL = k_len * L
-        let k_dir = normalize(k)
+        let k_dir = simd_normalize(k)
         let kw = simd_dot(k_dir, wind_dir)
 
         return
-                pow(kw * kw, 1.0) *                                 // Directional  
-                exp(-1.0 * k_len * k_len * max_l * max_l) *         // Suppress small waves at ~max_l
-                exp(-1.0 / (kL * kL)) *
-                pow(k_len, -4.0)
-
+            pow(kw * kw, 1.0) *
+            exp(-1 * k_len * max_l * max_l) *
+            exp(-1 / (kL * kL)) *
+            pow(k_len, -4.0)
     }
 
-    func alias(x: inout Int, N: Int) -> Int {
+    private func alias(x: inout Int, N: Int) -> Int {
         if x > (N / 2) {
             x -= N
         }

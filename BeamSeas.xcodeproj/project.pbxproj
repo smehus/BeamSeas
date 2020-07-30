@@ -93,6 +93,8 @@
 		0299535E249A64D90014228F /* Camera.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0299535C249A64D90014228F /* Camera.swift */; };
 		02995360249A64FD0014228F /* Node.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0299535F249A64FD0014228F /* Node.swift */; };
 		02995361249A64FD0014228F /* Node.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0299535F249A64FD0014228F /* Node.swift */; };
+		02A6CB4924D3728000FBE595 /* Water.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02491ABB24D128100091395A /* Water.swift */; };
+		02A6CB4A24D3728100FBE595 /* Water.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02491ABB24D128100091395A /* Water.swift */; };
 		02D773EF24B7571900811B88 /* PBR.metal in Sources */ = {isa = PBXBuildFile; fileRef = 02D773EE24B7571900811B88 /* PBR.metal */; };
 		02D773F024B7571900811B88 /* PBR.metal in Sources */ = {isa = PBXBuildFile; fileRef = 02D773EE24B7571900811B88 /* PBR.metal */; };
 		02E46DB224AC2D420055167A /* Terrain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02E46DB124AC2D420055167A /* Terrain.swift */; };
@@ -485,6 +487,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				02D773EF24B7571900811B88 /* PBR.metal in Sources */,
+				02A6CB4924D3728000FBE595 /* Water.swift in Sources */,
 				02419D70249850C100BCB203 /* Renderer.swift in Sources */,
 				022B51E124B0E33B00FC5C81 /* Terrain.metal in Sources */,
 				02419D6E249850C100BCB203 /* Shaders.metal in Sources */,
@@ -512,6 +515,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				02D773F024B7571900811B88 /* PBR.metal in Sources */,
+				02A6CB4A24D3728100FBE595 /* Water.swift in Sources */,
 				02419D71249850C100BCB203 /* Renderer.swift in Sources */,
 				022B51E224B0E33B00FC5C81 /* Terrain.metal in Sources */,
 				02419D6F249850C100BCB203 /* Shaders.metal in Sources */,

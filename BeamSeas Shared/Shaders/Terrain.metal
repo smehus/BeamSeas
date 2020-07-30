@@ -314,7 +314,7 @@ kernel void fft_kernel(texture2d<float, access::write> output [[ texture(0) ]],
 
     float val = data[tid.y * width + tid.x];
 //    float val = data[tid.x];
-//    val = val * 2 - 1;
+    val = val * 2 - 1;
 
     if (val) {
         output.write(float4(val, val, val, 1.0), tid);
