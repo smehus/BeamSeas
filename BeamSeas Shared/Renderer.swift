@@ -72,6 +72,7 @@ final class Renderer: NSObject {
         let fft = BasicFFT(source: water)
         models.append(fft)
         fragmentUniforms.light_count = UInt32(lighting.count)
+
         mtkView(metalView, drawableSizeWillChange: metalView.bounds.size)
     }
 

@@ -117,8 +117,8 @@ class Water {
                 let imagRand = Float(normal_distribution.random())
 
                 let phillips = philliphs(k: k, max_l: max_l)
-                let newReal = realRand//realRand * amplitude * sqrt(0.5 * phillips)
-                let newImag = imagRand//imagRand * amplitude * sqrt(0.5 * phillips)
+                let newReal = realRand * amplitude * sqrt(0.5 * phillips)
+                let newImag = imagRand * amplitude * sqrt(0.5 * phillips)
 
 
                 let idx = z * Nx + x

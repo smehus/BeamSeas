@@ -21,6 +21,10 @@ struct TerrainVertexOut {
     float3 normal;// [[flat]];
 };
 
+struct FFTVertexIn {
+    float4 position [[ attribute(VertexAttributePosition) ]];
+};
+
 kernel void compute_height(constant float3 &position [[ buffer(0) ]],
                            constant float3 *control_points [[ buffer(1) ]],
                            constant TerrainParams &terrain [[ buffer(2) ]],
@@ -263,47 +267,22 @@ float normalCoordinates(uint2 coords, texture2d<float> map, sampler s, float del
     return d.r;
 }
 
-float randomNoise(float2 p) {
-  return fract(6791.0 * sin(47.0 * p.x + 9973.0 * p.y));
+vertex TerrainVertexOut fft_vertex(const FFTVertexIn in [[ stage_in ]], constant Uniforms &uniforms [[ buffer(BufferIndexUniforms) ]] ) {
+
+    return {
+        .position = uniforms.projectionMatrix * uniforms.viewMatrix * uniforms.modelMatrix * in.position
+    };
 }
 
-float smoothNoise(float2 p) {
-  float2 north = float2(p.x, p.y + 1.0);
-  float2 east = float2(p.x + 1.0, p.y);
-  float2 south = float2(p.x, p.y - 1.0);
-  float2 west = float2(p.x - 1.0, p.y);
-  float2 center = float2(p.x, p.y);
-  float sum = 0.0;
-  sum += randomNoise(north) / 8.0;
-  sum += randomNoise(east) / 8.0;
-  sum += randomNoise(south) / 8.0;
-  sum += randomNoise(west) / 8.0;
-  sum += randomNoise(center) / 2.0;
-  return sum;
-}
+fragment float4 fft_fragment(const TerrainVertexOut in [[ stage_in ]], texture2d<float> noiseMap [[ texture(0) ]]) {
+    constexpr sampler s;
 
-float interpolatedNoise(float2 p) {
-  float q11 = smoothNoise(float2(floor(p.x), floor(p.y)));
-  float q12 = smoothNoise(float2(floor(p.x), ceil(p.y)));
-  float q21 = smoothNoise(float2(ceil(p.x), floor(p.y)));
-  float q22 = smoothNoise(float2(ceil(p.x), ceil(p.y)));
-  float2 ss = smoothstep(0.0, 1.0, fract(p));
-  float r1 = mix(q11, q21, ss.x);
-  float r2 = mix(q12, q22, ss.x);
-  return mix (r1, r2, ss.y);
-}
+    float2 uv = in.position.xy;
 
-float fbm(float2 uv, float steps) {
-  float sum = 0;
-  float amplitude = 0.8;
-  for(int i = 0; i < steps; ++i) {
-    sum += interpolatedNoise(uv) * amplitude;
-    uv += uv * 1.2;
-    amplitude *= 0.4;
-  }
-  return sum;
-}
+    float4 color = noiseMap.sample(s, uv);
 
+    return float4(0, 1, 0, 1);
+}
 
 kernel void fft_kernel(texture2d<float, access::write> output [[ texture(0) ]],
                        uint2 tid [[ thread_position_in_grid]],

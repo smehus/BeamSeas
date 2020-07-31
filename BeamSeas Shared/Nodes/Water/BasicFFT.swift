@@ -8,20 +8,28 @@
 
 import Foundation
 import Accelerate
+import MetalKit
 
-class BasicFFT {
+class BasicFFT: Node {
 
     private var signalCount: Int = 0
 
     private let pipelineState: MTLComputePipelineState
+    private let mainPipelineState: MTLRenderPipelineState
     static var drawTexture: MTLTexture!
     private let dataBuffer: MTLBuffer!
+
+    private let model: MTKMesh
 
     init(source: Water) {
         let n = vDSP_Length(262144)
 
         let frequencies: [Float] = [440]
 
+
+        let allocator = MTKMeshBufferAllocator(device: Renderer.device)
+        let prim = MDLMesh(planeWithExtent: [10, 10, 1], segments: [2, 2], geometryType: .triangles, allocator: allocator)
+        model = try! MTKMesh(mesh: prim, device: Renderer.device)
 
 
         let tau: Float = .pi * 2
@@ -138,12 +146,23 @@ class BasicFFT {
         Self.drawTexture = Renderer.device.makeTexture(descriptor: texDesc)!
 
         dataBuffer = Renderer.device.makeBuffer(bytes: recreatedSignal, length: MemoryLayout<Float>.stride * recreatedSignal.count, options: [])
-        pipelineState = Self.buildPipelineState()
+        pipelineState = Self.buildComputePipelineState()
+
+        let mainPipeDescriptor = MTLRenderPipelineDescriptor()
+        mainPipeDescriptor.colorAttachments[0].pixelFormat = .bgra8Unorm
+        mainPipeDescriptor.depthAttachmentPixelFormat = .depth32Float
+        mainPipeDescriptor.vertexFunction = Renderer.library.makeFunction(name: "fft_vertex")
+        mainPipeDescriptor.fragmentFunction = Renderer.library.makeFunction(name: "fft_fragment")
+        // forgot to do this
+        mainPipeDescriptor.vertexDescriptor = MTKMetalVertexDescriptorFromModelIO(model.vertexDescriptor)
+
+        mainPipelineState = try! Renderer.device.makeRenderPipelineState(descriptor: mainPipeDescriptor)
 
     } // init
 
 
-    static func buildPipelineState() -> MTLComputePipelineState {
+
+    static func buildComputePipelineState() -> MTLComputePipelineState {
         guard let kernelFunction = Renderer.library?.makeFunction(name: "fft_kernel") else {
             fatalError("fft shader function not found")
         }
@@ -175,6 +194,23 @@ extension BasicFFT: Renderable {
     }
 
     func draw(renderEncoder: MTLRenderCommandEncoder, uniforms: inout Uniforms, fragmentUniforms: inout FragmentUniforms) {
+        renderEncoder.setRenderPipelineState(mainPipelineState)
 
+        position.y = 15
+//        rotation = [Float(90).degreesToRadians, 0, 0]
+        uniforms.modelMatrix = modelMatrix
+        renderEncoder.setVertexBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: BufferIndex.uniforms.rawValue)
+        renderEncoder.setFragmentTexture(Self.drawTexture, index: 0)
+
+        let mesh = model.submeshes.first!
+        // forgot to add this
+        renderEncoder.setVertexBuffer(model.vertexBuffers.first!.buffer, offset: 0, index: BufferIndex.vertexBuffer.rawValue)
+        renderEncoder.drawIndexedPrimitives(
+            type: .triangle,
+            indexCount: mesh.indexCount,
+            indexType: mesh.indexType,
+            indexBuffer: mesh.indexBuffer.buffer,
+            indexBufferOffset: mesh.indexBuffer.offset
+        )
     }
 }
