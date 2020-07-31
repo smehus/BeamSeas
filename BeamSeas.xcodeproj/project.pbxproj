@@ -17,6 +17,10 @@
 		020F9866249A757C00DB4850 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020F9864249A757C00DB4850 /* ViewController.swift */; };
 		020F9868249A7C5900DB4850 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020F9867249A7C5900DB4850 /* Extensions.swift */; };
 		020F9869249A7C5900DB4850 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020F9867249A7C5900DB4850 /* Extensions.swift */; };
+		020FD8C224D4575A00B77CF2 /* Distributions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020FD8C124D4575A00B77CF2 /* Distributions.swift */; };
+		020FD8C324D4575A00B77CF2 /* Distributions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020FD8C124D4575A00B77CF2 /* Distributions.swift */; };
+		020FD8C524D4577200B77CF2 /* Common.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020FD8C424D4577200B77CF2 /* Common.swift */; };
+		020FD8C624D4577200B77CF2 /* Common.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020FD8C424D4577200B77CF2 /* Common.swift */; };
 		022B51E124B0E33B00FC5C81 /* Terrain.metal in Sources */ = {isa = PBXBuildFile; fileRef = 022B51E024B0E33B00FC5C81 /* Terrain.metal */; };
 		022B51E224B0E33B00FC5C81 /* Terrain.metal in Sources */ = {isa = PBXBuildFile; fileRef = 022B51E024B0E33B00FC5C81 /* Terrain.metal */; };
 		022B51E424B1772300FC5C81 /* mountain.png in Resources */ = {isa = PBXBuildFile; fileRef = 022B51E324B1772300FC5C81 /* mountain.png */; };
@@ -107,6 +111,8 @@
 		020F9855249A696300DB4850 /* Submesh.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Submesh.swift; sourceTree = "<group>"; };
 		020F9864249A757C00DB4850 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		020F9867249A7C5900DB4850 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
+		020FD8C124D4575A00B77CF2 /* Distributions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Distributions.swift; sourceTree = "<group>"; };
+		020FD8C424D4577200B77CF2 /* Common.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Common.swift; sourceTree = "<group>"; };
 		022B51E024B0E33B00FC5C81 /* Terrain.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Terrain.metal; sourceTree = "<group>"; };
 		022B51E324B1772300FC5C81 /* mountain.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = mountain.png; sourceTree = "<group>"; };
 		022B51E624B22D2200FC5C81 /* Heightmap_Plateau.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Heightmap_Plateau.png; sourceTree = "<group>"; };
@@ -318,6 +324,8 @@
 		0299533B249926070014228F /* Utilities */ = {
 			isa = PBXGroup;
 			children = (
+				020FD8C424D4577200B77CF2 /* Common.swift */,
+				020FD8C124D4575A00B77CF2 /* Distributions.swift */,
 				028370F1249AFC83006E8AF3 /* DebugLights.metal */,
 				028370F0249AFC83006E8AF3 /* DebugLights.swift */,
 				02419D7E249851C700BCB203 /* Math.swift */,
@@ -497,10 +505,12 @@
 				024B76CF249A8D290030B123 /* Light.swift in Sources */,
 				020F9865249A757C00DB4850 /* ViewController.swift in Sources */,
 				02419D56249850C100BCB203 /* AppDelegate.swift in Sources */,
+				020FD8C224D4575A00B77CF2 /* Distributions.swift in Sources */,
 				028370F4249AFC84006E8AF3 /* DebugLights.metal in Sources */,
 				02491AC924D21B170091395A /* BasicFFT.swift in Sources */,
 				02419D7F249851C700BCB203 /* Math.swift in Sources */,
 				020F9868249A7C5900DB4850 /* Extensions.swift in Sources */,
+				020FD8C524D4577200B77CF2 /* Common.swift in Sources */,
 				020F9853249A695900DB4850 /* Mesh.swift in Sources */,
 				0236A745249D0A6C008F197E /* Texturable.swift in Sources */,
 				020F9856249A696300DB4850 /* Submesh.swift in Sources */,
@@ -525,10 +535,12 @@
 				024B76D0249A8D290030B123 /* Light.swift in Sources */,
 				020F9866249A757C00DB4850 /* ViewController.swift in Sources */,
 				02419D67249850C100BCB203 /* AppDelegate.swift in Sources */,
+				020FD8C324D4575A00B77CF2 /* Distributions.swift in Sources */,
 				028370F5249AFC84006E8AF3 /* DebugLights.metal in Sources */,
 				02491ACA24D21B170091395A /* BasicFFT.swift in Sources */,
 				02419D80249851C700BCB203 /* Math.swift in Sources */,
 				020F9869249A7C5900DB4850 /* Extensions.swift in Sources */,
+				020FD8C624D4577200B77CF2 /* Common.swift in Sources */,
 				020F9854249A695900DB4850 /* Mesh.swift in Sources */,
 				0236A746249D0A6C008F197E /* Texturable.swift in Sources */,
 				020F9857249A696300DB4850 /* Submesh.swift in Sources */,

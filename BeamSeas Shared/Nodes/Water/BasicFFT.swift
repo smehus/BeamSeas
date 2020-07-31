@@ -97,9 +97,9 @@ class BasicFFT {
         var inverseOutputImag = [Float](repeating: 0,
                                         count: halfN)
 
-        var recreatedSignal: [Float] =
-            source.distribution_real.withUnsafeMutableBufferPointer { forwardOutputRealPtr in
-                source.distribution_imag.withUnsafeMutableBufferPointer { forwardOutputImagPtr in
+        let recreatedSignal: [Float] =
+            forwardOutputReal.withUnsafeMutableBufferPointer { forwardOutputRealPtr in
+                forwardOutputImag.withUnsafeMutableBufferPointer { forwardOutputImagPtr in
                     inverseOutputReal.withUnsafeMutableBufferPointer { inverseOutputRealPtr in
                         inverseOutputImag.withUnsafeMutableBufferPointer { inverseOutputImagPtr in
 
@@ -130,8 +130,8 @@ class BasicFFT {
 
 
         let texDesc = MTLTextureDescriptor()
-        texDesc.width = Terrain.normalMapTexture.width
-        texDesc.height = Terrain.normalMapTexture.height
+        texDesc.width = 1024//Terrain.normalMapTexture.width
+        texDesc.height = 1024//Terrain.normalMapTexture.height
         texDesc.pixelFormat = .rg11b10Float
         texDesc.usage = [.shaderRead, .shaderWrite]
         texDesc.mipmapLevelCount = Int(log2(Double(max(Terrain.normalMapTexture.width, Terrain.normalMapTexture.height))) + 1);
@@ -166,7 +166,7 @@ extension BasicFFT: Renderable {
         let w = pipelineState.threadExecutionWidth
         let h = pipelineState.maxTotalThreadsPerThreadgroup / w
         let threadsPerGroup = MTLSizeMake(w, h, 1)
-        let threadsPerGrid = MTLSizeMake(Int(Self.drawTexture.width), Int(Self.drawTexture.height), 1)
+        let threadsPerGrid = MTLSizeMake(Int(16), Int(16), 1)
 
 
         // threadsPerGrid determines the thread_posistion dimensions

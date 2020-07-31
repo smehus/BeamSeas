@@ -82,15 +82,18 @@ class Water {
         // Factor in phillips spectrum
         L = simd_dot(wind_velocity, wind_velocity) / Self.G;
 
-        distribution_real = [Float](repeating: 0, count: Nx * Nz)
-        distribution_imag = [Float](repeating: 0, count: Nx * Nz)
+        distribution_real = [Float](repeating: 0, count: 1024)
+        distribution_imag = [Float](repeating: 0, count: 1024)
 
         var newamplitude = amplitude
         newamplitude *= 0.3 / sqrt(size.x * size.y)
 
-        generate_distribution(distribution_real: &distribution_real, distribution_imag: &distribution_imag, size: size, amplitude: newamplitude, max_l: 0.2)
+//        generate_distribution(distribution_real: &distribution_real, distribution_imag: &distribution_imag, size: size, amplitude: newamplitude, max_l: 0.2)
+        let source = Distributions.Normal(m: 0, v: 1)
+        distribution_real = distribution_real.map { _ in return Float(source.random()) }
+        distribution_imag = distribution_real.map { _ in return Float(source.random()) }
 
-//        print(distribution_real)
+        print(distribution_real)
     }
 
 
@@ -98,15 +101,15 @@ class Water {
         // Modifier to find spatial frequency
         let mod = SIMD2<Float>(repeating: 2.0 * Float.pi) / size
 
-        let normal_distribution = MyGaussianDistribution(randomSource: GKRandomSource(), mean: 0, deviation: 1)
+        let normal_distribution = Distributions.Normal(m: 0, v: 1)
         for z in 0..<Nz {
             var ioZ = z
             for x in 0..<Nx {
                 var ioX = x
 
                 let k = mod * SIMD2<Float>(x: Float(alias(x: &ioX, N: Nx)), y: Float(alias(x: &ioZ, N: Nz)))
-                let realRand = normal_distribution.nextFloat()
-                let imagRand = normal_distribution.nextFloat()
+                let realRand = Float(normal_distribution.random())
+                let imagRand = Float(normal_distribution.random())
 
                 let phillips = philliphs(k: k, max_l: max_l)
                 let newReal = realRand * amplitude * sqrt(0.5 * phillips)
