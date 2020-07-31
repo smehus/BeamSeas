@@ -97,7 +97,7 @@ class BasicFFT {
         var inverseOutputImag = [Float](repeating: 0,
                                         count: halfN)
 
-        let recreatedSignal: [Float] =
+        var recreatedSignal: [Float] =
             forwardOutputReal.withUnsafeMutableBufferPointer { forwardOutputRealPtr in
                 forwardOutputImag.withUnsafeMutableBufferPointer { forwardOutputImagPtr in
                     inverseOutputReal.withUnsafeMutableBufferPointer { inverseOutputRealPtr in
@@ -127,6 +127,7 @@ class BasicFFT {
 
 
         print(recreatedSignal)
+
 
         let texDesc = MTLTextureDescriptor()
         texDesc.width = Terrain.normalMapTexture.width
@@ -164,10 +165,11 @@ extension BasicFFT: Renderable {
         computeEncoder.setBuffer(dataBuffer, offset: 0, index: 0)
         let w = pipelineState.threadExecutionWidth
         let h = pipelineState.maxTotalThreadsPerThreadgroup / w
-        let threadsPerGroup = MTLSizeMake(w, 1, 1)
-        let threadsPerGrid = MTLSizeMake(Int(Renderer.metalView.drawableSize.width),
-                                         Int(Renderer.metalView.drawableSize.height), 1)
+        let threadsPerGroup = MTLSizeMake(w, h, 1)
+        let threadsPerGrid = MTLSizeMake(Int(Self.drawTexture.width), Int(Self.drawTexture.height), 1)
 
+
+        // threadsPerGrid determines the thread_posistion dimensions
         computeEncoder.dispatchThreadgroups(threadsPerGrid, threadsPerThreadgroup: threadsPerGroup)
         computeEncoder.popDebugGroup()
     }

@@ -311,13 +311,17 @@ kernel void fft_kernel(texture2d<float, access::write> output [[ texture(0) ]],
                        constant Uniforms &uniforms [[ buffer(3) ]])
 {
     uint width = output.get_width();
+    uint height = output.get_height();
 
-    float val = data[tid.y * width + tid.x];
+    float val = data[tid.x];
 //    float val = data[tid.x];
-    val = val * 2 - 1;
+//    val = val * 2 - 1;
+//    val = val * (width / 2) + (width / 2);
 
-    output.write(float4(tid.x, tid.x, tid.x, 1.0), tid);
-//    output.write(float4(1, 0, 0, 1.0), tid);
+    // This seems like it'd be right?
+    output.write(float4(val, val, val, 1.0), tid);
+//    output.write(float4(tid.x, tid.x, tid.x, 1.0), tid);
+//    output.write(float4(0, 0, 0, 1.0), tid);
 //    if (val < 0) {
 //        output.write(float4(val, val, val, 1.0), tid);
 //        output.write(float4(0, 0, 0, 1.0), uint2(0, 1));
