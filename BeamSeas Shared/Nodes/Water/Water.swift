@@ -91,10 +91,13 @@ class Water {
         newamplitude *= 0.3 / sqrt(size.x * size.y)
 
 //        generate_distribution(distribution_real: &distribution_real, distribution_imag: &distribution_imag, size: size, amplitude: newamplitude, max_l: 0.2)
-        let source = Distributions.Normal(m: 0, v: 1)
-        distribution_real = distribution_real.map { _ in return Float(source.random()) }
-        distribution_imag = distribution_imag.map { _ in return Float(source.random()) }
+//        let source = Distributions.Normal(m: 0, v: 1)
 
+
+//        distribution_real = distribution_real.map { _ in return Float(source.random()) }
+//        distribution_imag = distribution_imag.map { _ in return Float(source.random()) }
+
+        generate_distribution(distribution_real: &distribution_real, distribution_imag: &distribution_imag, size: size, amplitude: newamplitude, max_l: 0.02)
 //        print(distribution_real)
     }
 
@@ -114,13 +117,16 @@ class Water {
                 let imagRand = Float(normal_distribution.random())
 
                 let phillips = philliphs(k: k, max_l: max_l)
-                let newReal = realRand * amplitude * sqrt(0.5 * phillips)
-                let newImag = imagRand * amplitude * sqrt(0.5 * phillips)
+                let newReal = realRand//realRand * amplitude * sqrt(0.5 * phillips)
+                let newImag = imagRand//imagRand * amplitude * sqrt(0.5 * phillips)
 
 
                 let idx = z * Nx + x
-                distribution_real[idx] = newReal
-                distribution_imag[idx] = newImag
+
+                if distribution_real.indices.contains(idx), distribution_imag.indices.contains(idx) {
+                    distribution_real[idx] = newReal
+                    distribution_imag[idx] = newImag
+                }
             }
         }
     }
@@ -138,7 +144,7 @@ class Water {
 
         return
             pow(kw * kw, 1.0) *
-            exp(-1 * k_len * max_l * max_l) *
+            exp(-1 * k_len * k_len * max_l * max_l) *
             exp(-1 / (kL * kL)) *
             pow(k_len, -4.0)
     }

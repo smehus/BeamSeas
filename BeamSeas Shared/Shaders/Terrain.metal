@@ -313,13 +313,13 @@ kernel void fft_kernel(texture2d<float, access::write> output [[ texture(0) ]],
     uint width = output.get_width();
     uint height = output.get_height();
 
-    //    float2 resolution = float2(width, height);
-    //    float2 uv = float2(tid) / resolution;
-    //    float tiles = 4.0;
-    //    uv *= tiles;
-    //    float noise = fbm(uv, tiles);
-    //    output.write(float4(float3(noise), 1.0), tid);
-
+//        float2 resolution = float2(width, height);
+//        float2 uv = float2(tid) / resolution;
+//        float tiles = 4.0;
+//        uv *= tiles;
+//        float noise = fbm(uv, tiles);
+//        output.write(float4(float3(noise), 1.0), tid);
+//
     if (tid.x < width && tid.y < height) {
         //    float2 uv = float2(2 * M_PI_F * tid.x / 512, 2.0 * M_PI_F * tid.y / 512);
         uint index = tid.y * width + tid.x;
