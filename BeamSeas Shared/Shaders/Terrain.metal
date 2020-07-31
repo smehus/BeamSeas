@@ -313,11 +313,22 @@ kernel void fft_kernel(texture2d<float, access::write> output [[ texture(0) ]],
     uint width = output.get_width();
     uint height = output.get_height();
 
+    //    float2 resolution = float2(width, height);
+    //    float2 uv = float2(tid) / resolution;
+    //    float tiles = 4.0;
+    //    uv *= tiles;
+    //    float noise = fbm(uv, tiles);
+    //    output.write(float4(float3(noise), 1.0), tid);
+
+
     float val = data[tid.x];
 //    float val = data[tid.x];
-    val = val * 2 - 1;
+//    val = val * 2 - 1;
 //    val = val * (width / 2) + (width / 2);
 
+    // convert to between 0 - 1
+    val = (val - (-3)) / (3 - (-3));
+//    val = val / height;
     // This seems like it'd be right?
     output.write(float4(val, val, val, 1.0), tid);
 //    output.write(float4(tid.x, tid.x, tid.x, 1.0), tid);
@@ -331,14 +342,6 @@ kernel void fft_kernel(texture2d<float, access::write> output [[ texture(0) ]],
 
 
 
-//    int width = output.get_width();
-//    int height = output.get_height();
-//    float2 resolution = float2(width, height);
-//    float2 uv = float2(tid) / resolution;
-//    float tiles = 4.0;
-//    uv *= tiles;
-//    float noise = fbm(uv, tiles);
-//    output.write(float4(float3(noise), 1.0), tid);
 
 
 

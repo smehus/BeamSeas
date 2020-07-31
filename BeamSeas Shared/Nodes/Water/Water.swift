@@ -98,7 +98,7 @@ class Water {
         // Modifier to find spatial frequency
         let mod = SIMD2<Float>(repeating: 2.0 * Float.pi) / size
 
-        let normal_distribution = MyGaussianDistribution(randomSource: GKRandomSource(), mean: 1023, deviation: 1023)
+        let normal_distribution = MyGaussianDistribution(randomSource: GKRandomSource(), mean: 0, deviation: 1)
         for z in 0..<Nz {
             var ioZ = z
             for x in 0..<Nx {

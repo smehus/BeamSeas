@@ -20,7 +20,7 @@ class BasicFFT {
     init(source: Water) {
         let n = vDSP_Length(2048)
 
-        let frequencies: [Float] = [1, 2, 4, 8, 12, 33, 53, 55, 9, 5, 25, 30, 75, 100,
+        let frequencies: [Float] = [1, 5, 25, 30, 75, 100,
         300, 500, 512, 1023]
 
 
@@ -126,7 +126,7 @@ class BasicFFT {
         }
 
 
-        print(recreatedSignal)
+//        print(recreatedSignal)
 
 
         let texDesc = MTLTextureDescriptor()
