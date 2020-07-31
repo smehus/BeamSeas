@@ -316,11 +316,15 @@ kernel void fft_kernel(texture2d<float, access::write> output [[ texture(0) ]],
 //    float val = data[tid.x];
     val = val * 2 - 1;
 
-    if (val) {
-        output.write(float4(val, val, val, 1.0), tid);
-    } else {
-        output.write(float4(1, 0, 0, 1.0), tid);
-    }
+    output.write(float4(tid.x, tid.x, tid.x, 1.0), tid);
+//    output.write(float4(1, 0, 0, 1.0), tid);
+//    if (val < 0) {
+//        output.write(float4(val, val, val, 1.0), tid);
+//        output.write(float4(0, 0, 0, 1.0), uint2(0, 1));
+//    } else {
+//        output.write(float4(1, 0, 0, 1.0), tid);
+//    }
+
 
 
 //    int width = output.get_width();
@@ -331,6 +335,7 @@ kernel void fft_kernel(texture2d<float, access::write> output [[ texture(0) ]],
 //    uv *= tiles;
 //    float noise = fbm(uv, tiles);
 //    output.write(float4(float3(noise), 1.0), tid);
+
 
 
 //    if (tid.x % 2 == 0) {

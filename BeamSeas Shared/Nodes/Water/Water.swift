@@ -85,8 +85,12 @@ class Water {
         distribution_real = [Float](repeating: 0, count: Nx * Nz)
         distribution_imag = [Float](repeating: 0, count: Nx * Nz)
 
-        var amplitude = amplitude
-        amplitude *= 0.3 / sqrt(size.x * size.y)
+        var newamplitude = amplitude
+        newamplitude *= 0.3 / sqrt(size.x * size.y)
+
+        generate_distribution(distribution_real: &distribution_real, distribution_imag: &distribution_imag, size: size, amplitude: newamplitude, max_l: 0.2)
+
+//        print(distribution_real)
     }
 
 
@@ -94,7 +98,7 @@ class Water {
         // Modifier to find spatial frequency
         let mod = SIMD2<Float>(repeating: 2.0 * Float.pi) / size
 
-        let normal_distribution = MyGaussianDistribution(randomSource: GKRandomSource(), mean: 0, deviation: 1)
+        let normal_distribution = MyGaussianDistribution(randomSource: GKRandomSource(), mean: 1023, deviation: 1023)
         for z in 0..<Nz {
             var ioZ = z
             for x in 0..<Nx {
