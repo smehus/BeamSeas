@@ -183,9 +183,9 @@ extension BasicFFT: Renderable {
         computeEncoder.setBuffer(dataBuffer, offset: 0, index: 0)
         let w = pipelineState.threadExecutionWidth
         let h = pipelineState.maxTotalThreadsPerThreadgroup / w
-        let threadsPerGroup = MTLSizeMake( w,      h, 1)
+        let threadsPerGroup = MTLSizeMake( 16,      16, 1)
 //                                          ^        ^
-        let threadsPerGrid = MTLSizeMake(Int(16), Int(16), 1)
+        let threadsPerGrid = MTLSizeMake(Int(32), Int(32), 1)
 
 
         // threadsPerGrid determines the thread_posistion dimensions

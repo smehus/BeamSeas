@@ -90,14 +90,13 @@ class Water {
         var newamplitude = amplitude
         newamplitude *= 0.3 / sqrt(size.x * size.y)
 
-//        generate_distribution(distribution_real: &distribution_real, distribution_imag: &distribution_imag, size: size, amplitude: newamplitude, max_l: 0.2)
-//        let source = Distributions.Normal(m: 0, v: 1)
+        let source = Distributions.Normal(m: 0, v: 1)
 
 
-//        distribution_real = distribution_real.map { _ in return Float(source.random()) }
-//        distribution_imag = distribution_imag.map { _ in return Float(source.random()) }
+        distribution_real = distribution_real.map { _ in return Float(source.random()) }
+        distribution_imag = distribution_imag.map { _ in return Float(source.random()) }
 
-        generate_distribution(distribution_real: &distribution_real, distribution_imag: &distribution_imag, size: size, amplitude: newamplitude, max_l: 0.02)
+//        generate_distribution(distribution_real: &distribution_real, distribution_imag: &distribution_imag, size: size, amplitude: newamplitude, max_l: 0.02)
 //        print(distribution_real)
     }
 
@@ -117,8 +116,8 @@ class Water {
                 let imagRand = Float(normal_distribution.random())
 
                 let phillips = philliphs(k: k, max_l: max_l)
-                let newReal = realRand * amplitude * sqrt(0.5 * phillips)
-                let newImag = imagRand * amplitude * sqrt(0.5 * phillips)
+                let newReal = realRand// * amplitude * sqrt(0.5 * phillips)
+                let newImag = imagRand// * amplitude * sqrt(0.5 * phillips)
 
 
                 let idx = z * Nx + x
