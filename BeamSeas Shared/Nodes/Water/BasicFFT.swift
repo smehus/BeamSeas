@@ -98,8 +98,8 @@ class BasicFFT {
                                         count: halfN)
 
         var recreatedSignal: [Float] =
-            forwardOutputReal.withUnsafeMutableBufferPointer { forwardOutputRealPtr in
-                forwardOutputImag.withUnsafeMutableBufferPointer { forwardOutputImagPtr in
+            source.distribution_real.withUnsafeMutableBufferPointer { forwardOutputRealPtr in
+                source.distribution_imag.withUnsafeMutableBufferPointer { forwardOutputImagPtr in
                     inverseOutputReal.withUnsafeMutableBufferPointer { inverseOutputRealPtr in
                         inverseOutputImag.withUnsafeMutableBufferPointer { inverseOutputImagPtr in
 

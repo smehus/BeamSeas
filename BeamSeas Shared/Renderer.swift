@@ -66,7 +66,7 @@ final class Renderer: NSObject {
         cube.rotation = [Float(-90).degreesToRadians, 0/*Float(-20).degreesToRadians*/, 0]
         models.append(cube)
 
-        let water = Water(amplitude: 1, wind_velocity: float2(x: 26, y: -22), resolution: SIMD2<Int>(x: 12, y: 12), size: float2(x: 200, y: 200), normalmap_freq_mod: float2(repeating: 7.3))
+        let water = Water(amplitude: 1, wind_velocity: float2(x: 26, y: -22), resolution: SIMD2<Int>(x: 512, y: 512), size: float2(x: 200, y: 200), normalmap_freq_mod: float2(repeating: 7.3))
 
         let fft = BasicFFT(source: water)
         models.append(fft)

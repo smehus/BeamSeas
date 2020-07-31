@@ -315,7 +315,7 @@ kernel void fft_kernel(texture2d<float, access::write> output [[ texture(0) ]],
 
     float val = data[tid.x];
 //    float val = data[tid.x];
-//    val = val * 2 - 1;
+    val = val * 2 - 1;
 //    val = val * (width / 2) + (width / 2);
 
     // This seems like it'd be right?
