@@ -18,10 +18,9 @@ class BasicFFT {
     private let dataBuffer: MTLBuffer!
 
     init(source: Water) {
-        let n = vDSP_Length(2048)
+        let n = vDSP_Length(262144)
 
-        let frequencies: [Float] = [1, 5, 25, 30, 75, 100,
-        300, 500, 512, 1023]
+        let frequencies: [Float] = [440]
 
 
 
@@ -82,14 +81,14 @@ class BasicFFT {
         }
 
 
-        let componentFrequencies = forwardOutputImag.enumerated().filter {
-            $0.element < -1
-        }.map {
-            return $0.offset
-        }
+//        let componentFrequencies = forwardOutputImag.enumerated().filter {
+//            $0.element < -1
+//        }.map {
+//            return $0.offset
+//        }
 
         // Prints "[1, 5, 25, 30, 75, 100, 300, 500, 512, 1023]"
-        print(componentFrequencies)
+//        print(componentFrequencies)
 
 
         var inverseOutputReal = [Float](repeating: 0,
@@ -98,8 +97,8 @@ class BasicFFT {
                                         count: halfN)
 
         let recreatedSignal: [Float] =
-            forwardOutputReal.withUnsafeMutableBufferPointer { forwardOutputRealPtr in
-                forwardOutputImag.withUnsafeMutableBufferPointer { forwardOutputImagPtr in
+            source.distribution_real.withUnsafeMutableBufferPointer { forwardOutputRealPtr in
+                source.distribution_imag.withUnsafeMutableBufferPointer { forwardOutputImagPtr in
                     inverseOutputReal.withUnsafeMutableBufferPointer { inverseOutputRealPtr in
                         inverseOutputImag.withUnsafeMutableBufferPointer { inverseOutputImagPtr in
 
@@ -130,8 +129,8 @@ class BasicFFT {
 
 
         let texDesc = MTLTextureDescriptor()
-        texDesc.width = 1024//Terrain.normalMapTexture.width
-        texDesc.height = 1024//Terrain.normalMapTexture.height
+        texDesc.width = 512 //Terrain.normalMapTexture.width
+        texDesc.height = 512//Terrain.normalMapTexture.height
         texDesc.pixelFormat = .rg11b10Float
         texDesc.usage = [.shaderRead, .shaderWrite]
         texDesc.mipmapLevelCount = Int(log2(Double(max(Terrain.normalMapTexture.width, Terrain.normalMapTexture.height))) + 1);
@@ -165,7 +164,8 @@ extension BasicFFT: Renderable {
         computeEncoder.setBuffer(dataBuffer, offset: 0, index: 0)
         let w = pipelineState.threadExecutionWidth
         let h = pipelineState.maxTotalThreadsPerThreadgroup / w
-        let threadsPerGroup = MTLSizeMake(w, h, 1)
+        let threadsPerGroup = MTLSizeMake( w,      h, 1)
+//                                          ^        ^
         let threadsPerGrid = MTLSizeMake(Int(16), Int(16), 1)
 
 

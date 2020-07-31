@@ -78,12 +78,14 @@ class Water {
         self.size = size
         self.size_normal = size / normalmap_freq_mod
 
+        let n = vDSP_Length(262144)
+        let halfN = Int(n / 2)
 
         // Factor in phillips spectrum
         L = simd_dot(wind_velocity, wind_velocity) / Self.G;
 
-        distribution_real = [Float](repeating: 0, count: 1024)
-        distribution_imag = [Float](repeating: 0, count: 1024)
+        distribution_real = [Float](repeating: 0, count: halfN)
+        distribution_imag = [Float](repeating: 0, count: halfN)
 
         var newamplitude = amplitude
         newamplitude *= 0.3 / sqrt(size.x * size.y)
@@ -91,9 +93,9 @@ class Water {
 //        generate_distribution(distribution_real: &distribution_real, distribution_imag: &distribution_imag, size: size, amplitude: newamplitude, max_l: 0.2)
         let source = Distributions.Normal(m: 0, v: 1)
         distribution_real = distribution_real.map { _ in return Float(source.random()) }
-        distribution_imag = distribution_real.map { _ in return Float(source.random()) }
+        distribution_imag = distribution_imag.map { _ in return Float(source.random()) }
 
-        print(distribution_real)
+//        print(distribution_real)
     }
 
 

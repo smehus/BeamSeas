@@ -12,8 +12,6 @@ import Metal
 import MetalKit
 import simd
 
-let waterSize = 512.0
-let resolution = 225
 
 final class Renderer: NSObject {
 

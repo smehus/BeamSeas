@@ -322,14 +322,14 @@ kernel void fft_kernel(texture2d<float, access::write> output [[ texture(0) ]],
 
     if (tid.x < width && tid.y < height) {
         //    float2 uv = float2(2 * M_PI_F * tid.x / 512, 2.0 * M_PI_F * tid.y / 512);
-        uint index = tid.y + tid.x;
+        uint index = tid.y * width + tid.x;
         float val = data[index];
         //    float val = data[tid.x];
         //    val = val * 2 - 1;
         //    val = val * (width / 2) + (width / 2);
 
         // convert to between 0 - 1
-        val = (val - (-3)) / (3 - (-3));
+//        val = (val - (-3)) / (3 - (-3));
         float4 color = float4(val, val, val, 1.0);
         //    val = val / height;
         // This seems like it'd be right?
