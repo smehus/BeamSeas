@@ -23,7 +23,7 @@ struct TerrainVertexOut {
 
 struct FFTVertexOut {
     float4 position [[ position ]];
-    float3 worldPosition;
+    float2 textureCoordinates [[ flat ]];
 };
 
 struct FFTVertexIn {
@@ -272,22 +272,31 @@ float normalCoordinates(uint2 coords, texture2d<float> map, sampler s, float del
     return d.r;
 }
 
-vertex FFTVertexOut fft_vertex(const FFTVertexIn in [[ stage_in ]], constant Uniforms &uniforms [[ buffer(BufferIndexUniforms) ]] ) {
 
+vertex FFTVertexOut fft_vertex(const FFTVertexIn in [[ stage_in ]],
+                               constant Uniforms &uniforms [[ buffer(BufferIndexUniforms) ]],
+                               texture2d<float> noiseMap [[ texture(8) ]],
+                               constant float2 &viewPort [[ buffer(22) ]]) {
     return {
-        .position = uniforms.projectionMatrix * uniforms.viewMatrix * uniforms.modelMatrix * in.position,
-        .worldPosition = (uniforms.modelMatrix * in.position).xyz
+        .position = in.position,
+        .textureCoordinates = in.position.xy
     };
 }
 
-fragment float4 fft_fragment(const FFTVertexOut in [[ stage_in ]], texture2d<float> noiseMap [[ texture(0) ]]) {
-    constexpr sampler s(coord::normalized, filter::linear, address::clamp_to_edge, compare_func:: less);
+fragment float4 fft_fragment(const FFTVertexOut in [[ stage_in ]],
+                             constant float2 &viewPort [[ buffer(22) ]],
+                             texture2d<float> noiseMap [[ texture(8) ]],
+                             texture2d<float> testMap [[ texture(1) ]]) {
+      constexpr sampler sam;
 
-    float u = in.worldPosition.x / (noiseMap.get_width() * 2);
-    float v = in.worldPosition.y / (noiseMap.get_height() * 2);
-    float2 uv = float2(u,v);
+    float width = testMap.get_width();
+    float height = testMap.get_height();
 
-    float4 color = noiseMap.sample(s, uv);
+    float2 normTex = in.textureCoordinates.xy;
+    normTex = normTex * 0.5 + 0.5;
+
+    float2 tex = in.position.xy / viewPort;
+    float4 color = noiseMap.sample(sam, tex);
 
     return color;
 }
@@ -318,13 +327,20 @@ kernel void fft_kernel(texture2d<float, access::write> output [[ texture(0) ]],
         // convert to between 0 - 1
 //        val = (val - (-3)) / (3 - (-3));
         float4 color = float4(val, val, val, 1.0);
+        output.write(color, tid);
+//        float4 alt = float4(1, 0, 0, 1);
+//        output.write(alt, (tid + uint2(0, 1)));
+//        output.write(float4(0, 1, 0, 1), (tid - uint2(0, 1)));
+//        output.write(alt, (tid + uint2(1, 0)));
+//        output.write(float4(0, 0, 1, 0), (tid - uint2(1, 0)));
+//        output.write(alt, (tid + uint2(0, 0)));
         //    val = val / height;
         // This seems like it'd be right?
-        if (tid.x % 2 == 0) {
-            output.write(float4(1, 0, 0, 1), tid);
-        } else {
-            output.write(float4(0, 1, 0, 1), tid);
-        }
+//        if (tid.x % 2 == 0) {
+//            output.write(float4(1, 0, 0, 1), tid);
+//        } else {
+//            output.write(float4(0, 1, 0, 1), tid);
+//        }
 
         //    output.write(float4(tid.x, tid.x, tid.x, 1.0), tid);
         //    output.write(float4(0, 0, 0, 1.0), tid);

@@ -28,7 +28,7 @@ class BasicFFT: Node {
 
 
         let allocator = MTKMeshBufferAllocator(device: Renderer.device)
-        let prim = MDLMesh(planeWithExtent: [10, 10, 1], segments: [2, 2], geometryType: .triangles, allocator: allocator)
+        let prim = MDLMesh(planeWithExtent: [0.5, 1, 0], segments: [4, 4], geometryType: .triangles, allocator: allocator)
         model = try! MTKMesh(mesh: prim, device: Renderer.device)
 
 
@@ -137,11 +137,11 @@ class BasicFFT: Node {
 
 
         let texDesc = MTLTextureDescriptor()
-        texDesc.width = 512 //Terrain.normalMapTexture.width
-        texDesc.height = 512//Terrain.normalMapTexture.height
+        texDesc.width = 128 //Terrain.normalMapTexture.width
+        texDesc.height = 128//Terrain.normalMapTexture.height
         texDesc.pixelFormat = .rg11b10Float
         texDesc.usage = [.shaderRead, .shaderWrite]
-        texDesc.mipmapLevelCount = Int(log2(Double(max(Terrain.normalMapTexture.width, Terrain.normalMapTexture.height))) + 1);
+//        texDesc.mipmapLevelCount = Int(log2(Double(max(Terrain.normalMapTexture.width, Terrain.normalMapTexture.height))) + 1);
         texDesc.storageMode = .private
         Self.drawTexture = Renderer.device.makeTexture(descriptor: texDesc)!
 
@@ -183,9 +183,9 @@ extension BasicFFT: Renderable {
         computeEncoder.setBuffer(dataBuffer, offset: 0, index: 0)
         let w = pipelineState.threadExecutionWidth
         let h = pipelineState.maxTotalThreadsPerThreadgroup / w
-        let threadsPerGroup = MTLSizeMake( 16,      16, 1)
+        let threadsPerGroup = MTLSizeMake(8, 8, 1)
 //                                          ^        ^
-        let threadsPerGrid = MTLSizeMake(Int(32), Int(32), 1)
+        let threadsPerGrid = MTLSizeMake(Int(16), Int(16), 1)
 
 
         // threadsPerGrid determines the thread_posistion dimensions
@@ -197,11 +197,18 @@ extension BasicFFT: Renderable {
         renderEncoder.pushDebugGroup("FFT")
         renderEncoder.setRenderPipelineState(mainPipelineState)
 
-        position.y = 15
+//        position.y = 15
 //        rotation = [Float(90).degreesToRadians, 0, 0]
+
         uniforms.modelMatrix = modelMatrix
         renderEncoder.setVertexBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: BufferIndex.uniforms.rawValue)
-        renderEncoder.setFragmentTexture(Self.drawTexture, index: 0)
+        renderEncoder.setFragmentTexture(Self.drawTexture, index: 8)
+//        renderEncoder.setVertexBytes(&viewPort, length: MemoryLayout<SIMD2<Float>>.stride, index: 22)
+
+        var viewPort = SIMD2<Float>(x: Float(Renderer.metalView.drawableSize.width), y: Float(Renderer.metalView.drawableSize.height))
+        renderEncoder.setFragmentTexture(Self.drawTexture, index: 8)
+        renderEncoder.setFragmentTexture(Terrain.normalMapTexture, index: 1)
+        renderEncoder.setFragmentBytes(&viewPort, length: MemoryLayout<SIMD2<Float>>.stride, index: 22)
 
         let mesh = model.submeshes.first!
         // forgot to add this
