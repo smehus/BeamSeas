@@ -1,57 +1,6 @@
 import Foundation
 
 /**
- Protocol for discrete distributions.
- 
- Defines the `quantile()` method that must be implemented.
- */
-public protocol DiscreteDistribution {
-    func quantile(_ p: Double) -> Int
-}
-
-extension DiscreteDistribution {
-    /**
-     Single discrete random value using a user-provided random number generator
-     
-     - Parameters:
-       - using: A random number generator
-     
-     - Returns:
-     A random number from the distribution represented by the instance
-     */
-    public func random<T: RandomNumberGenerator>(using generator: inout T) -> Int {
-        let x = Double.random(in: 0.0...1.0,
-                              using: &generator)
-        return quantile(x)
-    }
-    
-    /**
-     Single discrete random value using the system random number generator
-     
-     - Returns:
-     A random number from the distribution represented by the instance
-     */
-    public func random() -> Int {
-        var rng = SystemRandomNumberGenerator()
-        return random(using: &rng)
-    }
-    
-    /**
-     Array of discrete random values
-     - Parameter n: number of values to produce
-     - Complexity: O(n)
-     */
-    public func random(_ n: Int) -> [Int] {
-        var results: [Int] = []
-        for _ in 0..<n {
-            results.append(random())
-        }
-        return results
-    }
-
-}
-
-/**
  Protocol for continuous distributions.
  
  Defines the `quantile()` method that must be implemented.

@@ -67,6 +67,8 @@ typedef struct
     vector_uint2 resolution;
     vector_float2 size;
     vector_float2 normalmap_freq_mod;
+    float rand_real;
+    float rand_imag;
 } GausUniforms;
 
 typedef struct

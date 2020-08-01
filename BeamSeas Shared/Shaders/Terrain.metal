@@ -35,9 +35,45 @@ int alias(int x, int N) {
     return x;
 }
 
+//private func philliphs(k: SIMD2<Float>, max_l: Float) -> Float {
+//    // might have to do this on gpu
+//    let k_len = simd_length(k)
+//    if k_len == 0 {
+//        return 0
+//    }
+//
+//    let kL = k_len * L
+//    let k_dir = simd_normalize(k)
+//    let kw = simd_dot(k_dir, wind_dir)
+//
+//    return
+//        pow(kw * kw, 1.0) *
+//        exp(-1 * k_len * k_len * max_l * max_l) *
+//        exp(-1 / (kL * kL)) *
+//        pow(k_len, -4.0)
+//}
+
+
+float phillips(float2 k, float max_l, float L, float2 wind_dir) {
+    float k_len = length(k);
+    if (k_len == 0) {
+        return 0.0;
+    }
+
+    float kL = k_len * L;
+    float2 k_dir = normalize(k);
+    float kw = dot(k_dir, wind_dir);
+
+    return
+    pow(kw * kw, 1.0) *
+    exp(-1 * k_len * k_len * max_l * max_l) *
+    exp(-1 / (kL * kL)) *
+    pow(k_len, -4.0);
+}
+
 kernel void generate_distribution(constant GausUniforms &uniforms [[ buffer(BufferIndexGausUniforms) ]],
-                                  constant float *distribution_real [[ buffer(0) ]],
-                                  constant float *distribution_imag [[ buffer(1) ]])
+                                  device float *distribution_real [[ buffer(0) ]],
+                                  device float *distribution_imag [[ buffer(1) ]])
 {
 
     float2 wind_dir = normalize(uniforms.wind_velocity);
@@ -50,6 +86,7 @@ kernel void generate_distribution(constant GausUniforms &uniforms [[ buffer(Buff
     float G = 9.81; // Gravity
     float L = dot(uniforms.wind_velocity, uniforms.wind_velocity) / G;
     float amplitude = uniforms.amplitude;
+    float max_l = 0.02;
 
     amplitude *= 0.3 / sqrt(size.x * size.y);
 
@@ -58,7 +95,15 @@ kernel void generate_distribution(constant GausUniforms &uniforms [[ buffer(Buff
 
     for (unsigned z = 0; z < nZ; z++) {
         for (unsigned x = 0; x < nX; x++) {
+            float2 k = mod * float2(float(alias(x, nX)), float(alias(z, nZ)));
 
+            float phil = phillips(k, max_l, L, wind_dir);
+            float real = uniforms.rand_real * amplitude * sqrt(0.5 * phil);
+            float imag = uniforms.rand_imag * amplitude * sqrt(0.5 * phil);
+
+            int idx = z * nX + x;
+            distribution_real[idx] = real;
+            distribution_imag[idx] = imag;
         }
     }
 }
