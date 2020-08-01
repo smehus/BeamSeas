@@ -17,93 +17,53 @@ class BasicFFT: Node {
     private let pipelineState: MTLComputePipelineState
     private let mainPipelineState: MTLRenderPipelineState
     static var drawTexture: MTLTexture!
-    private let dataBuffer: MTLBuffer!
+    private var dataBuffer: MTLBuffer!
 
+    private let fft: vDSP.FFT<DSPSplitComplex>
     private let model: MTKMesh
-    let testTexture: MTLTexture
+    private let testTexture: MTLTexture
+    private let n = vDSP_Length(262144)
+
+
     init(source: Water) {
-        let n = vDSP_Length(262144)
-
-        let frequencies: [Float] = [440]
-
         testTexture = Self.loadTexture(imageName: "gaussian_noise_5", path: "png")
 
         let allocator = MTKMeshBufferAllocator(device: Renderer.device)
         let prim = MDLMesh(planeWithExtent: [0.5, 1, 0], segments: [4, 4], geometryType: .triangles, allocator: allocator)
         model = try! MTKMesh(mesh: prim, device: Renderer.device)
 
-
-        let tau: Float = .pi * 2
-        let signal: [Float] = (0 ... n).map { index in
-            frequencies.reduce(0) { accumulator, frequency in
-                let normalizedIndex = Float(index) / Float(n)
-                return accumulator + sin(normalizedIndex * frequency * tau)
-            }
-        }
-        signalCount = signal.count
-
         let log2n = vDSP_Length(log2(Float(n)))
+        fft = vDSP.FFT(log2n: log2n, radix: .radix2, ofType: DSPSplitComplex.self)!
 
-        guard let fftSetUp = vDSP.FFT(log2n: log2n,
-                                      radix: .radix2,
-                                      ofType: DSPSplitComplex.self) else {
-                                        fatalError("Can't create FFT Setup.")
-        }
+        let texDesc = MTLTextureDescriptor()
+        texDesc.width = 512
+        texDesc.height = 512
+        texDesc.pixelFormat = .rg11b10Float
+        texDesc.usage = [.shaderRead, .shaderWrite]
+        //        texDesc.mipmapLevelCount = Int(log2(Double(max(Terrain.normalMapTexture.width, Terrain.normalMapTexture.height))) + 1);
+        texDesc.storageMode = .private
+        Self.drawTexture = Renderer.device.makeTexture(descriptor: texDesc)!
+        pipelineState = Self.buildComputePipelineState()
 
+        let mainPipeDescriptor = MTLRenderPipelineDescriptor()
+        mainPipeDescriptor.colorAttachments[0].pixelFormat = .bgra8Unorm
+        mainPipeDescriptor.depthAttachmentPixelFormat = .depth32Float
+        mainPipeDescriptor.vertexFunction = Renderer.library.makeFunction(name: "fft_vertex")
+        mainPipeDescriptor.fragmentFunction = Renderer.library.makeFunction(name: "fft_fragment")
+        mainPipeDescriptor.vertexDescriptor = MTKMetalVertexDescriptorFromModelIO(model.vertexDescriptor)
+
+        mainPipelineState = try! Renderer.device.makeRenderPipelineState(descriptor: mainPipeDescriptor)
+        super.init()
+
+        runfft(source: source)
+    } // init
+
+    func runfft(source: Water) {
 
         let halfN = Int(n / 2)
 
-        var forwardInputReal = [Float](repeating: 0,
-                                       count: halfN)
-        var forwardInputImag = [Float](repeating: 0,
-                                       count: halfN)
-        var forwardOutputReal = [Float](repeating: 0,
-                                        count: halfN)
-        var forwardOutputImag = [Float](repeating: 0,
-                                        count: halfN)
-
-        forwardInputReal.withUnsafeMutableBufferPointer { forwardInputRealPtr in
-            forwardInputImag.withUnsafeMutableBufferPointer { forwardInputImagPtr in
-                forwardOutputReal.withUnsafeMutableBufferPointer { forwardOutputRealPtr in
-                    forwardOutputImag.withUnsafeMutableBufferPointer { forwardOutputImagPtr in
-
-                        // 1: Create a `DSPSplitComplex` to contain the signal.
-                        var forwardInput = DSPSplitComplex(realp: forwardInputRealPtr.baseAddress!,
-                                                           imagp: forwardInputImagPtr.baseAddress!)
-
-                        // 2: Convert the real values in `signal` to complex numbers.
-                        signal.withUnsafeBytes {
-                            vDSP.convert(interleavedComplexVector: [DSPComplex]($0.bindMemory(to: DSPComplex.self)),
-                                         toSplitComplexVector: &forwardInput)
-                        }
-
-                        // 3: Create a `DSPSplitComplex` to receive the FFT result.
-                        var forwardOutput = DSPSplitComplex(realp: forwardOutputRealPtr.baseAddress!,
-                                                            imagp: forwardOutputImagPtr.baseAddress!)
-
-                        // 4: Perform the forward FFT.
-                        fftSetUp.forward(input: forwardInput,
-                                         output: &forwardOutput)
-                    }
-                }
-            }
-        }
-
-
-//        let componentFrequencies = forwardOutputImag.enumerated().filter {
-//            $0.element < -1
-//        }.map {
-//            return $0.offset
-//        }
-
-        // Prints "[1, 5, 25, 30, 75, 100, 300, 500, 512, 1023]"
-//        print(componentFrequencies)
-
-
-        var inverseOutputReal = [Float](repeating: 0,
-                                        count: halfN)
-        var inverseOutputImag = [Float](repeating: 0,
-                                        count: halfN)
+        var inverseOutputReal = [Float](repeating: 0, count: halfN)
+        var inverseOutputImag = [Float](repeating: 0, count: halfN)
 
         let recreatedSignal: [Float] =
             source.distribution_real.withUnsafeMutableBufferPointer { forwardOutputRealPtr in
@@ -120,8 +80,8 @@ class BasicFFT: Node {
                                                                 imagp: inverseOutputImagPtr.baseAddress!)
 
                             // 3: Perform the inverse FFT.
-                            fftSetUp.inverse(input: forwardOutput,
-                                             output: &inverseOutput)
+                            fft.inverse(input: forwardOutput,
+                                        output: &inverseOutput)
 
                             // 4: Return an array of real values from the FFT result.
                             let scale = 1 / Float(n * 2)
@@ -134,33 +94,8 @@ class BasicFFT: Node {
         }
 
 
-//        print(recreatedSignal)
-
-
-        let texDesc = MTLTextureDescriptor()
-        texDesc.width = 512 //Terrain.normalMapTexture.width
-        texDesc.height = 512//Terrain.normalMapTexture.height
-        texDesc.pixelFormat = .rg11b10Float
-        texDesc.usage = [.shaderRead, .shaderWrite]
-//        texDesc.mipmapLevelCount = Int(log2(Double(max(Terrain.normalMapTexture.width, Terrain.normalMapTexture.height))) + 1);
-        texDesc.storageMode = .private
-        Self.drawTexture = Renderer.device.makeTexture(descriptor: texDesc)!
-
         dataBuffer = Renderer.device.makeBuffer(bytes: recreatedSignal, length: MemoryLayout<Float>.stride * recreatedSignal.count, options: [])
-        pipelineState = Self.buildComputePipelineState()
-
-        let mainPipeDescriptor = MTLRenderPipelineDescriptor()
-        mainPipeDescriptor.colorAttachments[0].pixelFormat = .bgra8Unorm
-        mainPipeDescriptor.depthAttachmentPixelFormat = .depth32Float
-        mainPipeDescriptor.vertexFunction = Renderer.library.makeFunction(name: "fft_vertex")
-        mainPipeDescriptor.fragmentFunction = Renderer.library.makeFunction(name: "fft_fragment")
-        // forgot to do this
-        mainPipeDescriptor.vertexDescriptor = MTKMetalVertexDescriptorFromModelIO(model.vertexDescriptor)
-
-        mainPipelineState = try! Renderer.device.makeRenderPipelineState(descriptor: mainPipeDescriptor)
-
-    } // init
-
+    }
 
 
     static func buildComputePipelineState() -> MTLComputePipelineState {
@@ -199,13 +134,13 @@ extension BasicFFT: Renderable {
         renderEncoder.pushDebugGroup("FFT")
         renderEncoder.setRenderPipelineState(mainPipelineState)
 
-//        position.y = 15
-//        rotation = [Float(90).degreesToRadians, 0, 0]
+        //        position.y = 15
+        //        rotation = [Float(90).degreesToRadians, 0, 0]
 
         uniforms.modelMatrix = modelMatrix
         renderEncoder.setVertexBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: BufferIndex.uniforms.rawValue)
         renderEncoder.setFragmentTexture(Self.drawTexture, index: 8)
-//        renderEncoder.setVertexBytes(&viewPort, length: MemoryLayout<SIMD2<Float>>.stride, index: 22)
+        //        renderEncoder.setVertexBytes(&viewPort, length: MemoryLayout<SIMD2<Float>>.stride, index: 22)
 
         var viewPort = SIMD2<Float>(x: Float(Renderer.metalView.drawableSize.width), y: Float(Renderer.metalView.drawableSize.height))
         renderEncoder.setFragmentBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: BufferIndex.uniforms.rawValue)
