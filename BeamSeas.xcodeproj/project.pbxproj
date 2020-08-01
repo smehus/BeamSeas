@@ -21,6 +21,8 @@
 		020FD8C324D4575A00B77CF2 /* Distributions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020FD8C124D4575A00B77CF2 /* Distributions.swift */; };
 		020FD8C524D4577200B77CF2 /* Common.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020FD8C424D4577200B77CF2 /* Common.swift */; };
 		020FD8C624D4577200B77CF2 /* Common.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020FD8C424D4577200B77CF2 /* Common.swift */; };
+		0217E77324D5C3130082D199 /* gaussian_noise_5.png in Resources */ = {isa = PBXBuildFile; fileRef = 0217E77224D5C3130082D199 /* gaussian_noise_5.png */; };
+		0217E77424D5C3130082D199 /* gaussian_noise_5.png in Resources */ = {isa = PBXBuildFile; fileRef = 0217E77224D5C3130082D199 /* gaussian_noise_5.png */; };
 		022B51E124B0E33B00FC5C81 /* Terrain.metal in Sources */ = {isa = PBXBuildFile; fileRef = 022B51E024B0E33B00FC5C81 /* Terrain.metal */; };
 		022B51E224B0E33B00FC5C81 /* Terrain.metal in Sources */ = {isa = PBXBuildFile; fileRef = 022B51E024B0E33B00FC5C81 /* Terrain.metal */; };
 		022B51E424B1772300FC5C81 /* mountain.png in Resources */ = {isa = PBXBuildFile; fileRef = 022B51E324B1772300FC5C81 /* mountain.png */; };
@@ -113,6 +115,7 @@
 		020F9867249A7C5900DB4850 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		020FD8C124D4575A00B77CF2 /* Distributions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Distributions.swift; sourceTree = "<group>"; };
 		020FD8C424D4577200B77CF2 /* Common.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Common.swift; sourceTree = "<group>"; };
+		0217E77224D5C3130082D199 /* gaussian_noise_5.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = gaussian_noise_5.png; sourceTree = "<group>"; };
 		022B51E024B0E33B00FC5C81 /* Terrain.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Terrain.metal; sourceTree = "<group>"; };
 		022B51E324B1772300FC5C81 /* mountain.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = mountain.png; sourceTree = "<group>"; };
 		022B51E624B22D2200FC5C81 /* Heightmap_Plateau.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Heightmap_Plateau.png; sourceTree = "<group>"; };
@@ -300,6 +303,7 @@
 		0299533A249925FF0014228F /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				0217E77224D5C3130082D199 /* gaussian_noise_5.png */,
 				0231B80624CE87CB00C794B8 /* simuwater2.jpg */,
 				0231B80124CE877800C794B8 /* SimulatingWaterImage.jpg */,
 				0231B80024CE877700C794B8 /* simuwater.jpg */,
@@ -444,6 +448,7 @@
 				0236A770249D8ED6008F197E /* cube.obj in Resources */,
 				022B51EE24B22D2200FC5C81 /* Heightmap_Rocky.png in Resources */,
 				0236A76A249D8ED6008F197E /* cottage1.obj in Resources */,
+				0217E77324D5C3130082D199 /* gaussian_noise_5.png in Resources */,
 				0231B80424CE877800C794B8 /* SimulatingWaterImage.jpg in Resources */,
 				0236A755249D2192008F197E /* plane.obj in Resources */,
 				02419D5B249850C100BCB203 /* Main.storyboard in Resources */,
@@ -480,6 +485,7 @@
 				0236A758249D2192008F197E /* plane.mtl in Resources */,
 				022B51E524B1772300FC5C81 /* mountain.png in Resources */,
 				0236A76F249D8ED6008F197E /* cottage1.mtl in Resources */,
+				0217E77424D5C3130082D199 /* gaussian_noise_5.png in Resources */,
 				0236A760249D5DFD008F197E /* Textures.xcassets in Resources */,
 				02419D73249850C100BCB203 /* ShaderTypes.h in Resources */,
 				0236A756249D2192008F197E /* plane.obj in Resources */,

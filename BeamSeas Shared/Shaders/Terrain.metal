@@ -284,21 +284,58 @@ vertex FFTVertexOut fft_vertex(const FFTVertexIn in [[ stage_in ]],
 }
 
 fragment float4 fft_fragment(const FFTVertexOut in [[ stage_in ]],
+                             constant Uniforms &uniforms [[ buffer(BufferIndexUniforms)]],
                              constant float2 &viewPort [[ buffer(22) ]],
                              texture2d<float> noiseMap [[ texture(8) ]],
                              texture2d<float> testMap [[ texture(1) ]]) {
-      constexpr sampler sam;
-
-    float width = testMap.get_width();
-    float height = testMap.get_height();
-
-    float2 normTex = in.textureCoordinates.xy;
-    normTex = normTex * 0.5 + 0.5;
-
+    constexpr sampler sam;
+//    float2 normTex = in.textureCoordinates.xy;
+//    normTex = normTex * 0.5 + 0.5;
     float2 tex = in.position.xy / viewPort;
-    float4 color = noiseMap.sample(sam, tex);
+    float4 color = noiseMap.sample(sam, tex) * 100;
 
-    return color;
+    return float4(color.xyz, 1.0);
+}
+
+float randomNoise(float2 p) {
+  return fract(6791.0 * sin(47.0 * p.x + 9973.0 * p.y));
+}
+
+float smoothNoise(float2 p) {
+  float2 north = float2(p.x, p.y + 1.0);
+  float2 east = float2(p.x + 1.0, p.y);
+  float2 south = float2(p.x, p.y - 1.0);
+  float2 west = float2(p.x - 1.0, p.y);
+  float2 center = float2(p.x, p.y);
+  float sum = 0.0;
+  sum += randomNoise(north) / 8.0;
+  sum += randomNoise(east) / 8.0;
+  sum += randomNoise(south) / 8.0;
+  sum += randomNoise(west) / 8.0;
+  sum += randomNoise(center) / 2.0;
+  return sum;
+}
+
+float interpolatedNoise(float2 p) {
+  float q11 = smoothNoise(float2(floor(p.x), floor(p.y)));
+  float q12 = smoothNoise(float2(floor(p.x), ceil(p.y)));
+  float q21 = smoothNoise(float2(ceil(p.x), floor(p.y)));
+  float q22 = smoothNoise(float2(ceil(p.x), ceil(p.y)));
+  float2 ss = smoothstep(0.0, 1.0, fract(p));
+  float r1 = mix(q11, q21, ss.x);
+  float r2 = mix(q12, q22, ss.x);
+  return mix (r1, r2, ss.y);
+}
+
+float fbm(float2 uv, float steps) {
+  float sum = 0;
+  float amplitude = 0.8;
+  for(int i = 0; i < steps; ++i) {
+    sum += interpolatedNoise(uv) * amplitude;
+    uv += uv * 1.2;
+    amplitude *= 0.4;
+  }
+  return sum;
 }
 
 kernel void fft_kernel(texture2d<float, access::write> output [[ texture(0) ]],
@@ -320,36 +357,33 @@ kernel void fft_kernel(texture2d<float, access::write> output [[ texture(0) ]],
         //    float2 uv = float2(2 * M_PI_F * tid.x / 512, 2.0 * M_PI_F * tid.y / 512);
         uint index = tid.y * width + tid.x;
         float val = data[index];
+
+//        float2 h_up  = float2(tid + uint2(0, 1));
+//        uint altindex = h_up.y * width + h_up.x;
+        float altval = data[index - 1];
+
+
         //    float val = data[tid.x];
         //    val = val * 2 - 1;
         //    val = val * (width / 2) + (width / 2);
 
         // convert to between 0 - 1
 //        val = (val - (-3)) / (3 - (-3));
+
+
+
         float4 color = float4(val, val, val, 1.0);
-        output.write(color, tid);
+        output.write(float4(val, val, val, 1), tid);
+
+
+
+
 //        float4 alt = float4(1, 0, 0, 1);
 //        output.write(alt, (tid + uint2(0, 1)));
 //        output.write(float4(0, 1, 0, 1), (tid - uint2(0, 1)));
 //        output.write(alt, (tid + uint2(1, 0)));
 //        output.write(float4(0, 0, 1, 0), (tid - uint2(1, 0)));
 //        output.write(alt, (tid + uint2(0, 0)));
-        //    val = val / height;
-        // This seems like it'd be right?
-//        if (tid.x % 2 == 0) {
-//            output.write(float4(1, 0, 0, 1), tid);
-//        } else {
-//            output.write(float4(0, 1, 0, 1), tid);
-//        }
-
-        //    output.write(float4(tid.x, tid.x, tid.x, 1.0), tid);
-        //    output.write(float4(0, 0, 0, 1.0), tid);
-        //    if (val < 0) {
-        //        output.write(float4(val, val, val, 1.0), tid);
-        //        output.write(float4(0, 0, 0, 1.0), uint2(0, 1));
-        //    } else {
-        //        output.write(float4(1, 0, 0, 1.0), tid);
-        //    }
 
     } else {
         output.write(float4(1, 0, 0, 1), tid);

@@ -20,12 +20,13 @@ class BasicFFT: Node {
     private let dataBuffer: MTLBuffer!
 
     private let model: MTKMesh
-
+    let testTexture: MTLTexture
     init(source: Water) {
         let n = vDSP_Length(262144)
 
         let frequencies: [Float] = [440]
 
+        testTexture = Self.loadTexture(imageName: "gaussian_noise_5", path: "png")
 
         let allocator = MTKMeshBufferAllocator(device: Renderer.device)
         let prim = MDLMesh(planeWithExtent: [0.5, 1, 0], segments: [4, 4], geometryType: .triangles, allocator: allocator)
@@ -137,8 +138,8 @@ class BasicFFT: Node {
 
 
         let texDesc = MTLTextureDescriptor()
-        texDesc.width = 128 //Terrain.normalMapTexture.width
-        texDesc.height = 128//Terrain.normalMapTexture.height
+        texDesc.width = 256 //Terrain.normalMapTexture.width
+        texDesc.height = 256//Terrain.normalMapTexture.height
         texDesc.pixelFormat = .rg11b10Float
         texDesc.usage = [.shaderRead, .shaderWrite]
 //        texDesc.mipmapLevelCount = Int(log2(Double(max(Terrain.normalMapTexture.width, Terrain.normalMapTexture.height))) + 1);
@@ -183,7 +184,7 @@ extension BasicFFT: Renderable {
         computeEncoder.setBuffer(dataBuffer, offset: 0, index: 0)
         let w = pipelineState.threadExecutionWidth
         let h = pipelineState.maxTotalThreadsPerThreadgroup / w
-        let threadsPerGroup = MTLSizeMake(8, 8, 1)
+        let threadsPerGroup = MTLSizeMake(w, h, 1)
 //                                          ^        ^
         let threadsPerGrid = MTLSizeMake(Int(16), Int(16), 1)
 
@@ -206,8 +207,9 @@ extension BasicFFT: Renderable {
 //        renderEncoder.setVertexBytes(&viewPort, length: MemoryLayout<SIMD2<Float>>.stride, index: 22)
 
         var viewPort = SIMD2<Float>(x: Float(Renderer.metalView.drawableSize.width), y: Float(Renderer.metalView.drawableSize.height))
+        renderEncoder.setFragmentBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: BufferIndex.uniforms.rawValue)
         renderEncoder.setFragmentTexture(Self.drawTexture, index: 8)
-        renderEncoder.setFragmentTexture(Terrain.normalMapTexture, index: 1)
+        renderEncoder.setFragmentTexture(testTexture, index: 1)
         renderEncoder.setFragmentBytes(&viewPort, length: MemoryLayout<SIMD2<Float>>.stride, index: 22)
 
         let mesh = model.submeshes.first!
@@ -223,4 +225,7 @@ extension BasicFFT: Renderable {
 
         renderEncoder.popDebugGroup()
     }
+
 }
+
+extension BasicFFT: Texturable { }

@@ -93,10 +93,10 @@ class Water {
         let source = Distributions.Normal(m: 0, v: 1)
 
 
-        distribution_real = distribution_real.map { _ in return Float(source.random()) }
-        distribution_imag = distribution_imag.map { _ in return Float(source.random()) }
+//        distribution_real = distribution_real.map { _ in return Float(source.random()) }
+//        distribution_imag = distribution_imag.map { _ in return Float(source.random()) }
 
-//        generate_distribution(distribution_real: &distribution_real, distribution_imag: &distribution_imag, size: size, amplitude: newamplitude, max_l: 0.02)
+        generate_distribution(distribution_real: &distribution_real, distribution_imag: &distribution_imag, size: size, amplitude: newamplitude, max_l: 0.02)
 //        print(distribution_real)
     }
 
