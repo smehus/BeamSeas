@@ -21,6 +21,11 @@ struct TerrainVertexOut {
     float3 normal;// [[flat]];
 };
 
+struct FFTVertexOut {
+    float4 position [[ position ]];
+    float3 worldPosition;
+};
+
 struct FFTVertexIn {
     float4 position [[ attribute(VertexAttributePosition) ]];
 };
@@ -267,18 +272,19 @@ float normalCoordinates(uint2 coords, texture2d<float> map, sampler s, float del
     return d.r;
 }
 
-vertex TerrainVertexOut fft_vertex(const FFTVertexIn in [[ stage_in ]], constant Uniforms &uniforms [[ buffer(BufferIndexUniforms) ]] ) {
+vertex FFTVertexOut fft_vertex(const FFTVertexIn in [[ stage_in ]], constant Uniforms &uniforms [[ buffer(BufferIndexUniforms) ]] ) {
 
     return {
-        .position = uniforms.projectionMatrix * uniforms.viewMatrix * uniforms.modelMatrix * in.position
+        .position = uniforms.projectionMatrix * uniforms.viewMatrix * uniforms.modelMatrix * in.position,
+        .worldPosition = (uniforms.modelMatrix * in.position).xyz
     };
 }
 
-fragment float4 fft_fragment(const TerrainVertexOut in [[ stage_in ]], texture2d<float> noiseMap [[ texture(0) ]]) {
-    constexpr sampler s;
+fragment float4 fft_fragment(const FFTVertexOut in [[ stage_in ]], texture2d<float> noiseMap [[ texture(0) ]]) {
+    constexpr sampler s(coord::normalized, filter::linear, address::clamp_to_edge, compare_func:: less);
 
-    float u = in.position.x / (noiseMap.get_width() * 2);
-    float v = in.position.y / (noiseMap.get_height() * 2);
+    float u = in.worldPosition.x / (noiseMap.get_width() * 2);
+    float v = in.worldPosition.y / (noiseMap.get_height() * 2);
     float2 uv = float2(u,v);
 
     float4 color = noiseMap.sample(s, uv);
@@ -314,7 +320,12 @@ kernel void fft_kernel(texture2d<float, access::write> output [[ texture(0) ]],
         float4 color = float4(val, val, val, 1.0);
         //    val = val / height;
         // This seems like it'd be right?
-        output.write(color, tid);
+        if (tid.x % 2 == 0) {
+            output.write(float4(1, 0, 0, 1), tid);
+        } else {
+            output.write(float4(0, 1, 0, 1), tid);
+        }
+
         //    output.write(float4(tid.x, tid.x, tid.x, 1.0), tid);
         //    output.write(float4(0, 0, 0, 1.0), tid);
         //    if (val < 0) {

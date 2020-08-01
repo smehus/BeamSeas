@@ -194,6 +194,7 @@ extension BasicFFT: Renderable {
     }
 
     func draw(renderEncoder: MTLRenderCommandEncoder, uniforms: inout Uniforms, fragmentUniforms: inout FragmentUniforms) {
+        renderEncoder.pushDebugGroup("FFT")
         renderEncoder.setRenderPipelineState(mainPipelineState)
 
         position.y = 15
@@ -212,5 +213,7 @@ extension BasicFFT: Renderable {
             indexBuffer: mesh.indexBuffer.buffer,
             indexBufferOffset: mesh.indexBuffer.offset
         )
+
+        renderEncoder.popDebugGroup()
     }
 }
