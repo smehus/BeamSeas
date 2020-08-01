@@ -138,8 +138,8 @@ class BasicFFT: Node {
 
 
         let texDesc = MTLTextureDescriptor()
-        texDesc.width = 256 //Terrain.normalMapTexture.width
-        texDesc.height = 256//Terrain.normalMapTexture.height
+        texDesc.width = 512 //Terrain.normalMapTexture.width
+        texDesc.height = 512//Terrain.normalMapTexture.height
         texDesc.pixelFormat = .rg11b10Float
         texDesc.usage = [.shaderRead, .shaderWrite]
 //        texDesc.mipmapLevelCount = Int(log2(Double(max(Terrain.normalMapTexture.width, Terrain.normalMapTexture.height))) + 1);
@@ -176,21 +176,22 @@ extension BasicFFT: Renderable {
 
     // Not used for normals but i'm creating a texture so what the hell
     func generateTerrainNormals(computeEncoder: MTLComputeCommandEncoder, uniforms: inout Uniforms) {
-
         computeEncoder.pushDebugGroup("FFT")
+
+        // Apple example
+        let threadGroupSize = MTLSizeMake(16, 16, 1)
+        var threadgroupCount = MTLSizeMake(16, 16, 1)
+        threadgroupCount.width = (Self.drawTexture.width + threadGroupSize.width - 1) / threadGroupSize.width
+        threadgroupCount.height = (Self.drawTexture.height + threadGroupSize.height - 1) / threadGroupSize.height
+
+
         computeEncoder.setComputePipelineState(pipelineState)
         computeEncoder.setTexture(Self.drawTexture, index: 0)
         computeEncoder.setBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: 3)
         computeEncoder.setBuffer(dataBuffer, offset: 0, index: 0)
-        let w = pipelineState.threadExecutionWidth
-        let h = pipelineState.maxTotalThreadsPerThreadgroup / w
-        let threadsPerGroup = MTLSizeMake(w, h, 1)
-//                                          ^        ^
-        let threadsPerGrid = MTLSizeMake(Int(16), Int(16), 1)
-
 
         // threadsPerGrid determines the thread_posistion dimensions
-        computeEncoder.dispatchThreadgroups(threadsPerGrid, threadsPerThreadgroup: threadsPerGroup)
+        computeEncoder.dispatchThreadgroups(threadgroupCount, threadsPerThreadgroup: threadGroupSize)
         computeEncoder.popDebugGroup()
     }
 
