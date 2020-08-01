@@ -24,7 +24,7 @@ class BasicFFT: Node {
     private let testTexture: MTLTexture
     private let n = vDSP_Length(262144)
 
-    private let source: Water
+    private var source: Water!
     override init() {
         testTexture = Self.loadTexture(imageName: "gaussian_noise_5", path: "png")
 
@@ -53,6 +53,14 @@ class BasicFFT: Node {
         mainPipeDescriptor.vertexDescriptor = MTKMetalVertexDescriptorFromModelIO(model.vertexDescriptor)
 
         mainPipelineState = try! Renderer.device.makeRenderPipelineState(descriptor: mainPipeDescriptor)
+
+
+        super.init()
+
+    } // init
+
+    func runfft(phase: Float) {
+
         source = Water(
             amplitude: 1,
             wind_velocity: float2(x: 10, y: -10),
@@ -61,26 +69,18 @@ class BasicFFT: Node {
             normalmap_freq_mod: float2(repeating: 7.3)
         )
 
-        super.init()
-
-    } // init
-
-    func runfft(phase: Float) {
-
-
-
-
         let halfN = Int(n / 2)
 
         var inverseOutputReal = [Float](repeating: 0, count: halfN)
         var inverseOutputImag = [Float](repeating: 0, count: halfN)
-
+        // no performance hit here - its in water..
         let recreatedSignal: [Float] =
             source.distribution_real.withUnsafeMutableBufferPointer { forwardOutputRealPtr in
                 source.distribution_imag.withUnsafeMutableBufferPointer { forwardOutputImagPtr in
                     inverseOutputReal.withUnsafeMutableBufferPointer { inverseOutputRealPtr in
                         inverseOutputImag.withUnsafeMutableBufferPointer { inverseOutputImagPtr in
 
+                            print("** ** alkjsdlfkj")
                             // 1: Create a `DSPSplitComplex` that contains the frequency domain data.
                             let forwardOutput = DSPSplitComplex(realp: forwardOutputRealPtr.baseAddress!,
                                                                 imagp: forwardOutputImagPtr.baseAddress!)

@@ -131,7 +131,7 @@ class Water {
     }
 
     private func philliphs(k: SIMD2<Float>, max_l: Float) -> Float {
-
+        // might have to do this on gpu
         let k_len = simd_length(k)
         if k_len == 0 {
             return 0

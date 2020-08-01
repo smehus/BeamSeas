@@ -29,7 +29,8 @@ typedef NS_ENUM(NSInteger, BufferIndex)
     BufferIndexFragmentUniforms = 13,
     BufferIndexMaterials        = 14,
     BufferIndexControlPoints    = 15,
-    BufferIndexTerrainParams    = 16
+    BufferIndexTerrainParams    = 16,
+    BufferIndexGausUniforms     = 17
 };
 
 typedef NS_ENUM(NSInteger, VertexAttribute)
@@ -58,6 +59,15 @@ typedef struct
     matrix_float3x3 normalMatrix;
     float deltaTime;
 } Uniforms;
+
+typedef struct
+{
+    float amplitude;
+    vector_float2 wind_velocity;
+    vector_uint2 resolution;
+    vector_float2 size;
+    vector_float2 normalmap_freq_mod;
+} GausUniforms;
 
 typedef struct
 {

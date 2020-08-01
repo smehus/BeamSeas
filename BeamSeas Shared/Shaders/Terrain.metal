@@ -30,6 +30,39 @@ struct FFTVertexIn {
     float4 position [[ attribute(VertexAttributePosition) ]];
 };
 
+int alias(int x, int N) {
+    if (x > (N / 2)) { x -= N; }
+    return x;
+}
+
+kernel void generate_distribution(constant GausUniforms &uniforms [[ buffer(BufferIndexGausUniforms) ]],
+                                  constant float *distribution_real [[ buffer(0) ]],
+                                  constant float *distribution_imag [[ buffer(1) ]])
+{
+
+    float2 wind_dir = normalize(uniforms.wind_velocity);
+    float nX = uniforms.resolution.x;
+    float nZ = uniforms.resolution.y;
+    float2 size = uniforms.size;
+    float2 size_normal = size / uniforms.normalmap_freq_mod;
+    float n = 262144;
+    int halfN = int(n / 2);
+    float G = 9.81; // Gravity
+    float L = dot(uniforms.wind_velocity, uniforms.wind_velocity) / G;
+    float amplitude = uniforms.amplitude;
+
+    amplitude *= 0.3 / sqrt(size.x * size.y);
+
+    // Generate Distributions
+    float2 mod = float2(2.0 * M_PI_F) / size;
+
+    for (unsigned z = 0; z < nZ; z++) {
+        for (unsigned x = 0; x < nX; x++) {
+
+        }
+    }
+}
+
 kernel void compute_height(constant float3 &position [[ buffer(0) ]],
                            constant float3 *control_points [[ buffer(1) ]],
                            constant TerrainParams &terrain [[ buffer(2) ]],
@@ -296,6 +329,9 @@ fragment float4 fft_fragment(const FFTVertexOut in [[ stage_in ]],
 
     return float4(color.xyz, 1.0);
 }
+
+
+
 
 kernel void fft_kernel(texture2d<float, access::write> output [[ texture(0) ]],
                        uint2 tid [[ thread_position_in_grid]],
