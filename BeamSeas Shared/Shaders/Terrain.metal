@@ -292,50 +292,9 @@ fragment float4 fft_fragment(const FFTVertexOut in [[ stage_in ]],
 //    float2 normTex = in.textureCoordinates.xy;
 //    normTex = normTex * 0.5 + 0.5;
     float2 tex = in.position.xy / viewPort;
-    float4 color = noiseMap.sample(sam, tex) * 100;
+    float4 color = noiseMap.sample(sam, tex);
 
     return float4(color.xyz, 1.0);
-}
-
-float randomNoise(float2 p) {
-  return fract(6791.0 * sin(47.0 * p.x + 9973.0 * p.y));
-}
-
-float smoothNoise(float2 p) {
-  float2 north = float2(p.x, p.y + 1.0);
-  float2 east = float2(p.x + 1.0, p.y);
-  float2 south = float2(p.x, p.y - 1.0);
-  float2 west = float2(p.x - 1.0, p.y);
-  float2 center = float2(p.x, p.y);
-  float sum = 0.0;
-  sum += randomNoise(north) / 8.0;
-  sum += randomNoise(east) / 8.0;
-  sum += randomNoise(south) / 8.0;
-  sum += randomNoise(west) / 8.0;
-  sum += randomNoise(center) / 2.0;
-  return sum;
-}
-
-float interpolatedNoise(float2 p) {
-  float q11 = smoothNoise(float2(floor(p.x), floor(p.y)));
-  float q12 = smoothNoise(float2(floor(p.x), ceil(p.y)));
-  float q21 = smoothNoise(float2(ceil(p.x), floor(p.y)));
-  float q22 = smoothNoise(float2(ceil(p.x), ceil(p.y)));
-  float2 ss = smoothstep(0.0, 1.0, fract(p));
-  float r1 = mix(q11, q21, ss.x);
-  float r2 = mix(q12, q22, ss.x);
-  return mix (r1, r2, ss.y);
-}
-
-float fbm(float2 uv, float steps) {
-  float sum = 0;
-  float amplitude = 0.8;
-  for(int i = 0; i < steps; ++i) {
-    sum += interpolatedNoise(uv) * amplitude;
-    uv += uv * 1.2;
-    amplitude *= 0.4;
-  }
-  return sum;
 }
 
 kernel void fft_kernel(texture2d<float, access::write> output [[ texture(0) ]],
@@ -356,11 +315,11 @@ kernel void fft_kernel(texture2d<float, access::write> output [[ texture(0) ]],
     if (tid.x < width && tid.y < height) {
         //    float2 uv = float2(2 * M_PI_F * tid.x / 512, 2.0 * M_PI_F * tid.y / 512);
         uint index = tid.y * width + tid.x;
-        float val = data[index];
+        float val = data[index] * 200000;
 
 //        float2 h_up  = float2(tid + uint2(0, 1));
 //        uint altindex = h_up.y * width + h_up.x;
-        float altval = data[index - 1];
+//        float altval = data[index - 1];
 
 
         //    float val = data[tid.x];
@@ -371,8 +330,6 @@ kernel void fft_kernel(texture2d<float, access::write> output [[ texture(0) ]],
 //        val = (val - (-3)) / (3 - (-3));
 
 
-
-        float4 color = float4(val, val, val, 1.0);
         output.write(float4(val, val, val, 1), tid);
 
 
