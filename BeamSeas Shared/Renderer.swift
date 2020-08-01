@@ -40,6 +40,8 @@ final class Renderer: NSObject {
     var depthStencilState: MTLDepthStencilState
     var delta: Float = 0
 
+    var fft: BasicFFT
+
     init?(metalView: MTKView) {
         Self.metalView = metalView
         Self.device = MTLCreateSystemDefaultDevice()!
@@ -50,6 +52,8 @@ final class Renderer: NSObject {
         metalView.depthStencilPixelFormat = .depth32Float
 
         depthStencilState = Self.buildDepthStencilState()
+
+        fft = BasicFFT()
 
         super.init()
 
@@ -67,9 +71,7 @@ final class Renderer: NSObject {
         cube.rotation = [Float(-90).degreesToRadians, 0/*Float(-20).degreesToRadians*/, 0]
         models.append(cube)
 
-        let water = Water(amplitude: 1, wind_velocity: float2(x: 10, y: -10), resolution: SIMD2<Int>(x: 512, y: 512), size: float2(x: 512, y: 512), normalmap_freq_mod: float2(repeating: 7.3))
 
-        let fft = BasicFFT(source: water)
         models.append(fft)
         fragmentUniforms.light_count = UInt32(lighting.count)
 
@@ -104,6 +106,8 @@ extension Renderer: MTKViewDelegate {
         uniforms.viewMatrix = camera.viewMatrix
         fragmentUniforms.camera_position = camera.position
 
+        fft.runfft(phase: delta)
+        
         // Terrain Pass \\
 
         let computeEncoder = commandBuffer.makeComputeCommandEncoder()!

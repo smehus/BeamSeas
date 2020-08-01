@@ -24,8 +24,8 @@ class BasicFFT: Node {
     private let testTexture: MTLTexture
     private let n = vDSP_Length(262144)
 
-
-    init(source: Water) {
+    private let source: Water
+    override init() {
         testTexture = Self.loadTexture(imageName: "gaussian_noise_5", path: "png")
 
         let allocator = MTKMeshBufferAllocator(device: Renderer.device)
@@ -53,12 +53,22 @@ class BasicFFT: Node {
         mainPipeDescriptor.vertexDescriptor = MTKMetalVertexDescriptorFromModelIO(model.vertexDescriptor)
 
         mainPipelineState = try! Renderer.device.makeRenderPipelineState(descriptor: mainPipeDescriptor)
+        source = Water(
+            amplitude: 1,
+            wind_velocity: float2(x: 10, y: -10),
+            resolution: SIMD2<Int>(x: 512, y: 512),
+            size: float2(x: 512, y: 512),
+            normalmap_freq_mod: float2(repeating: 7.3)
+        )
+
         super.init()
 
-        runfft(source: source)
     } // init
 
-    func runfft(source: Water) {
+    func runfft(phase: Float) {
+
+
+
 
         let halfN = Int(n / 2)
 
@@ -91,7 +101,7 @@ class BasicFFT: Node {
                         }
                     }
                 }
-        }
+            }
 
 
         dataBuffer = Renderer.device.makeBuffer(bytes: recreatedSignal, length: MemoryLayout<Float>.stride * recreatedSignal.count, options: [])
