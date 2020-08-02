@@ -84,8 +84,6 @@ class BasicFFT: Node {
                  normalmap_freq_mod: float2(repeating: 7.3)
              )
 
-
-
         super.init()
 
         runfft(phase: 0)
@@ -115,8 +113,8 @@ class BasicFFT: Node {
         }
 
         let recreatedSignal: [Float] =
-            water.distribution_real.withUnsafeMutableBufferPointer { forwardOutputRealPtr in
-                water.distribution_imag.withUnsafeMutableBufferPointer { forwardOutputImagPtr in
+            inputReal.withUnsafeMutableBufferPointer { forwardOutputRealPtr in
+                inputImag.withUnsafeMutableBufferPointer { forwardOutputImagPtr in
                     inverseOutputReal.withUnsafeMutableBufferPointer { inverseOutputRealPtr in
                         inverseOutputImag.withUnsafeMutableBufferPointer { inverseOutputImagPtr in
 
@@ -169,13 +167,21 @@ extension BasicFFT: Renderable {
             normalmap_freq_mod: vector_float2(repeating: 7.3),
             rand_real: Float(randomSource.random()),
             rand_imag: Float(randomSource.random())
+            // I'm only calling random once...... Need to call on each iteration like water
         )
 
+        var randos: [float2] = (0..<n).map { _ in
+            float2(x: Float(randomSource.random()), y: Float(randomSource.random()))
+        }
+
+        let randomBuffer = Renderer.device.makeBuffer(bytes: &randos, length: MemoryLayout<float2>.stride * Int(n), options: .storageModeShared)
 
         computeEncoder.setComputePipelineState(distributionPipelineState)
         computeEncoder.setBytes(&gausUniforms, length: MemoryLayout<GausUniforms>.stride, index: BufferIndex.gausUniforms.rawValue)
         computeEncoder.setBuffer(distribution_real, offset: 0, index: 0)
         computeEncoder.setBuffer(distribution_imag, offset: 0, index: 1)
+        computeEncoder.setBuffer(randomBuffer, offset: 0, index: 2)
+
         let w = pipelineState.threadExecutionWidth
         let h = pipelineState.maxTotalThreadsPerThreadgroup / w
         let threadGroupSize = MTLSizeMake(w, h, 1)

@@ -105,16 +105,14 @@ extension Renderer: MTKViewDelegate {
         uniforms.projectionMatrix = camera.projectionMatrix
         uniforms.viewMatrix = camera.viewMatrix
         fragmentUniforms.camera_position = camera.position
-//
-//        if firstRun {
-//            let distributionEncoder = commandBuffer.makeComputeCommandEncoder()!
-//            fft.generateDistributions(computeEncoder: distributionEncoder)
-//            distributionEncoder.endEncoding()
-//            firstRun = false
-//        }
-//
-//
-//        fft.runfft(phase: delta)
+
+
+        let distributionEncoder = commandBuffer.makeComputeCommandEncoder()!
+        fft.generateDistributions(computeEncoder: distributionEncoder)
+        distributionEncoder.endEncoding()
+
+
+        fft.runfft(phase: delta)
 
 
         // Terrain Pass \\
