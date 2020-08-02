@@ -32,7 +32,7 @@ class BasicFFT: Node {
     private let mainPipelineState: MTLRenderPipelineState
     static var drawTexture: MTLTexture!
     private var dataBuffer: MTLBuffer!
-    private let randomSource = Distributions.Normal(m: 0, v: 1)
+
 
     private let fft: vDSP.FFT<DSPSplitComplex>
     private let model: MTKMesh
@@ -40,9 +40,10 @@ class BasicFFT: Node {
 //    let n = vDSP_Length(262144)
     let n = vDSP_Length(65536)
     let imgSize: Int = 256
-    let water: Water
+//    let water: Water
     private let distributionPipelineState: MTLComputePipelineState
-
+    private var randos: [float2]
+    private var randomBuffer: MTLBuffer
     private var source: Water!
     override init() {
         testTexture = Self.loadTexture(imageName: "gaussian_noise_5", path: "png")
@@ -87,14 +88,21 @@ class BasicFFT: Node {
 
         distribution_real = real
         distribution_imag = imag
+//
+//        water = Water(
+//                 amplitude: 1,
+//                 wind_velocity: float2(x: 10, y: -10),
+//                 resolution: SIMD2<Int>(x: imgSize, y: imgSize),
+//                 size: float2(x: imgSize.float, y: imgSize.float),
+//                 normalmap_freq_mod: float2(repeating: 7.3)
+//             )
 
-        water = Water(
-                 amplitude: 1,
-                 wind_velocity: float2(x: 10, y: -10),
-                 resolution: SIMD2<Int>(x: imgSize, y: imgSize),
-                 size: float2(x: imgSize.float, y: imgSize.float),
-                 normalmap_freq_mod: float2(repeating: 7.3)
-             )
+        let randomSource = Distributions.Normal(m: 0, v: 1)
+        randos = (0..<n).map { _ in
+            float2(x: Float(randomSource.random()), y: Float(randomSource.random()))
+        }
+
+        randomBuffer = Renderer.device.makeBuffer(bytes: &randos, length: MemoryLayout<float2>.stride * Int(n), options: .storageModeShared)!
 
         super.init()
 
@@ -177,16 +185,12 @@ extension BasicFFT: Renderable {
             resolution: vector_uint2(x: imgSize.unsigned, y: imgSize.unsigned),
             size: vector_float2(x: imgSize.float, y: imgSize.float),
             normalmap_freq_mod: vector_float2(repeating: 7.3),
-            rand_real: Float(randomSource.random()),
-            rand_imag: Float(randomSource.random())
-            // I'm only calling random once...... Need to call on each iteration like water
+            rand_real: Float(1),
+            rand_imag: Float(1)
         )
 
-        var randos: [float2] = (0..<n).map { _ in
-            float2(x: Float(randomSource.random()), y: Float(randomSource.random()))
-        }
 
-        let randomBuffer = Renderer.device.makeBuffer(bytes: &randos, length: MemoryLayout<float2>.stride * Int(n), options: .storageModeShared)
+
 
         computeEncoder.setComputePipelineState(distributionPipelineState)
         computeEncoder.setBytes(&gausUniforms, length: MemoryLayout<GausUniforms>.stride, index: BufferIndex.gausUniforms.rawValue)
