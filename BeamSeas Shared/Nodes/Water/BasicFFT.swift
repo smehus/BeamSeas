@@ -10,6 +10,16 @@ import Foundation
 import Accelerate
 import MetalKit
 
+extension Int {
+    var float: Float {
+        return Float(self)
+    }
+
+    var unsigned: uint {
+        return uint(self)
+    }
+}
+
 class BasicFFT: Node {
 
     private var signalCount: Int = 0
@@ -27,7 +37,9 @@ class BasicFFT: Node {
     private let fft: vDSP.FFT<DSPSplitComplex>
     private let model: MTKMesh
     private let testTexture: MTLTexture
-    let n = vDSP_Length(262144)
+//    let n = vDSP_Length(262144)
+    let n = vDSP_Length(65536)
+    let imgSize: Int = 256
     let water: Water
     private let distributionPipelineState: MTLComputePipelineState
 
@@ -43,8 +55,8 @@ class BasicFFT: Node {
         fft = vDSP.FFT(log2n: log2n, radix: .radix2, ofType: DSPSplitComplex.self)!
 
         let texDesc = MTLTextureDescriptor()
-        texDesc.width = 512
-        texDesc.height = 512
+        texDesc.width = imgSize
+        texDesc.height = imgSize
         texDesc.pixelFormat = .rg11b10Float
         texDesc.usage = [.shaderRead, .shaderWrite]
         //        texDesc.mipmapLevelCount = Int(log2(Double(max(Terrain.normalMapTexture.width, Terrain.normalMapTexture.height))) + 1);
@@ -79,8 +91,8 @@ class BasicFFT: Node {
         water = Water(
                  amplitude: 1,
                  wind_velocity: float2(x: 10, y: -10),
-                 resolution: SIMD2<Int>(x: 512, y: 512),
-                 size: float2(x: 512, y: 512),
+                 resolution: SIMD2<Int>(x: imgSize, y: imgSize),
+                 size: float2(x: imgSize.float, y: imgSize.float),
                  normalmap_freq_mod: float2(repeating: 7.3)
              )
 
@@ -162,8 +174,8 @@ extension BasicFFT: Renderable {
             dataLength: Int32(n / 2),
             amplitude: 1,
             wind_velocity: vector_float2(x: 10, y: -10),
-            resolution: vector_uint2(x: 512, y: 512),
-            size: vector_float2(x: 512, y: 512),
+            resolution: vector_uint2(x: imgSize.unsigned, y: imgSize.unsigned),
+            size: vector_float2(x: imgSize.float, y: imgSize.float),
             normalmap_freq_mod: vector_float2(repeating: 7.3),
             rand_real: Float(randomSource.random()),
             rand_imag: Float(randomSource.random())
