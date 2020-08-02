@@ -82,14 +82,16 @@ kernel void generate_distribution(constant GausUniforms &uniforms [[ buffer(Buff
 
             int idx = z * nX + x;
 
-            float phil = phillips(k, max_l, L, wind_dir);
-            float real = randoms[idx].x * amplitude * sqrt(0.5 * phil);
-            float imag = randoms[idx].y * amplitude * sqrt(0.5 * phil);
+            if (uniforms.dataLength > idx) {
+                float phil = phillips(k, max_l, L, wind_dir);
+                float real = randoms[idx].x * amplitude * sqrt(0.5 * phil);
+                float imag = randoms[idx].y * amplitude * sqrt(0.5 * phil);
 
 
-            distribution_real[idx] = real;
-            distribution_imag[idx] = imag;
 
+                distribution_real[idx] = real;
+                distribution_imag[idx] = imag;
+            }
         }
     }
 }
