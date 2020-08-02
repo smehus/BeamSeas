@@ -42,9 +42,11 @@ class BasicFFT: Node {
     let imgSize: Int = 256
 //    let water: Water
     private let distributionPipelineState: MTLComputePipelineState
-    private var randos: [float2]
-    private var randomBuffer: MTLBuffer
-    private var source: Water!
+//    private var randos: [float2]
+//    private var randomBuffer: MTLBuffer
+//    private var source: Water!
+    private var seed: Int32 = 0
+
     override init() {
         testTexture = Self.loadTexture(imageName: "gaussian_noise_5", path: "png")
 
@@ -97,12 +99,12 @@ class BasicFFT: Node {
 //                 normalmap_freq_mod: float2(repeating: 7.3)
 //             )
 
-        let randomSource = Distributions.Normal(m: 0, v: 1)
-        randos = (0..<n).map { _ in
-            float2(x: Float(randomSource.random()), y: Float(randomSource.random()))
-        }
-
-        randomBuffer = Renderer.device.makeBuffer(bytes: &randos, length: MemoryLayout<float2>.stride * Int(n), options: .storageModeShared)!
+//        let randomSource = Distributions.Normal(m: 0, v: 1)
+//        randos = (0..<n).map { _ in
+//            float2(x: Float(randomSource.random()), y: Float(randomSource.random()))
+//        }
+//
+//        randomBuffer = Renderer.device.makeBuffer(bytes: &randos, length: MemoryLayout<float2>.stride * Int(n), options: .storageModeShared)!
 
         super.init()
 
@@ -185,18 +187,14 @@ extension BasicFFT: Renderable {
             resolution: vector_uint2(x: imgSize.unsigned, y: imgSize.unsigned),
             size: vector_float2(x: imgSize.float, y: imgSize.float),
             normalmap_freq_mod: vector_float2(repeating: 7.3),
-            rand_real: Float(1),
-            rand_imag: Float(1)
+            seed: seed
         )
-
-
-
 
         computeEncoder.setComputePipelineState(distributionPipelineState)
         computeEncoder.setBytes(&gausUniforms, length: MemoryLayout<GausUniforms>.stride, index: BufferIndex.gausUniforms.rawValue)
         computeEncoder.setBuffer(distribution_real, offset: 0, index: 0)
         computeEncoder.setBuffer(distribution_imag, offset: 0, index: 1)
-        computeEncoder.setBuffer(randomBuffer, offset: 0, index: 2)
+//        computeEncoder.setBuffer(randomBuffer, offset: 0, index: 2)
 
         let w = pipelineState.threadExecutionWidth
         let h = pipelineState.maxTotalThreadsPerThreadgroup / w
@@ -210,6 +208,12 @@ extension BasicFFT: Renderable {
                                        threadsPerThreadgroup: threadGroupSize)
         computeEncoder.popDebugGroup()
 
+
+        if seed >= Int32.max {
+            seed = 0
+        } else {
+            seed += 1
+        }
     }
 
     // Not used for normals but i'm creating a texture so what the hell

@@ -35,6 +35,12 @@ int alias(int x, int N) {
     return x;
 }
 
+float rand(int x, int y, int z)
+{
+    int seed = x + y * 57 + z * 241;
+    seed= (seed<< 13) ^ seed;
+    return (( 1.0 - ( (seed * (seed * seed * 15731 + 789221) + 1376312589) & 2147483647) / 1073741824.0f) + 1.0f) / 2.0f;
+}
 
 float phillips(float2 k, float max_l, float L, float2 wind_dir) {
     float k_len = length(k);
@@ -56,7 +62,8 @@ float phillips(float2 k, float max_l, float L, float2 wind_dir) {
 kernel void generate_distribution(constant GausUniforms &uniforms [[ buffer(BufferIndexGausUniforms) ]],
                                   device float *distribution_real [[ buffer(0) ]],
                                   device float *distribution_imag [[ buffer(1) ]],
-                                  constant float2 *randoms [[ buffer(2) ]])
+                                  constant float2 *randoms [[ buffer(2) ]],
+                                  uint2 pid [[ thread_position_in_grid ]])
 {
 
     float2 wind_dir = normalize(uniforms.wind_velocity);
@@ -84,8 +91,8 @@ kernel void generate_distribution(constant GausUniforms &uniforms [[ buffer(Buff
 
             if (uniforms.dataLength > idx) {
                 float phil = phillips(k, max_l, L, wind_dir);
-                float real = randoms[idx].x * amplitude * sqrt(0.5 * phil);
-                float imag = randoms[idx].y * amplitude * sqrt(0.5 * phil);
+                float real = rand(uniforms.seed * pid.x + z, uniforms.seed * pid.y + x, 1) * amplitude * sqrt(0.5 * phil);
+                float imag = rand(uniforms.seed * pid.y + x, 1, uniforms.seed * pid.x + z) * amplitude * sqrt(0.5 * phil);
 
 
 
