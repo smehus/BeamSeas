@@ -62,6 +62,7 @@ typedef struct
 
 typedef struct
 {
+    int dataLength;
     float amplitude;
     vector_float2 wind_velocity;
     vector_uint2 resolution;

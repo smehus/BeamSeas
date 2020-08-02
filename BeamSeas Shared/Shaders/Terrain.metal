@@ -75,17 +75,21 @@ kernel void generate_distribution(constant GausUniforms &uniforms [[ buffer(Buff
     // Generate Distributions
     float2 mod = float2(2.0 * M_PI_F) / size;
 
-    for (unsigned z = 0; z < nZ; z++) {
-        for (unsigned x = 0; x < nX; x++) {
+    for (int z = 0; z < nZ; z++) {
+        for (int x = 0; x < nX; x++) {
             float2 k = mod * float2(float(alias(x, nX)), float(alias(z, nZ)));
-//
+
             float phil = phillips(k, max_l, L, wind_dir);
             float real = uniforms.rand_real * amplitude * sqrt(0.5 * phil);
             float imag = uniforms.rand_imag * amplitude * sqrt(0.5 * phil);
-//
+
             int idx = z * nX + x;
-            distribution_real[idx] = real;
-            distribution_imag[idx] = imag;
+
+//            if (idx < uniforms.dataLength) {
+                distribution_real[idx] = real;
+                distribution_imag[idx] = imag;
+//            }
+
         }
     }
 }

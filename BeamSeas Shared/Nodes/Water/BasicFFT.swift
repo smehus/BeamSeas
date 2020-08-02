@@ -17,6 +17,7 @@ class BasicFFT: Node {
     var distribution_real: MTLBuffer
     var distribution_imag: MTLBuffer
 
+
     private let pipelineState: MTLComputePipelineState
     private let mainPipelineState: MTLRenderPipelineState
     static var drawTexture: MTLTexture!
@@ -26,8 +27,8 @@ class BasicFFT: Node {
     private let fft: vDSP.FFT<DSPSplitComplex>
     private let model: MTKMesh
     private let testTexture: MTLTexture
-    private let n = vDSP_Length(262144)
-
+    let n = vDSP_Length(262144)
+    let water: Water
     private let distributionPipelineState: MTLComputePipelineState
 
     private var source: Water!
@@ -62,13 +63,32 @@ class BasicFFT: Node {
         mainPipelineState = try! Renderer.device.makeRenderPipelineState(descriptor: mainPipeDescriptor)
 
         let halfN = Int(n / 2)
-        var real = [Float](repeating: 0, count: halfN)
-        distribution_real = Renderer.device.makeBuffer(bytes: &real, length: MemoryLayout<Float>.stride * real.count, options: [])!
+//        var real = [Float](repeating: 1, count: halfN)
 
-        var imag = [Float](repeating: 0, count: halfN)
-        distribution_imag = Renderer.device.makeBuffer(bytes: &imag, length: MemoryLayout<Float>.stride * real.count, options: [])!
+        var r = Array(repeating: 0.0, count: halfN)
+        guard
+            let real = Renderer.device.makeBuffer(bytes: &r, length: MemoryLayout<Float>.stride * halfN, options: .storageModeShared),
+            let imag  = Renderer.device.makeBuffer(bytes: &r, length: MemoryLayout<Float>.stride * halfN, options: .storageModeShared)
+        else {
+            fatalError()
+        }
+
+        distribution_real = real
+        distribution_imag = imag
+
+        water = Water(
+                 amplitude: 1,
+                 wind_velocity: float2(x: 10, y: -10),
+                 resolution: SIMD2<Int>(x: 512, y: 512),
+                 size: float2(x: 512, y: 512),
+                 normalmap_freq_mod: float2(repeating: 7.3)
+             )
+
+
 
         super.init()
+
+        runfft(phase: 0)
 
     } // init
 
@@ -79,12 +99,24 @@ class BasicFFT: Node {
         var inverseOutputReal = [Float](repeating: 0, count: halfN)
         var inverseOutputImag = [Float](repeating: 0, count: halfN)
 
-        var real = distribution_real.contents().bindMemory(to: [Float].self, capacity: Int(n / 2)).pointee
-        var imag = distribution_imag.contents().bindMemory(to: [Float].self, capacity: Int(n / 2)).pointee
+        var inputReal = [Float](repeating: 0, count: halfN)
+        var inputImag = [Float](repeating: 0, count: halfN)
+
+        var realPointer = distribution_real.contents().bindMemory(to: Float.self, capacity: halfN)
+        var imagPointer = distribution_imag.contents().bindMemory(to: Float.self, capacity: halfN)
+
+
+        for index in 0..<halfN {
+            inputReal[index] = realPointer.pointee
+            inputImag[index] = imagPointer.pointee
+
+            realPointer = realPointer.advanced(by: 1)
+            imagPointer = imagPointer.advanced(by: 1)
+        }
 
         let recreatedSignal: [Float] =
-            real.withUnsafeMutableBufferPointer { forwardOutputRealPtr in
-                imag.withUnsafeMutableBufferPointer { forwardOutputImagPtr in
+            water.distribution_real.withUnsafeMutableBufferPointer { forwardOutputRealPtr in
+                water.distribution_imag.withUnsafeMutableBufferPointer { forwardOutputImagPtr in
                     inverseOutputReal.withUnsafeMutableBufferPointer { inverseOutputRealPtr in
                         inverseOutputImag.withUnsafeMutableBufferPointer { inverseOutputImagPtr in
 
@@ -129,13 +161,14 @@ extension BasicFFT: Renderable {
     func generateDistributions(computeEncoder: MTLComputeCommandEncoder) {
         computeEncoder.pushDebugGroup("FFT-Distribution")
         var gausUniforms = GausUniforms(
+            dataLength: Int32(n / 2),
             amplitude: 1,
             wind_velocity: vector_float2(x: 10, y: -10),
             resolution: vector_uint2(x: 512, y: 512),
             size: vector_float2(x: 512, y: 512),
             normalmap_freq_mod: vector_float2(repeating: 7.3),
-            rand_real: Float(1),
-            rand_imag: Float(1)
+            rand_real: Float(randomSource.random()),
+            rand_imag: Float(randomSource.random())
         )
 
 
@@ -145,7 +178,8 @@ extension BasicFFT: Renderable {
         computeEncoder.setBuffer(distribution_imag, offset: 0, index: 1)
         let w = pipelineState.threadExecutionWidth
         let h = pipelineState.maxTotalThreadsPerThreadgroup / w
-        var threadGroupSize = MTLSizeMake(w, h, 1)
+        let threadGroupSize = MTLSizeMake(w, h, 1)
+
         var threadgroupCount = MTLSizeMake(16, 16, 1)
         threadgroupCount.width = (Self.drawTexture.width + threadGroupSize.width - 1) / threadGroupSize.width
         threadgroupCount.height = (Self.drawTexture.height + threadGroupSize.height - 1) / threadGroupSize.height
@@ -158,10 +192,7 @@ extension BasicFFT: Renderable {
 
     // Not used for normals but i'm creating a texture so what the hell
     func generateTerrainNormals(computeEncoder: MTLComputeCommandEncoder, uniforms: inout Uniforms) {
-
-        guard dataBuffer != nil else { return
-
-        }
+        guard dataBuffer != nil else { return }
         computeEncoder.pushDebugGroup("FFT-Drawing")
         // Apple example
         let threadGroupSize = MTLSizeMake(16, 16, 1)

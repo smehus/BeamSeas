@@ -39,7 +39,7 @@ final class Renderer: NSObject {
     var lighting = Lighting()
     var depthStencilState: MTLDepthStencilState
     var delta: Float = 0
-
+    var firstRun = true
     var fft: BasicFFT
 
     init?(metalView: MTKView) {
@@ -105,14 +105,18 @@ extension Renderer: MTKViewDelegate {
         uniforms.projectionMatrix = camera.projectionMatrix
         uniforms.viewMatrix = camera.viewMatrix
         fragmentUniforms.camera_position = camera.position
-
-
-        let distributionEncoder = commandBuffer.makeComputeCommandEncoder()!
-        fft.generateDistributions(computeEncoder: distributionEncoder)
-        distributionEncoder.endEncoding()
-        
+//
+//        if firstRun {
+//            let distributionEncoder = commandBuffer.makeComputeCommandEncoder()!
+//            fft.generateDistributions(computeEncoder: distributionEncoder)
+//            distributionEncoder.endEncoding()
+//            firstRun = false
+//        }
+//
+//
 //        fft.runfft(phase: delta)
-        
+
+
         // Terrain Pass \\
 
         let computeEncoder = commandBuffer.makeComputeCommandEncoder()!
