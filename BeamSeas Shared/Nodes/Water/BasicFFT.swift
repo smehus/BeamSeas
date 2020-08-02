@@ -14,15 +14,21 @@ class BasicFFT: Node {
 
     private var signalCount: Int = 0
 
+    var distribution_real: MTLBuffer
+    var distribution_imag: MTLBuffer
+
     private let pipelineState: MTLComputePipelineState
     private let mainPipelineState: MTLRenderPipelineState
     static var drawTexture: MTLTexture!
     private var dataBuffer: MTLBuffer!
+    private let randomSource = Distributions.Normal(m: 0, v: 1)
 
     private let fft: vDSP.FFT<DSPSplitComplex>
     private let model: MTKMesh
     private let testTexture: MTLTexture
     private let n = vDSP_Length(262144)
+
+    private let distributionPipelineState: MTLComputePipelineState
 
     private var source: Water!
     override init() {
@@ -43,7 +49,8 @@ class BasicFFT: Node {
         //        texDesc.mipmapLevelCount = Int(log2(Double(max(Terrain.normalMapTexture.width, Terrain.normalMapTexture.height))) + 1);
         texDesc.storageMode = .private
         Self.drawTexture = Renderer.device.makeTexture(descriptor: texDesc)!
-        pipelineState = Self.buildComputePipelineState()
+        pipelineState = Self.buildComputePipelineState(shader: "fft_kernel")
+        distributionPipelineState = Self.buildComputePipelineState(shader: "generate_distribution")
 
         let mainPipeDescriptor = MTLRenderPipelineDescriptor()
         mainPipeDescriptor.colorAttachments[0].pixelFormat = .bgra8Unorm
@@ -54,6 +61,12 @@ class BasicFFT: Node {
 
         mainPipelineState = try! Renderer.device.makeRenderPipelineState(descriptor: mainPipeDescriptor)
 
+        let halfN = Int(n / 2)
+        var real = [Float](repeating: 0, count: halfN)
+        distribution_real = Renderer.device.makeBuffer(bytes: &real, length: MemoryLayout<Float>.stride * real.count, options: [])!
+
+        var imag = [Float](repeating: 0, count: halfN)
+        distribution_imag = Renderer.device.makeBuffer(bytes: &imag, length: MemoryLayout<Float>.stride * real.count, options: [])!
 
         super.init()
 
@@ -61,26 +74,20 @@ class BasicFFT: Node {
 
     func runfft(phase: Float) {
 
-        source = Water(
-            amplitude: 1,
-            wind_velocity: float2(x: 10, y: -10),
-            resolution: SIMD2<Int>(x: 512, y: 512),
-            size: float2(x: 512, y: 512),
-            normalmap_freq_mod: float2(repeating: 7.3)
-        )
-
         let halfN = Int(n / 2)
 
         var inverseOutputReal = [Float](repeating: 0, count: halfN)
         var inverseOutputImag = [Float](repeating: 0, count: halfN)
-        // no performance hit here - its in water..
+
+        var real = distribution_real.contents().bindMemory(to: [Float].self, capacity: Int(n / 2)).pointee
+        var imag = distribution_imag.contents().bindMemory(to: [Float].self, capacity: Int(n / 2)).pointee
+
         let recreatedSignal: [Float] =
-            source.distribution_real.withUnsafeMutableBufferPointer { forwardOutputRealPtr in
-                source.distribution_imag.withUnsafeMutableBufferPointer { forwardOutputImagPtr in
+            real.withUnsafeMutableBufferPointer { forwardOutputRealPtr in
+                imag.withUnsafeMutableBufferPointer { forwardOutputImagPtr in
                     inverseOutputReal.withUnsafeMutableBufferPointer { inverseOutputRealPtr in
                         inverseOutputImag.withUnsafeMutableBufferPointer { inverseOutputImagPtr in
 
-                            print("** ** alkjsdlfkj")
                             // 1: Create a `DSPSplitComplex` that contains the frequency domain data.
                             let forwardOutput = DSPSplitComplex(realp: forwardOutputRealPtr.baseAddress!,
                                                                 imagp: forwardOutputImagPtr.baseAddress!)
@@ -108,8 +115,8 @@ class BasicFFT: Node {
     }
 
 
-    static func buildComputePipelineState() -> MTLComputePipelineState {
-        guard let kernelFunction = Renderer.library?.makeFunction(name: "fft_kernel") else {
+    static func buildComputePipelineState(shader: String) -> MTLComputePipelineState {
+        guard let kernelFunction = Renderer.library?.makeFunction(name: shader) else {
             fatalError("fft shader function not found")
         }
 
@@ -119,10 +126,43 @@ class BasicFFT: Node {
 
 extension BasicFFT: Renderable {
 
+    func generateDistributions(computeEncoder: MTLComputeCommandEncoder) {
+        computeEncoder.pushDebugGroup("FFT-Distribution")
+        var gausUniforms = GausUniforms(
+            amplitude: 1,
+            wind_velocity: vector_float2(x: 10, y: -10),
+            resolution: vector_uint2(x: 512, y: 512),
+            size: vector_float2(x: 512, y: 512),
+            normalmap_freq_mod: vector_float2(repeating: 7.3),
+            rand_real: Float(1),
+            rand_imag: Float(1)
+        )
+
+
+        computeEncoder.setComputePipelineState(distributionPipelineState)
+        computeEncoder.setBytes(&gausUniforms, length: MemoryLayout<GausUniforms>.stride, index: BufferIndex.gausUniforms.rawValue)
+        computeEncoder.setBuffer(distribution_real, offset: 0, index: 0)
+        computeEncoder.setBuffer(distribution_imag, offset: 0, index: 1)
+        let w = pipelineState.threadExecutionWidth
+        let h = pipelineState.maxTotalThreadsPerThreadgroup / w
+        var threadGroupSize = MTLSizeMake(w, h, 1)
+        var threadgroupCount = MTLSizeMake(16, 16, 1)
+        threadgroupCount.width = (Self.drawTexture.width + threadGroupSize.width - 1) / threadGroupSize.width
+        threadgroupCount.height = (Self.drawTexture.height + threadGroupSize.height - 1) / threadGroupSize.height
+
+        computeEncoder.dispatchThreads(threadgroupCount,
+                                       threadsPerThreadgroup: threadGroupSize)
+        computeEncoder.popDebugGroup()
+
+    }
+
     // Not used for normals but i'm creating a texture so what the hell
     func generateTerrainNormals(computeEncoder: MTLComputeCommandEncoder, uniforms: inout Uniforms) {
-        computeEncoder.pushDebugGroup("FFT")
 
+        guard dataBuffer != nil else { return
+
+        }
+        computeEncoder.pushDebugGroup("FFT-Drawing")
         // Apple example
         let threadGroupSize = MTLSizeMake(16, 16, 1)
         var threadgroupCount = MTLSizeMake(16, 16, 1)

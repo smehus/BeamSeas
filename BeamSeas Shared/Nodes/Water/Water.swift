@@ -101,7 +101,12 @@ class Water {
     }
 
 
-    private func generate_distribution(distribution_real: inout [Float], distribution_imag: inout [Float], size: SIMD2<Float>, amplitude: Float, max_l: Float) {
+    private func generate_distribution(distribution_real: inout [Float],
+                                       distribution_imag: inout [Float],
+                                       size: SIMD2<Float>,
+                                       amplitude: Float,
+                                       max_l: Float) {
+
         // Modifier to find spatial frequency
         let mod = SIMD2<Float>(repeating: 2.0 * Float.pi) / size
 
