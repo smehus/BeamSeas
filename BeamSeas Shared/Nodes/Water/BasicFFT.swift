@@ -22,6 +22,8 @@ extension Int {
 
 class BasicFFT: Node {
 
+    static var drawTexture: MTLTexture!
+
     private var signalCount: Int = 0
 
     var distribution_real: MTLBuffer
@@ -30,7 +32,7 @@ class BasicFFT: Node {
 
     private let pipelineState: MTLComputePipelineState
     private let mainPipelineState: MTLRenderPipelineState
-    static var drawTexture: MTLTexture!
+
     private var dataBuffer: MTLBuffer!
 
 
@@ -238,6 +240,7 @@ extension BasicFFT: Renderable {
     }
 
     func draw(renderEncoder: MTLRenderCommandEncoder, uniforms: inout Uniforms, fragmentUniforms: inout FragmentUniforms) {
+        return
         renderEncoder.pushDebugGroup("FFT")
         renderEncoder.setRenderPipelineState(mainPipelineState)
 

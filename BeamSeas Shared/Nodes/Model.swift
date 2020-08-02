@@ -21,7 +21,7 @@ class Model: Node {
     var normalBuffer: MTLBuffer
 
     private let heightMap: MTLTexture
-    private let altHeightMap: MTLTexture
+//    private let altHeightMap: MTLTexture
     private let heightComputePipelineState: MTLComputePipelineState
 
     init(name: String, fragment: String) {
@@ -53,8 +53,8 @@ class Model: Node {
         meshes = zip(mdlMeshes, mtkMeshes).map { Mesh(mdlMesh: $0, mtkMesh: $1, fragment: fragment) }
         samplerState = Self.buildSamplerState()
 
-        heightMap = Submesh.loadTexture(imageName: Terrain.heightMapName, path: "jpg")
-        altHeightMap = Submesh.loadTexture(imageName: Terrain.alterHeightMapName)
+        heightMap = BasicFFT.drawTexture//Submesh.loadTexture(imageName: BasicFFT.drawTexture, path: "jpg")
+//        altHeightMap = Submesh.loadTexture(imageName: BasicFFT.drawTexture)
 
         var startingHeight: Float = 0
         heightBuffer = Renderer.device.makeBuffer(bytes: &startingHeight, length: MemoryLayout<Float>.size, options: .storageModeShared)!
@@ -96,9 +96,9 @@ extension Model: Renderable {
         computeEncoder.setBuffer(heightBuffer, offset: 0, index: 3)
         computeEncoder.setBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: 4)
         computeEncoder.setTexture(heightMap, index: 0)
-        computeEncoder.setTexture(altHeightMap, index: 1)
+//        computeEncoder.setTexture(altHeightMap, index: 1)
         computeEncoder.setTexture(Terrain.normalMapTexture, index: 2)
-        computeEncoder.setTexture(Terrain.secondaryNormalMapTexture, index: 3)
+//        computeEncoder.setTexture(Terrain.secondaryNormalMapTexture, index: 3)
         computeEncoder.setBuffer(normalBuffer, offset: 0, index: 5)
         computeEncoder.dispatchThreads(MTLSizeMake(1, 1, 1),
                                        threadsPerThreadgroup: MTLSizeMake(1, 1, 1))

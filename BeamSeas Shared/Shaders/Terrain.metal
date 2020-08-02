@@ -30,79 +30,6 @@ struct FFTVertexIn {
     float4 position [[ attribute(VertexAttributePosition) ]];
 };
 
-int alias(int x, int N) {
-    if (x > (N / 2)) { x -= N; }
-    return x;
-}
-
-float rand(int x, int y, int z)
-{
-    int seed = x + y * 57 + z * 241;
-    seed= (seed<< 13) ^ seed;
-    return (( 1.0 - ( (seed * (seed * seed * 15731 + 789221) + 1376312589) & 2147483647) / 1073741824.0f) + 1.0f) / 2.0f;
-}
-
-float phillips(float2 k, float max_l, float L, float2 wind_dir) {
-    float k_len = length(k);
-    if (k_len == 0) {
-        return 0.0;
-    }
-
-    float kL = k_len * L;
-    float2 k_dir = normalize(k);
-    float kw = dot(k_dir, wind_dir);
-
-    return
-    pow(kw * kw, 1.0) *
-    exp(-1 * k_len * k_len * max_l * max_l) *
-    exp(-1 / (kL * kL)) *
-    pow(k_len, -4.0);
-}
-
-kernel void generate_distribution(constant GausUniforms &uniforms [[ buffer(BufferIndexGausUniforms) ]],
-                                  device float *distribution_real [[ buffer(0) ]],
-                                  device float *distribution_imag [[ buffer(1) ]],
-                                  constant float2 *randoms [[ buffer(2) ]],
-                                  uint2 pid [[ thread_position_in_grid ]])
-{
-
-    float2 wind_dir = normalize(uniforms.wind_velocity);
-    float nX = uniforms.resolution.x;
-    float nZ = uniforms.resolution.y;
-    float2 size = uniforms.size;
-//    float2 size_normal = size / uniforms.normalmap_freq_mod;
-//    float n = 262144;
-//    int halfN = int(n / 2);
-    float G = 9.81; // Gravity
-    float L = dot(uniforms.wind_velocity, uniforms.wind_velocity) / G;
-    float amplitude = uniforms.amplitude;
-    float max_l = 0.02;
-
-    amplitude *= 0.3 / sqrt(size.x * size.y);
-
-    // Generate Distributions
-    float2 mod = float2(2.0 * M_PI_F) / size;
-
-    for (int z = 0; z < nZ; z++) {
-        for (int x = 0; x < nX; x++) {
-            float2 k = mod * float2(float(alias(x, nX)), float(alias(z, nZ)));
-
-            int idx = z * nX + x;
-
-            if (uniforms.dataLength > idx) {
-                float phil = phillips(k, max_l, L, wind_dir);
-                float real = rand(uniforms.seed * pid.x + z, uniforms.seed * pid.y + x, 1) * amplitude * sqrt(0.5 * phil);
-                float imag = rand(uniforms.seed * pid.y + x, 1, uniforms.seed * pid.x + z) * amplitude * sqrt(0.5 * phil);
-
-
-
-                distribution_real[idx] = real;
-                distribution_imag[idx] = imag;
-            }
-        }
-    }
-}
-
 kernel void compute_height(constant float3 &position [[ buffer(0) ]],
                            constant float3 *control_points [[ buffer(1) ]],
                            constant TerrainParams &terrain [[ buffer(2) ]],
@@ -307,7 +234,7 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
     float4 secondaryColor = altHeightMap.sample(sample, xy);
     float3 secondarLocalNormal = normalize(secondaryNormalMap.sample(normalSampler, xy).xzy * 2.0f - 1.0f);
 
-    float4 color = mix(primaryColor, secondaryColor, 0.5);
+    float4 color = primaryColor;//mix(primaryColor, secondaryColor, 0.5);
     float inverseColor = 1 - color.r;
     float height = (inverseColor * 2 - 1) * terrainParams.height;
     position.y = height;
@@ -317,7 +244,7 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
     float4 finalColor = float4(inverseColor, inverseColor, inverseColor, 1);
 
     // reference AAPLTerrainRenderer in DynamicTerrainWithArgumentBuffers exmaple: EvaluateTerrainAtLocation line 235 -> EvaluateTerrainAtLocation in AAPLTerrainRendererUtilities line: 91
-    out.normal = uniforms.normalMatrix * mix(primaryLocalNormal, secondarLocalNormal, 0.5);
+    out.normal = uniforms.normalMatrix * primaryLocalNormal;//mix(primaryLocalNormal, secondarLocalNormal, 0.5);
 
     finalColor += float4(0.2, 0.6, 0.7, 1);
     out.color = finalColor;
@@ -344,6 +271,84 @@ float normalCoordinates(uint2 coords, texture2d<float> map, sampler s, float del
 
     return d.r;
 }
+
+
+// MARK: - FFT - Normal Distribution
+
+int alias(int x, int N) {
+    if (x > (N / 2)) { x -= N; }
+    return x;
+}
+
+float rand(int x, int y, int z)
+{
+    int seed = x + y * 57 + z * 241;
+    seed= (seed<< 13) ^ seed;
+    return (( 1.0 - ( (seed * (seed * seed * 15731 + 789221) + 1376312589) & 2147483647) / 1073741824.0f) + 1.0f) / 2.0f;
+}
+
+float phillips(float2 k, float max_l, float L, float2 wind_dir) {
+    float k_len = length(k);
+    if (k_len == 0) {
+        return 0.0;
+    }
+
+    float kL = k_len * L;
+    float2 k_dir = normalize(k);
+    float kw = dot(k_dir, wind_dir);
+
+    return
+    pow(kw * kw, 1.0) *
+    exp(-1 * k_len * k_len * max_l * max_l) *
+    exp(-1 / (kL * kL)) *
+    pow(k_len, -4.0);
+}
+
+kernel void generate_distribution(constant GausUniforms &uniforms [[ buffer(BufferIndexGausUniforms) ]],
+                                  constant Uniforms &mainUniforms [[ buffer(BufferIndexUniforms) ]],
+                                  device float *distribution_real [[ buffer(0) ]],
+                                  device float *distribution_imag [[ buffer(1) ]],
+                                  constant float2 *randoms [[ buffer(2) ]],
+                                  uint2 pid [[ thread_position_in_grid ]])
+{
+
+    float2 wind_dir = normalize(uniforms.wind_velocity);
+    float nX = uniforms.resolution.x;
+    float nZ = uniforms.resolution.y;
+    float2 size = uniforms.size;
+//    float2 size_normal = size / uniforms.normalmap_freq_mod;
+//    float n = 262144;
+//    int halfN = int(n / 2);
+    float G = 9.81; // Gravity
+    float L = dot(uniforms.wind_velocity, uniforms.wind_velocity) / G;
+    float amplitude = uniforms.amplitude;
+    float max_l = 0.02;
+
+    amplitude *= 0.3 / sqrt(size.x * size.y);
+
+    // Generate Distributions
+    float2 mod = float2(2.0 * M_PI_F) / size;
+
+    for (int z = 0; z < nZ; z++) {
+        for (int x = 0; x < nX; x++) {
+            float2 k = mod * float2(float(alias(x, nX)), float(alias(z, nZ)));
+
+            int idx = z * nX + x;
+
+            if (uniforms.dataLength > idx) {
+                float phil = phillips(k, max_l, L, wind_dir);
+                float real = rand(uniforms.seed * pid.x + z, uniforms.seed * pid.y + x, 1) * amplitude * sqrt(0.5 * phil);
+                float imag = rand(uniforms.seed * pid.y + x, 1, uniforms.seed * pid.x + z) * amplitude * sqrt(0.5 * phil);
+
+
+
+                distribution_real[idx] = real;
+                distribution_imag[idx] = imag;
+            }
+        }
+    }
+}
+
 
 
 vertex FFTVertexOut fft_vertex(const FFTVertexIn in [[ stage_in ]],
@@ -430,6 +435,8 @@ kernel void fft_kernel(texture2d<float, access::write> output [[ texture(0) ]],
 //        output.write(float4(0.0, 1.0, 0.0, 1.0), tid);
 //    }
 }
+
+// MARK: - Compute Normals
 
 // This is pulled directly from apples example: DynamicTerrainWithArgumentBuffers
 kernel void TerrainKnl_ComputeNormalsFromHeightmap(texture2d<float> height [[texture(0)]],
