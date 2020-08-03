@@ -81,8 +81,8 @@ class BasicFFT: Node {
 
         var r = Array(repeating: 0.0, count: halfN)
         guard
-            let real = Renderer.device.makeBuffer(bytes: &r, length: MemoryLayout<Float>.stride * halfN, options: .storageModeShared),
-            let imag  = Renderer.device.makeBuffer(bytes: &r, length: MemoryLayout<Float>.stride * halfN, options: .storageModeShared)
+            let real = Renderer.device.makeBuffer(length: MemoryLayout<Float>.stride * halfN, options: .storageModeShared),
+            let imag  = Renderer.device.makeBuffer(length: MemoryLayout<Float>.stride * halfN, options: .storageModeShared)
         else {
             fatalError()
         }
@@ -107,8 +107,6 @@ class BasicFFT: Node {
 
         super.init()
 
-        runfft(phase: 0)
-
     } // init
 
     func runfft(phase: Float) {
@@ -124,13 +122,24 @@ class BasicFFT: Node {
         var realPointer = distribution_real.contents().bindMemory(to: Float.self, capacity: halfN)
         var imagPointer = distribution_imag.contents().bindMemory(to: Float.self, capacity: halfN)
 
+        var realSourcePointer = source.distribution_real_buffer.contents().bindMemory(to: Float.self, capacity: halfN)
+        var imagSourcePointer = source.distribution_imag_buffer.contents().bindMemory(to: Float.self, capacity: halfN)
+
 
         for index in 0..<halfN {
+
+            if index == 8 {
+                print("*** source \(realPointer.pointee) modified \(realSourcePointer.pointee)")
+            }
+
             inputReal[index] = realPointer.pointee
             inputImag[index] = imagPointer.pointee
 
             realPointer = realPointer.advanced(by: 1)
             imagPointer = imagPointer.advanced(by: 1)
+
+            realSourcePointer = realSourcePointer.advanced(by: 1)
+            imagSourcePointer = imagSourcePointer.advanced(by: 1)
         }
 
         let recreatedSignal: [Float] =
@@ -177,7 +186,8 @@ class BasicFFT: Node {
 
 extension BasicFFT: Renderable {
 
-    func generateDistributions(computeEncoder: MTLComputeCommandEncoder) {
+    // Modify the rando's created by 'water'
+    func generateDistributions(computeEncoder: MTLComputeCommandEncoder, uniforms: Uniforms) {
         computeEncoder.pushDebugGroup("FFT-Distribution")
         var gausUniforms = GausUniforms(
             dataLength: Int32(n / 2),
@@ -189,21 +199,26 @@ extension BasicFFT: Renderable {
             seed: seed
         )
 
+        var uniforms = uniforms
         computeEncoder.setComputePipelineState(distributionPipelineState)
         computeEncoder.setBytes(&gausUniforms, length: MemoryLayout<GausUniforms>.stride, index: BufferIndex.gausUniforms.rawValue)
-        computeEncoder.setBuffer(distribution_real, offset: 0, index: 0)
-        computeEncoder.setBuffer(distribution_imag, offset: 0, index: 1)
-        computeEncoder.setBuffer(source.distribution_real_buffer, offset: 0, index: 2)
-        computeEncoder.setBuffer(source.distribution_imag_buffer, offset: 0, index: 3)
-//        computeEncoder.setBuffer(randomBuffer, offset: 0, index: 2)
+        computeEncoder.setBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: BufferIndex.uniforms.rawValue)
+
+        computeEncoder.setBuffer(distribution_real, offset: 0, index: 12)
+        computeEncoder.setBuffer(distribution_imag, offset: 0, index: 13)
+        
+        computeEncoder.setBuffer(source.distribution_real_buffer, offset: 0, index: 14)
+        computeEncoder.setBuffer(source.distribution_imag_buffer, offset: 0, index: 15)
+
+        computeEncoder.setTexture(BasicFFT.drawTexture, index: 0)
 
         let w = pipelineState.threadExecutionWidth
         let h = pipelineState.maxTotalThreadsPerThreadgroup / w
         let threadGroupSize = MTLSizeMake(w, h, 1)
 
         var threadgroupCount = MTLSizeMake(16, 16, 1)
-        threadgroupCount.width = (Self.drawTexture.width + threadGroupSize.width - 1) / threadGroupSize.width
-        threadgroupCount.height = (Self.drawTexture.height + threadGroupSize.height - 1) / threadGroupSize.height
+        threadgroupCount.width = imgSize//(Self.drawTexture.width + threadGroupSize.width - 1) / threadGroupSize.width
+        threadgroupCount.height = imgSize//(Self.drawTexture.height + threadGroupSize.height - 1) / threadGroupSize.height
 
         computeEncoder.dispatchThreads(threadgroupCount,
                                        threadsPerThreadgroup: threadGroupSize)
