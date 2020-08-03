@@ -20,8 +20,8 @@ class Terrain: Node {
     static var secondarySlopeMap: MTLTexture!
 
     static var terrainParams = TerrainParams(
-        size: [150, 150],
-        height: 1,
+        size: [500, 500],
+        height: 10,
         maxTessellation: UInt32(Terrain.maxTessellation),
         numberOfPatches: UInt32(Terrain.patchNum * Terrain.patchNum)
     )
@@ -33,8 +33,8 @@ class Terrain: Node {
         return patches.horizontal * patches.vertical
     }
 
-    var edgeFactors: [Float] = [4]
-    var insideFactors: [Float] = [4]
+    var edgeFactors: [Float] = [16]
+    var insideFactors: [Float] = [16]
     var allPatches: [Patch] = []
 
     lazy var tessellationFactorsBuffer: MTLBuffer? = {

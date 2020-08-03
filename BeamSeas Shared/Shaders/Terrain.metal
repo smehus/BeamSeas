@@ -457,7 +457,7 @@ kernel void fft_kernel(texture2d<float, access::write> output [[ texture(0) ]],
     if (tid.x < width && tid.y < height) {
         //    float2 uv = float2(2 * M_PI_F * tid.x / 512, 2.0 * M_PI_F * tid.y / 512);
         uint index = tid.y * width + tid.x;
-        float val = data[index];// * 2000000;
+        float val = data[index] + 1;// * 2000000;
 
 //        if (val < 0.0) {
 //            output.write(float4(1.0, 0, 0, 1), tid);

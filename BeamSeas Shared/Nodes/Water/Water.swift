@@ -80,7 +80,7 @@ class Water {
         self.size = size
         self.size_normal = size / normalmap_freq_mod
 
-        let n = vDSP_Length(262144)
+        let n = vDSP_Length(Nx * Nz)
         let halfN = Int(n / 2)
 
         // Factor in phillips spectrum
