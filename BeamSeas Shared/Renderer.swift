@@ -67,9 +67,9 @@ final class Renderer: NSObject {
         let terrain = Terrain()
         models.append(terrain)
 
-        let cube = Model(name: "Ship", fragment: "fragment_pbr")
-        cube.rotation = [Float(-90).degreesToRadians, 0/*Float(-20).degreesToRadians*/, 0]
-        models.append(cube)
+//        let cube = Model(name: "Ship", fragment: "fragment_pbr")
+//        cube.rotation = [Float(-90).degreesToRadians, 0/*Float(-20).degreesToRadians*/, 0]
+//        models.append(cube)
 
 
         models.append(fft)
@@ -107,12 +107,15 @@ extension Renderer: MTKViewDelegate {
         fragmentUniforms.camera_position = camera.position
 
 
-        let distributionEncoder = commandBuffer.makeComputeCommandEncoder()!
-        fft.generateDistributions(computeEncoder: distributionEncoder)
-        distributionEncoder.endEncoding()
+//        if firstRun {
+            let distributionEncoder = commandBuffer.makeComputeCommandEncoder()!
+            fft.generateDistributions(computeEncoder: distributionEncoder, uniforms: uniforms)
+            distributionEncoder.endEncoding()
 
+            fft.runfft(phase: delta)
+            firstRun = false
+//        }
 
-        fft.runfft(phase: delta)
 
 
         // Terrain Pass \\
@@ -169,6 +172,7 @@ extension Renderer: MTKViewDelegate {
             model.draw(renderEncoder: renderEncoder, uniforms: &uniforms, fragmentUniforms: &fragmentUniforms)
         }
 
+        
         debugLights(renderEncoder: renderEncoder, lightType: Sunlight)
         renderEncoder.endEncoding()
         if let drawable = view.currentDrawable {

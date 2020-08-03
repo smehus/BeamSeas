@@ -59,10 +59,41 @@ float phillips(float2 k, float max_l, float L, float2 wind_dir) {
     pow(k_len, -4.0);
 }
 
+float2 vecAlias(uint2 i, uint2 N)
+{
+    float2 n = 0.5 * float2(N);
+    bool2 b = float2(i) > n;
+
+    return mix(float2(i), float2(i - N), float2(b));
+}
+
+float4 cmul(float4 a, float4 b)
+{
+    float4 r3 = a.yxwz;
+    float4 r1 = b.xxzz;
+    float4 R0 = a * r1;
+    float4 r2 = b.yyww;
+    float4 R1 = r2 * r3;
+    return R0 + float4(-R1.x, R1.y, -R1.z, R1.w);
+}
+
+float2 cmul(float2 a, float2 b)
+{
+    float2 r3 = a.yx;
+    float2 r1 = b.xx;
+    float2 R0 = a * r1;
+    float2 r2 = b.yy;
+    float2 R1 = r2 * r3;
+    return R0 + float2(-R1.x, R1.y);
+}
+
 kernel void generate_distribution(constant GausUniforms &uniforms [[ buffer(BufferIndexGausUniforms) ]],
-                                  device float *distribution_real [[ buffer(0) ]],
-                                  device float *distribution_imag [[ buffer(1) ]],
-                                  constant float2 *randoms [[ buffer(2) ]],
+                                  constant Uniforms &mainUniforms [[ buffer(BufferIndexUniforms) ]],
+                                  device float *output_real [[ buffer(12) ]],
+                                  device float *output_imag [[ buffer(13) ]],
+                                  texture2d<float> drawTexture [[ texture(0) ]],
+                                  device float *input_real [[ buffer(14) ]],
+                                  device float *input_imag [[ buffer(15) ]],
                                   uint2 pid [[ thread_position_in_grid ]])
 {
 
@@ -83,24 +114,59 @@ kernel void generate_distribution(constant GausUniforms &uniforms [[ buffer(Buff
     // Generate Distributions
     float2 mod = float2(2.0 * M_PI_F) / size;
 
-    for (int z = 0; z < nZ; z++) {
-        for (int x = 0; x < nX; x++) {
-            float2 k = mod * float2(float(alias(x, nX)), float(alias(z, nZ)));
 
-            int idx = z * nX + x;
+    // Pick out the negative frequency variant.
+    float2 wi = mix(float2(uniforms.resolution - pid),
+                    float2(0u),
+                    float2(pid == uint2(0u)));
+//
+//    int width = uniforms.resolution.x;
+//    int height = uniforms.resolution.y;
+    int width = drawTexture.get_width();
+    int height = drawTexture.get_height();
 
-            if (uniforms.dataLength > idx) {
-                float phil = phillips(k, max_l, L, wind_dir);
-                float real = rand(uniforms.seed * pid.x + z, uniforms.seed * pid.y + x, 1) * amplitude * sqrt(0.5 * phil);
-                float imag = rand(uniforms.seed * pid.y + x, 1, uniforms.seed * pid.x + z) * amplitude * sqrt(0.5 * phil);
 
+//    // Pick out positive and negative travelling waves.
+    uint index = pid.y * width + pid.x;
+    uint bIndex = wi.y * width + wi.x;
 
+    float a1 = input_real[index];
+    float a2 = input_imag[index];
+    float2 a = float2(a1, a2);
 
-                distribution_real[idx] = real;
-                distribution_imag[idx] = imag;
-            }
-        }
+    float b1 = input_real[bIndex];
+    float b2 = input_imag[bIndex];
+    float2 b = float2(b1, b2);
+
+    float2 uMod = float2(2.0 * M_PI_F) / uniforms.size;
+
+    float2 k = uMod * vecAlias(pid, uint2(width, height));
+    float k_len = length(k);
+    // If this sample runs for hours on end, the cosines of very large numbers will eventually become unstable.
+    // It is fairly easy to fix this by wrapping uTime,
+    // and quantizing w such that wrapping uTime does not change the result.
+    // See Tessendorf's paper for how to do it.
+    // The sqrt(G * k_len) factor represents how fast ocean waves at different frequencies propagate.
+    float w = sqrt(G * k_len) * (mainUniforms.deltaTime * 0.001);
+    float cw = cos(w);
+    float sw = sin(w);
+
+    // Complex multiply to rotate our frequency samples.
+
+    a = cmul(a, float2(cw, sw));
+    b = cmul(b, float2(cw, sw));
+    b = float2(b.x, -b.y); // Complex conjugate since we picked a frequency with the opposite direction.
+    float2 res = (a + b); // Sum up forward and backwards travelling waves.
+//    heights[i.y * N.x + i.x] = pack2(res);
+
+//    res.x = (res.x - -3) / (3 - -3);
+//    res.y = (res.x - -3) / (3 - -3);
+
+    if (index < uniforms.dataLength) {
+        output_real[index] = res.x;
+        output_imag[index] = res.y;
     }
+
 }
 
 kernel void compute_height(constant float3 &position [[ buffer(0) ]],
@@ -307,8 +373,8 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
     float4 secondaryColor = altHeightMap.sample(sample, xy);
     float3 secondarLocalNormal = normalize(secondaryNormalMap.sample(normalSampler, xy).xzy * 2.0f - 1.0f);
 
-    float4 color = mix(primaryColor, secondaryColor, 0.5);
-    float inverseColor = 1 - color.r;
+    float4 color = primaryColor;//mix(primaryColor, secondaryColor, 0.5);
+    float inverseColor = color.r;//1 - color.r;
     float height = (inverseColor * 2 - 1) * terrainParams.height;
     position.y = height;
 
@@ -317,7 +383,7 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
     float4 finalColor = float4(inverseColor, inverseColor, inverseColor, 1);
 
     // reference AAPLTerrainRenderer in DynamicTerrainWithArgumentBuffers exmaple: EvaluateTerrainAtLocation line 235 -> EvaluateTerrainAtLocation in AAPLTerrainRendererUtilities line: 91
-    out.normal = uniforms.normalMatrix * mix(primaryLocalNormal, secondarLocalNormal, 0.5);
+    out.normal = uniforms.normalMatrix * primaryLocalNormal;//mix(primaryLocalNormal, secondarLocalNormal, 0.5);
 
     finalColor += float4(0.2, 0.6, 0.7, 1);
     out.color = finalColor;
@@ -351,15 +417,15 @@ vertex FFTVertexOut fft_vertex(const FFTVertexIn in [[ stage_in ]],
                                texture2d<float> noiseMap [[ texture(8) ]],
                                constant float2 &viewPort [[ buffer(22) ]]) {
     return {
-        .position = in.position,
-        .textureCoordinates = in.position.xy
+        .position = uniforms.modelMatrix * in.position,
+        .textureCoordinates =  in.position.xy
     };
 }
 
 fragment float4 fft_fragment(const FFTVertexOut in [[ stage_in ]],
                              constant Uniforms &uniforms [[ buffer(BufferIndexUniforms)]],
                              constant float2 &viewPort [[ buffer(22) ]],
-                             texture2d<float> noiseMap [[ texture(8) ]],
+                             texture2d<float> noiseMap [[ texture(0) ]],
                              texture2d<float> testMap [[ texture(1) ]]) {
     constexpr sampler sam;
 //    float2 normTex = in.textureCoordinates.xy;
@@ -391,8 +457,12 @@ kernel void fft_kernel(texture2d<float, access::write> output [[ texture(0) ]],
     if (tid.x < width && tid.y < height) {
         //    float2 uv = float2(2 * M_PI_F * tid.x / 512, 2.0 * M_PI_F * tid.y / 512);
         uint index = tid.y * width + tid.x;
-        float val = data[index] * 200000;
+        float val = data[index] + 1;// * 2000000;
 
+//        if (val < 0.0) {
+//            output.write(float4(1.0, 0, 0, 1), tid);
+//            return;
+//        }
 //        float2 h_up  = float2(tid + uint2(0, 1));
 //        uint altindex = h_up.y * width + h_up.x;
 //        float altval = data[index - 1];
@@ -403,7 +473,8 @@ kernel void fft_kernel(texture2d<float, access::write> output [[ texture(0) ]],
         //    val = val * (width / 2) + (width / 2);
 
         // convert to between 0 - 1
-//        val = (val - (-3)) / (3 - (-3));
+//        val = (val - (-1)) / (1 - (-1));
+//        val = 1 - val;
 
 
         output.write(float4(val, val, val, 1), tid);
