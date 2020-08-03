@@ -97,74 +97,71 @@ kernel void generate_distribution(constant GausUniforms &uniforms [[ buffer(Buff
                                   uint2 pid [[ thread_position_in_grid ]])
 {
 
-//    float2 wind_dir = normalize(uniforms.wind_velocity);
-//    float nX = uniforms.resolution.x;
-//    float nZ = uniforms.resolution.y;
-//    float2 size = uniforms.size;
-////    float2 size_normal = size / uniforms.normalmap_freq_mod;
-////    float n = 262144;
-////    int halfN = int(n / 2);
-//    float G = 9.81; // Gravity
-//    float L = dot(uniforms.wind_velocity, uniforms.wind_velocity) / G;
-//    float amplitude = uniforms.amplitude;
-//    float max_l = 0.02;
-//
-//    amplitude *= 0.3 / sqrt(size.x * size.y);
-//
-//    // Generate Distributions
-//    float2 mod = float2(2.0 * M_PI_F) / size;
-//
-//
-//    // Pick out the negative frequency variant.
-//    float2 wi = mix(float2(uniforms.resolution - pid),
-//                    float2(0u),
-//                    float2(pid == uint2(0u)));
+    float2 wind_dir = normalize(uniforms.wind_velocity);
+    float nX = uniforms.resolution.x;
+    float nZ = uniforms.resolution.y;
+    float2 size = uniforms.size;
+//    float2 size_normal = size / uniforms.normalmap_freq_mod;
+//    float n = 262144;
+//    int halfN = int(n / 2);
+    float G = 9.81; // Gravity
+    float L = dot(uniforms.wind_velocity, uniforms.wind_velocity) / G;
+    float amplitude = uniforms.amplitude;
+    float max_l = 0.02;
+
+    amplitude *= 0.3 / sqrt(size.x * size.y);
+
+    // Generate Distributions
+    float2 mod = float2(2.0 * M_PI_F) / size;
+
+
+    // Pick out the negative frequency variant.
+    float2 wi = mix(float2(uniforms.resolution - pid),
+                    float2(0u),
+                    float2(pid == uint2(0u)));
 //
 //    int width = uniforms.resolution.x;
 //    int height = uniforms.resolution.y;
-    float width = drawTexture.get_width();
+    int width = drawTexture.get_width();
+    int height = drawTexture.get_height();
+
+
 //    // Pick out positive and negative travelling waves.
     uint index = pid.y * width + pid.x;
-//    uint bIndex = wi.y * width + wi.x;
-//
-//    float a1 = input_real[index];
-//    float a2 = input_imag[index];
-//    float2 a = float2(a1, a2);
-//
-//    float b1 = input_real[bIndex];
-//    float b2 = input_imag[bIndex];
-//    float2 b = float2(b1, b2);
-//
-//    float2 uMod = float2(2.0 * M_PI_F) / uniforms.size;
-//
-//    float2 k = uMod * vecAlias(pid, uint2(width, height));
-//    float k_len = length(k);
-//    // If this sample runs for hours on end, the cosines of very large numbers will eventually become unstable.
-//    // It is fairly easy to fix this by wrapping uTime,
-//    // and quantizing w such that wrapping uTime does not change the result.
-//    // See Tessendorf's paper for how to do it.
-//    // The sqrt(G * k_len) factor represents how fast ocean waves at different frequencies propagate.
-//    float w = sqrt(G * k_len) * mainUniforms.deltaTime;
-//    float cw = cos(w);
-//    float sw = sin(w);
-//
-//    // Complex multiply to rotate our frequency samples.
-//
-//    a = cmul(a, float2(cw, sw));
-//    b = cmul(b, float2(cw, sw));
-//    b = float2(b.x, -b.y); // Complex conjugate since we picked a frequency with the opposite direction.
-//    float2 res = (a + b); // Sum up forward and backwards travelling waves.
-////    heights[i.y * N.x + i.x] = pack2(res);
+    uint bIndex = wi.y * width + wi.x;
+
+    float a1 = input_real[index];
+    float a2 = input_imag[index];
+    float2 a = float2(a1, a2);
+
+    float b1 = input_real[bIndex];
+    float b2 = input_imag[bIndex];
+    float2 b = float2(b1, b2);
+
+    float2 uMod = float2(2.0 * M_PI_F) / uniforms.size;
+
+    float2 k = uMod * vecAlias(pid, uint2(width, height));
+    float k_len = length(k);
+    // If this sample runs for hours on end, the cosines of very large numbers will eventually become unstable.
+    // It is fairly easy to fix this by wrapping uTime,
+    // and quantizing w such that wrapping uTime does not change the result.
+    // See Tessendorf's paper for how to do it.
+    // The sqrt(G * k_len) factor represents how fast ocean waves at different frequencies propagate.
+    float w = sqrt(G * k_len) * (mainUniforms.deltaTime * 0.001);
+    float cw = cos(w);
+    float sw = sin(w);
+
+    // Complex multiply to rotate our frequency samples.
+
+    a = cmul(a, float2(cw, sw));
+    b = cmul(b, float2(cw, sw));
+    b = float2(b.x, -b.y); // Complex conjugate since we picked a frequency with the opposite direction.
+    float2 res = (a + b); // Sum up forward and backwards travelling waves.
+//    heights[i.y * N.x + i.x] = pack2(res);
 
     if (index < uniforms.dataLength) {
-        float real = input_real[index];
-        float imag = input_imag[index];
-
-        float aReal = output_real[index];
-        float aImag = output_imag[index];
-
-        output_real[index] = input_real[index];//res.x;
-        output_imag[index] = input_imag[index];//res.y;
+        output_real[index] = res.x;
+        output_imag[index] = res.y;
     }
 
 }

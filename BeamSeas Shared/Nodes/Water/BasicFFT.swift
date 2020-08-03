@@ -128,9 +128,9 @@ class BasicFFT: Node {
 
         for index in 0..<halfN {
 
-            if index == 8 {
-                print("*** source \(realPointer.pointee) modified \(realSourcePointer.pointee)")
-            }
+//            if index == 8 {
+//                print("*** source \(realPointer.pointee) modified \(realSourcePointer.pointee)")
+//            }
 
             inputReal[index] = realPointer.pointee
             inputImag[index] = imagPointer.pointee
