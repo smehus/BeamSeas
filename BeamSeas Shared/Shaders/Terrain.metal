@@ -59,7 +59,36 @@ float phillips(float2 k, float max_l, float L, float2 wind_dir) {
     pow(k_len, -4.0);
 }
 
+float2 vecAlias(uint2 i, uint2 N)
+{
+    float2 n = 0.5 * float2(N);
+    bool2 b = float2(i) > n;
+
+    return mix(float2(i), float2(i - N), float2(b));
+}
+
+float4 cmul(float4 a, float4 b)
+{
+    float4 r3 = a.yxwz;
+    float4 r1 = b.xxzz;
+    float4 R0 = a * r1;
+    float4 r2 = b.yyww;
+    float4 R1 = r2 * r3;
+    return R0 + float4(-R1.x, R1.y, -R1.z, R1.w);
+}
+
+float2 cmul(float2 a, float2 b)
+{
+    float2 r3 = a.yx;
+    float2 r1 = b.xx;
+    float2 R0 = a * r1;
+    float2 r2 = b.yy;
+    float2 R1 = r2 * r3;
+    return R0 + float2(-R1.x, R1.y);
+}
+
 kernel void generate_distribution(constant GausUniforms &uniforms [[ buffer(BufferIndexGausUniforms) ]],
+                                  constant Uniforms &mainUniforms [[ buffer(BufferIndexUniforms) ]],
                                   device float *output_real [[ buffer(0) ]],
                                   device float *output_imag [[ buffer(1) ]],
                                   device float *input_real [[ buffer(2) ]],
@@ -85,26 +114,48 @@ kernel void generate_distribution(constant GausUniforms &uniforms [[ buffer(Buff
     float2 mod = float2(2.0 * M_PI_F) / size;
 
 
+    // Pick out the negative frequency variant.
+    float2 wi = mix(float2(uniforms.resolution - pid),
+                    float2(0u),
+                    float2(pid == uint2(0u)));
 
-    
-//    for (int z = 0; z < nZ; z++) {
-//        for (int x = 0; x < nX; x++) {
-//            float2 k = mod * float2(float(alias(x, nX)), float(alias(z, nZ)));
-//
-//            int idx = z * nX + x;
-//
-//            if (uniforms.dataLength > idx) {
-//                float phil = phillips(k, max_l, L, wind_dir);
-//                float real = rand(uniforms.seed * pid.x + z, uniforms.seed * pid.y + x, 1) * amplitude * sqrt(0.5 * phil);
-//                float imag = rand(uniforms.seed * pid.y + x, 1, uniforms.seed * pid.x + z) * amplitude * sqrt(0.5 * phil);
-//
-//
-//
-//                distribution_real[idx] = real;
-//                distribution_imag[idx] = imag;
-//            }
-//        }
-//    }
+    int width = uniforms.resolution.x;
+    int height = uniforms.resolution.y;
+
+    // Pick out positive and negative travelling waves.
+    uint index = pid.y * width + pid.x;
+    uint bIndex = wi.y * width + wi.x;
+
+    float a1 = input_real[index];
+    float a2 = input_imag[index];
+    float2 a = float2(a1, a2);
+
+    float b1 = input_real[bIndex];
+    float b2 = input_imag[bIndex];
+    float2 b = float2(b1, b2);
+
+    float2 uMod = float2(2.0 * M_PI_F) / uniforms.size;
+
+    float2 k = uMod * vecAlias(pid, uint2(width, height));
+    float k_len = length(k);
+    // If this sample runs for hours on end, the cosines of very large numbers will eventually become unstable.
+    // It is fairly easy to fix this by wrapping uTime,
+    // and quantizing w such that wrapping uTime does not change the result.
+    // See Tessendorf's paper for how to do it.
+    // The sqrt(G * k_len) factor represents how fast ocean waves at different frequencies propagate.
+    float w = sqrt(G * k_len) * mainUniforms.deltaTime;
+    float cw = cos(w);
+    float sw = sin(w);
+
+    // Complex multiply to rotate our frequency samples.
+
+    a = cmul(a, float2(cw, sw));
+    b = cmul(b, float2(cw, sw));
+    b = float2(b.x, -b.y); // Complex conjugate since we picked a frequency with the opposite direction.
+    float2 res = (a + b); // Sum up forward and backwards travelling waves.
+//    heights[i.y * N.x + i.x] = pack2(res);
+    output_real[index] = res.x;
+    output_imag[index] = res.y;
 }
 
 kernel void compute_height(constant float3 &position [[ buffer(0) ]],
