@@ -135,13 +135,17 @@ class Water {
                 let imagRand = Float(normal_distribution.random())
 
                 let phillips = philliphs(k: k, max_l: max_l)
-                let newReal = realRand * amplitude * sqrt(0.5 * phillips)
-                let newImag = imagRand * amplitude * sqrt(0.5 * phillips)
+                var newReal = realRand * amplitude * sqrt(0.5 * phillips)
+                var newImag = imagRand * amplitude * sqrt(0.5 * phillips)
 
 
                 let idx = z * Nx + x
 
                 if distribution_real.indices.contains(idx), distribution_imag.indices.contains(idx) {
+
+                    newReal = (newReal - -1) / (1 - -1) * (1 - 0) + 0
+                    newImag = (newImag - -1) / (1 - -1) * (1 - 0) + 0
+
                     distribution_real[idx] = newReal
                     distribution_imag[idx] = newImag
                 }

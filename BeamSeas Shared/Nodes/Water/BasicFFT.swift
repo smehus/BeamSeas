@@ -92,7 +92,7 @@ class BasicFFT: Node {
 
         source = Water(
                  amplitude: 1,
-                 wind_velocity: float2(x: 10, y: -10),
+                 wind_velocity: float2(x: 0, y: -10),
                  resolution: SIMD2<Int>(x: imgSize, y: imgSize),
                  size: float2(x: imgSize.float, y: imgSize.float),
                  normalmap_freq_mod: float2(repeating: 7.3)
@@ -125,6 +125,14 @@ class BasicFFT: Node {
         var realSourcePointer = source.distribution_real_buffer.contents().bindMemory(to: Float.self, capacity: halfN)
         var imagSourcePointer = source.distribution_imag_buffer.contents().bindMemory(to: Float.self, capacity: halfN)
 
+        for var val in UnsafeBufferPointer(start: realSourcePointer, count: halfN) {
+            if val != 0.0 {
+
+//                let t = ((val - (-1)) / ((1 - (-1)) * (1 - 0) + 0)
+
+//                print("*** VALUUUE \(val)")
+            }
+        }
 
         for index in 0..<halfN {
 
@@ -241,6 +249,7 @@ extension BasicFFT: Renderable {
         var threadgroupCount = MTLSizeMake(16, 16, 1)
         threadgroupCount.width = (Self.drawTexture.width + threadGroupSize.width - 1) / threadGroupSize.width
         threadgroupCount.height = (Self.drawTexture.height + threadGroupSize.height - 1) / threadGroupSize.height
+
 
 
         computeEncoder.setComputePipelineState(pipelineState)

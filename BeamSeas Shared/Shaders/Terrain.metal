@@ -159,6 +159,8 @@ kernel void generate_distribution(constant GausUniforms &uniforms [[ buffer(Buff
     float2 res = (a + b); // Sum up forward and backwards travelling waves.
 //    heights[i.y * N.x + i.x] = pack2(res);
 
+//    res.x = (res.x - -1) / (1 - -1) * (1 - 0) + 0;
+//    res.y = (res.y - -1) / (1 - -1) * (1 - 0) + 0;
     if (index < uniforms.dataLength) {
         output_real[index] = res.x;
         output_imag[index] = res.y;
@@ -370,7 +372,7 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
     float4 secondaryColor = altHeightMap.sample(sample, xy);
     float3 secondarLocalNormal = normalize(secondaryNormalMap.sample(normalSampler, xy).xzy * 2.0f - 1.0f);
 
-    float4 color = mix(primaryColor, secondaryColor, 0.5);
+    float4 color = primaryColor;//mix(primaryColor, secondaryColor, 0.5);
     float inverseColor = 1 - color.r;
     float height = (inverseColor * 2 - 1) * terrainParams.height;
     position.y = height;
@@ -380,7 +382,7 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
     float4 finalColor = float4(inverseColor, inverseColor, inverseColor, 1);
 
     // reference AAPLTerrainRenderer in DynamicTerrainWithArgumentBuffers exmaple: EvaluateTerrainAtLocation line 235 -> EvaluateTerrainAtLocation in AAPLTerrainRendererUtilities line: 91
-    out.normal = uniforms.normalMatrix * mix(primaryLocalNormal, secondarLocalNormal, 0.5);
+    out.normal = uniforms.normalMatrix * primaryLocalNormal;//mix(primaryLocalNormal, secondarLocalNormal, 0.5);
 
     finalColor += float4(0.2, 0.6, 0.7, 1);
     out.color = finalColor;
@@ -454,7 +456,7 @@ kernel void fft_kernel(texture2d<float, access::write> output [[ texture(0) ]],
     if (tid.x < width && tid.y < height) {
         //    float2 uv = float2(2 * M_PI_F * tid.x / 512, 2.0 * M_PI_F * tid.y / 512);
         uint index = tid.y * width + tid.x;
-        float val = data[index] * 200000;
+        float val = data[index];// * 2000000;
 
 //        float2 h_up  = float2(tid + uint2(0, 1));
 //        uint altindex = h_up.y * width + h_up.x;
@@ -466,7 +468,8 @@ kernel void fft_kernel(texture2d<float, access::write> output [[ texture(0) ]],
         //    val = val * (width / 2) + (width / 2);
 
         // convert to between 0 - 1
-//        val = (val - (-3)) / (3 - (-3));
+//        val = (val - (-1)) / (1 - (-1));
+//        val = 1 - val;
 
 
         output.write(float4(val, val, val, 1), tid);

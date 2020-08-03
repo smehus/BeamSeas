@@ -15,7 +15,7 @@ class Terrain: Node {
     static var heightMapName = "simuwater"
     static var alterHeightMapName = "Heightmap_Plateau"
     static var normalMapTexture: MTLTexture!
-    static var secondaryNormalMapTexture: MTLTexture!
+//    static var secondaryNormalMapTexture: MTLTexture!
     static var primarySlopeMap: MTLTexture!
     static var secondarySlopeMap: MTLTexture!
 
@@ -48,13 +48,13 @@ class Terrain: Node {
     private let normalPipelineState: MTLComputePipelineState
 
     static var controlPointsBuffer: MTLBuffer!
-    private let heightMap: MTLTexture
-    private let altHeightMap: MTLTexture
+//    private let heightMap: MTLTexture
+//    private let altHeightMap: MTLTexture
 
     override init() {
 
-        heightMap = Self.loadTexture(imageName: Terrain.heightMapName, path: "jpg")
-        altHeightMap = Self.loadTexture(imageName: Self.alterHeightMapName)
+//        heightMap = Self.loadTexture(imageName: Terrain.heightMapName, path: "jpg")
+//        altHeightMap = Self.loadTexture(imageName: Self.alterHeightMapName)
 
         let controlPoints = Self.createControlPoints(
             patches: patches,
@@ -100,19 +100,19 @@ class Terrain: Node {
 
         // Taken from apple example
         let texDesc = MTLTextureDescriptor()
-        texDesc.width = heightMap.width
-        texDesc.height = heightMap.height
+        texDesc.width = BasicFFT.drawTexture.width
+        texDesc.height = BasicFFT.drawTexture.height
         texDesc.pixelFormat = .rg11b10Float
         texDesc.usage = [.shaderRead, .shaderWrite]
-        texDesc.mipmapLevelCount = Int(log2(Double(max(heightMap.width, heightMap.height))) + 1);
+        texDesc.mipmapLevelCount = Int(log2(Double(max(BasicFFT.drawTexture.width, BasicFFT.drawTexture.height))) + 1);
         texDesc.storageMode = .private
         Self.normalMapTexture = Renderer.device.makeTexture(descriptor: texDesc)!
 
 
-        texDesc.width = altHeightMap.width
-        texDesc.height = altHeightMap.height
-        texDesc.mipmapLevelCount = Int(log2(Double(max(altHeightMap.width, altHeightMap.height))) + 1);
-        Self.secondaryNormalMapTexture = Renderer.device.makeTexture(descriptor: texDesc)!
+//        texDesc.width = altHeightMap.width
+//        texDesc.height = altHeightMap.height
+//        texDesc.mipmapLevelCount = Int(log2(Double(max(altHeightMap.width, altHeightMap.height))) + 1);
+//        Self.secondaryNormalMapTexture = Renderer.device.makeTexture(descriptor: texDesc)!
 
 //        let primarySlopeDescriptor: MTLTextureDescriptor = .texture2DDescriptor(
 //            pixelFormat: heightMap.pixelFormat,
@@ -160,23 +160,23 @@ extension Terrain: Renderable {
         let threadsPerGroup = MTLSize(width: 16, height: 16, depth: 1)
         computeEncoder.pushDebugGroup("Generate Normals")
         computeEncoder.setComputePipelineState(normalPipelineState)
-        computeEncoder.setTexture(heightMap, index: 0)
+        computeEncoder.setTexture(BasicFFT.drawTexture, index: 0)
         computeEncoder.setTexture(Self.normalMapTexture, index: 2)
         computeEncoder.setBytes(&Terrain.terrainParams, length: MemoryLayout<TerrainParams>.size, index: 3)
         computeEncoder.setBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: BufferIndex.uniforms.rawValue)
-        computeEncoder.dispatchThreadgroups(MTLSizeMake(heightMap.width, heightMap.height, 1), threadsPerThreadgroup: threadsPerGroup)
+        computeEncoder.dispatchThreadgroups(MTLSizeMake(BasicFFT.drawTexture.width, BasicFFT.drawTexture.height, 1), threadsPerThreadgroup: threadsPerGroup)
         computeEncoder.popDebugGroup()
 
         // dispatch another call with the altHeightMap with an altNormalMapTexture
 
-        computeEncoder.pushDebugGroup("Generate Normals")
-        computeEncoder.setComputePipelineState(normalPipelineState)
-        computeEncoder.setTexture(altHeightMap, index: 0)
-        computeEncoder.setTexture(Self.secondaryNormalMapTexture, index: 2)
-        computeEncoder.setBytes(&Terrain.terrainParams, length: MemoryLayout<TerrainParams>.size, index: 3)
-        computeEncoder.setBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: BufferIndex.uniforms.rawValue)
-        computeEncoder.dispatchThreadgroups(MTLSizeMake(altHeightMap.width, altHeightMap.height, 1), threadsPerThreadgroup: threadsPerGroup)
-        computeEncoder.popDebugGroup()
+//        computeEncoder.pushDebugGroup("Generate Normals")
+//        computeEncoder.setComputePipelineState(normalPipelineState)
+//        computeEncoder.setTexture(altHeightMap, index: 0)
+//        computeEncoder.setTexture(Self.secondaryNormalMapTexture, index: 2)
+//        computeEncoder.setBytes(&Terrain.terrainParams, length: MemoryLayout<TerrainParams>.size, index: 3)
+//        computeEncoder.setBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: BufferIndex.uniforms.rawValue)
+//        computeEncoder.dispatchThreadgroups(MTLSizeMake(altHeightMap.width, altHeightMap.height, 1), threadsPerThreadgroup: threadsPerGroup)
+//        computeEncoder.popDebugGroup()
 
     }
 
@@ -264,24 +264,24 @@ extension Terrain: Renderable {
 
         // TODO: - Need to implement argument buffers & resource heaps
         renderEncoder.setVertexTexture(
-            heightMap,
+            BasicFFT.drawTexture,
             index: 0
         )
-
-        renderEncoder.setVertexTexture(
-            altHeightMap,
-            index: 1
-        )
+//
+//        renderEncoder.setVertexTexture(
+//            altHeightMap,
+//            index: 1
+//        )
 
         renderEncoder.setVertexTexture(
             Self.normalMapTexture,
             index: 2
         )
 
-        renderEncoder.setVertexTexture(
-            Self.secondaryNormalMapTexture,
-            index: 3
-        )
+//        renderEncoder.setVertexTexture(
+//            Self.secondaryNormalMapTexture,
+//            index: 3
+//        )
 
         renderEncoder.setVertexBytes(
             &Terrain.terrainParams,
