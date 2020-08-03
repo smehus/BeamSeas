@@ -60,9 +60,10 @@ float phillips(float2 k, float max_l, float L, float2 wind_dir) {
 }
 
 kernel void generate_distribution(constant GausUniforms &uniforms [[ buffer(BufferIndexGausUniforms) ]],
-                                  device float *distribution_real [[ buffer(0) ]],
-                                  device float *distribution_imag [[ buffer(1) ]],
-                                  constant float2 *randoms [[ buffer(2) ]],
+                                  device float *output_real [[ buffer(0) ]],
+                                  device float *output_imag [[ buffer(1) ]],
+                                  device float *input_real [[ buffer(2) ]],
+                                  device float *input_imag [[ buffer(3) ]],
                                   uint2 pid [[ thread_position_in_grid ]])
 {
 
@@ -83,24 +84,27 @@ kernel void generate_distribution(constant GausUniforms &uniforms [[ buffer(Buff
     // Generate Distributions
     float2 mod = float2(2.0 * M_PI_F) / size;
 
-    for (int z = 0; z < nZ; z++) {
-        for (int x = 0; x < nX; x++) {
-            float2 k = mod * float2(float(alias(x, nX)), float(alias(z, nZ)));
-
-            int idx = z * nX + x;
-
-            if (uniforms.dataLength > idx) {
-                float phil = phillips(k, max_l, L, wind_dir);
-                float real = rand(uniforms.seed * pid.x + z, uniforms.seed * pid.y + x, 1) * amplitude * sqrt(0.5 * phil);
-                float imag = rand(uniforms.seed * pid.y + x, 1, uniforms.seed * pid.x + z) * amplitude * sqrt(0.5 * phil);
 
 
-
-                distribution_real[idx] = real;
-                distribution_imag[idx] = imag;
-            }
-        }
-    }
+    
+//    for (int z = 0; z < nZ; z++) {
+//        for (int x = 0; x < nX; x++) {
+//            float2 k = mod * float2(float(alias(x, nX)), float(alias(z, nZ)));
+//
+//            int idx = z * nX + x;
+//
+//            if (uniforms.dataLength > idx) {
+//                float phil = phillips(k, max_l, L, wind_dir);
+//                float real = rand(uniforms.seed * pid.x + z, uniforms.seed * pid.y + x, 1) * amplitude * sqrt(0.5 * phil);
+//                float imag = rand(uniforms.seed * pid.y + x, 1, uniforms.seed * pid.x + z) * amplitude * sqrt(0.5 * phil);
+//
+//
+//
+//                distribution_real[idx] = real;
+//                distribution_imag[idx] = imag;
+//            }
+//        }
+//    }
 }
 
 kernel void compute_height(constant float3 &position [[ buffer(0) ]],

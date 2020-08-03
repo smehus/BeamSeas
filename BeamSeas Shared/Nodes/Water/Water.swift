@@ -49,6 +49,8 @@ extension Complex: CustomStringConvertible {
 class Water {
     var distribution_real: [Float]
     var distribution_imag: [Float]
+    var distribution_real_buffer: MTLBuffer!
+    var distribution_imag_buffer: MTLBuffer!
 
     private let wind_velocity: SIMD2<Float>
     private let wind_dir: SIMD2<Float>
@@ -90,7 +92,7 @@ class Water {
         var newamplitude = amplitude
         newamplitude *= 0.3 / sqrt(size.x * size.y)
 
-        let source = Distributions.Normal(m: 0, v: 1)
+//        let source = Distributions.Normal(m: 0, v: 1)
 
 
 //        distribution_real = distribution_real.map { _ in return Float(source.random()) }
@@ -98,6 +100,18 @@ class Water {
 
         generate_distribution(distribution_real: &distribution_real, distribution_imag: &distribution_imag, size: size, amplitude: newamplitude, max_l: 0.02)
 //        print(distribution_real)
+
+        distribution_real_buffer = Renderer.device.makeBuffer(
+            bytes: &distribution_real,
+            length: MemoryLayout<Float>.stride * halfN,
+            options: .storageModeShared
+        )!
+
+        distribution_imag_buffer = Renderer.device.makeBuffer(
+            bytes: &distribution_imag,
+            length: MemoryLayout<Float>.stride * halfN,
+            options: .storageModeShared
+        )!
     }
 
 

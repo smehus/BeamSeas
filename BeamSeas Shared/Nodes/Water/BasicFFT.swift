@@ -43,8 +43,7 @@ class BasicFFT: Node {
 //    let water: Water
     private let distributionPipelineState: MTLComputePipelineState
 //    private var randos: [float2]
-//    private var randomBuffer: MTLBuffer
-//    private var source: Water!
+    private var source: Water!
     private var seed: Int32 = 0
 
     override init() {
@@ -90,20 +89,20 @@ class BasicFFT: Node {
 
         distribution_real = real
         distribution_imag = imag
-//
-//        water = Water(
-//                 amplitude: 1,
-//                 wind_velocity: float2(x: 10, y: -10),
-//                 resolution: SIMD2<Int>(x: imgSize, y: imgSize),
-//                 size: float2(x: imgSize.float, y: imgSize.float),
-//                 normalmap_freq_mod: float2(repeating: 7.3)
-//             )
+
+        source = Water(
+                 amplitude: 1,
+                 wind_velocity: float2(x: 10, y: -10),
+                 resolution: SIMD2<Int>(x: imgSize, y: imgSize),
+                 size: float2(x: imgSize.float, y: imgSize.float),
+                 normalmap_freq_mod: float2(repeating: 7.3)
+             )
 
 //        let randomSource = Distributions.Normal(m: 0, v: 1)
-//        randos = (0..<n).map { _ in
+//        var randos = (0..<n).map { _ in
 //            float2(x: Float(randomSource.random()), y: Float(randomSource.random()))
 //        }
-//
+
 //        randomBuffer = Renderer.device.makeBuffer(bytes: &randos, length: MemoryLayout<float2>.stride * Int(n), options: .storageModeShared)!
 
         super.init()
@@ -194,6 +193,8 @@ extension BasicFFT: Renderable {
         computeEncoder.setBytes(&gausUniforms, length: MemoryLayout<GausUniforms>.stride, index: BufferIndex.gausUniforms.rawValue)
         computeEncoder.setBuffer(distribution_real, offset: 0, index: 0)
         computeEncoder.setBuffer(distribution_imag, offset: 0, index: 1)
+        computeEncoder.setBuffer(source.distribution_real_buffer, offset: 0, index: 2)
+        computeEncoder.setBuffer(source.distribution_imag_buffer, offset: 0, index: 3)
 //        computeEncoder.setBuffer(randomBuffer, offset: 0, index: 2)
 
         let w = pipelineState.threadExecutionWidth
