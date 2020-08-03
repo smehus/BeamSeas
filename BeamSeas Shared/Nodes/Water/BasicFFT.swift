@@ -91,7 +91,7 @@ class BasicFFT: Node {
         distribution_imag = imag
 
         source = Water(
-                 amplitude: 1,
+                 amplitude: 100000,
                  wind_velocity: float2(x: 0, y: -10),
                  resolution: SIMD2<Int>(x: imgSize, y: imgSize),
                  size: float2(x: imgSize.float, y: imgSize.float),
@@ -129,7 +129,7 @@ class BasicFFT: Node {
             if val != 0.0 {
 
 //                let t = ((val - (-1)) / ((1 - (-1)) * (1 - 0) + 0)
-
+//                val = val * 0.5 + 0.5
 //                print("*** VALUUUE \(val)")
             }
         }
@@ -266,17 +266,17 @@ extension BasicFFT: Renderable {
         renderEncoder.pushDebugGroup("FFT")
         renderEncoder.setRenderPipelineState(mainPipelineState)
 
-        //        position.y = 15
+        position.x = -0.75
+        position.y = 0.75
         //        rotation = [Float(90).degreesToRadians, 0, 0]
 
         uniforms.modelMatrix = modelMatrix
         renderEncoder.setVertexBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: BufferIndex.uniforms.rawValue)
-        renderEncoder.setFragmentTexture(Self.drawTexture, index: 8)
         //        renderEncoder.setVertexBytes(&viewPort, length: MemoryLayout<SIMD2<Float>>.stride, index: 22)
 
         var viewPort = SIMD2<Float>(x: Float(Renderer.metalView.drawableSize.width), y: Float(Renderer.metalView.drawableSize.height))
         renderEncoder.setFragmentBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: BufferIndex.uniforms.rawValue)
-        renderEncoder.setFragmentTexture(Self.drawTexture, index: 8)
+        renderEncoder.setFragmentTexture(Self.drawTexture, index: 0)
         renderEncoder.setFragmentTexture(testTexture, index: 1)
         renderEncoder.setFragmentBytes(&viewPort, length: MemoryLayout<SIMD2<Float>>.stride, index: 22)
 

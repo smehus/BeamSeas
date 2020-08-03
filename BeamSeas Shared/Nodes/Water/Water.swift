@@ -143,9 +143,9 @@ class Water {
 
                 if distribution_real.indices.contains(idx), distribution_imag.indices.contains(idx) {
 
-                    newReal = (newReal - -1) / (1 - -1) * (1 - 0) + 0
-                    newImag = (newImag - -1) / (1 - -1) * (1 - 0) + 0
-
+//                    newReal = (newReal - -1) / (1 - -1) * (1 - 0) + 0
+//                    newImag = (newImag - -1) / (1 - -1) * (1 - 0) + 0
+//                    print("*** new real \(newReal)")
                     distribution_real[idx] = newReal
                     distribution_imag[idx] = newImag
                 }

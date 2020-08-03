@@ -159,8 +159,9 @@ kernel void generate_distribution(constant GausUniforms &uniforms [[ buffer(Buff
     float2 res = (a + b); // Sum up forward and backwards travelling waves.
 //    heights[i.y * N.x + i.x] = pack2(res);
 
-//    res.x = (res.x - -1) / (1 - -1) * (1 - 0) + 0;
-//    res.y = (res.y - -1) / (1 - -1) * (1 - 0) + 0;
+//    res.x = (res.x - -3) / (3 - -3);
+//    res.y = (res.x - -3) / (3 - -3);
+
     if (index < uniforms.dataLength) {
         output_real[index] = res.x;
         output_imag[index] = res.y;
@@ -373,7 +374,7 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
     float3 secondarLocalNormal = normalize(secondaryNormalMap.sample(normalSampler, xy).xzy * 2.0f - 1.0f);
 
     float4 color = primaryColor;//mix(primaryColor, secondaryColor, 0.5);
-    float inverseColor = 1 - color.r;
+    float inverseColor = color.r;//1 - color.r;
     float height = (inverseColor * 2 - 1) * terrainParams.height;
     position.y = height;
 
@@ -416,15 +417,15 @@ vertex FFTVertexOut fft_vertex(const FFTVertexIn in [[ stage_in ]],
                                texture2d<float> noiseMap [[ texture(8) ]],
                                constant float2 &viewPort [[ buffer(22) ]]) {
     return {
-        .position = in.position,
-        .textureCoordinates = in.position.xy
+        .position = uniforms.modelMatrix * in.position,
+        .textureCoordinates =  in.position.xy
     };
 }
 
 fragment float4 fft_fragment(const FFTVertexOut in [[ stage_in ]],
                              constant Uniforms &uniforms [[ buffer(BufferIndexUniforms)]],
                              constant float2 &viewPort [[ buffer(22) ]],
-                             texture2d<float> noiseMap [[ texture(8) ]],
+                             texture2d<float> noiseMap [[ texture(0) ]],
                              texture2d<float> testMap [[ texture(1) ]]) {
     constexpr sampler sam;
 //    float2 normTex = in.textureCoordinates.xy;
@@ -458,6 +459,10 @@ kernel void fft_kernel(texture2d<float, access::write> output [[ texture(0) ]],
         uint index = tid.y * width + tid.x;
         float val = data[index];// * 2000000;
 
+//        if (val < 0.0) {
+//            output.write(float4(1.0, 0, 0, 1), tid);
+//            return;
+//        }
 //        float2 h_up  = float2(tid + uint2(0, 1));
 //        uint altindex = h_up.y * width + h_up.x;
 //        float altval = data[index - 1];

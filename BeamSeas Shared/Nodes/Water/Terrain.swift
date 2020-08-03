@@ -21,7 +21,7 @@ class Terrain: Node {
 
     static var terrainParams = TerrainParams(
         size: [150, 150],
-        height: 20,
+        height: 1,
         maxTessellation: UInt32(Terrain.maxTessellation),
         numberOfPatches: UInt32(Terrain.patchNum * Terrain.patchNum)
     )
