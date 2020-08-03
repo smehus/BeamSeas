@@ -50,7 +50,7 @@ class BasicFFT: Node {
         testTexture = Self.loadTexture(imageName: "gaussian_noise_5", path: "png")
 
         let allocator = MTKMeshBufferAllocator(device: Renderer.device)
-        let prim = MDLMesh(planeWithExtent: [0.5, 1, 0], segments: [4, 4], geometryType: .triangles, allocator: allocator)
+        let prim = MDLMesh(planeWithExtent: [0.5, 0.5, 0], segments: [4, 4], geometryType: .triangles, allocator: allocator)
         model = try! MTKMesh(mesh: prim, device: Renderer.device)
 
         let log2n = vDSP_Length(log2(Float(n)))
@@ -91,10 +91,10 @@ class BasicFFT: Node {
         distribution_imag = imag
 
         source = Water(
-                 amplitude: 100000,
-                 wind_velocity: float2(x: 0, y: -10),
+                 amplitude: 50000,
+                 wind_velocity: float2(x: -10, y: -10),
                  resolution: SIMD2<Int>(x: imgSize, y: imgSize),
-                 size: float2(x: imgSize.float / 2, y: imgSize.float / 2),
+                 size: float2(x: imgSize.float, y: imgSize.float),
                  normalmap_freq_mod: float2(repeating: 7.3)
              )
 
@@ -274,7 +274,7 @@ extension BasicFFT: Renderable {
         renderEncoder.setVertexBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: BufferIndex.uniforms.rawValue)
         //        renderEncoder.setVertexBytes(&viewPort, length: MemoryLayout<SIMD2<Float>>.stride, index: 22)
 
-        var viewPort = SIMD2<Float>(x: Float(Renderer.metalView.drawableSize.width), y: Float(Renderer.metalView.drawableSize.height))
+        var viewPort = SIMD2<Float>(x: Float(Renderer.metalView.drawableSize.width / 4), y: Float(Renderer.metalView.drawableSize.height / 4))
         renderEncoder.setFragmentBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: BufferIndex.uniforms.rawValue)
         renderEncoder.setFragmentTexture(Self.drawTexture, index: 0)
         renderEncoder.setFragmentTexture(testTexture, index: 1)
