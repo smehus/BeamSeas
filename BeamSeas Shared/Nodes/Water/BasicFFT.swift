@@ -37,8 +37,6 @@ class BasicFFT: Node {
     private let fft: vDSP.FFT<DSPSplitComplex>
     private let model: MTKMesh
     private let testTexture: MTLTexture
-//    let n = vDSP_Length(262144)
-    let n = vDSP_Length(65536)
     let imgSize: Int = 256
 //    let water: Water
     private let distributionPipelineState: MTLComputePipelineState
@@ -53,7 +51,7 @@ class BasicFFT: Node {
         let prim = MDLMesh(planeWithExtent: [0.5, 0.5, 0], segments: [4, 4], geometryType: .triangles, allocator: allocator)
         model = try! MTKMesh(mesh: prim, device: Renderer.device)
 
-        let log2n = vDSP_Length(log2(Float(n)))
+        let log2n = vDSP_Length(log2(Float((imgSize * imgSize))))
         fft = vDSP.FFT(log2n: log2n, radix: .radix2, ofType: DSPSplitComplex.self)!
 
         let texDesc = MTLTextureDescriptor()
@@ -76,13 +74,9 @@ class BasicFFT: Node {
 
         mainPipelineState = try! Renderer.device.makeRenderPipelineState(descriptor: mainPipeDescriptor)
 
-        let halfN = Int(n / 2)
-//        var real = [Float](repeating: 1, count: halfN)
-
-        var r = Array(repeating: 0.0, count: halfN)
         guard
-            let real = Renderer.device.makeBuffer(length: MemoryLayout<Float>.stride * halfN, options: .storageModeShared),
-            let imag  = Renderer.device.makeBuffer(length: MemoryLayout<Float>.stride * halfN, options: .storageModeShared)
+            let real = Renderer.device.makeBuffer(length: MemoryLayout<Float>.stride * Int((imgSize * imgSize) * 2), options: .storageModeShared),
+            let imag  = Renderer.device.makeBuffer(length: MemoryLayout<Float>.stride * Int((imgSize * imgSize) * 2), options: .storageModeShared)
         else {
             fatalError()
         }
@@ -92,9 +86,9 @@ class BasicFFT: Node {
 
         source = Water(
                  amplitude: 30000,
-                 wind_velocity: float2(x: -10, y: -10),
+                 wind_velocity: float2(x: 10, y: -10),
                  resolution: SIMD2<Int>(x: imgSize, y: imgSize),
-                 size: float2(x: imgSize.float / 2, y: imgSize.float / 2),
+                 size: float2(x: imgSize.float, y: imgSize.float),
                  normalmap_freq_mod: float2(repeating: 7.3)
              )
 
@@ -111,43 +105,25 @@ class BasicFFT: Node {
 
     func runfft(phase: Float) {
 
-        let halfN = Int(n / 2)
+//        let halfN = Int((imgSize * imgSize) / 2)
 
-        var inverseOutputReal = [Float](repeating: 0, count: halfN)
-        var inverseOutputImag = [Float](repeating: 0, count: halfN)
+        var inverseOutputReal = [Float](repeating: 0, count: imgSize * imgSize)
+        var inverseOutputImag = [Float](repeating: 0, count: imgSize * imgSize)
 
-        var inputReal = [Float](repeating: 0, count: halfN)
-        var inputImag = [Float](repeating: 0, count: halfN)
+        var inputReal = [Float](repeating: 0, count: imgSize * imgSize)
+        var inputImag = [Float](repeating: 0, count: imgSize * imgSize)
 
-        var realPointer = distribution_real.contents().bindMemory(to: Float.self, capacity: halfN)
-        var imagPointer = distribution_imag.contents().bindMemory(to: Float.self, capacity: halfN)
+        var realPointer = distribution_real.contents().bindMemory(to: Float.self, capacity: imgSize * imgSize)
+        var imagPointer = distribution_imag.contents().bindMemory(to: Float.self, capacity: imgSize * imgSize)
 
-        var realSourcePointer = source.distribution_real_buffer.contents().bindMemory(to: Float.self, capacity: halfN)
-        var imagSourcePointer = source.distribution_imag_buffer.contents().bindMemory(to: Float.self, capacity: halfN)
 
-        for var val in UnsafeBufferPointer(start: realSourcePointer, count: halfN) {
-            if val != 0.0 {
-
-//                let t = ((val - (-1)) / ((1 - (-1)) * (1 - 0) + 0)
-//                val = val * 0.5 + 0.5
-//                print("*** VALUUUE \(val)")
-            }
-        }
-
-        for index in 0..<halfN {
-
-//            if index == 8 {
-//                print("*** source \(realPointer.pointee) modified \(realSourcePointer.pointee)")
-//            }
+        for index in 0..<(imgSize * imgSize) {
 
             inputReal[index] = realPointer.pointee
             inputImag[index] = imagPointer.pointee
 
             realPointer = realPointer.advanced(by: 1)
             imagPointer = imagPointer.advanced(by: 1)
-
-            realSourcePointer = realSourcePointer.advanced(by: 1)
-            imagSourcePointer = imagSourcePointer.advanced(by: 1)
         }
 
         let recreatedSignal: [Float] =
@@ -169,10 +145,10 @@ class BasicFFT: Node {
                                         output: &inverseOutput)
 
                             // 4: Return an array of real values from the FFT result.
-                            let scale = 1 / Float(n * 2)
+                            let scale = 1 / Float((imgSize * imgSize) * 2)
                             return [Float](fromSplitComplex: inverseOutput,
                                            scale: scale,
-                                           count: Int(n))
+                                           count: Int(imgSize * imgSize))
                         }
                     }
                 }
@@ -198,7 +174,7 @@ extension BasicFFT: Renderable {
     func generateDistributions(computeEncoder: MTLComputeCommandEncoder, uniforms: Uniforms) {
         computeEncoder.pushDebugGroup("FFT-Distribution")
         var gausUniforms = GausUniforms(
-            dataLength: Int32(n / 2),
+            dataLength: Int32(imgSize * imgSize),
             amplitude: 1,
             wind_velocity: vector_float2(x: 10, y: -10),
             resolution: vector_uint2(x: imgSize.unsigned, y: imgSize.unsigned),
@@ -224,9 +200,9 @@ extension BasicFFT: Renderable {
         let h = pipelineState.maxTotalThreadsPerThreadgroup / w
         let threadGroupSize = MTLSizeMake(w, h, 1)
 
-        var threadgroupCount = MTLSizeMake(16, 16, 1)
-        threadgroupCount.width = imgSize//(Self.drawTexture.width + threadGroupSize.width - 1) / threadGroupSize.width
-        threadgroupCount.height = imgSize//(Self.drawTexture.height + threadGroupSize.height - 1) / threadGroupSize.height
+        var threadgroupCount = MTLSizeMake(1, 1, 1)
+        threadgroupCount.width = imgSize//(imgSize + threadGroupSize.width - 1) / threadGroupSize.width
+        threadgroupCount.height = imgSize//(imgSize + threadGroupSize.height - 1) / threadGroupSize.height
 
         computeEncoder.dispatchThreads(threadgroupCount,
                                        threadsPerThreadgroup: threadGroupSize)

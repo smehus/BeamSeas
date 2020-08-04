@@ -81,7 +81,7 @@ class Water {
         self.size_normal = size / normalmap_freq_mod
 
         let n = vDSP_Length(Nx * Nz)
-        let halfN = Int(n / 2)
+        let halfN = Int(n)
 
         // Factor in phillips spectrum
         L = simd_dot(wind_velocity, wind_velocity) / Self.G;

@@ -127,8 +127,9 @@ kernel void generate_distribution(constant GausUniforms &uniforms [[ buffer(Buff
 
 
 //    // Pick out positive and negative travelling waves.
-    uint index = pid.y * width + pid.x;
-    uint bIndex = wi.y * width + wi.x;
+
+    int index = (int)pid.y * width + pid.x;
+    int bIndex =  (int)wi.y * width + wi.x;
 
     float a1 = input_real[index];
     float a2 = input_imag[index];
@@ -162,11 +163,8 @@ kernel void generate_distribution(constant GausUniforms &uniforms [[ buffer(Buff
 //    res.x = (res.x - -3) / (3 - -3);
 //    res.y = (res.x - -3) / (3 - -3);
 
-    if (index < uniforms.dataLength) {
-        output_real[index] = res.x;
-        output_imag[index] = res.y;
-    }
-
+    output_real[index] = res.x;
+    output_imag[bIndex] = res.y;
 }
 
 kernel void compute_height(constant float3 &position [[ buffer(0) ]],
