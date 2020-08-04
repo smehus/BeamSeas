@@ -23,7 +23,7 @@ struct TerrainVertexOut {
 
 struct FFTVertexOut {
     float4 position [[ position ]];
-    float2 textureCoordinates [[ flat ]];
+    float2 textureCoordinates;
 };
 
 struct FFTVertexIn {
@@ -358,7 +358,7 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
 
     // Changing this to filter linear smoothes out the texture
     // Which ends up smoothing out the rendering
-    constexpr sampler sample(filter::linear);
+    constexpr sampler sample(filter::linear, min_filter::linear, mag_filter::linear);
     constexpr sampler normalSampler(min_filter::linear, mag_filter::linear);
 
 

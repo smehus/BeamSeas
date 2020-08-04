@@ -91,10 +91,10 @@ class BasicFFT: Node {
         distribution_imag = imag
 
         source = Water(
-                 amplitude: 50000,
+                 amplitude: 30000,
                  wind_velocity: float2(x: -10, y: -10),
                  resolution: SIMD2<Int>(x: imgSize, y: imgSize),
-                 size: float2(x: imgSize.float, y: imgSize.float),
+                 size: float2(x: imgSize.float / 2, y: imgSize.float / 2),
                  normalmap_freq_mod: float2(repeating: 7.3)
              )
 

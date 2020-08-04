@@ -11,7 +11,7 @@ import MetalPerformanceShaders
 
 class Terrain: Node {
 
-    static let maxTessellation = 64
+    static let maxTessellation = 16
     static var heightMapName = "simuwater"
     static var alterHeightMapName = "Heightmap_Plateau"
     static var normalMapTexture: MTLTexture!
@@ -20,7 +20,7 @@ class Terrain: Node {
     static var secondarySlopeMap: MTLTexture!
 
     static var terrainParams = TerrainParams(
-        size: [500, 500],
+        size: [256, 256],
         height: 10,
         maxTessellation: UInt32(Terrain.maxTessellation),
         numberOfPatches: UInt32(Terrain.patchNum * Terrain.patchNum)
@@ -33,12 +33,12 @@ class Terrain: Node {
         return patches.horizontal * patches.vertical
     }
 
-    var edgeFactors: [Float] = [16]
-    var insideFactors: [Float] = [16]
+    var edgeFactors: [Float] = [8]
+    var insideFactors: [Float] = [8]
     var allPatches: [Patch] = []
 
     lazy var tessellationFactorsBuffer: MTLBuffer? = {
-        let count = patchCount * (4 + 2)
+        let count = patchCount * (8 + 2)
         let size = count * MemoryLayout<Float>.size / 2
         return Renderer.device.makeBuffer(length: size, options: .storageModePrivate)
     }()
@@ -295,6 +295,7 @@ extension Terrain: Renderable {
             index: BufferIndex.fragmentUniforms.rawValue
         )
 
+//        renderEncoder.setTriangleFillMode(.lines)
         renderEncoder.drawPatches(
             numberOfPatchControlPoints: 4,
             patchStart: 0,
