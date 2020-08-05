@@ -71,7 +71,8 @@ class Water {
         wind_velocity: SIMD2<Float>,
         resolution: SIMD2<Int>,
         size: SIMD2<Float>,
-        normalmap_freq_mod: SIMD2<Float>
+        normalmap_freq_mod: SIMD2<Float>,
+        max_l: Float
     ) {
         self.wind_velocity = wind_velocity
         self.wind_dir = normalize(wind_velocity)
@@ -98,7 +99,7 @@ class Water {
 //        distribution_real = distribution_real.map { _ in return Float(source.random()) }
 //        distribution_imag = distribution_imag.map { _ in return Float(source.random()) }
 
-        generate_distribution(distribution_real: &distribution_real, distribution_imag: &distribution_imag, size: size, amplitude: newamplitude, max_l: 0.1)
+        generate_distribution(distribution_real: &distribution_real, distribution_imag: &distribution_imag, size: size, amplitude: newamplitude, max_l: max_l)
 //        print(distribution_real)
 
         distribution_real_buffer = Renderer.device.makeBuffer(

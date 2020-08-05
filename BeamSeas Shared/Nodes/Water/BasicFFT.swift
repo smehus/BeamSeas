@@ -75,8 +75,8 @@ class BasicFFT: Node {
         mainPipelineState = try! Renderer.device.makeRenderPipelineState(descriptor: mainPipeDescriptor)
 
         guard
-            let real = Renderer.device.makeBuffer(length: MemoryLayout<Float>.stride * Int((imgSize * imgSize) * 2), options: .storageModeShared),
-            let imag  = Renderer.device.makeBuffer(length: MemoryLayout<Float>.stride * Int((imgSize * imgSize) * 2), options: .storageModeShared)
+            let real = Renderer.device.makeBuffer(length: MemoryLayout<Float>.stride * Int(imgSize * imgSize), options: .storageModeShared),
+            let imag  = Renderer.device.makeBuffer(length: MemoryLayout<Float>.stride * Int(imgSize * imgSize), options: .storageModeShared)
         else {
             fatalError()
         }
@@ -85,12 +85,13 @@ class BasicFFT: Node {
         distribution_imag = imag
 
         source = Water(
-                 amplitude: 30000,
-                 wind_velocity: float2(x: 10, y: -10),
+                 amplitude: 10000,
+                 wind_velocity: float2(x: 15, y: -15),
                  resolution: SIMD2<Int>(x: imgSize, y: imgSize),
                  size: float2(x: imgSize.float, y: imgSize.float),
-                 normalmap_freq_mod: float2(repeating: 7.3)
-             )
+                 normalmap_freq_mod: float2(repeating: 7.3),
+                 max_l: 4.0
+        )
 
 //        let randomSource = Distributions.Normal(m: 0, v: 1)
 //        var randos = (0..<n).map { _ in
@@ -198,7 +199,7 @@ extension BasicFFT: Renderable {
 
         let w = pipelineState.threadExecutionWidth
         let h = pipelineState.maxTotalThreadsPerThreadgroup / w
-        let threadGroupSize = MTLSizeMake(w, h, 1)
+        let threadGroupSize = MTLSizeMake(16, 16, 1)
 
         var threadgroupCount = MTLSizeMake(1, 1, 1)
         threadgroupCount.width = imgSize//(imgSize + threadGroupSize.width - 1) / threadGroupSize.width

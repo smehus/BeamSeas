@@ -148,7 +148,7 @@ kernel void generate_distribution(constant GausUniforms &uniforms [[ buffer(Buff
     // and quantizing w such that wrapping uTime does not change the result.
     // See Tessendorf's paper for how to do it.
     // The sqrt(G * k_len) factor represents how fast ocean waves at different frequencies propagate.
-    float w = sqrt(G * k_len) * (mainUniforms.deltaTime * 0.001);
+    float w = sqrt(G * k_len) * (mainUniforms.deltaTime * 0.003);
     float cw = cos(w);
     float sw = sin(w);
 
