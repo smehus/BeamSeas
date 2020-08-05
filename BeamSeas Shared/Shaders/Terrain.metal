@@ -356,8 +356,8 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
 
     // Changing this to filter linear smoothes out the texture
     // Which ends up smoothing out the rendering
-    constexpr sampler sample(filter::linear, min_filter::linear, mag_filter::linear);
-    constexpr sampler normalSampler(min_filter::linear, mag_filter::linear);
+    constexpr sampler sample(filter::linear);
+    constexpr sampler normalSampler(filter::linear);
 
 
     // Can i just combine the two textures so I don't have to do this big dance
@@ -372,7 +372,7 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
     float3 secondarLocalNormal = normalize(secondaryNormalMap.sample(normalSampler, xy).xzy * 2.0f - 1.0f);
 
     float4 color = primaryColor;//mix(primaryColor, secondaryColor, 0.5);
-    float inverseColor = color.r;//1 - color.r;
+    float inverseColor = 1 - color.r;
     float height = (inverseColor * 2 - 1) * terrainParams.height;
     position.y = height;
 
@@ -395,7 +395,7 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
 {
 
     float3 d = terrainDiffuseLighting(fragment_in.normal, fragment_in.position.xyz, fragmentUniforms, lights, fragment_in.color.rgb);
-    return float4(d, 1);
+    return float4(d, 1.0);
 }
 
 
@@ -512,8 +512,8 @@ kernel void TerrainKnl_ComputeNormalsFromHeightmap(texture2d<float> height [[tex
 
 //    constexpr sampler sam(filter::linear);
 //    float xz_scale = TERRAIN_SCALE / height.get_width();
-    float xz_scale = terrain.size.x / height.get_width();
-    float y_scale = terrain.height;
+    float xz_scale = 2;//terrain.size.x / height.get_width();
+    float y_scale = 5;//terrain.height;
 
 
     if (tid.x < height.get_width() && tid.y < height.get_height()) {
@@ -529,8 +529,8 @@ kernel void TerrainKnl_ComputeNormalsFromHeightmap(texture2d<float> height [[tex
         float3 v_up    = float3( 0,        (h_up    - h_center) * y_scale,  xz_scale);
         float3 v_down  = float3( 0,        (h_down  - h_center) * y_scale, -xz_scale);
         // switched h_right & h_center to accomodate for map weirdness
-        float3 v_right = float3( xz_scale, (h_center - h_right) * y_scale,  0);
-        float3 v_left  = float3(-xz_scale, (h_center - h_left) * y_scale,  0);
+        float3 v_right = float3( xz_scale, (h_right - h_center) * y_scale,  0);
+        float3 v_left  = float3(-xz_scale, (h_left - h_center) * y_scale,  0);
 
         float3 n0 = cross(v_up, v_right);
         float3 n1 = cross(v_left, v_up);
