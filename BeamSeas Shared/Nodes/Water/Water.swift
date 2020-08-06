@@ -52,6 +52,11 @@ class Water {
     var distribution_real_buffer: MTLBuffer!
     var distribution_imag_buffer: MTLBuffer!
 
+    var distribution_displacement_real: [Float]
+    var distribution_displacement_imag: [Float]
+    var distribution_displacement_real_buffer: MTLBuffer!
+    var distribution_displacement_imag_buffer: MTLBuffer!
+
     private let wind_velocity: SIMD2<Float>
     private let wind_dir: SIMD2<Float>
     private let Nx: Int
@@ -82,35 +87,29 @@ class Water {
         self.size_normal = size / normalmap_freq_mod
 
         let n = vDSP_Length(Nx * Nz)
-        let halfN = Int(n)
+        var newamplitude = amplitude
+        newamplitude *= 0.3 / sqrt(size.x * size.y)
 
         // Factor in phillips spectrum
         L = simd_dot(wind_velocity, wind_velocity) / Self.G;
 
-        distribution_real = [Float](repeating: 0, count: halfN)
-        distribution_imag = [Float](repeating: 0, count: halfN)
+        distribution_real = [Float](repeating: 0, count: Int(n))
+        distribution_imag = [Float](repeating: 0, count: Int(n))
 
-        var newamplitude = amplitude
-        newamplitude *= 0.3 / sqrt(size.x * size.y)
-
-//        let source = Distributions.Normal(m: 0, v: 1)
-
-
-//        distribution_real = distribution_real.map { _ in return Float(source.random()) }
-//        distribution_imag = distribution_imag.map { _ in return Float(source.random()) }
+        distribution_displacement_real = [Float](repeating: 0, count: Int(n))
+        distribution_displacement_imag = [Float](repeating: 0, count: Int(n))
 
         generate_distribution(distribution_real: &distribution_real, distribution_imag: &distribution_imag, size: size, amplitude: newamplitude, max_l: max_l)
-//        print(distribution_real)
 
         distribution_real_buffer = Renderer.device.makeBuffer(
             bytes: &distribution_real,
-            length: MemoryLayout<Float>.stride * halfN,
+            length: MemoryLayout<Float>.stride * Int(n),
             options: .storageModeShared
         )!
 
         distribution_imag_buffer = Renderer.device.makeBuffer(
             bytes: &distribution_imag,
-            length: MemoryLayout<Float>.stride * halfN,
+            length: MemoryLayout<Float>.stride * Int(n),
             options: .storageModeShared
         )!
     }

@@ -30,6 +30,9 @@ class BasicFFT: Node {
     var distribution_real: MTLBuffer
     var distribution_imag: MTLBuffer
 
+    var distribution_displacement_real: MTLBuffer
+    var distributiion_displacement_imag: MTLBuffer
+
 
     private let pipelineState: MTLComputePipelineState
     private let mainPipelineState: MTLRenderPipelineState
@@ -79,13 +82,17 @@ class BasicFFT: Node {
 
         guard
             let real = Renderer.device.makeBuffer(length: MemoryLayout<Float>.stride * Int(BasicFFT.imgSize * BasicFFT.imgSize), options: .storageModeShared),
-            let imag  = Renderer.device.makeBuffer(length: MemoryLayout<Float>.stride * Int(BasicFFT.imgSize * BasicFFT.imgSize), options: .storageModeShared)
+            let imag  = Renderer.device.makeBuffer(length: MemoryLayout<Float>.stride * Int(BasicFFT.imgSize * BasicFFT.imgSize), options: .storageModeShared),
+            let displacement_real  = Renderer.device.makeBuffer(length: MemoryLayout<Float>.stride * Int(BasicFFT.imgSize * BasicFFT.imgSize), options: .storageModeShared),
+            let displacement_imag  = Renderer.device.makeBuffer(length: MemoryLayout<Float>.stride * Int(BasicFFT.imgSize * BasicFFT.imgSize), options: .storageModeShared)
         else {
             fatalError()
         }
 
         distribution_real = real
         distribution_imag = imag
+        distribution_displacement_real = displacement_real
+        distributiion_displacement_imag = displacement_imag
 
         source = Water(
                  amplitude: 10000,

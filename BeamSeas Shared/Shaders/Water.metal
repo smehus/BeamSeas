@@ -138,6 +138,20 @@ kernel void generate_distribution(constant GausUniforms &uniforms [[ buffer(Buff
     output_imag[bIndex] = res.y;
 }
 
+kernel void generate_displacement(constant GausUniforms &uniforms [[ buffer(BufferIndexGausUniforms) ]],
+                                  constant Uniforms &mainUniforms [[ buffer(BufferIndexUniforms) ]],
+                                  device float *output_real [[ buffer(12) ]],
+                                  device float *output_imag [[ buffer(13) ]],
+                                  texture2d<float> drawTexture [[ texture(0) ]],
+                                  device float *input_real [[ buffer(14) ]],
+                                  device float *input_imag [[ buffer(15) ]],
+                                  uint2 pid [[ thread_position_in_grid ]])
+{
+
+    // Well what am i doing here now
+
+}
+
 vertex FFTVertexOut fft_vertex(const FFTVertexIn in [[ stage_in ]],
                                constant Uniforms &uniforms [[ buffer(BufferIndexUniforms) ]],
                                texture2d<float> noiseMap [[ texture(8) ]],
