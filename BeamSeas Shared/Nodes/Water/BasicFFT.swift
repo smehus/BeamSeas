@@ -31,22 +31,24 @@ class BasicFFT: Node {
     var distribution_imag: MTLBuffer
 
     var distribution_displacement_real: MTLBuffer
-    var distributiion_displacement_imag: MTLBuffer
+    var distribution_displacement_imag: MTLBuffer
 
 
     private let pipelineState: MTLComputePipelineState
     private let mainPipelineState: MTLRenderPipelineState
+
     static var drawTexture: MTLTexture!
+
     private var dataBuffer: MTLBuffer!
+    private var displacementBuffer: MTLBuffer!
 
 
     private let fft: vDSP.FFT<DSPSplitComplex>
     private let model: MTKMesh
     private let testTexture: MTLTexture
 
-//    let water: Water
     private let distributionPipelineState: MTLComputePipelineState
-//    private var randos: [float2]
+    private let displacementPipelineState: MTLComputePipelineState
     private var source: Water!
     private var seed: Int32 = 0
 
@@ -68,8 +70,10 @@ class BasicFFT: Node {
         //        texDesc.mipmapLevelCount = Int(log2(Double(max(Terrain.normalMapTexture.width, Terrain.normalMapTexture.height))) + 1);
         texDesc.storageMode = .private
         Self.drawTexture = Renderer.device.makeTexture(descriptor: texDesc)!
+
         pipelineState = Self.buildComputePipelineState(shader: "fft_kernel")
         distributionPipelineState = Self.buildComputePipelineState(shader: "generate_distribution")
+        displacementPipelineState = Self.buildComputePipelineState(shader: "generate_displacement")
 
         let mainPipeDescriptor = MTLRenderPipelineDescriptor()
         mainPipeDescriptor.colorAttachments[0].pixelFormat = .bgra8Unorm
@@ -92,7 +96,7 @@ class BasicFFT: Node {
         distribution_real = real
         distribution_imag = imag
         distribution_displacement_real = displacement_real
-        distributiion_displacement_imag = displacement_imag
+        distribution_displacement_imag = displacement_imag
 
         source = Water(
                  amplitude: 10000,
@@ -219,12 +223,20 @@ extension BasicFFT: Renderable {
                                        threadsPerThreadgroup: threadGroupSize)
         computeEncoder.popDebugGroup()
 
-
-        if seed >= Int32.max {
-            seed = 0
-        } else {
-            seed += 1
-        }
+//
+//        computeEncoder.pushDebugGroup("FFT-Displacement")
+//
+//        computeEncoder.setComputePipelineState(displacementPipelineState)
+//        computeEncoder.setBuffer(distribution_displacement_real, offset: 0, index: 12)
+//        computeEncoder.setBuffer(distribution_displacement_imag, offset: 0, index: 13)
+//
+//        computeEncoder.setBuffer(source.distribution_displacement_real_buffer, offset: 0, index: 14)
+//        computeEncoder.setBuffer(source.distribution_displacement_imag_buffer, offset: 0, index: 15)
+//
+//        computeEncoder.dispatchThreads(threadgroupCount,
+//                                       threadsPerThreadgroup: threadGroupSize)
+//
+//        computeEncoder.popDebugGroup()
     }
 
     // Not used for normals but i'm creating a texture so what the hell
