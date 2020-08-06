@@ -85,6 +85,8 @@
 		02419D73249850C100BCB203 /* ShaderTypes.h in Resources */ = {isa = PBXBuildFile; fileRef = 02419D4C249850BF00BCB203 /* ShaderTypes.h */; };
 		02419D7F249851C700BCB203 /* Math.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02419D7E249851C700BCB203 /* Math.swift */; };
 		02419D80249851C700BCB203 /* Math.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02419D7E249851C700BCB203 /* Math.swift */; };
+		02482E6B24DC4C750000B762 /* Water.metal in Sources */ = {isa = PBXBuildFile; fileRef = 02482E6A24DC4C750000B762 /* Water.metal */; };
+		02482E6C24DC4C750000B762 /* Water.metal in Sources */ = {isa = PBXBuildFile; fileRef = 02482E6A24DC4C750000B762 /* Water.metal */; };
 		02491AC924D21B170091395A /* BasicFFT.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02491AC824D21B170091395A /* BasicFFT.swift */; };
 		02491ACA24D21B170091395A /* BasicFFT.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02491AC824D21B170091395A /* BasicFFT.swift */; };
 		024B76CF249A8D290030B123 /* Light.swift in Sources */ = {isa = PBXBuildFile; fileRef = 024B76CE249A8D290030B123 /* Light.swift */; };
@@ -155,6 +157,7 @@
 		02419D6B249850C100BCB203 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		02419D6D249850C100BCB203 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		02419D7E249851C700BCB203 /* Math.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Math.swift; sourceTree = "<group>"; };
+		02482E6A24DC4C750000B762 /* Water.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Water.metal; sourceTree = "<group>"; };
 		02491ABB24D128100091395A /* Water.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Water.swift; sourceTree = "<group>"; };
 		02491AC824D21B170091395A /* BasicFFT.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BasicFFT.swift; sourceTree = "<group>"; };
 		024B76CE249A8D290030B123 /* Light.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Light.swift; sourceTree = "<group>"; };
@@ -278,6 +281,7 @@
 				02419D4C249850BF00BCB203 /* ShaderTypes.h */,
 				02419D4A249850BF00BCB203 /* Shaders.metal */,
 				022B51E024B0E33B00FC5C81 /* Terrain.metal */,
+				02482E6A24DC4C750000B762 /* Water.metal */,
 			);
 			path = Shaders;
 			sourceTree = "<group>";
@@ -507,6 +511,7 @@
 				02419D6E249850C100BCB203 /* Shaders.metal in Sources */,
 				0299535D249A64D90014228F /* Camera.swift in Sources */,
 				02419D58249850C100BCB203 /* ViewControllerExtension.swift in Sources */,
+				02482E6B24DC4C750000B762 /* Water.metal in Sources */,
 				02E46DB224AC2D420055167A /* Terrain.swift in Sources */,
 				024B76CF249A8D290030B123 /* Light.swift in Sources */,
 				020F9865249A757C00DB4850 /* ViewController.swift in Sources */,
@@ -537,6 +542,7 @@
 				02419D6F249850C100BCB203 /* Shaders.metal in Sources */,
 				0299535E249A64D90014228F /* Camera.swift in Sources */,
 				02419D69249850C100BCB203 /* ViewControllerExtension.swift in Sources */,
+				02482E6C24DC4C750000B762 /* Water.metal in Sources */,
 				02E46DB324AC2D420055167A /* Terrain.swift in Sources */,
 				024B76D0249A8D290030B123 /* Light.swift in Sources */,
 				020F9866249A757C00DB4850 /* ViewController.swift in Sources */,
