@@ -116,6 +116,7 @@ kernel void generate_distribution(constant GausUniforms &uniforms [[ buffer(Buff
 
     float2 uMod = float2(2.0 * M_PI_F) / uniforms.size;
 
+
     float2 k = uMod * vecAlias(pid, uint2(width, height));
     float k_len = length(k);
     // If this sample runs for hours on end, the cosines of very large numbers will eventually become unstable.
@@ -145,10 +146,43 @@ kernel void generate_displacement(constant GausUniforms &uniforms [[ buffer(Buff
                                   texture2d<float> drawTexture [[ texture(0) ]],
                                   device float *input_real [[ buffer(14) ]],
                                   device float *input_imag [[ buffer(15) ]],
-                                  uint2 pid [[ thread_position_in_grid ]])
+                                  uint2 i [[ thread_position_in_grid ]])
 {
 
-    // Well what am i doing here now
+    uint2 N = 16 * 16;
+    float2 uMod = float2(2.0 * M_PI_F) / uniforms.size;
+    int width = drawTexture.get_width();
+    int height = drawTexture.get_height();
+
+    uint2 wi = uint2(mix(float2(N - i),
+                    float2(0u),
+                    float2(i == uint2(0u))));
+
+    float aReal = input_real[i.y * N.x + i.x];
+    float aImag = input_imag[i.y * N.x + i.x];
+    float2 a = float2(aReal, aImag);
+
+    float bReal = input_real[wi.y * N.x + wi.x];
+    float bImag = input_imag[wi.y * N.x + wi.x];
+    float2 b = float2(bReal, bImag);
+
+    float2 k = uMod * vecAlias(i, uint2(width, height));
+    float k_len = length(k);
+
+    const float G = 9.81;
+    float w = sqrt(G * k_len) * (mainUniforms.deltaTime * 0.003); // Do phase accumulation later ...
+
+    float cw = cos(w);
+    float sw = sin(w);
+
+    a = cmul(a, float2(cw, sw));
+    b = cmul(b, float2(cw, sw));
+    b = float2(b.x, -b.y);
+    float2 res = a + b;
+
+    float2 grad = cmul(res, float2(-k.y / (k_len + 0.00001), k.x / (k_len + 0.00001)));
+    output_real[i.y * N.x + i.x] = grad.x;
+    output_imag[i.y * N.x + i.x] = grad.y;
 
 }
 
