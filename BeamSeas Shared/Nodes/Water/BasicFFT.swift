@@ -119,20 +119,25 @@ class BasicFFT: Node {
     } // init
 
     func runfft(phase: Float) {
+        let recreatedSignal = runfft(real: distribution_real, imag: distribution_imag, count: source.distribution_real.count)
+        dataBuffer = Renderer.device.makeBuffer(bytes: recreatedSignal, length: MemoryLayout<Float>.stride * recreatedSignal.count, options: [])
+    }
+
+    private func runfft(real: MTLBuffer, imag: MTLBuffer, count: Int)  -> [Float] {
 
 //        let halfN = Int((BasicFFT.imgSize * BasicFFT.imgSize) / 2)
 
-        var inverseOutputReal = [Float](repeating: 0, count: BasicFFT.imgSize * BasicFFT.imgSize)
-        var inverseOutputImag = [Float](repeating: 0, count: BasicFFT.imgSize * BasicFFT.imgSize)
+        var inverseOutputReal = [Float](repeating: 0, count: count)
+        var inverseOutputImag = [Float](repeating: 0, count: count)
 
-        var inputReal = [Float](repeating: 0, count: BasicFFT.imgSize * BasicFFT.imgSize)
-        var inputImag = [Float](repeating: 0, count: BasicFFT.imgSize * BasicFFT.imgSize)
+        var inputReal = [Float](repeating: 0, count: count)
+        var inputImag = [Float](repeating: 0, count: count)
 
-        var realPointer = distribution_real.contents().bindMemory(to: Float.self, capacity: BasicFFT.imgSize * BasicFFT.imgSize)
-        var imagPointer = distribution_imag.contents().bindMemory(to: Float.self, capacity: BasicFFT.imgSize * BasicFFT.imgSize)
+        var realPointer = real.contents().bindMemory(to: Float.self, capacity: count)
+        var imagPointer = imag.contents().bindMemory(to: Float.self, capacity: count)
 
 
-        for index in 0..<(BasicFFT.imgSize * BasicFFT.imgSize) {
+        for index in 0..<(count) {
 
             inputReal[index] = realPointer.pointee
             inputImag[index] = imagPointer.pointee
@@ -160,17 +165,17 @@ class BasicFFT: Node {
                                         output: &inverseOutput)
 
                             // 4: Return an array of real values from the FFT result.
-                            let scale = 1 / Float((BasicFFT.imgSize * BasicFFT.imgSize) * 2)
+                            let scale = 1 / Float((count) * 2)
                             return [Float](fromSplitComplex: inverseOutput,
                                            scale: scale,
-                                           count: Int(BasicFFT.imgSize * BasicFFT.imgSize))
+                                           count: Int(count))
                         }
                     }
                 }
             }
 
 
-        dataBuffer = Renderer.device.makeBuffer(bytes: recreatedSignal, length: MemoryLayout<Float>.stride * recreatedSignal.count, options: [])
+        return recreatedSignal
     }
 
 
