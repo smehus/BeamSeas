@@ -86,11 +86,11 @@ class BasicFFT: Node {
 
         source = Water(
                  amplitude: 10000,
-                 wind_velocity: float2(x: 0, y: -20),
+                 wind_velocity: float2(x: 10, y: -10),
                  resolution: SIMD2<Int>(x: BasicFFT.imgSize, y: BasicFFT.imgSize),
                  size: float2(x: BasicFFT.imgSize.float, y: BasicFFT.imgSize.float),
-                 normalmap_freq_mod: float2(repeating: 7.3),
-                 max_l: 4.0
+                 normalmap_freq_mod: float2(repeating: 3),
+                 max_l: 1
         )
 
         guard

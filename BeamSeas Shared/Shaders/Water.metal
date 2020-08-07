@@ -223,7 +223,7 @@ kernel void fft_kernel(texture2d<float, access::write> output [[ texture(0) ]],
         uint index = tid.y * width + tid.x;
         float val = data[index] + 1;
         float displace = displacement[index] + 1;
-        float out = mix(val, displace, 0.3);
+        float out = mix(val, displace, 0.2);
         output.write(float4(out, out, out, 1), tid);
     } else {
         output.write(float4(1, 0, 0, 1), tid);
