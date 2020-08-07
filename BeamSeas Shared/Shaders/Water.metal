@@ -219,6 +219,9 @@ kernel void compute_height_graident(uint2 pid [[ thread_position_in_grid]],
 
 
     // write to heightDisplacement texture for final sampling in vertex
+    // Wait wat, we're drawing the texture in the bottom method
+    // This needs to be rethought through
+    // Can i just use one map that already has displacement & height?
     float heighDis = mix(h, displacement, 0.3);
     heightDisplacementMap.write(float4(heighDis, heighDis, heighDis, 1), pid);
 

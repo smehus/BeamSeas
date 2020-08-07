@@ -46,7 +46,6 @@ class BasicFFT: Node {
 
     private let fft: vDSP.FFT<DSPSplitComplex>
     private let model: MTKMesh
-    private let testTexture: MTLTexture
 
     private let distributionPipelineState: MTLComputePipelineState
     private let displacementPipelineState: MTLComputePipelineState
@@ -56,7 +55,6 @@ class BasicFFT: Node {
     private var seed: Int32 = 0
 
     override init() {
-        testTexture = Self.loadTexture(imageName: "gaussian_noise_5", path: "png")
 
         let allocator = MTKMeshBufferAllocator(device: Renderer.device)
         let prim = MDLMesh(planeWithExtent: [0.5, 0.5, 0], segments: [4, 4], geometryType: .triangles, allocator: allocator)
@@ -291,7 +289,6 @@ extension BasicFFT: Renderable {
         var viewPort = SIMD2<Float>(x: Float(Renderer.metalView.drawableSize.width / 4), y: Float(Renderer.metalView.drawableSize.height / 4))
         renderEncoder.setFragmentBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: BufferIndex.uniforms.rawValue)
         renderEncoder.setFragmentTexture(Self.heightDisplacementMap, index: 0)
-        renderEncoder.setFragmentTexture(testTexture, index: 1)
         renderEncoder.setFragmentBytes(&viewPort, length: MemoryLayout<SIMD2<Float>>.stride, index: 22)
 
         let mesh = model.submeshes.first!
