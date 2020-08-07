@@ -49,6 +49,8 @@ class BasicFFT: Node {
 
     private let distributionPipelineState: MTLComputePipelineState
     private let displacementPipelineState: MTLComputePipelineState
+    private let gradientPipelineState: MTLComputePipelineState
+
     private var source: Water!
     private var seed: Int32 = 0
 
@@ -74,6 +76,7 @@ class BasicFFT: Node {
         pipelineState = Self.buildComputePipelineState(shader: "fft_kernel")
         distributionPipelineState = Self.buildComputePipelineState(shader: "generate_distribution")
         displacementPipelineState = Self.buildComputePipelineState(shader: "generate_displacement")
+        gradientPipelineState = Self.buildComputePipelineState(shader: "compute_height_graident")
 
         let mainPipeDescriptor = MTLRenderPipelineDescriptor()
         mainPipeDescriptor.colorAttachments[0].pixelFormat = .bgra8Unorm

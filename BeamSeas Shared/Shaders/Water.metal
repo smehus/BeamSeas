@@ -195,14 +195,16 @@ kernel void compute_height_graident(uint2 pid [[ thread_position_in_grid]],
                                     texture2d<float> heightMap [[ texture(0) ]],
                                     texture2d<float> displacementMap [[ texture(1) ]],
                                     constant float4 &uInvSize [[ buffer(0) ]],
-                                    constant float4 &uScale [[ buffer(1) ]])
+                                    constant float4 &uScale [[ buffer(1) ]],
+                                    texture2d<float, access::write> heightDisplacementMap [[ texture(2) ]],
+                                    texture2d<float, access::write> gradientMap [[ texture(3) ]])
 {
 
     constexpr sampler s;
     float4 uv = (float2(pid.xy) * uInvSize.xy).xyxy + 0.5 * uInvSize;
 
     float h = heightMap.sample(s, uv.xy).r;
-    float2 displacement = displacementMap.sample(s, uv.xy).xy;
+    float displacement = displacementMap.sample(s, uv.xy).r;
 
     float x0 = heightMap.sample(s, (float2)uv.xy + float2(-1, 0)).r;
     float x1 = heightMap.sample(s, (float2)uv.xy + float2(+1, 0)).r;
@@ -217,8 +219,11 @@ kernel void compute_height_graident(uint2 pid [[ thread_position_in_grid]],
 
 
     // write to heightDisplacement texture for final sampling in vertex
+    float heighDis = mix(h, displacement, 0.3);
+    heightDisplacementMap.write(float4(heighDis, heighDis, heighDis, 1), pid);
 
     // write to gradient texture for final sampling in fragment
+    gradientMap.write(float4(grad, j, 0.0), pid);
 }
 
 vertex FFTVertexOut fft_vertex(const FFTVertexIn in [[ stage_in ]],
