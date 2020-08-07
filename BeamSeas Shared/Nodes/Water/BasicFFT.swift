@@ -37,7 +37,8 @@ class BasicFFT: Node {
     private let pipelineState: MTLComputePipelineState
     private let mainPipelineState: MTLRenderPipelineState
 
-    static var drawTexture: MTLTexture!
+    static var heightDisplacementMap: MTLTexture!
+    static var gradientMap: MTLTexture!
 
     private var dataBuffer: MTLBuffer!
     private var displacementBuffer: MTLBuffer!
@@ -71,7 +72,8 @@ class BasicFFT: Node {
         texDesc.usage = [.shaderRead, .shaderWrite]
         //        texDesc.mipmapLevelCount = Int(log2(Double(max(Terrain.normalMapTexture.width, Terrain.normalMapTexture.height))) + 1);
         texDesc.storageMode = .private
-        Self.drawTexture = Renderer.device.makeTexture(descriptor: texDesc)!
+        Self.heightDisplacementMap = Renderer.device.makeTexture(descriptor: texDesc)!
+        Self.gradientMap = Renderer.device.makeTexture(descriptor: texDesc)!
 
         pipelineState = Self.buildComputePipelineState(shader: "fft_kernel")
         distributionPipelineState = Self.buildComputePipelineState(shader: "generate_distribution")
@@ -218,7 +220,7 @@ extension BasicFFT: Renderable {
         computeEncoder.setBuffer(distribution_imag, offset: 0, index: 13)
         computeEncoder.setBuffer(source.distribution_real_buffer, offset: 0, index: 14)
         computeEncoder.setBuffer(source.distribution_imag_buffer, offset: 0, index: 15)
-        computeEncoder.setTexture(BasicFFT.drawTexture, index: 0)
+        computeEncoder.setTexture(BasicFFT.heightDisplacementMap, index: 0)
         let w = pipelineState.threadExecutionWidth
         let h = pipelineState.maxTotalThreadsPerThreadgroup / w
         let threadGroupSize = MTLSizeMake(16, 16, 1)
@@ -241,6 +243,13 @@ extension BasicFFT: Renderable {
 
 
         // Bake height gradient
+
+//        computeEncoder.pushDebugGroup("FFT-Gradient")
+//        computeEncoder.setComputePipelineState(gradientPipelineState)
+//
+//        // stuff
+//        computeEncoder.dispatchThreads(threadgroupCount, threadsPerThreadgroup: threadGroupSize)
+//        computeEncoder.popDebugGroup()
         
     }
 
@@ -251,13 +260,13 @@ extension BasicFFT: Renderable {
         // Apple example
         let threadGroupSize = MTLSizeMake(16, 16, 1)
         var threadgroupCount = MTLSizeMake(16, 16, 1)
-        threadgroupCount.width = (Self.drawTexture.width + threadGroupSize.width - 1) / threadGroupSize.width
-        threadgroupCount.height = (Self.drawTexture.height + threadGroupSize.height - 1) / threadGroupSize.height
+        threadgroupCount.width = (Self.heightDisplacementMap.width + threadGroupSize.width - 1) / threadGroupSize.width
+        threadgroupCount.height = (Self.heightDisplacementMap.height + threadGroupSize.height - 1) / threadGroupSize.height
 
 
 
         computeEncoder.setComputePipelineState(pipelineState)
-        computeEncoder.setTexture(Self.drawTexture, index: 0)
+        computeEncoder.setTexture(Self.heightDisplacementMap, index: 0)
         computeEncoder.setBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: 3)
         computeEncoder.setBuffer(dataBuffer, offset: 0, index: 0)
         computeEncoder.setBuffer(displacementBuffer, offset: 0, index: 1)
@@ -281,7 +290,7 @@ extension BasicFFT: Renderable {
 
         var viewPort = SIMD2<Float>(x: Float(Renderer.metalView.drawableSize.width / 4), y: Float(Renderer.metalView.drawableSize.height / 4))
         renderEncoder.setFragmentBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: BufferIndex.uniforms.rawValue)
-        renderEncoder.setFragmentTexture(Self.drawTexture, index: 0)
+        renderEncoder.setFragmentTexture(Self.heightDisplacementMap, index: 0)
         renderEncoder.setFragmentTexture(testTexture, index: 1)
         renderEncoder.setFragmentBytes(&viewPort, length: MemoryLayout<SIMD2<Float>>.stride, index: 22)
 

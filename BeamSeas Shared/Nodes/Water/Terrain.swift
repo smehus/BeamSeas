@@ -100,11 +100,11 @@ class Terrain: Node {
 
         // Taken from apple example
         let texDesc = MTLTextureDescriptor()
-        texDesc.width = BasicFFT.drawTexture.width
-        texDesc.height = BasicFFT.drawTexture.height
+        texDesc.width = BasicFFT.heightDisplacementMap.width
+        texDesc.height = BasicFFT.heightDisplacementMap.height
         texDesc.pixelFormat = .rg11b10Float
         texDesc.usage = [.shaderRead, .shaderWrite]
-        texDesc.mipmapLevelCount = Int(log2(Double(max(BasicFFT.drawTexture.width, BasicFFT.drawTexture.height))) + 1);
+        texDesc.mipmapLevelCount = Int(log2(Double(max(BasicFFT.heightDisplacementMap.width, BasicFFT.heightDisplacementMap.height))) + 1);
         texDesc.storageMode = .private
         Self.normalMapTexture = Renderer.device.makeTexture(descriptor: texDesc)!
 
@@ -160,11 +160,11 @@ extension Terrain: Renderable {
         let threadsPerGroup = MTLSize(width: 16, height: 16, depth: 1)
         computeEncoder.pushDebugGroup("Generate Normals")
         computeEncoder.setComputePipelineState(normalPipelineState)
-        computeEncoder.setTexture(BasicFFT.drawTexture, index: 0)
+        computeEncoder.setTexture(BasicFFT.heightDisplacementMap, index: 0)
         computeEncoder.setTexture(Self.normalMapTexture, index: 2)
         computeEncoder.setBytes(&Terrain.terrainParams, length: MemoryLayout<TerrainParams>.size, index: 3)
         computeEncoder.setBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: BufferIndex.uniforms.rawValue)
-        computeEncoder.dispatchThreadgroups(MTLSizeMake(BasicFFT.drawTexture.width, BasicFFT.drawTexture.height, 1), threadsPerThreadgroup: threadsPerGroup)
+        computeEncoder.dispatchThreadgroups(MTLSizeMake(BasicFFT.heightDisplacementMap.width, BasicFFT.heightDisplacementMap.height, 1), threadsPerThreadgroup: threadsPerGroup)
         computeEncoder.popDebugGroup()
 
         // dispatch another call with the altHeightMap with an altNormalMapTexture
@@ -264,7 +264,7 @@ extension Terrain: Renderable {
 
         // TODO: - Need to implement argument buffers & resource heaps
         renderEncoder.setVertexTexture(
-            BasicFFT.drawTexture,
+            BasicFFT.heightDisplacementMap,
             index: 0
         )
 //
