@@ -96,9 +96,10 @@ class Water {
         distribution_real = [Float](repeating: 0, count: Int(n))
         distribution_imag = [Float](repeating: 0, count: Int(n))
 
-        let displacementLength = (Nx * Nz) >> (displacement_downsample * 2)
-        distribution_displacement_real = [Float](repeating: 0, count: Int(displacementLength))
-        distribution_displacement_imag = [Float](repeating: 0, count: Int(displacementLength))
+        // TODO: - Downsampling was breaking fft for some reason
+//        let displacementLength = (Nx * Nz) >> (displacement_downsample * 2)
+        distribution_displacement_real = [Float](repeating: 0, count: Int(n))
+        distribution_displacement_imag = [Float](repeating: 0, count: Int(n))
 
         generate_distribution(
             distribution_real: &distribution_real,
@@ -120,32 +121,35 @@ class Water {
             options: .storageModeShared
         )!
 
-        downsample_distribution(
-            displacement_real: &distribution_displacement_real,
-            displacement_img: &distribution_displacement_imag,
-            in_real: distribution_real,
-            in_imag: distribution_imag,
-            rate_log2: displacement_downsample
-        )
+//        downsample_distribution(
+//            displacement_real: &distribution_displacement_real,
+//            displacement_img: &distribution_displacement_imag,
+//            in_real: distribution_real,
+//            in_imag: distribution_imag,
+//            rate_log2: displacement_downsample,
+//            amplitude: newamplitude
+//        )
+
+        generate_distribution(distribution_real: &distribution_displacement_real, distribution_imag: &distribution_displacement_imag, size: size, amplitude: newamplitude, max_l: max_l)
 
         distribution_displacement_real_buffer = Renderer.device.makeBuffer(
             bytes: &distribution_displacement_real,
-            length: MemoryLayout<Float>.stride * Int(displacementLength),
+            length: MemoryLayout<Float>.stride * Int(n),
             options: .storageModeShared
         )!
 
         distribution_displacement_imag_buffer = Renderer.device.makeBuffer(
             bytes: &distribution_displacement_imag,
-            length: MemoryLayout<Float>.stride * Int(displacementLength),
+            length: MemoryLayout<Float>.stride * Int(n),
             options: .storageModeShared
         )!
     }
 
-    private func downsample_distribution(displacement_real: inout [Float], displacement_img: inout [Float], in_real: [Float], in_imag: [Float], rate_log2: Int)
+    private func downsample_distribution(displacement_real: inout [Float], displacement_img: inout [Float], in_real: [Float], in_imag: [Float], rate_log2: Int, amplitude: Float)
     {
         // Pick out the lower frequency samples only which is the same as downsampling "perfectly".
-        let out_width: Int = Nx >> rate_log2;
-        let out_height: Int = Nz >> rate_log2;
+        let out_width: Int = Nx// >> rate_log2;
+        let out_height: Int = Nz// >> rate_log2;
 
         for z in 0..<out_height {
             var ioZ = z
@@ -164,8 +168,8 @@ class Water {
                     alias_z += Nz;
                 }
 
-                displacement_real[z * out_width + x] = in_real[alias_z * Nx + alias_x];
-                displacement_img[z * out_width + x] = in_imag[alias_z * Nx + alias_x];
+                displacement_real[z * out_width + x] = in_real[alias_z * Nx + alias_x] * amplitude;
+                displacement_img[z * out_width + x] = in_imag[alias_z * Nx + alias_x] * amplitude;
             }
         }
     }

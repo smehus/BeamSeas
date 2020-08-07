@@ -84,20 +84,6 @@ class BasicFFT: Node {
 
         mainPipelineState = try! Renderer.device.makeRenderPipelineState(descriptor: mainPipeDescriptor)
 
-        guard
-            let real = Renderer.device.makeBuffer(length: MemoryLayout<Float>.stride * Int(BasicFFT.imgSize * BasicFFT.imgSize), options: .storageModeShared),
-            let imag  = Renderer.device.makeBuffer(length: MemoryLayout<Float>.stride * Int(BasicFFT.imgSize * BasicFFT.imgSize), options: .storageModeShared),
-            let displacement_real  = Renderer.device.makeBuffer(length: MemoryLayout<Float>.stride * Int(BasicFFT.imgSize * BasicFFT.imgSize), options: .storageModeShared),
-            let displacement_imag  = Renderer.device.makeBuffer(length: MemoryLayout<Float>.stride * Int(BasicFFT.imgSize * BasicFFT.imgSize), options: .storageModeShared)
-        else {
-            fatalError()
-        }
-
-        distribution_real = real
-        distribution_imag = imag
-        distribution_displacement_real = displacement_real
-        distribution_displacement_imag = displacement_imag
-
         source = Water(
                  amplitude: 10000,
                  wind_velocity: float2(x: 0, y: -20),
@@ -106,6 +92,20 @@ class BasicFFT: Node {
                  normalmap_freq_mod: float2(repeating: 7.3),
                  max_l: 4.0
         )
+
+        guard
+            let real = Renderer.device.makeBuffer(length: MemoryLayout<Float>.stride * source.distribution_real.count, options: .storageModeShared),
+            let imag  = Renderer.device.makeBuffer(length: MemoryLayout<Float>.stride * source.distribution_imag.count, options: .storageModeShared),
+            let displacement_real  = Renderer.device.makeBuffer(length: MemoryLayout<Float>.stride * source.distribution_displacement_real.count, options: .storageModeShared),
+            let displacement_imag  = Renderer.device.makeBuffer(length: MemoryLayout<Float>.stride * source.distribution_displacement_imag.count, options: .storageModeShared)
+        else {
+            fatalError()
+        }
+
+        distribution_real = real
+        distribution_imag = imag
+        distribution_displacement_real = displacement_real
+        distribution_displacement_imag = displacement_imag
 
 //        let randomSource = Distributions.Normal(m: 0, v: 1)
 //        var randos = (0..<n).map { _ in
@@ -121,6 +121,11 @@ class BasicFFT: Node {
     func runfft(phase: Float) {
         let recreatedSignal = runfft(real: distribution_real, imag: distribution_imag, count: source.distribution_real.count)
         dataBuffer = Renderer.device.makeBuffer(bytes: recreatedSignal, length: MemoryLayout<Float>.stride * recreatedSignal.count, options: [])
+
+        // TODO: - Need to downsample this...
+        // Taking toooo much gpu time
+        let displacementSignal = runfft(real: distribution_displacement_real, imag: distribution_displacement_imag, count: source.distribution_displacement_real.count)
+        displacementBuffer = Renderer.device.makeBuffer(bytes: displacementSignal, length: MemoryLayout<Float>.stride * displacementSignal.count, options: [])
     }
 
     private func runfft(real: MTLBuffer, imag: MTLBuffer, count: Int)  -> [Float] {
@@ -161,8 +166,7 @@ class BasicFFT: Node {
                                                                 imagp: inverseOutputImagPtr.baseAddress!)
 
                             // 3: Perform the inverse FFT.
-                            fft.inverse(input: forwardOutput,
-                                        output: &inverseOutput)
+                            fft.inverse(input: forwardOutput, output: &inverseOutput)
 
                             // 4: Return an array of real values from the FFT result.
                             let scale = 1 / Float((count) * 2)
@@ -228,20 +232,22 @@ extension BasicFFT: Renderable {
                                        threadsPerThreadgroup: threadGroupSize)
         computeEncoder.popDebugGroup()
 
-//
-//        computeEncoder.pushDebugGroup("FFT-Displacement")
-//
-//        computeEncoder.setComputePipelineState(displacementPipelineState)
-//        computeEncoder.setBuffer(distribution_displacement_real, offset: 0, index: 12)
-//        computeEncoder.setBuffer(distribution_displacement_imag, offset: 0, index: 13)
-//
-//        computeEncoder.setBuffer(source.distribution_displacement_real_buffer, offset: 0, index: 14)
-//        computeEncoder.setBuffer(source.distribution_displacement_imag_buffer, offset: 0, index: 15)
-//
-//        computeEncoder.dispatchThreads(threadgroupCount,
-//                                       threadsPerThreadgroup: threadGroupSize)
-//
-//        computeEncoder.popDebugGroup()
+
+        computeEncoder.pushDebugGroup("FFT-Displacement")
+
+        computeEncoder.setComputePipelineState(displacementPipelineState)
+        computeEncoder.setBuffer(distribution_displacement_real, offset: 0, index: 12)
+        computeEncoder.setBuffer(distribution_displacement_imag, offset: 0, index: 13)
+
+        computeEncoder.setBuffer(source.distribution_displacement_real_buffer, offset: 0, index: 14)
+        computeEncoder.setBuffer(source.distribution_displacement_imag_buffer, offset: 0, index: 15)
+
+//        threadgroupCount.width = 8
+//        threadgroupCount.height = 8
+        computeEncoder.dispatchThreads(threadgroupCount,
+                                       threadsPerThreadgroup: threadGroupSize)
+
+        computeEncoder.popDebugGroup()
     }
 
     // Not used for normals but i'm creating a texture so what the hell
@@ -260,6 +266,7 @@ extension BasicFFT: Renderable {
         computeEncoder.setTexture(Self.drawTexture, index: 0)
         computeEncoder.setBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: 3)
         computeEncoder.setBuffer(dataBuffer, offset: 0, index: 0)
+        computeEncoder.setBuffer(displacementBuffer, offset: 0, index: 1)
 
         // threadsPerGrid determines the thread_posistion dimensions
         computeEncoder.dispatchThreadgroups(threadgroupCount, threadsPerThreadgroup: threadGroupSize)

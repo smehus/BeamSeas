@@ -149,7 +149,7 @@ kernel void generate_displacement(constant GausUniforms &uniforms [[ buffer(Buff
                                   uint2 i [[ thread_position_in_grid ]])
 {
 
-    uint2 N = 16 * 16;
+    uint2 N = uniforms.resolution;
     float2 uMod = float2(2.0 * M_PI_F) / uniforms.size;
     int width = drawTexture.get_width();
     int height = drawTexture.get_height();
@@ -213,6 +213,7 @@ fragment float4 fft_fragment(const FFTVertexOut in [[ stage_in ]],
 kernel void fft_kernel(texture2d<float, access::write> output [[ texture(0) ]],
                        uint2 tid [[ thread_position_in_grid]],
                        constant float *data [[ buffer(0) ]],
+                       constant float *displacement [[ buffer(1) ]],
                        constant Uniforms &uniforms [[ buffer(3) ]])
 {
     uint width = output.get_width();
@@ -220,8 +221,10 @@ kernel void fft_kernel(texture2d<float, access::write> output [[ texture(0) ]],
 
     if (tid.x < width && tid.y < height) {
         uint index = tid.y * width + tid.x;
-        float val = data[index] + 1;// * 2000000;
-        output.write(float4(val, val, val, 1), tid);
+        float val = data[index] + 1;
+        float displace = displacement[index] + 1;
+        float out = mix(val, displace, 0.3);
+        output.write(float4(out, out, out, 1), tid);
     } else {
         output.write(float4(1, 0, 0, 1), tid);
     }
