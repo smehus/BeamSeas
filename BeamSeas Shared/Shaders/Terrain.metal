@@ -77,8 +77,8 @@ kernel void compute_height(constant float3 &position [[ buffer(0) ]],
             float4 secondaryColor = altHeightMap.sample(sample, xy);
             float4 secondaryNormal = secondaryNormalMap.sample(sample, xy);
 
-            normal_buffer = mix(primaryNormal, secondaryNormal, 0.5).rgb;
-            float4 color = mix(primaryColor, secondaryColor, 0.5);
+            normal_buffer = primaryNormal.rgb;//mix(primaryNormal, secondaryNormal, 0.5).rgb;
+            float4 color = primaryColor;//mix(primaryColor, secondaryColor, 0.5);
             float inverseColor = 1 - color.r;
             float height = (inverseColor * 2 - 1) * terrain.height;
             float delta = height - height_buffer;
@@ -216,12 +216,12 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
 
     // Can i just combine the two textures so I don't have to do this big dance
     float2 xy = ((position.xz + terrainParams.size / 2) / terrainParams.size);
-//    xy.x = fmod(xy.x + (uniforms.deltaTime), 1);
+    xy.x = fmod(xy.x + (uniforms.deltaTime), 1);
     float4 primaryColor = heightMap.sample(sample, xy);
     float3 primaryLocalNormal = normalize(normalMap.sample(normalSampler, xy).xzy * 2.0f - 1.0f);
 
     xy = ((position.xz + terrainParams.size / 2) / terrainParams.size);
-    xy.x = fmod(xy.x + (uniforms.deltaTime / 2), 1);
+//    xy.x = fmod(xy.x + (uniforms.deltaTime / 2), 1);
     float4 secondaryColor = altHeightMap.sample(sample, xy);
     float3 secondarLocalNormal = normalize(secondaryNormalMap.sample(normalSampler, xy).xzy * 2.0f - 1.0f);
 

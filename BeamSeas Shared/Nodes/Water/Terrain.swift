@@ -11,7 +11,7 @@ import MetalPerformanceShaders
 
 class Terrain: Node {
 
-    static let maxTessellation = 8
+    static let maxTessellation = 64
     static var heightMapName = "simuwater"
     static var alterHeightMapName = "Heightmap_Plateau"
     static var normalMapTexture: MTLTexture!

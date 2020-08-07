@@ -89,8 +89,8 @@ class BasicFFT: Node {
                  wind_velocity: float2(x: 10, y: -10),
                  resolution: SIMD2<Int>(x: BasicFFT.imgSize, y: BasicFFT.imgSize),
                  size: float2(x: BasicFFT.imgSize.float, y: BasicFFT.imgSize.float),
-                 normalmap_freq_mod: float2(repeating: 3),
-                 max_l: 1
+                 normalmap_freq_mod: float2(repeating: 1),
+                 max_l: 2
         )
 
         guard
@@ -211,43 +211,34 @@ extension BasicFFT: Renderable {
         computeEncoder.setComputePipelineState(distributionPipelineState)
         computeEncoder.setBytes(&gausUniforms, length: MemoryLayout<GausUniforms>.stride, index: BufferIndex.gausUniforms.rawValue)
         computeEncoder.setBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: BufferIndex.uniforms.rawValue)
-
         computeEncoder.setBuffer(distribution_real, offset: 0, index: 12)
         computeEncoder.setBuffer(distribution_imag, offset: 0, index: 13)
-        
         computeEncoder.setBuffer(source.distribution_real_buffer, offset: 0, index: 14)
         computeEncoder.setBuffer(source.distribution_imag_buffer, offset: 0, index: 15)
-
         computeEncoder.setTexture(BasicFFT.drawTexture, index: 0)
-
         let w = pipelineState.threadExecutionWidth
         let h = pipelineState.maxTotalThreadsPerThreadgroup / w
         let threadGroupSize = MTLSizeMake(16, 16, 1)
-
         var threadgroupCount = MTLSizeMake(1, 1, 1)
         threadgroupCount.width = BasicFFT.imgSize//(BasicFFT.imgSize + threadGroupSize.width - 1) / threadGroupSize.width
         threadgroupCount.height = BasicFFT.imgSize//(BasicFFT.imgSize + threadGroupSize.height - 1) / threadGroupSize.height
-
-        computeEncoder.dispatchThreads(threadgroupCount,
-                                       threadsPerThreadgroup: threadGroupSize)
+        computeEncoder.dispatchThreads(threadgroupCount, threadsPerThreadgroup: threadGroupSize)
         computeEncoder.popDebugGroup()
 
 
         computeEncoder.pushDebugGroup("FFT-Displacement")
-
         computeEncoder.setComputePipelineState(displacementPipelineState)
         computeEncoder.setBuffer(distribution_displacement_real, offset: 0, index: 12)
         computeEncoder.setBuffer(distribution_displacement_imag, offset: 0, index: 13)
-
         computeEncoder.setBuffer(source.distribution_displacement_real_buffer, offset: 0, index: 14)
         computeEncoder.setBuffer(source.distribution_displacement_imag_buffer, offset: 0, index: 15)
-
-//        threadgroupCount.width = 8
-//        threadgroupCount.height = 8
-        computeEncoder.dispatchThreads(threadgroupCount,
-                                       threadsPerThreadgroup: threadGroupSize)
-
+        computeEncoder.dispatchThreads(threadgroupCount, threadsPerThreadgroup: threadGroupSize)
         computeEncoder.popDebugGroup()
+
+
+
+        // Bake height gradient
+        
     }
 
     // Not used for normals but i'm creating a texture so what the hell

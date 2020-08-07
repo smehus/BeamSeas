@@ -186,6 +186,20 @@ kernel void generate_displacement(constant GausUniforms &uniforms [[ buffer(Buff
 
 }
 
+half jacobian(half2 dDdx, half2 dDdy)
+{
+    return (1.0 + dDdx.x) * (1.0 + dDdy.y) - dDdx.y * dDdy.x;
+}
+
+kernel void compute_height_graident(uint2 pid [[ thread_position_in_grid]],
+                                    texture2d<float> heightMap [[ texture(0) ]],
+                                    texture2d<float> displacementMap [[ texture(1) ]],
+                                    constant float4 &uInvSize [[ buffer(0) ]],
+                                    constant float4 &uScale [[ buffer(1) ]])
+{
+
+}
+
 vertex FFTVertexOut fft_vertex(const FFTVertexIn in [[ stage_in ]],
                                constant Uniforms &uniforms [[ buffer(BufferIndexUniforms) ]],
                                texture2d<float> noiseMap [[ texture(8) ]],
