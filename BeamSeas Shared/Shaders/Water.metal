@@ -198,6 +198,17 @@ kernel void compute_height_graident(uint2 pid [[ thread_position_in_grid]],
                                     constant float4 &uScale [[ buffer(1) ]])
 {
 
+    constexpr sampler s;
+    float4 uv = (float2(pid.xy) * uInvSize.xy).xyxy + 0.5 * uInvSize;
+    float h = heightMap.sample(s, uv.xy).r;
+
+
+    float x0 = heightMap.sample(s, (float2)uv.xy + float2(-1, 0)).r;
+    float x1 = heightMap.sample(s, (float2)uv.xy + float2(+1, 0)).r;
+    float y0 = heightMap.sample(s, (float2)uv.xy + float2(0, -1)).r;
+    float y1 = heightMap.sample(s, (float2)uv.xy + float2(0, +1)).r;
+    float2 grad = uScale.xy * 0.5 * float2(x1 - x0, y1 - y0);
+
 }
 
 vertex FFTVertexOut fft_vertex(const FFTVertexIn in [[ stage_in ]],
