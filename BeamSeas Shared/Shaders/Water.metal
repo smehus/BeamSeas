@@ -200,8 +200,9 @@ kernel void compute_height_graident(uint2 pid [[ thread_position_in_grid]],
 
     constexpr sampler s;
     float4 uv = (float2(pid.xy) * uInvSize.xy).xyxy + 0.5 * uInvSize;
-    float h = heightMap.sample(s, uv.xy).r;
 
+    float h = heightMap.sample(s, uv.xy).r;
+    float2 displacement = displacementMap.sample(s, uv.xy).xy;
 
     float x0 = heightMap.sample(s, (float2)uv.xy + float2(-1, 0)).r;
     float x1 = heightMap.sample(s, (float2)uv.xy + float2(+1, 0)).r;
@@ -209,6 +210,15 @@ kernel void compute_height_graident(uint2 pid [[ thread_position_in_grid]],
     float y1 = heightMap.sample(s, (float2)uv.xy + float2(0, +1)).r;
     float2 grad = uScale.xy * 0.5 * float2(x1 - x0, y1 - y0);
 
+    // Compute jacobian.
+    float2 dDdx = 0.5 * (displacementMap.sample(s, uv.zw + float2(+1, 0)).xy - displacementMap.sample(s, uv.zw + float2(-1, 0)).xy);
+    float2 dDdy = 0.5 * (displacementMap.sample(s, uv.zw + float2(0, +1)).xy - displacementMap.sample(s, uv.zw + float2(0, -1)).xy);
+    float j = jacobian(half2(dDdx * uScale.z), half2(dDdy * uScale.z));
+
+
+    // write to heightDisplacement texture for final sampling in vertex
+
+    // write to gradient texture for final sampling in fragment
 }
 
 vertex FFTVertexOut fft_vertex(const FFTVertexIn in [[ stage_in ]],
