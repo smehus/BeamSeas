@@ -77,7 +77,7 @@ float2 cmul(float2 a, float2 b)
     return R0 + float2(-R1.x, R1.y);
 }
 
-kernel void generate_distribution(constant GausUniforms &uniforms [[ buffer(BufferIndexGausUniforms) ]],
+kernel void generate_distribution_map_values(constant GausUniforms &uniforms [[ buffer(BufferIndexGausUniforms) ]],
                                   constant Uniforms &mainUniforms [[ buffer(BufferIndexUniforms) ]],
                                   device float *output_real [[ buffer(12) ]],
                                   device float *output_imag [[ buffer(13) ]],
@@ -139,7 +139,7 @@ kernel void generate_distribution(constant GausUniforms &uniforms [[ buffer(Buff
     output_imag[bIndex] = res.y;
 }
 
-kernel void generate_displacement(constant GausUniforms &uniforms [[ buffer(BufferIndexGausUniforms) ]],
+kernel void generate_displacement_map_values(constant GausUniforms &uniforms [[ buffer(BufferIndexGausUniforms) ]],
                                   constant Uniforms &mainUniforms [[ buffer(BufferIndexUniforms) ]],
                                   device float *output_real [[ buffer(12) ]],
                                   device float *output_imag [[ buffer(13) ]],
@@ -253,22 +253,25 @@ fragment float4 fft_fragment(const FFTVertexOut in [[ stage_in ]],
     return float4(color.xyz, 1.0);
 }
 
-kernel void fft_kernel(texture2d<float, access::write> output [[ texture(0) ]],
+kernel void fft_kernel(texture2d<float, access::write> output_height [[ texture(0) ]],
+                       texture2d<float, access::write> output_displacement [[ texture(1) ]],
                        uint2 tid [[ thread_position_in_grid]],
                        constant float *data [[ buffer(0) ]],
                        constant float *displacement [[ buffer(1) ]],
                        constant Uniforms &uniforms [[ buffer(3) ]])
 {
-    uint width = output.get_width();
-    uint height = output.get_height();
+    // this will work because both height and displacement are the same size
+    // In the future when i downsample displacement - this will need to be updated
+    uint width = output_height.get_width();
+    uint height = output_height.get_height();
 
     if (tid.x < width && tid.y < height) {
         uint index = tid.y * width + tid.x;
         float val = data[index] + 1;
         float displace = displacement[index] + 1;
-        float out = mix(val, displace, 0.2);
-        output.write(float4(out, out, out, 1), tid);
-    } else {
-        output.write(float4(1, 0, 0, 1), tid);
+        // maybe write out both height & displacement textures separately here?
+
+        output_height.write(float4(val, val, val, 1), tid);
+        output_displacement.write(float4(displace, displace, displace, 1), tid);
     }
 }

@@ -34,7 +34,7 @@ class BasicFFT: Node {
     var distribution_displacement_imag: MTLBuffer
 
 
-    private let pipelineState: MTLComputePipelineState
+    private let fftPipelineState: MTLComputePipelineState
     private let mainPipelineState: MTLRenderPipelineState
 
     static var heightDisplacementMap: MTLTexture!
@@ -54,6 +54,11 @@ class BasicFFT: Node {
     private var source: Water!
     private var seed: Int32 = 0
 
+    // Use these in the main fft_kernel draw method
+    // Then in generate gradient create the heightDisplacementMap from sampling these two textures and mix.
+    private var heightMap: MTLTexture!
+    private var displacementMap: MTLTexture!
+
     override init() {
 
         let allocator = MTKMeshBufferAllocator(device: Renderer.device)
@@ -70,12 +75,15 @@ class BasicFFT: Node {
         texDesc.usage = [.shaderRead, .shaderWrite]
         //        texDesc.mipmapLevelCount = Int(log2(Double(max(Terrain.normalMapTexture.width, Terrain.normalMapTexture.height))) + 1);
         texDesc.storageMode = .private
+
         Self.heightDisplacementMap = Renderer.device.makeTexture(descriptor: texDesc)!
         Self.gradientMap = Renderer.device.makeTexture(descriptor: texDesc)!
+        heightMap = Renderer.device.makeTexture(descriptor: texDesc)!
+        displacementMap = Renderer.device.makeTexture(descriptor: texDesc)!
 
-        pipelineState = Self.buildComputePipelineState(shader: "fft_kernel")
-        distributionPipelineState = Self.buildComputePipelineState(shader: "generate_distribution")
-        displacementPipelineState = Self.buildComputePipelineState(shader: "generate_displacement")
+        fftPipelineState = Self.buildComputePipelineState(shader: "fft_kernel")
+        distributionPipelineState = Self.buildComputePipelineState(shader: "generate_distribution_map_values")
+        displacementPipelineState = Self.buildComputePipelineState(shader: "generate_displacement_map_values")
         gradientPipelineState = Self.buildComputePipelineState(shader: "compute_height_graident")
 
         let mainPipeDescriptor = MTLRenderPipelineDescriptor()
@@ -121,6 +129,9 @@ class BasicFFT: Node {
 
     } // init
 
+
+    // This runs after 'generate_distributions' - so we get updated distribution_real / imag buffer values.
+    // The source buffer values will all remain the same (Buffers in water.swift)
     func runfft(phase: Float) {
         let recreatedSignal = runfft(real: distribution_real, imag: distribution_imag, count: source.distribution_real.count)
         dataBuffer = Renderer.device.makeBuffer(bytes: recreatedSignal, length: MemoryLayout<Float>.stride * recreatedSignal.count, options: [])
@@ -219,8 +230,8 @@ extension BasicFFT: Renderable {
         computeEncoder.setBuffer(source.distribution_real_buffer, offset: 0, index: 14)
         computeEncoder.setBuffer(source.distribution_imag_buffer, offset: 0, index: 15)
         computeEncoder.setTexture(BasicFFT.heightDisplacementMap, index: 0)
-        let w = pipelineState.threadExecutionWidth
-        let h = pipelineState.maxTotalThreadsPerThreadgroup / w
+        let w = fftPipelineState.threadExecutionWidth
+        let h = fftPipelineState.maxTotalThreadsPerThreadgroup / w
         let threadGroupSize = MTLSizeMake(16, 16, 1)
         var threadgroupCount = MTLSizeMake(1, 1, 1)
         threadgroupCount.width = BasicFFT.imgSize//(BasicFFT.imgSize + threadGroupSize.width - 1) / threadGroupSize.width
@@ -252,6 +263,7 @@ extension BasicFFT: Renderable {
     }
 
     // Not used for normals but i'm creating a texture so what the hell
+    // CREATING THE TEXTURE MAPS FOR DISTRIBUTION & DISPLACEMENT
     func generateTerrainNormals(computeEncoder: MTLComputeCommandEncoder, uniforms: inout Uniforms) {
         guard dataBuffer != nil else { return }
         computeEncoder.pushDebugGroup("FFT-Drawing")
@@ -263,8 +275,9 @@ extension BasicFFT: Renderable {
 
 
 
-        computeEncoder.setComputePipelineState(pipelineState)
-        computeEncoder.setTexture(Self.heightDisplacementMap, index: 0)
+        computeEncoder.setComputePipelineState(fftPipelineState)
+        computeEncoder.setTexture(heightMap, index: 0)
+        computeEncoder.setTexture(displacementMap, index: 1)
         computeEncoder.setBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: 3)
         computeEncoder.setBuffer(dataBuffer, offset: 0, index: 0)
         computeEncoder.setBuffer(displacementBuffer, offset: 0, index: 1)
