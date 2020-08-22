@@ -261,7 +261,19 @@ extension BasicFFT: Renderable {
         computeEncoder.setTexture(displacementMap, index: 1)
         computeEncoder.setTexture(Self.heightDisplacementMap, index: 2)
         computeEncoder.setTexture(Self.gradientMap, index: 3)
-        
+
+
+        // InvSize parameter
+//        GL_CHECK(glUniform4f(0,
+//                1.0f / Nx, 1.0f / Nz,
+//                1.0f / (Nx >> displacement_downsample),
+//                1.0f / (Nz >> displacement_downsample)));
+
+        // uScale
+//        GL_CHECK(glUniform4f(1,
+//                Nx / size.x, Nz / size.y,
+//                (Nx >> displacement_downsample) / size.x,
+//                (Nz >> displacement_downsample) / size.y));
         computeEncoder.dispatchThreads(threadgroupCount, threadsPerThreadgroup: threadGroupSize)
         computeEncoder.popDebugGroup()
         
