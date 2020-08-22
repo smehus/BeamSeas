@@ -253,12 +253,17 @@ extension BasicFFT: Renderable {
 
         // Bake height gradient
 
-//        computeEncoder.pushDebugGroup("FFT-Gradient")
-//        computeEncoder.setComputePipelineState(gradientPipelineState)
-//
-//        // stuff
-//        computeEncoder.dispatchThreads(threadgroupCount, threadsPerThreadgroup: threadGroupSize)
-//        computeEncoder.popDebugGroup()
+        computeEncoder.pushDebugGroup("FFT-Gradient")
+        computeEncoder.setComputePipelineState(gradientPipelineState)
+
+//        compute_height_graident will generate the draw texture used for terrain vertex
+        computeEncoder.setTexture(heightMap, index: 0)
+        computeEncoder.setTexture(displacementMap, index: 1)
+        computeEncoder.setTexture(Self.heightDisplacementMap, index: 2)
+        computeEncoder.setTexture(Self.gradientMap, index: 3)
+        
+        computeEncoder.dispatchThreads(threadgroupCount, threadsPerThreadgroup: threadGroupSize)
+        computeEncoder.popDebugGroup()
         
     }
 
