@@ -21,7 +21,7 @@ class Terrain: Node {
 
     static var terrainParams = TerrainParams(
         size: [BasicFFT.imgSize.float, BasicFFT.imgSize.float],
-        height: 20,
+        height: 25,
         maxTessellation: UInt32(Terrain.maxTessellation),
         numberOfPatches: UInt32(Terrain.patchNum * Terrain.patchNum)
     )
@@ -273,7 +273,7 @@ extension Terrain: Renderable {
 //            index: 1
 //        )
 
-        renderEncoder.setVertexTexture(
+        renderEncoder.setFragmentTexture(
             Self.normalMapTexture,
             index: 2
         )
@@ -290,9 +290,26 @@ extension Terrain: Renderable {
         )
 
         renderEncoder.setFragmentBytes(
+            &Terrain.terrainParams,
+            length: MemoryLayout<TerrainParams>.stride,
+            index: BufferIndex.terrainParams.rawValue
+        )
+
+        renderEncoder.setFragmentBytes(
             &fragmentUniforms,
             length: MemoryLayout<FragmentUniforms>.stride,
             index: BufferIndex.fragmentUniforms.rawValue
+        )
+
+        renderEncoder.setFragmentBytes(
+            &uniforms,
+            length: MemoryLayout<Uniforms>.stride,
+            index: BufferIndex.uniforms.rawValue
+        )
+
+        renderEncoder.setFragmentTexture(
+            BasicFFT.gradientMap,
+            index: 0
         )
 
 //        renderEncoder.setTriangleFillMode(.lines)

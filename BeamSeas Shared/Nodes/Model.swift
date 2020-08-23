@@ -96,9 +96,7 @@ extension Model: Renderable {
         computeEncoder.setBuffer(heightBuffer, offset: 0, index: 3)
         computeEncoder.setBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: 4)
         computeEncoder.setTexture(heightMap, index: 0)
-//        computeEncoder.setTexture(altHeightMap, index: 1)
         computeEncoder.setTexture(Terrain.normalMapTexture, index: 2)
-//        computeEncoder.setTexture(Terrain.secondaryNormalMapTexture, index: 3)
         computeEncoder.setBuffer(normalBuffer, offset: 0, index: 5)
         computeEncoder.dispatchThreads(MTLSizeMake(1, 1, 1),
                                        threadsPerThreadgroup: MTLSizeMake(1, 1, 1))
@@ -112,7 +110,6 @@ extension Model: Renderable {
         assert(meshes.count == 1)
         let size = meshes.first!.mdlMesh.boundingBox.maxBounds - meshes.first!.mdlMesh.boundingBox.minBounds
         position.y = heightValue + (size.y / 2)
-
 
         // TODO: - Transfer all this over to gpu
         var normalMapValue = normalBuffer.contents().bindMemory(to: SIMD3<Float>.self, capacity: 1).pointee

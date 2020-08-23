@@ -18,83 +18,26 @@ struct ControlPoint {
 struct TerrainVertexOut {
     float4 position [[ position ]];
     float4 color;
-    float3 normal;// [[flat]];
+    float2 uv;
+
 };
 
 kernel void compute_height(constant float3 &position [[ buffer(0) ]],
                            constant float3 *control_points [[ buffer(1) ]],
-                           constant TerrainParams &terrain [[ buffer(2) ]],
-                           device float &height_buffer [[ buffer(3) ]],
+                           constant TerrainParams &terrainParams [[ buffer(2) ]],
                            constant Uniforms &uniforms [[ buffer(4) ]],
                            texture2d<float> heightMap [[ texture(0) ]],
-                           texture2d<float> altHeightMap [[ texture(1) ]],
                            texture2d<float> normalMap [[ texture(2) ]],
-                           texture2d<float> secondaryNormalMap [[ texture(3) ]],
+                           device float &height_buffer [[ buffer(3) ]],
                            device float3 &normal_buffer [[ buffer(5) ]])
 {
-    uint total = terrain.numberOfPatches * 4; // 4 points per patch
-    for (uint i = 0; i < total; i += 4) {
-        float3 topLeft = control_points[i];
-        float3 topRight = control_points[i + 1];
-        float3 bottomRight = control_points[i + 2];
-        float3 bottomLeft = control_points[i + 3];
+    constexpr sampler s(filter::linear);
+    float2 xy = ((position.xz + terrainParams.size / 2) / terrainParams.size);
+    float4 color = heightMap.sample(s, xy);
+    float inverseColor = 1 - color.r;
+    float height = (inverseColor * 2 - 1) * terrainParams.height;
 
-        bool insideTopLeft = position.x >= topLeft.x && position.z <= topLeft.z;
-        bool insideTopRight = position.x <= topRight.x && position.z <= topRight.z;
-        bool insideBottomRight = position.x <= bottomRight.x && position.z >= bottomRight.z;
-        bool insideBottomLeft = position.x >= bottomLeft.x && position.z >= bottomLeft.z;
-
-        if (insideTopLeft && insideBottomLeft && insideTopRight && insideBottomRight) {
-            // Can push the boat up or down rather than hard setting the value
-            // Might turn out physicsy
-
-            // Player percentage position between control points
-            float u = (position.x - topLeft.x) / (topRight.x - topLeft.x);
-            float v = (position.z - bottomLeft.z) / (topLeft.z - bottomLeft.z);
-            float2 top = mix(topLeft.xz,
-                             topRight.xz,
-                             u);
-            float2 bottom = mix(bottomLeft.xz,
-                                bottomRight.xz,
-                                u);
-
-            float2 interpolated = mix(top, bottom, v);
-            float4 interpolatedPosition = float4(interpolated.x, 0.0, interpolated.y, 1.0);
-
-
-            constexpr sampler sample(filter::linear);
-
-            // primary
-            float2 xy = ((interpolatedPosition.xz + terrain.size / 2) / terrain.size);
-            xy.x = fmod(xy.x + uniforms.deltaTime, 1);
-            float4 primaryColor = heightMap.sample(sample, xy);
-            float4 primaryNormal = normalMap.sample(sample, xy);
-
-
-            // /secondary
-            xy = ((interpolatedPosition.xz + terrain.size / 2) / terrain.size);
-            xy.x = fmod(xy.x + (uniforms.deltaTime / 2), 1);
-            float4 secondaryColor = altHeightMap.sample(sample, xy);
-            float4 secondaryNormal = secondaryNormalMap.sample(sample, xy);
-
-            normal_buffer = primaryNormal.rgb;//mix(primaryNormal, secondaryNormal, 0.5).rgb;
-            float4 color = primaryColor;//mix(primaryColor, secondaryColor, 0.5);
-            float inverseColor = 1 - color.r;
-            float height = (inverseColor * 2 - 1) * terrain.height;
-            float delta = height - height_buffer;
-
-
-            if (delta < 0) {
-                height_buffer += (delta * 0.5);
-            } else {
-                height_buffer += (delta * 0.05);
-            }
-
-            return;
-        }
-    }
-
-    height_buffer = -10;
+    height_buffer = height;
 }
 
 float calc_distance(float3 pointA,
@@ -189,7 +132,6 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
                                        float2 patch_coord [[ position_in_patch ]],
                                        texture2d<float> heightMap [[ texture(0) ]],
                                        texture2d<float> altHeightMap [[ texture(1) ]],
-                                       texture2d<float> normalMap [[ texture(2) ]],
                                        texture2d<float> secondaryNormalMap [[ texture(3) ]],
                                        constant TerrainParams &terrainParams [[ buffer(BufferIndexTerrainParams) ]],
                                        uint patchID [[ patch_id ]],
@@ -207,25 +149,14 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
 
     float2 interpolated = mix(top, bottom, v);
     float4 position = float4(interpolated.x, 0.0, interpolated.y, 1.0);
-
+    out.uv = position.xz;
     // Changing this to filter linear smoothes out the texture
     // Which ends up smoothing out the rendering
     constexpr sampler sample(filter::linear);
-    constexpr sampler normalSampler(filter::linear);
 
-
-    // Can i just combine the two textures so I don't have to do this big dance
     float2 xy = ((position.xz + terrainParams.size / 2) / terrainParams.size);
-    xy.x = fmod(xy.x + (uniforms.deltaTime), 1);
-    float4 primaryColor = heightMap.sample(sample, xy);
-    float3 primaryLocalNormal = normalize(normalMap.sample(normalSampler, xy).xzy * 2.0f - 1.0f);
-
-    xy = ((position.xz + terrainParams.size / 2) / terrainParams.size);
-//    xy.x = fmod(xy.x + (uniforms.deltaTime / 2), 1);
-    float4 secondaryColor = altHeightMap.sample(sample, xy);
-    float3 secondarLocalNormal = normalize(secondaryNormalMap.sample(normalSampler, xy).xzy * 2.0f - 1.0f);
-
-    float4 color = primaryColor;//mix(primaryColor, secondaryColor, 0.5);
+//    xy.x = fmod(xy.x + (uniforms.deltaTime), 1);
+    float4 color = heightMap.sample(sample, xy);
     float inverseColor = 1 - color.r;
     float height = (inverseColor * 2 - 1) * terrainParams.height;
     position.y = height;
@@ -235,7 +166,7 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
     float4 finalColor = float4(inverseColor, inverseColor, inverseColor, 1);
 
     // reference AAPLTerrainRenderer in DynamicTerrainWithArgumentBuffers exmaple: EvaluateTerrainAtLocation line 235 -> EvaluateTerrainAtLocation in AAPLTerrainRendererUtilities line: 91
-    out.normal = uniforms.normalMatrix * primaryLocalNormal;//mix(primaryLocalNormal, secondarLocalNormal, 0.5);
+//    out.normal = uniforms.normalMatrix * primaryLocalNormal;//mix(primaryLocalNormal, secondarLocalNormal, 0.5);
 
     finalColor += float4(0.2, 0.6, 0.7, 1);
     out.color = finalColor;
@@ -245,10 +176,28 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
 
 fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
                                  constant Light *lights [[ buffer(BufferIndexLights) ]],
-                                 constant FragmentUniforms &fragmentUniforms [[ buffer(BufferIndexFragmentUniforms) ]])
+                                 constant Uniforms &uniforms [[ buffer(BufferIndexUniforms) ]],
+                                 constant TerrainParams &terrainParams [[ buffer(BufferIndexTerrainParams) ]],
+                                 constant FragmentUniforms &fragmentUniforms [[ buffer(BufferIndexFragmentUniforms) ]],
+                                 texture2d<float> gradientMap [[ texture(0) ]],
+                                 texture2d<float> normalMap [[ texture(2) ]])
 {
 
-    float3 d = terrainDiffuseLighting(fragment_in.normal, fragment_in.position.xyz, fragmentUniforms, lights, fragment_in.color.rgb);
+    constexpr sampler normalSampler(filter::linear);
+    float2 xy = ((fragment_in.uv + terrainParams.size / 2) / terrainParams.size);
+    float3 normalValue = normalize(normalMap.sample(normalSampler, xy).xzy * 2.0f - 1.0f);
+    float3 vGradJacobian = gradientMap.sample(normalSampler, xy).xyz;
+
+    float3 normal = uniforms.normalMatrix * normalValue;
+    float3 d = terrainDiffuseLighting(normal, fragment_in.position.xyz, fragmentUniforms, lights, fragment_in.color.rgb);
+
+
+    float3 noise_gradient = 0.30 * normal;
+    float jacobian = vGradJacobian.z;
+    float turbulence = max(2.0 - jacobian + dot(abs(noise_gradient.xy), float2(1.2)), 0.0);
+    // This is rather "arbitrary", but looks pretty good in practice.
+    float color_mod = 1.0 + 3.0 * smoothstep(1.2, 1.8, turbulence);
+
     return float4(d, 1.0);
 }
 
@@ -264,6 +213,7 @@ float normalCoordinates(uint2 coords, texture2d<float> map, sampler s, float del
 }
 
 // This is pulled directly from apples example: DynamicTerrainWithArgumentBuffers
+// Should move this to BasicFFT
 kernel void TerrainKnl_ComputeNormalsFromHeightmap(texture2d<float> height [[texture(0)]],
                                                    texture2d<float, access::write> normal [[texture(2)]],
                                                    constant TerrainParams &terrain [[ buffer(3) ]],
