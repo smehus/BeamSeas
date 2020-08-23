@@ -19,7 +19,7 @@ struct TerrainVertexOut {
     float4 position [[ position ]];
     float4 color;
     float2 uv;
-    float4 normal;
+    float3 normal;
 };
 
 kernel void compute_height(constant float3 &position [[ buffer(0) ]],
@@ -174,8 +174,12 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
 
     // reference AAPLTerrainRenderer in DynamicTerrainWithArgumentBuffers exmaple: EvaluateTerrainAtLocation line 235 -> EvaluateTerrainAtLocation in AAPLTerrainRendererUtilities line: 91
 //    out.normal = uniforms.normalMatrix * primaryLocalNormal;//mix(primaryLocalNormal, secondarLocalNormal, 0.5);
-    out.normal = normalMap.sample(sample, xy);
 
+    constexpr sampler normalSampler(filter::linear);
+    float3 normalValue = normalMap.sample(normalSampler, xy).xzy * 2.0f - 1.0f;
+    float3 normal = uniforms.normalMatrix * normalValue;
+
+    out.normal = normal;
     finalColor += float4(0.2, 0.6, 0.7, 1);
     out.color = finalColor;
 
@@ -191,19 +195,15 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
                                  texture2d<float> normalMap [[ texture(2) ]])
 {
 
-    constexpr sampler normalSampler(filter::linear);
-    float3 normalValue = normalize(normalMap.sample(normalSampler, fragment_in.uv).xzy * 2.0f - 1.0f);
-    float3 vGradJacobian = gradientMap.sample(normalSampler, fragment_in.uv).xyz;
 
-    float3 normal = uniforms.normalMatrix * normalValue;
-    float3 d = terrainDiffuseLighting(normal, fragment_in.position.xyz, fragmentUniforms, lights, fragment_in.color.rgb);
+    float3 d = terrainDiffuseLighting(fragment_in.normal, fragment_in.position.xyz, fragmentUniforms, lights, fragment_in.color.rgb);
 
 
-    float3 noise_gradient = 0.30 * normal;
-    float jacobian = vGradJacobian.z;
-    float turbulence = max(2.0 - jacobian + dot(abs(noise_gradient.xy), float2(1.2)), 0.0);
-    // This is rather "arbitrary", but looks pretty good in practice.
-    float color_mod = 1.0 + 3.0 * smoothstep(1.2, 1.8, turbulence);
+//    float3 noise_gradient = 0.30 * normal;
+//    float jacobian = vGradJacobian.z;
+//    float turbulence = max(2.0 - jacobian + dot(abs(noise_gradient.xy), float2(1.2)), 0.0);
+//    // This is rather "arbitrary", but looks pretty good in practice.
+//    float color_mod = 1.0 + 3.0 * smoothstep(1.2, 1.8, turbulence);
 
     return float4(d, 1.0);
 }
@@ -228,7 +228,7 @@ kernel void TerrainKnl_ComputeNormalsFromHeightmap(texture2d<float> height [[tex
                                                    uint2 tid [[thread_position_in_grid]])
 {
     constexpr sampler sam(filter::linear,
-                          address::clamp_to_edge, coord::normalized);
+                          address::clamp_to_edge, coord::pixel);
 
 //    constexpr sampler sam(filter::linear);
 //    float xz_scale = TERRAIN_SCALE / height.get_width();

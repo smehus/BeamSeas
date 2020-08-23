@@ -96,12 +96,12 @@ class BasicFFT: Node {
         mainPipelineState = try! Renderer.device.makeRenderPipelineState(descriptor: mainPipeDescriptor)
 
         source = Water(
-                 amplitude: 10000,
+                 amplitude: 20000,
                  wind_velocity: float2(x: 10, y: -10),
                  resolution: SIMD2<Int>(x: BasicFFT.imgSize, y: BasicFFT.imgSize),
                  size: float2(x: BasicFFT.imgSize.float, y: BasicFFT.imgSize.float),
                  normalmap_freq_mod: float2(repeating: 1),
-                 max_l: 2
+                 max_l: 2.0
         )
 
         guard
