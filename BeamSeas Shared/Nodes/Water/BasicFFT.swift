@@ -269,11 +269,18 @@ extension BasicFFT: Renderable {
 //                1.0f / (Nx >> displacement_downsample),
 //                1.0f / (Nz >> displacement_downsample)));
 
+        // When i end up downsampling the displacement, I'll need to do the implemetnation above
+        var invSize = float4(repeating: 1.0 / Float(BasicFFT.imgSize))
+        computeEncoder.setBytes(&invSize, length: MemoryLayout<SIMD4<Float>>.stride, index: 0)
+
         // uScale
 //        GL_CHECK(glUniform4f(1,
 //                Nx / size.x, Nz / size.y,
 //                (Nx >> displacement_downsample) / size.x,
 //                (Nz >> displacement_downsample) / size.y));
+        // do the same as invsize
+        var uScale = float4(repeating: Float(BasicFFT.imgSize) / Float(BasicFFT.imgSize))
+        computeEncoder.setBytes(&uScale, length: MemoryLayout<SIMD4<Float>>.stride, index: 1)
         computeEncoder.dispatchThreads(threadgroupCount, threadsPerThreadgroup: threadGroupSize)
         computeEncoder.popDebugGroup()
         
