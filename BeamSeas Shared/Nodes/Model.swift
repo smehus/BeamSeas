@@ -113,17 +113,19 @@ extension Model: Renderable {
 
         // TODO: - Transfer all this over to gpu
         var normalMapValue = normalBuffer.contents().bindMemory(to: SIMD3<Float>.self, capacity: 1).pointee
+
         // transform normal values from between 0 - 1 to -1 - 1
-        normalMapValue = ((normalMapValue * 2 - 1) * 100)
+        normalMapValue = ((normalMapValue * 2 - 1))
+
         var currentDegreeRotation = rotation.y.radiansToDegrees
         let delta = max(currentDegreeRotation, normalMapValue.x) - min(currentDegreeRotation, normalMapValue.x)
-
+//        print(normalMapValue.x)
 //        let b = simd_mix(<#T##x: Double##Double#>, <#T##y: Double##Double#>, <#T##t: Double##Double#>)
 
         if currentDegreeRotation > normalMapValue.x {
-            currentDegreeRotation -= (delta * 0.05)
+            currentDegreeRotation -= (delta)
         } else {
-            currentDegreeRotation += (delta * 0.05)
+            currentDegreeRotation += (delta)
         }
 
         rotation.y = currentDegreeRotation.degreesToRadians

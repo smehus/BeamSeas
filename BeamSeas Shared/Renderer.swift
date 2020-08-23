@@ -22,8 +22,8 @@ final class Renderer: NSObject {
 
     lazy var camera: Camera = {
         let camera = ArcballCamera()
-        camera.distance = 150
-        camera.target = [0, 0, -150]
+        camera.distance = 30
+        camera.target = [0, 0, -30]
         camera.rotation.x = Float(-10).degreesToRadians
 //        camera.rotation.y = Float(-60).degreesToRadians
         return camera
@@ -69,6 +69,7 @@ final class Renderer: NSObject {
         models.append(terrain)
 
         let cube = Model(name: "Ship", fragment: "fragment_pbr")
+        cube.position = [-1, 0, -4]
         cube.rotation = [Float(-90).degreesToRadians, 0/*Float(-20).degreesToRadians*/, 0]
         models.append(cube)
 

@@ -186,6 +186,9 @@ kernel void generate_displacement_map_values(constant GausUniforms &uniforms [[ 
 
 }
 
+
+//kernel void generate_normals
+
 half jacobian(half2 dDdx, half2 dDdy)
 {
     return (1.0 + dDdx.x) * (1.0 + dDdy.y) - dDdx.y * dDdy.x;

@@ -21,7 +21,7 @@ class Terrain: Node {
 
     static var terrainParams = TerrainParams(
         size: [BasicFFT.imgSize.float, BasicFFT.imgSize.float],
-        height: 25,
+        height: 30,
         maxTessellation: UInt32(Terrain.maxTessellation),
         numberOfPatches: UInt32(Terrain.patchNum * Terrain.patchNum)
     )
@@ -164,19 +164,8 @@ extension Terrain: Renderable {
         computeEncoder.setTexture(Self.normalMapTexture, index: 2)
         computeEncoder.setBytes(&Terrain.terrainParams, length: MemoryLayout<TerrainParams>.size, index: 3)
         computeEncoder.setBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: BufferIndex.uniforms.rawValue)
-        computeEncoder.dispatchThreadgroups(MTLSizeMake(BasicFFT.heightDisplacementMap.width, BasicFFT.heightDisplacementMap.height, 1), threadsPerThreadgroup: threadsPerGroup)
+        computeEncoder.dispatchThreadgroups(MTLSizeMake(Self.normalMapTexture.width, Self.normalMapTexture.height, 1), threadsPerThreadgroup: threadsPerGroup)
         computeEncoder.popDebugGroup()
-
-        // dispatch another call with the altHeightMap with an altNormalMapTexture
-
-//        computeEncoder.pushDebugGroup("Generate Normals")
-//        computeEncoder.setComputePipelineState(normalPipelineState)
-//        computeEncoder.setTexture(altHeightMap, index: 0)
-//        computeEncoder.setTexture(Self.secondaryNormalMapTexture, index: 2)
-//        computeEncoder.setBytes(&Terrain.terrainParams, length: MemoryLayout<TerrainParams>.size, index: 3)
-//        computeEncoder.setBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: BufferIndex.uniforms.rawValue)
-//        computeEncoder.dispatchThreadgroups(MTLSizeMake(altHeightMap.width, altHeightMap.height, 1), threadsPerThreadgroup: threadsPerGroup)
-//        computeEncoder.popDebugGroup()
 
     }
 
@@ -267,21 +256,6 @@ extension Terrain: Renderable {
             BasicFFT.heightDisplacementMap,
             index: 0
         )
-//
-//        renderEncoder.setVertexTexture(
-//            altHeightMap,
-//            index: 1
-//        )
-
-        renderEncoder.setFragmentTexture(
-            Self.normalMapTexture,
-            index: 2
-        )
-
-//        renderEncoder.setVertexTexture(
-//            Self.secondaryNormalMapTexture,
-//            index: 3
-//        )
 
         renderEncoder.setVertexBytes(
             &Terrain.terrainParams,
@@ -307,9 +281,16 @@ extension Terrain: Renderable {
             index: BufferIndex.uniforms.rawValue
         )
 
+        renderEncoder.setVertexTexture(Self.normalMapTexture, index: 1)
+
         renderEncoder.setFragmentTexture(
             BasicFFT.gradientMap,
             index: 0
+        )
+
+        renderEncoder.setFragmentTexture(
+            Self.normalMapTexture,
+            index: 2
         )
 
 //        renderEncoder.setTriangleFillMode(.lines)

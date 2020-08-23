@@ -19,7 +19,7 @@ struct TerrainVertexOut {
     float4 position [[ position ]];
     float4 color;
     float2 uv;
-
+    float4 normal;
 };
 
 kernel void compute_height(constant float3 &position [[ buffer(0) ]],
@@ -33,11 +33,19 @@ kernel void compute_height(constant float3 &position [[ buffer(0) ]],
 {
     constexpr sampler s(filter::linear);
     float2 xy = ((position.xz + terrainParams.size / 2) / terrainParams.size);
-    float4 color = heightMap.sample(s, xy);
-    float inverseColor = 1 - color.r;
-    float height = (inverseColor * 2 - 1) * terrainParams.height;
 
+    // Calculate Height
+    float4 color = heightMap.sample(s, xy);
+    float inverseColor = color.r;//1 - color.r;
+    float height = (inverseColor * 2 - 1) * terrainParams.height;
     height_buffer = height;
+
+
+    // Calculate Normal
+    xy = ((position.xz + normalMap.get_width() / 2) / normalMap.get_width());
+    float4 normal = normalMap.sample(s, xy);
+    float4 outNormal = normal;//(normal * 2 - 1) * terrainParams.height;
+    normal_buffer = outNormal.rgb;//float3(0.75, 0.0, 0);
 }
 
 float calc_distance(float3 pointA,
@@ -131,8 +139,7 @@ float3 terrainDiffuseLighting(float3 normal,
 vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control_points [[ stage_in ]],
                                        float2 patch_coord [[ position_in_patch ]],
                                        texture2d<float> heightMap [[ texture(0) ]],
-                                       texture2d<float> altHeightMap [[ texture(1) ]],
-                                       texture2d<float> secondaryNormalMap [[ texture(3) ]],
+                                       texture2d<float> normalMap [[ texture(1) ]],
                                        constant TerrainParams &terrainParams [[ buffer(BufferIndexTerrainParams) ]],
                                        uint patchID [[ patch_id ]],
                                        constant Uniforms &uniforms [[ buffer(BufferIndexUniforms) ]])
@@ -149,15 +156,15 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
 
     float2 interpolated = mix(top, bottom, v);
     float4 position = float4(interpolated.x, 0.0, interpolated.y, 1.0);
-    out.uv = position.xz;
     // Changing this to filter linear smoothes out the texture
     // Which ends up smoothing out the rendering
     constexpr sampler sample(filter::linear);
 
     float2 xy = ((position.xz + terrainParams.size / 2) / terrainParams.size);
+    out.uv = xy;
 //    xy.x = fmod(xy.x + (uniforms.deltaTime), 1);
     float4 color = heightMap.sample(sample, xy);
-    float inverseColor = 1 - color.r;
+    float inverseColor = color.r;//1 - color.r;
     float height = (inverseColor * 2 - 1) * terrainParams.height;
     position.y = height;
 
@@ -167,6 +174,7 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
 
     // reference AAPLTerrainRenderer in DynamicTerrainWithArgumentBuffers exmaple: EvaluateTerrainAtLocation line 235 -> EvaluateTerrainAtLocation in AAPLTerrainRendererUtilities line: 91
 //    out.normal = uniforms.normalMatrix * primaryLocalNormal;//mix(primaryLocalNormal, secondarLocalNormal, 0.5);
+    out.normal = normalMap.sample(sample, xy);
 
     finalColor += float4(0.2, 0.6, 0.7, 1);
     out.color = finalColor;
@@ -184,9 +192,8 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
 {
 
     constexpr sampler normalSampler(filter::linear);
-    float2 xy = ((fragment_in.uv + terrainParams.size / 2) / terrainParams.size);
-    float3 normalValue = normalize(normalMap.sample(normalSampler, xy).xzy * 2.0f - 1.0f);
-    float3 vGradJacobian = gradientMap.sample(normalSampler, xy).xyz;
+    float3 normalValue = normalize(normalMap.sample(normalSampler, fragment_in.uv).xzy * 2.0f - 1.0f);
+    float3 vGradJacobian = gradientMap.sample(normalSampler, fragment_in.uv).xyz;
 
     float3 normal = uniforms.normalMatrix * normalValue;
     float3 d = terrainDiffuseLighting(normal, fragment_in.position.xyz, fragmentUniforms, lights, fragment_in.color.rgb);
@@ -220,19 +227,19 @@ kernel void TerrainKnl_ComputeNormalsFromHeightmap(texture2d<float> height [[tex
                                                    constant Uniforms &uniforms [[ buffer(BufferIndexUniforms) ]],
                                                    uint2 tid [[thread_position_in_grid]])
 {
-    constexpr sampler sam(min_filter::nearest, mag_filter::nearest, mip_filter::none,
-                          address::clamp_to_edge, coord::pixel);
+    constexpr sampler sam(filter::linear,
+                          address::clamp_to_edge, coord::normalized);
 
 //    constexpr sampler sam(filter::linear);
 //    float xz_scale = TERRAIN_SCALE / height.get_width();
-    float xz_scale = 2;//terrain.size.x / height.get_width();
-    float y_scale = 5;//terrain.height;
+    float xz_scale = 1;//terrain.size.x / height.get_width();
+    float y_scale = terrain.height;
 
 
     if (tid.x < height.get_width() && tid.y < height.get_height()) {
         // I think we can just compute the normals once for each map - pass both maps into the vertex shader
         // And mix the two samples. Don't need to do anything else other than handle the mix between maps & fmod something...
-        // Which we're already doing in the vertex shader. So I think we can just add an altNormalMap to the vetex shader & use that for secondary shader
+//        // Which we're already doing in the vertex shader. So I think we can just add an altNormalMap to the vetex shader & use that for secondary shader
         float h_up     = height.sample(sam, (float2)(tid + uint2(0, 1))).r;
         float h_down   = height.sample(sam, (float2)(tid - uint2(0, 1))).r;
         float h_right  = height.sample(sam, (float2)(tid + uint2(1, 0))).r;

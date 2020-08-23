@@ -57,6 +57,12 @@ class Water {
     var distribution_displacement_real_buffer: MTLBuffer!
     var distribution_displacement_imag_buffer: MTLBuffer!
 
+
+    var distribution_normal_real: [Float]
+    var distribution_normal_imag: [Float]
+    var distribution_normal_real_buffer: MTLBuffer!
+    var distribution_normal_imag_buffer: MTLBuffer!
+
     private let wind_velocity: SIMD2<Float>
     private let wind_dir: SIMD2<Float>
     private let Nx: Int
@@ -101,6 +107,11 @@ class Water {
         distribution_displacement_real = [Float](repeating: 0, count: Int(n))
         distribution_displacement_imag = [Float](repeating: 0, count: Int(n))
 
+        distribution_normal_real = [Float](repeating: 0, count: Int(n))
+        distribution_normal_imag = [Float](repeating: 0, count: Int(n))
+
+
+        // Distribution
         generate_distribution(
             distribution_real: &distribution_real,
             distribution_imag: &distribution_imag,
@@ -130,7 +141,15 @@ class Water {
 //            amplitude: newamplitude
 //        )
 
-        generate_distribution(distribution_real: &distribution_displacement_real, distribution_imag: &distribution_displacement_imag, size: size, amplitude: newamplitude, max_l: max_l)
+
+        // Displacement
+        generate_distribution(
+            distribution_real: &distribution_displacement_real,
+            distribution_imag: &distribution_displacement_imag,
+            size: size,
+            amplitude: newamplitude,
+            max_l: max_l
+        )
 
         distribution_displacement_real_buffer = Renderer.device.makeBuffer(
             bytes: &distribution_displacement_real,
@@ -140,6 +159,31 @@ class Water {
 
         distribution_displacement_imag_buffer = Renderer.device.makeBuffer(
             bytes: &distribution_displacement_imag,
+            length: MemoryLayout<Float>.stride * Int(n),
+            options: .storageModeShared
+        )!
+
+
+
+        // normals
+        // Idk how creating a map out of these values could possibly
+        // work with the distribtuion created for the heightmap....
+        generate_distribution(
+            distribution_real: &distribution_normal_real,
+            distribution_imag: &distribution_normal_imag,
+            size: size,
+            amplitude: newamplitude,
+            max_l: max_l
+        )
+
+        distribution_real_buffer = Renderer.device.makeBuffer(
+            bytes: &distribution_normal_real,
+            length: MemoryLayout<Float>.stride * Int(n),
+            options: .storageModeShared
+        )!
+
+        distribution_imag_buffer = Renderer.device.makeBuffer(
+            bytes: &distribution_normal_imag,
             length: MemoryLayout<Float>.stride * Int(n),
             options: .storageModeShared
         )!
