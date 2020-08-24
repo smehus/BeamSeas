@@ -109,16 +109,20 @@ extension Renderer: MTKViewDelegate {
         fragmentUniforms.camera_position = camera.position
 
 
-//        if firstRun {
-            let distributionEncoder = commandBuffer.makeComputeCommandEncoder()!
-            fft.generateDistributions(computeEncoder: distributionEncoder, uniforms: uniforms)
-            distributionEncoder.endEncoding()
+        let distributionEncoder = commandBuffer.makeComputeCommandEncoder()!
+        fft.generateDistributions(computeEncoder: distributionEncoder, uniforms: uniforms)
+        distributionEncoder.endEncoding()
 
-            fft.runfft(phase: delta)
-            firstRun = false
-//        }
+        fft.runfft(phase: delta)
+
+        let mapEncoder = commandBuffer.makeComputeCommandEncoder()!
+        fft.generateMaps(computeEncoder: mapEncoder, uniforms: &uniforms)
+        mapEncoder.endEncoding()
 
 
+        let gradientEncoder = commandBuffer.makeComputeCommandEncoder()!
+        fft.generateGradient(computeEncoder: gradientEncoder, uniforms: &uniforms)
+        gradientEncoder.endEncoding()
 
         // Terrain Pass \\
 

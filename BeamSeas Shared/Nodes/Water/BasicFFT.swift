@@ -230,9 +230,9 @@ extension BasicFFT: Renderable {
         computeEncoder.setBuffer(source.distribution_real_buffer, offset: 0, index: 14)
         computeEncoder.setBuffer(source.distribution_imag_buffer, offset: 0, index: 15)
         computeEncoder.setTexture(BasicFFT.heightDisplacementMap, index: 0)
-        let w = fftPipelineState.threadExecutionWidth
-        let h = fftPipelineState.maxTotalThreadsPerThreadgroup / w
-        let threadGroupSize = MTLSizeMake(16, 16, 1)
+        let w = distributionPipelineState.threadExecutionWidth
+        let h = distributionPipelineState.maxTotalThreadsPerThreadgroup / w
+        var threadGroupSize = MTLSizeMake(16, 16, 1)
         var threadgroupCount = MTLSizeMake(1, 1, 1)
         threadgroupCount.width = BasicFFT.imgSize//(BasicFFT.imgSize + threadGroupSize.width - 1) / threadGroupSize.width
         threadgroupCount.height = BasicFFT.imgSize//(BasicFFT.imgSize + threadGroupSize.height - 1) / threadGroupSize.height
@@ -248,56 +248,21 @@ extension BasicFFT: Renderable {
         computeEncoder.setBuffer(source.distribution_displacement_imag_buffer, offset: 0, index: 15)
         computeEncoder.dispatchThreads(threadgroupCount, threadsPerThreadgroup: threadGroupSize)
         computeEncoder.popDebugGroup()
-
-
-
-        // Bake height gradient
-
-        computeEncoder.pushDebugGroup("FFT-Gradient")
-        computeEncoder.setComputePipelineState(gradientPipelineState)
-
-//        compute_height_graident will generate the draw texture used for terrain vertex
-        computeEncoder.setTexture(heightMap, index: 0)
-        computeEncoder.setTexture(displacementMap, index: 1)
-        computeEncoder.setTexture(Self.heightDisplacementMap, index: 2)
-        computeEncoder.setTexture(Self.gradientMap, index: 3)
-
-
-        // InvSize parameter
-//        GL_CHECK(glUniform4f(0,
-//                1.0f / Nx, 1.0f / Nz,
-//                1.0f / (Nx >> displacement_downsample),
-//                1.0f / (Nz >> displacement_downsample)));
-
-        // When i end up downsampling the displacement, I'll need to do the implemetnation above
-        var invSize = float4(repeating: 1.0 / Float(BasicFFT.imgSize))
-        computeEncoder.setBytes(&invSize, length: MemoryLayout<SIMD4<Float>>.stride, index: 0)
-
-        // uScale
-//        GL_CHECK(glUniform4f(1,
-//                Nx / size.x, Nz / size.y,
-//                (Nx >> displacement_downsample) / size.x,
-//                (Nz >> displacement_downsample) / size.y));
-        // do the same as invsize
-        var uScale = float4(repeating: Float(BasicFFT.imgSize) / Float(BasicFFT.imgSize))
-        computeEncoder.setBytes(&uScale, length: MemoryLayout<SIMD4<Float>>.stride, index: 1)
-        computeEncoder.dispatchThreads(threadgroupCount, threadsPerThreadgroup: threadGroupSize)
-        computeEncoder.popDebugGroup()
-        
     }
 
-    // Not used for normals but i'm creating a texture so what the hell
-    // CREATING THE TEXTURE MAPS FOR DISTRIBUTION & DISPLACEMENT
-    func generateTerrainNormals(computeEncoder: MTLComputeCommandEncoder, uniforms: inout Uniforms) {
-        guard dataBuffer != nil else { return }
+
+
+    func generateMaps(computeEncoder: MTLComputeCommandEncoder, uniforms: inout Uniforms) {
+        // Create diplacement & height maps
+        
         computeEncoder.pushDebugGroup("FFT-Drawing")
         // Apple example
-        let threadGroupSize = MTLSizeMake(16, 16, 1)
-        var threadgroupCount = MTLSizeMake(16, 16, 1)
-        threadgroupCount.width = (Self.heightDisplacementMap.width + threadGroupSize.width - 1) / threadGroupSize.width
-        threadgroupCount.height = (Self.heightDisplacementMap.height + threadGroupSize.height - 1) / threadGroupSize.height
-
-
+        let w = fftPipelineState.threadExecutionWidth
+        let h = fftPipelineState.maxTotalThreadsPerThreadgroup / w
+        var threadGroupSize = MTLSizeMake(16, 16, 1)
+        var threadgroupCount = MTLSizeMake(1, 1, 1)
+        threadgroupCount.width = BasicFFT.imgSize//(BasicFFT.imgSize + threadGroupSize.width - 1) / threadGroupSize.width
+        threadgroupCount.height = BasicFFT.imgSize//(BasicFFT.imgSize + threadGroupSize.height - 1) / threadGroupSize.height
 
         computeEncoder.setComputePipelineState(fftPipelineState)
         computeEncoder.setTexture(heightMap, index: 0)
@@ -305,10 +270,58 @@ extension BasicFFT: Renderable {
         computeEncoder.setBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: 3)
         computeEncoder.setBuffer(dataBuffer, offset: 0, index: 0)
         computeEncoder.setBuffer(displacementBuffer, offset: 0, index: 1)
-
+        
         // threadsPerGrid determines the thread_posistion dimensions
         computeEncoder.dispatchThreadgroups(threadgroupCount, threadsPerThreadgroup: threadGroupSize)
         computeEncoder.popDebugGroup()
+    }
+
+    func generateGradient(computeEncoder: MTLComputeCommandEncoder, uniforms: inout Uniforms) {
+        // Bake height gradient - Combine displacement and height maps
+        // Create final map to use for tessellation
+
+        let w = gradientPipelineState.threadExecutionWidth
+        let h = gradientPipelineState.maxTotalThreadsPerThreadgroup / w
+        var threadGroupSize = MTLSizeMake(16, 16, 1)
+        var threadgroupCount = MTLSizeMake(1, 1, 1)
+        threadgroupCount.width = BasicFFT.imgSize//(BasicFFT.imgSize + threadGroupSize.width - 1) / threadGroupSize.width
+        threadgroupCount.height = BasicFFT.imgSize//(BasicFFT.imgSize + threadGroupSize.height - 1) / threadGroupSize.height
+
+        computeEncoder.pushDebugGroup("FFT-Gradient")
+        computeEncoder.setComputePipelineState(gradientPipelineState)
+
+        //        compute_height_graident will generate the draw texture used for terrain vertex
+        computeEncoder.setTexture(heightMap, index: 0)
+        computeEncoder.setTexture(displacementMap, index: 1)
+        computeEncoder.setTexture(Self.heightDisplacementMap, index: 2)
+        computeEncoder.setTexture(Self.gradientMap, index: 3)
+
+
+        // InvSize parameter
+        //        GL_CHECK(glUniform4f(0,
+        //                1.0f / Nx, 1.0f / Nz,
+        //                1.0f / (Nx >> displacement_downsample),
+        //                1.0f / (Nz >> displacement_downsample)));
+
+        // When i end up downsampling the displacement, I'll need to do the implemetnation above
+        var invSize = float4(repeating: 1.0 / Float(BasicFFT.imgSize))
+        computeEncoder.setBytes(&invSize, length: MemoryLayout<SIMD4<Float>>.stride, index: 0)
+
+        // uScale
+        //        GL_CHECK(glUniform4f(1,
+        //                Nx / size.x, Nz / size.y,
+        //                (Nx >> displacement_downsample) / size.x,
+        //                (Nz >> displacement_downsample) / size.y));
+        // do the same as invsize
+        var uScale = float4(repeating: Float(BasicFFT.imgSize) / Float(BasicFFT.imgSize))
+        computeEncoder.setBytes(&uScale, length: MemoryLayout<SIMD4<Float>>.stride, index: 1)
+        computeEncoder.dispatchThreads(threadgroupCount, threadsPerThreadgroup: threadGroupSize)
+        computeEncoder.popDebugGroup()
+    }
+
+    func generateTerrainNormals(computeEncoder: MTLComputeCommandEncoder, uniforms: inout Uniforms) {
+        guard dataBuffer != nil else { return }
+
     }
 
 
