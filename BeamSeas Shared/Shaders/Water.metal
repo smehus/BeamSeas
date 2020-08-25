@@ -275,6 +275,7 @@ kernel void fft_kernel(texture2d<float, access::write> output_height [[ texture(
         float displace = displacement[index];
         // maybe write out both height & displacement textures separately here?
 
+
         output_height.write(float4(val, val, val, 1), tid);
         output_displacement.write(float4(displace, displace, displace, 1), tid);
     }

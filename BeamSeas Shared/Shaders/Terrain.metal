@@ -36,7 +36,7 @@ kernel void compute_height(constant float3 &position [[ buffer(0) ]],
 
     // Calculate Height
     float4 color = heightMap.sample(s, xy);
-    float inverseColor = 1 - color.r;
+    float inverseColor = color.r;//1 - color.r;
     float height = (inverseColor * 2 - 1) * terrainParams.height;
     height_buffer = height;
 
@@ -164,7 +164,7 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
     out.uv = xy;
 //    xy.x = fmod(xy.x + (uniforms.deltaTime), 1);
     float4 color = heightMap.sample(sample, xy);
-    float inverseColor = 1 - color.r;
+    float inverseColor = color.r;//1 - color.r;
     float height = (inverseColor * 2 - 1) * terrainParams.height;
     position.y = height;
 

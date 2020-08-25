@@ -24,7 +24,7 @@ class BasicFFT: Node {
 
 
     static let imgSize: Int = 256
-    static let distributionSize: Int = 128
+    static let distributionSize: Int = 256
 
     private var signalCount: Int = 0
 
@@ -102,7 +102,7 @@ class BasicFFT: Node {
                  resolution: SIMD2<Int>(x: BasicFFT.distributionSize, y: BasicFFT.distributionSize),
                  size: float2(x: Float(BasicFFT.distributionSize), y: Float(BasicFFT.distributionSize)),
                  normalmap_freq_mod: float2(repeating: 1),
-                 max_l: 2.0
+                 max_l: 0.3
         )
 
         guard

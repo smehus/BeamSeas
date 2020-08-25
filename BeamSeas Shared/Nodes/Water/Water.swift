@@ -94,7 +94,7 @@ class Water {
 
         let n = vDSP_Length(Nx * Nz)
         var newamplitude = amplitude
-        newamplitude *= 0.3 / sqrt(size.x * size.y)
+        newamplitude *= 0.7 / sqrt(size.x * size.y)
 
         // Factor in phillips spectrum
         L = simd_dot(wind_velocity, wind_velocity) / Self.G;
