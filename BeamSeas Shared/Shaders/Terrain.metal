@@ -36,7 +36,7 @@ kernel void compute_height(constant float3 &position [[ buffer(0) ]],
 
     // Calculate Height
     float4 color = heightMap.sample(s, xy);
-    float inverseColor = color.r;//1 - color.r;
+    float inverseColor = 1 - color.r;
     float height = (inverseColor * 2 - 1) * terrainParams.height;
     height_buffer = height;
 
@@ -164,7 +164,7 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
     out.uv = xy;
 //    xy.x = fmod(xy.x + (uniforms.deltaTime), 1);
     float4 color = heightMap.sample(sample, xy);
-    float inverseColor = color.r;//1 - color.r;
+    float inverseColor = 1 - color.r;
     float height = (inverseColor * 2 - 1) * terrainParams.height;
     position.y = height;
 
@@ -175,8 +175,8 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
     // reference AAPLTerrainRenderer in DynamicTerrainWithArgumentBuffers exmaple: EvaluateTerrainAtLocation line 235 -> EvaluateTerrainAtLocation in AAPLTerrainRendererUtilities line: 91
 //    out.normal = uniforms.normalMatrix * primaryLocalNormal;//mix(primaryLocalNormal, secondarLocalNormal, 0.5);
 
-    constexpr sampler normalSampler(filter::linear);
-    float3 normalValue = normalMap.sample(normalSampler, xy).xzy * 2.0f - 1.0f;
+    constexpr sampler normalSampler(min_filter::linear, mag_filter::linear, mip_filter::nearest);
+    float3 normalValue = normalize(normalMap.sample(normalSampler, xy).xzy * 2.0f - 1.0f);
     float3 normal = uniforms.normalMatrix * normalValue;
 
     out.normal = normal;
@@ -196,7 +196,10 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
 {
 
 
-    float3 d = terrainDiffuseLighting(fragment_in.normal, fragment_in.position.xyz, fragmentUniforms, lights, fragment_in.color.rgb);
+    constexpr sampler sam(min_filter::linear, mag_filter::linear, mip_filter::nearest);
+    float3 normalValue = normalize(normalMap.sample(sam, fragment_in.uv).xzy * 2.0f - 1.0f);
+
+    float3 d = terrainDiffuseLighting(uniforms.normalMatrix * normalValue, fragment_in.position.xyz, fragmentUniforms, lights, fragment_in.color.rgb);
 
 
 //    float3 noise_gradient = 0.30 * normal;
@@ -227,12 +230,14 @@ kernel void TerrainKnl_ComputeNormalsFromHeightmap(texture2d<float> height [[tex
                                                    constant Uniforms &uniforms [[ buffer(BufferIndexUniforms) ]],
                                                    uint2 tid [[thread_position_in_grid]])
 {
-    constexpr sampler sam(filter::linear,
+    constexpr sampler sam(min_filter::nearest, mag_filter::nearest, mip_filter::none,
                           address::clamp_to_edge, coord::pixel);
+
+
 
 //    constexpr sampler sam(filter::linear);
 //    float xz_scale = TERRAIN_SCALE / height.get_width();
-    float xz_scale = 1;//terrain.size.x / height.get_width();
+    float xz_scale = (terrain.size.x * terrain.size.y) / height.get_width();
     float y_scale = terrain.height;
 
 
