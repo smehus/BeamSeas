@@ -264,6 +264,7 @@ kernel void TerrainKnl_ComputeNormalsFromHeightmap(texture2d<float> height [[tex
 
         float3 n = normalize(n0 + n1 + n2 + n3) * 0.5f + 0.5f;
 
+        tid = (uint2)tid * 4;
         normal.write(float4(n.xzy, 1), tid);
     }
 }

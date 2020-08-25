@@ -149,41 +149,40 @@ kernel void generate_displacement_map_values(constant GausUniforms &uniforms [[ 
                                   uint2 i [[ thread_position_in_grid ]])
 {
 
-//    uint2 N = uniforms.resolution;
-//    float2 uMod = float2(2.0 * M_PI_F) / uniforms.size;
-//    int width = drawTexture.get_width();
-//    int height = drawTexture.get_height();
-//
-//    uint2 wi = uint2(mix(float2(N - i),
-//                    float2(0u),
-//                    float2(i == uint2(0u))));
-//
-//    float aReal = input_real[i.y * N.x + i.x];
-//    float aImag = input_imag[i.y * N.x + i.x];
-//    float2 a = float2(aReal, aImag);
-//
-//    float bReal = input_real[wi.y * N.x + wi.x];
-//    float bImag = input_imag[wi.y * N.x + wi.x];
-//    float2 b = float2(bReal, bImag);
-//
-//    float2 k = uMod * vecAlias(i, uint2(width, height));
-//    float k_len = length(k);
-//
-//    const float G = 9.81;
-//    float w = sqrt(G * k_len) * (mainUniforms.deltaTime * 0.003); // Do phase accumulation later ...
-//
-//    float cw = cos(w);
-//    float sw = sin(w);
-//
-//    a = cmul(a, float2(cw, sw));
-//    b = cmul(b, float2(cw, sw));
-//    b = float2(b.x, -b.y);
-//    float2 res = a + b;
-//
-//    float2 grad = cmul(res, float2(-k.y / (k_len + 0.00001), k.x / (k_len + 0.00001)));
-//    output_real[i.y * N.x + i.x] = grad.x;
-//    output_imag[i.y * N.x + i.x] = grad.y;
+    uint2 N = uniforms.resolution;
+    float2 uMod = float2(2.0 * M_PI_F) / uniforms.size;
+    int width = uniforms.resolution.x;
+    int height = uniforms.resolution.y;
 
+    uint2 wi = uint2(mix(float2(N - i),
+                    float2(0u),
+                    float2(i == uint2(0u))));
+
+    float aReal = input_real[i.y * N.x + i.x];
+    float aImag = input_imag[i.y * N.x + i.x];
+    float2 a = float2(aReal, aImag);
+
+    float bReal = input_real[wi.y * N.x + wi.x];
+    float bImag = input_imag[wi.y * N.x + wi.x];
+    float2 b = float2(bReal, bImag);
+
+    float2 k = uMod * vecAlias(i, uint2(width, height));
+    float k_len = length(k);
+
+    const float G = 9.81;
+    float w = sqrt(G * k_len) * (mainUniforms.deltaTime * 0.003); // Do phase accumulation later ...
+
+    float cw = cos(w);
+    float sw = sin(w);
+
+    a = cmul(a, float2(cw, sw));
+    b = cmul(b, float2(cw, sw));
+    b = float2(b.x, -b.y);
+    float2 res = a + b;
+
+    float2 grad = cmul(res, float2(-k.y / (k_len + 0.00001), k.x / (k_len + 0.00001)));
+    output_real[i.y * N.x + i.x] = grad.x;
+    output_imag[i.y * N.x + i.x] = grad.y;
 }
 
 
@@ -261,22 +260,23 @@ kernel void fft_kernel(texture2d<float, access::write> output_height [[ texture(
                        uint2 tid [[ thread_position_in_grid]],
                        constant float *data [[ buffer(0) ]],
                        constant float *displacement [[ buffer(1) ]],
-                       constant Uniforms &uniforms [[ buffer(3) ]])
+                       constant Uniforms &uniforms [[ buffer(3) ]],
+                       constant GausUniforms &gausUniforms [[ buffer(4)]])
 {
     // this will work because both height and displacement are the same size
     // In the future when i downsample displacement - this will need to be updated
     uint width = output_height.get_width();
     uint height = output_height.get_height();
 
+
     if (tid.x < width && tid.y < height) {
-        // Why was this divied by 4??? - no idea
-//        uint index = (uint)(tid.y * width + tid.x);
-//        float val = data[index];
-//        float displace = displacement[index];
-//        // maybe write out both height & displacement textures separately here?
-//
-//
-//        output_height.write(float4(val, val, val, 1), tid);
-//        output_displacement.write(float4(displace, displace, displace, 1), tid);
+
+        uint index = (uint)(tid.y * width + tid.x);
+        float val = data[index];
+        float displace = displacement[index];
+//         maybe write out both height & displacement textures separately here?
+
+        output_height.write(float4(val, val, val, 1), tid);
+        output_displacement.write(float4(displace, displace, displace, 1), tid);
     }
 }

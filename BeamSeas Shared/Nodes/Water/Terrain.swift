@@ -100,8 +100,8 @@ class Terrain: Node {
 
         // Taken from apple example
         let texDesc = MTLTextureDescriptor()
-        texDesc.width = BasicFFT.heightDisplacementMap.width
-        texDesc.height = BasicFFT.heightDisplacementMap.height
+        texDesc.width = 512//BasicFFT.heightDisplacementMap.width
+        texDesc.height = 512//BasicFFT.heightDisplacementMap.height
         texDesc.pixelFormat = .rg11b10Float
         texDesc.usage = [.shaderRead, .shaderWrite]
         texDesc.mipmapLevelCount = 1//Int(log2(Double(max(BasicFFT.heightDisplacementMap.width, BasicFFT.heightDisplacementMap.height))) + 1);

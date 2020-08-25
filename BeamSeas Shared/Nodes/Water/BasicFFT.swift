@@ -24,7 +24,7 @@ class BasicFFT: Node {
 
 
     static let imgSize: Int = 256
-    static let distributionSize: Int = 128
+    static let distributionSize: Int = 256
 
     private var signalCount: Int = 0
 
@@ -257,10 +257,21 @@ extension BasicFFT: Renderable {
         // Create diplacement & height maps
         
         computeEncoder.pushDebugGroup("FFT-Drawing")
+
+        var gausUniforms = GausUniforms(
+            dataLength: Int32(BasicFFT.distributionSize * BasicFFT.distributionSize),
+            amplitude: 1,
+            wind_velocity: vector_float2(x: 10, y: -10),
+            resolution: vector_uint2(x: BasicFFT.distributionSize.unsigned, y: BasicFFT.distributionSize.unsigned),
+            size: vector_float2(x: BasicFFT.distributionSize.float, y: BasicFFT.distributionSize.float),
+            normalmap_freq_mod: vector_float2(repeating: 7.3),
+            seed: seed
+        )
+
         // Apple example
         let w = fftPipelineState.threadExecutionWidth
         let h = fftPipelineState.maxTotalThreadsPerThreadgroup / w
-        var threadGroupSize = MTLSizeMake(16, 16, 1)
+        var threadGroupSize = MTLSizeMake(w, h, 1)
         var threadgroupCount = MTLSizeMake(1, 1, 1)
         threadgroupCount.width = BasicFFT.imgSize//(BasicFFT.imgSize + threadGroupSize.width - 1) / threadGroupSize.width
         threadgroupCount.height = BasicFFT.imgSize//(BasicFFT.imgSize + threadGroupSize.height - 1) / threadGroupSize.height
@@ -268,9 +279,10 @@ extension BasicFFT: Renderable {
         computeEncoder.setComputePipelineState(fftPipelineState)
         computeEncoder.setTexture(heightMap, index: 0)
         computeEncoder.setTexture(displacementMap, index: 1)
-        computeEncoder.setBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: 3)
         computeEncoder.setBuffer(dataBuffer, offset: 0, index: 0)
         computeEncoder.setBuffer(displacementBuffer, offset: 0, index: 1)
+        computeEncoder.setBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: 3)
+        computeEncoder.setBytes(&gausUniforms, length: MemoryLayout<GausUniforms>.stride, index: 4)
         
         // threadsPerGrid determines the thread_posistion dimensions
         computeEncoder.dispatchThreadgroups(threadgroupCount, threadsPerThreadgroup: threadGroupSize)
@@ -328,7 +340,7 @@ extension BasicFFT: Renderable {
 
     // This is used to draw the height map in the top left
     func draw(renderEncoder: MTLRenderCommandEncoder, uniforms: inout Uniforms, fragmentUniforms: inout FragmentUniforms) {
-        renderEncoder.pushDebugGroup("FFT")
+        renderEncoder.pushDebugGroup("Tiny Map")
         renderEncoder.setRenderPipelineState(mainPipelineState)
 
         position.x = -0.75
