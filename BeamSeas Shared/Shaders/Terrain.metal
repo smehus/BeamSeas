@@ -239,17 +239,39 @@ kernel void TerrainKnl_ComputeNormalsFromHeightmap(texture2d<float> height [[tex
 //    float xz_scale = TERRAIN_SCALE / height.get_width();
     float xz_scale = terrain.size.x / height.get_width();
     float y_scale = terrain.height;
+    uint2 altTid = tid;// / 4;
 
-
-    if (tid.x < height.get_width() && tid.y < height.get_height()) {
+    if (altTid.x + 1 < height.get_width() && altTid.y + 1 < height.get_height()) {
         // I think we can just compute the normals once for each map - pass both maps into the vertex shader
         // And mix the two samples. Don't need to do anything else other than handle the mix between maps & fmod something...
 //        // Which we're already doing in the vertex shader. So I think we can just add an altNormalMap to the vetex shader & use that for secondary shader
-        float h_up     = height.sample(sam, (float2)(tid + uint2(0, 1))).r;
-        float h_down   = height.sample(sam, (float2)(tid - uint2(0, 1))).r;
-        float h_right  = height.sample(sam, (float2)(tid + uint2(1, 0))).r;
-        float h_left   = height.sample(sam, (float2)(tid - uint2(1, 0))).r;
-        float h_center = height.sample(sam, (float2)(tid + uint2(0, 0))).r;
+
+
+
+        float2 h_up_uv = (float2)(altTid + uint2(0, 1));
+        float h_up_t     = height.sample(sam, h_up_uv).r;
+        float h_up_mod = height.sample(sam, h_up_uv + 1).r;
+        float h_up = mix(h_up_t, h_up_mod, 0.5);
+
+        float2 h_down_uv = (float2)(altTid - uint2(0, 1));
+        float h_down_t   = height.sample(sam, h_down_uv).r;
+        float h_down_mod = height.sample(sam, h_down_uv + 1).r;
+        float h_down = mix(h_down_t, h_down_mod, 0.5);
+
+        float2 h_right_uv = (float2)(altTid + uint2(1, 0));
+        float h_right_t  = height.sample(sam, h_right_uv).r;
+        float h_right_mod  = height.sample(sam, h_right_uv + 1).r;
+        float h_right = mix(h_right_t, h_right_mod, 0.5);
+
+        float2 h_left_uv = (float2)(altTid - uint2(1, 0));
+        float h_left_t   = height.sample(sam, h_left_uv).r;
+        float h_left_mod   = height.sample(sam, h_left_uv + 1).r;
+        float h_left = mix(h_left_t, h_left_mod, 0.5);
+
+        float2 h_center_uv = (float2)(altTid + uint2(0, 0));
+        float h_center_t = height.sample(sam, h_center_uv).r;
+        float h_center_mod = height.sample(sam, h_center_uv + 1).r;
+        float h_center = mix(h_center_t, h_center_mod, 0.5);
 
         float3 v_up    = float3( 0,        (h_up    - h_center) * y_scale,  xz_scale);
         float3 v_down  = float3( 0,        (h_down  - h_center) * y_scale, -xz_scale);
@@ -264,7 +286,6 @@ kernel void TerrainKnl_ComputeNormalsFromHeightmap(texture2d<float> height [[tex
 
         float3 n = normalize(n0 + n1 + n2 + n3) * 0.5f + 0.5f;
 
-        tid = (uint2)tid * 4;
         normal.write(float4(n.xzy, 1), tid);
     }
 }
