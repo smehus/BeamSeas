@@ -24,7 +24,7 @@ class BasicFFT: Node {
 
 
     static let imgSize: Int = 256
-    static let distributionSize: Int = 256
+    static let distributionSize: Int = 128
 
     private var signalCount: Int = 0
 
@@ -100,9 +100,9 @@ class BasicFFT: Node {
                  amplitude: 5000,
                  wind_velocity: float2(x: 10, y: -10),
                  resolution: SIMD2<Int>(x: BasicFFT.distributionSize, y: BasicFFT.distributionSize),
-                 size: float2(x: Float(BasicFFT.distributionSize), y: Float(BasicFFT.distributionSize)),
+                 size: float2(x: Float(BasicFFT.imgSize), y: Float(BasicFFT.imgSize)),
                  normalmap_freq_mod: float2(repeating: 1),
-                 max_l: 0.3
+                 max_l: 3.0
         )
 
         guard
@@ -235,8 +235,8 @@ extension BasicFFT: Renderable {
         let h = distributionPipelineState.maxTotalThreadsPerThreadgroup / w
         var threadGroupSize = MTLSizeMake(16, 16, 1)
         var threadgroupCount = MTLSizeMake(1, 1, 1)
-        threadgroupCount.width = BasicFFT.imgSize//(BasicFFT.imgSize + threadGroupSize.width - 1) / threadGroupSize.width
-        threadgroupCount.height = BasicFFT.imgSize//(BasicFFT.imgSize + threadGroupSize.height - 1) / threadGroupSize.height
+        threadgroupCount.width = BasicFFT.distributionSize//(BasicFFT.imgSize + threadGroupSize.width - 1) / threadGroupSize.width
+        threadgroupCount.height = BasicFFT.distributionSize//(BasicFFT.imgSize + threadGroupSize.height - 1) / threadGroupSize.height
         computeEncoder.dispatchThreads(threadgroupCount, threadsPerThreadgroup: threadGroupSize)
         computeEncoder.popDebugGroup()
 
