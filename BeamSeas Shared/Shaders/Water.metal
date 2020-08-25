@@ -269,9 +269,10 @@ kernel void fft_kernel(texture2d<float, access::write> output_height [[ texture(
     uint height = output_height.get_height();
 
     if (tid.x < width && tid.y < height) {
-        uint index = tid.y * width + tid.x;
-        float val = data[index] + 1;
-        float displace = displacement[index] + 1;
+        // Why was this divied by 4??? - no idea
+        uint index = (uint)(tid.y * width + tid.x);
+        float val = data[index];
+        float displace = displacement[index];
         // maybe write out both height & displacement textures separately here?
 
         output_height.write(float4(val, val, val, 1), tid);
