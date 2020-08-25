@@ -104,7 +104,7 @@ class Terrain: Node {
         texDesc.height = BasicFFT.heightDisplacementMap.height
         texDesc.pixelFormat = .rg11b10Float
         texDesc.usage = [.shaderRead, .shaderWrite]
-        texDesc.mipmapLevelCount = Int(log2(Double(max(BasicFFT.heightDisplacementMap.width, BasicFFT.heightDisplacementMap.height))) + 1);
+        texDesc.mipmapLevelCount = 1//Int(log2(Double(max(BasicFFT.heightDisplacementMap.width, BasicFFT.heightDisplacementMap.height))) + 1);
         texDesc.storageMode = .private
         Self.normalMapTexture = Renderer.device.makeTexture(descriptor: texDesc)!
 

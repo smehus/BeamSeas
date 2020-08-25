@@ -24,6 +24,7 @@ class BasicFFT: Node {
 
 
     static let imgSize: Int = 256
+    static let distributionSize: Int = 128
 
     private var signalCount: Int = 0
 
@@ -65,7 +66,7 @@ class BasicFFT: Node {
         let prim = MDLMesh(planeWithExtent: [0.5, 0.5, 0], segments: [4, 4], geometryType: .triangles, allocator: allocator)
         model = try! MTKMesh(mesh: prim, device: Renderer.device)
 
-        let log2n = vDSP_Length(log2(Float((BasicFFT.imgSize * BasicFFT.imgSize))))
+        let log2n = vDSP_Length(log2(Float((BasicFFT.distributionSize * BasicFFT.distributionSize))))
         fft = vDSP.FFT(log2n: log2n, radix: .radix2, ofType: DSPSplitComplex.self)!
 
         let texDesc = MTLTextureDescriptor()
@@ -98,8 +99,8 @@ class BasicFFT: Node {
         source = Water(
                  amplitude: 5000,
                  wind_velocity: float2(x: 10, y: -10),
-                 resolution: SIMD2<Int>(x: 200, y: 200),
-                 size: float2(x: 256, y: 256),
+                 resolution: SIMD2<Int>(x: BasicFFT.distributionSize, y: BasicFFT.distributionSize),
+                 size: float2(x: Float(BasicFFT.distributionSize), y: Float(BasicFFT.distributionSize)),
                  normalmap_freq_mod: float2(repeating: 1),
                  max_l: 2.0
         )
@@ -212,11 +213,11 @@ extension BasicFFT: Renderable {
     func generateDistributions(computeEncoder: MTLComputeCommandEncoder, uniforms: Uniforms) {
         computeEncoder.pushDebugGroup("FFT-Distribution")
         var gausUniforms = GausUniforms(
-            dataLength: Int32(BasicFFT.imgSize * BasicFFT.imgSize),
+            dataLength: Int32(BasicFFT.distributionSize * BasicFFT.distributionSize),
             amplitude: 1,
             wind_velocity: vector_float2(x: 10, y: -10),
-            resolution: vector_uint2(x: BasicFFT.imgSize.unsigned, y: BasicFFT.imgSize.unsigned),
-            size: vector_float2(x: BasicFFT.imgSize.float, y: BasicFFT.imgSize.float),
+            resolution: vector_uint2(x: BasicFFT.distributionSize.unsigned, y: BasicFFT.distributionSize.unsigned),
+            size: vector_float2(x: BasicFFT.distributionSize.float, y: BasicFFT.distributionSize.float),
             normalmap_freq_mod: vector_float2(repeating: 7.3),
             seed: seed
         )

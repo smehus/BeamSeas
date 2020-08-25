@@ -180,7 +180,7 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
     float3 normal = uniforms.normalMatrix * normalValue;
 
     out.normal = normal;
-    finalColor += float4(0.2, 0.6, 0.7, 1);
+    finalColor = float4(0.2, 0.6, 0.7, 1);
     out.color = finalColor;
 
     return out;
