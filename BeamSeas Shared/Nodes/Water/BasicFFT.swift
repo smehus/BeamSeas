@@ -98,8 +98,8 @@ class BasicFFT: Node {
         source = Water(
                  amplitude: 5000,
                  wind_velocity: float2(x: 10, y: -10),
-                 resolution: SIMD2<Int>(x: BasicFFT.imgSize, y: BasicFFT.imgSize),
-                 size: float2(x: 200, y: 200),
+                 resolution: SIMD2<Int>(x: 200, y: 200),
+                 size: float2(x: 256, y: 256),
                  normalmap_freq_mod: float2(repeating: 1),
                  max_l: 2.0
         )

@@ -237,7 +237,7 @@ kernel void TerrainKnl_ComputeNormalsFromHeightmap(texture2d<float> height [[tex
 
 //    constexpr sampler sam(filter::linear);
 //    float xz_scale = TERRAIN_SCALE / height.get_width();
-    float xz_scale = (terrain.size.x * terrain.size.y) / height.get_width();
+    float xz_scale = terrain.size.x / height.get_width();
     float y_scale = terrain.height;
 
 
