@@ -97,12 +97,12 @@ class BasicFFT: Node {
         mainPipelineState = try! Renderer.device.makeRenderPipelineState(descriptor: mainPipeDescriptor)
 
         source = Water(
-                 amplitude: 5000,
+                 amplitude: 20000,
                  wind_velocity: float2(x: 10, y: -10),
                  resolution: SIMD2<Int>(x: BasicFFT.distributionSize, y: BasicFFT.distributionSize),
-                 size: float2(x: Float(512), y: Float(512)),
+                 size: float2(x: Float(256), y: Float(256)),
                  normalmap_freq_mod: float2(repeating: 1),
-                 max_l: 5.0
+                 max_l: 1.0
         )
 
         guard
@@ -153,8 +153,8 @@ class BasicFFT: Node {
         var inputReal = [Float](repeating: 0, count: count / 2)
         var inputImag = [Float](repeating: 0, count: count / 2)
 
-        var realPointer = real.contents().bindMemory(to: Float.self, capacity: count)
-        var imagPointer = imag.contents().bindMemory(to: Float.self, capacity: count)
+        var realPointer = real.contents().bindMemory(to: Float.self, capacity: count / 2)
+        var imagPointer = imag.contents().bindMemory(to: Float.self, capacity: count / 2)
 
 
         for index in 0..<(count / 2) {
@@ -184,10 +184,10 @@ class BasicFFT: Node {
                             fft.inverse(input: forwardOutput, output: &inverseOutput)
 
                             // 4: Return an array of real values from the FFT result.
-                            let scale = 1 / Float((count) * 2)
+                            let scale = 1 / Float((count))
                             return [Float](fromSplitComplex: inverseOutput,
                                            scale: scale,
-                                           count: Int(count))
+                                           count: Int(count / 2))
                         }
                     }
                 }

@@ -21,7 +21,7 @@ class Terrain: Node {
 
     static var terrainParams = TerrainParams(
         size: [BasicFFT.imgSize.float, BasicFFT.imgSize.float],
-        height: 50,
+        height: 10,
         maxTessellation: UInt32(Terrain.maxTessellation),
         numberOfPatches: UInt32(Terrain.patchNum * Terrain.patchNum)
     )
