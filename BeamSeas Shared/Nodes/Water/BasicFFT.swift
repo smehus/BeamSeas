@@ -102,7 +102,7 @@ class BasicFFT: Node {
                  resolution: SIMD2<Int>(x: BasicFFT.distributionSize, y: BasicFFT.distributionSize),
                  size: float2(x: Float(256), y: Float(256)),
                  normalmap_freq_mod: float2(repeating: 1),
-                 max_l: 1.0
+                 max_l: 3.0
         )
 
         guard

@@ -251,33 +251,53 @@ kernel void TerrainKnl_ComputeNormalsFromHeightmap(texture2d<float> height [[tex
         float2 h_up_uv = (float2)(altTid + uint2(0, 1));
         float h_up_t     = height.sample(sam, h_up_uv).r;
         float h_up_mod = height.sample(sam, h_up_uv + 1).r;
-        float h_up = mix(h_up_t, h_up_mod, 0.5);
+        float h_up_dMod = height.sample(sam, h_up_uv - 1).r;
+
+        float h_up_forward = mix(h_up_t, h_up_mod, 0.5);
+        float h_up_back = mix(h_up_t, h_up_dMod, 0.5);
+        float h_up = mix(h_up_forward, h_up_back, 0.5);
 
         float2 h_down_uv = (float2)(altTid - uint2(0, 1));
         float h_down_t   = height.sample(sam, h_down_uv).r;
         float h_down_mod = height.sample(sam, h_down_uv + 1).r;
-        float h_down = mix(h_down_t, h_down_mod, 0.5);
+        float h_down_dMod = height.sample(sam, h_down_uv - 1).r;
+
+        float h_down_forward = mix(h_down_t, h_down_mod, 0.5);
+        float h_down_back = mix(h_down_t, h_down_dMod, 0.5);
+        float h_down = mix(h_down_forward, h_down_back, 0.5);
 
         float2 h_right_uv = (float2)(altTid + uint2(1, 0));
         float h_right_t  = height.sample(sam, h_right_uv).r;
         float h_right_mod  = height.sample(sam, h_right_uv + 1).r;
-        float h_right = mix(h_right_t, h_right_mod, 0.5);
+        float h_right_dMod  = height.sample(sam, h_right_uv - 1).r;
+
+        float h_right_forward = mix(h_right_t, h_right_mod, 0.5);
+        float h_right_back = mix(h_right_t, h_right_dMod, 0.5);
+        float h_right = mix(h_right_forward, h_right_back, 0.5);
 
         float2 h_left_uv = (float2)(altTid - uint2(1, 0));
         float h_left_t   = height.sample(sam, h_left_uv).r;
         float h_left_mod   = height.sample(sam, h_left_uv + 1).r;
-        float h_left = mix(h_left_t, h_left_mod, 0.5);
+        float h_left_dMod   = height.sample(sam, h_left_uv - 1).r;
+
+        float h_left_forward = mix(h_left_t, h_left_mod, 0.5);
+        float h_left_back = mix(h_left_t, h_left_dMod, 0.5);
+        float h_left = mix(h_left_forward, h_left_back, 0.5);
 
         float2 h_center_uv = (float2)(altTid + uint2(0, 0));
         float h_center_t = height.sample(sam, h_center_uv).r;
         float h_center_mod = height.sample(sam, h_center_uv + 1).r;
-        float h_center = mix(h_center_t, h_center_mod, 0.5);
+        float h_center_dMod = height.sample(sam, h_center_uv - 1).r;
 
-        float3 v_up    = float3( 0,        (h_center - h_up) * y_scale,  xz_scale);
-        float3 v_down  = float3( 0,        (h_center - h_down) * y_scale, -xz_scale);
+        float h_center_forward = mix(h_center_t, h_center_mod, 0.5);
+        float h_center_back = mix(h_center_t, h_center_dMod, 0.5);
+        float h_center = mix(h_center_forward, h_center_back, 0.5);
+
+        float3 v_up    = float3( 0,        (h_up - h_center) * y_scale,  xz_scale);
+        float3 v_down  = float3( 0,        (h_down - h_center) * y_scale, -xz_scale);
         // switched h_right & h_center to accomodate for map weirdness
-        float3 v_right = float3( xz_scale, (h_center - h_right) * y_scale,  0);
-        float3 v_left  = float3(-xz_scale, (h_center - h_left) * y_scale,  0);
+        float3 v_right = float3( xz_scale, (h_right - h_center) * y_scale,  0);
+        float3 v_left  = float3(-xz_scale, (h_left - h_center) * y_scale,  0);
 
         float3 n0 = cross(v_up, v_right);
         float3 n1 = cross(v_left, v_up);
