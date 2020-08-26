@@ -67,7 +67,7 @@ class BasicFFT: Node {
         model = try! MTKMesh(mesh: prim, device: Renderer.device)
 
         let log2n = vDSP_Length(log2(Float((BasicFFT.distributionSize * BasicFFT.distributionSize))))
-        fft = vDSP.FFT(log2n: log2n, radix: .radix2, ofType: DSPSplitComplex.self)!
+        fft = vDSP.FFT(log2n: log2n, radix: .radix5, ofType: DSPSplitComplex.self)!
 
         let texDesc = MTLTextureDescriptor()
         texDesc.width = BasicFFT.imgSize
@@ -100,9 +100,9 @@ class BasicFFT: Node {
                  amplitude: 5000,
                  wind_velocity: float2(x: 10, y: -10),
                  resolution: SIMD2<Int>(x: BasicFFT.distributionSize, y: BasicFFT.distributionSize),
-                 size: float2(x: Float(BasicFFT.imgSize), y: Float(BasicFFT.imgSize)),
+                 size: float2(x: Float(512), y: Float(512)),
                  normalmap_freq_mod: float2(repeating: 1),
-                 max_l: 0.3
+                 max_l: 5.0
         )
 
         guard
@@ -134,12 +134,12 @@ class BasicFFT: Node {
     // This runs after 'generate_distributions' - so we get updated distribution_real / imag buffer values.
     // The source buffer values will all remain the same (Buffers in water.swift)
     func runfft(phase: Float) {
-        let recreatedSignal = runfft(real: distribution_real, imag: distribution_imag, count: source.distribution_real.count)
+        let recreatedSignal = runfft(real: distribution_real, imag: distribution_imag, count: source.distribution_real.count + source.distribution_imag.count)
         dataBuffer = Renderer.device.makeBuffer(bytes: recreatedSignal, length: MemoryLayout<Float>.stride * recreatedSignal.count, options: [])
 
         // TODO: - Need to downsample this...
         // Taking toooo much gpu time
-        let displacementSignal = runfft(real: distribution_displacement_real, imag: distribution_displacement_imag, count: source.distribution_displacement_real.count)
+        let displacementSignal = runfft(real: distribution_displacement_real, imag: distribution_displacement_imag, count: source.distribution_displacement_real.count + source.distribution_displacement_imag.count)
         displacementBuffer = Renderer.device.makeBuffer(bytes: displacementSignal, length: MemoryLayout<Float>.stride * displacementSignal.count, options: [])
     }
 
@@ -147,17 +147,17 @@ class BasicFFT: Node {
 
 //        let halfN = Int((BasicFFT.imgSize * BasicFFT.imgSize) / 2)
 
-        var inverseOutputReal = [Float](repeating: 0, count: count)
-        var inverseOutputImag = [Float](repeating: 0, count: count)
+        var inverseOutputReal = [Float](repeating: 0, count: count / 2)
+        var inverseOutputImag = [Float](repeating: 0, count: count / 2)
 
-        var inputReal = [Float](repeating: 0, count: count)
-        var inputImag = [Float](repeating: 0, count: count)
+        var inputReal = [Float](repeating: 0, count: count / 2)
+        var inputImag = [Float](repeating: 0, count: count / 2)
 
         var realPointer = real.contents().bindMemory(to: Float.self, capacity: count)
         var imagPointer = imag.contents().bindMemory(to: Float.self, capacity: count)
 
 
-        for index in 0..<(count) {
+        for index in 0..<(count / 2) {
 
             inputReal[index] = realPointer.pointee
             inputImag[index] = imagPointer.pointee
@@ -214,10 +214,10 @@ extension BasicFFT: Renderable {
         computeEncoder.pushDebugGroup("FFT-Distribution")
         var gausUniforms = GausUniforms(
             dataLength: Int32(BasicFFT.distributionSize * BasicFFT.distributionSize),
-            amplitude: 1,
+            amplitude: 10000,
             wind_velocity: vector_float2(x: 10, y: -10),
             resolution: vector_uint2(x: BasicFFT.distributionSize.unsigned, y: BasicFFT.distributionSize.unsigned),
-            size: vector_float2(x: BasicFFT.distributionSize.float, y: BasicFFT.distributionSize.float),
+            size: vector_float2(x: 200, y: 200),
             normalmap_freq_mod: vector_float2(repeating: 7.3),
             seed: seed
         )
@@ -263,7 +263,7 @@ extension BasicFFT: Renderable {
             amplitude: 1,
             wind_velocity: vector_float2(x: 10, y: -10),
             resolution: vector_uint2(x: BasicFFT.distributionSize.unsigned, y: BasicFFT.distributionSize.unsigned),
-            size: vector_float2(x: BasicFFT.distributionSize.float, y: BasicFFT.distributionSize.float),
+            size: vector_float2(x: 200, y: 20),
             normalmap_freq_mod: vector_float2(repeating: 7.3),
             seed: seed
         )

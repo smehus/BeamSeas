@@ -94,7 +94,7 @@ class Water {
 
         let n = vDSP_Length(Nx * Nz)
         var newamplitude = amplitude
-        newamplitude *= 0.7 / sqrt(size.x * size.y)
+        newamplitude *= 0.3 / sqrt(size.x * size.y)
 
         // Factor in phillips spectrum
         L = simd_dot(wind_velocity, wind_velocity) / Self.G;
@@ -227,7 +227,7 @@ class Water {
         // Modifier to find spatial frequency
         let mod = SIMD2<Float>(repeating: 2.0 * Float.pi) / size
 
-        let normal_distribution = Distributions.Normal(m: 0, v: 1)
+        let normal_distribution = Distributions.Normal(m: 0, v: 1.0)
         for z in 0..<Nz {
             var ioZ = z
             for x in 0..<Nx {

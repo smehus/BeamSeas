@@ -86,11 +86,11 @@ kernel void generate_distribution_map_values(constant GausUniforms &uniforms [[ 
                                   device float *input_imag [[ buffer(15) ]],
                                   uint2 pid [[ thread_position_in_grid ]])
 {
-    float2 size = uniforms.size;
+//    float2 size = uniforms.size;
     float G = 9.81; // Gravity
-    float amplitude = uniforms.amplitude;
-
-    amplitude *= 0.3 / sqrt(size.x * size.y);
+//    float amplitude = uniforms.amplitude;
+//
+//    amplitude *= 0.3 / sqrt(size.x * size.y);
 
     // Pick out the negative frequency variant.
     float2 wi = mix(float2(uniforms.resolution - pid),
