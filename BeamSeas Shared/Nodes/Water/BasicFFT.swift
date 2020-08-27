@@ -75,7 +75,8 @@ class BasicFFT: Node {
         let texDesc = MTLTextureDescriptor()
         texDesc.width = BasicFFT.imgSize
         texDesc.height = BasicFFT.imgSize
-        texDesc.pixelFormat = .rg11b10Float
+        // ooohhhh my god - it was the fucking pixel format
+        texDesc.pixelFormat = .rgba32Float
         texDesc.usage = [.shaderRead, .shaderWrite]
         //        texDesc.mipmapLevelCount = Int(log2(Double(max(Terrain.normalMapTexture.width, Terrain.normalMapTexture.height))) + 1);
         texDesc.storageMode = .private
@@ -357,7 +358,7 @@ extension BasicFFT: Renderable {
         computeEncoder.setTexture(Self.normalMapTexture, index: 2)
         computeEncoder.setBytes(&Terrain.terrainParams, length: MemoryLayout<TerrainParams>.size, index: 3)
         computeEncoder.setBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: BufferIndex.uniforms.rawValue)
-        computeEncoder.dispatchThreadgroups(MTLSizeMake(Self.normalMapTexture.width + threadsPerGroup.width - 1, Self.normalMapTexture.height + threadsPerGroup.height - 1, 1), threadsPerThreadgroup: threadsPerGroup)
+        computeEncoder.dispatchThreadgroups(MTLSizeMake(Self.normalMapTexture.width, Self.normalMapTexture.height, 1), threadsPerThreadgroup: threadsPerGroup)
         computeEncoder.popDebugGroup()
     }
 
