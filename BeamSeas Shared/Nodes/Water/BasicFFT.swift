@@ -115,9 +115,9 @@ class BasicFFT: Node {
                  amplitude: 20000,
                  wind_velocity: float2(x: 10, y: -10),
                  resolution: SIMD2<Int>(x: BasicFFT.distributionSize, y: BasicFFT.distributionSize),
-                 size: float2(x: Float(256), y: Float(256)),
+                 size: float2(x: Float(BasicFFT.distributionSize / 2), y: Float(BasicFFT.distributionSize / 2)),
                  normalmap_freq_mod: float2(repeating: 1),
-                 max_l: 2.0
+                 max_l: 0.3
         )
 
         guard

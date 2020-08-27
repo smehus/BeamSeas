@@ -25,19 +25,19 @@ class Terrain: Node {
         numberOfPatches: UInt32(Terrain.patchNum * Terrain.patchNum)
     )
 
-    private static var patchNum = 1
+    private static var patchNum = 16
 
     let patches = (horizontal: Terrain.patchNum, vertical: Terrain.patchNum)
     var patchCount: Int {
         return patches.horizontal * patches.vertical
     }
 
-    var edgeFactors: [Float] = [4]
-    var insideFactors: [Float] = [2]
+    var edgeFactors: [Float] = [8]
+    var insideFactors: [Float] = [8]
     var allPatches: [Patch] = []
 
     lazy var tessellationFactorsBuffer: MTLBuffer? = {
-        let count = patchCount * (4 + 2)
+        let count = patchCount * (8 + 8)
         let size = count * MemoryLayout<Float>.size / 2
         return Renderer.device.makeBuffer(length: size, options: .storageModePrivate)
     }()

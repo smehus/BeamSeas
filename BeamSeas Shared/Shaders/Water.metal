@@ -180,7 +180,7 @@ kernel void generate_displacement_map_values(constant GausUniforms &uniforms [[ 
     b = float2(b.x, -b.y);
     float2 res = a + b;
 
-    float2 grad = cmul(res, float2(-k.y / (k_len + 0.00001), k.x / (k_len + 0.00001)));
+    float2 grad = cmul(res, float2(-k.y / (k_len + 0.00005), k.x / (k_len + 0.00005)));
     output_real[i.y * N.x + i.x] = grad.x;
     output_imag[i.y * N.x + i.x] = grad.y;
 }
@@ -224,7 +224,7 @@ kernel void compute_height_graident(uint2 pid [[ thread_position_in_grid]],
     // Wait wat, we're drawing the texture in the bottom method
     // This needs to be rethought through
     // Can i just use one map that already has displacement & height?
-    float heighDis = mix(h, displacement, 0.3);
+    float heighDis = mix(h, displacement, 0.5);
     heightDisplacementMap.write(float4(heighDis, heighDis, heighDis, 1), pid);
 
     // write to gradient texture for final sampling in fragment
