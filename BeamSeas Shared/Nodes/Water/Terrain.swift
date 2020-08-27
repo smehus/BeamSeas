@@ -11,7 +11,7 @@ import MetalPerformanceShaders
 
 class Terrain: Node {
 
-    static let maxTessellation = 16
+    static let maxTessellation = 64
     static var heightMapName = "simuwater"
     static var alterHeightMapName = "Heightmap_Plateau"
 //    static var secondaryNormalMapTexture: MTLTexture!
@@ -20,7 +20,7 @@ class Terrain: Node {
 
     static var terrainParams = TerrainParams(
         size: [BasicFFT.imgSize.float, BasicFFT.imgSize.float],
-        height: 10,
+        height: 20,
         maxTessellation: UInt32(Terrain.maxTessellation),
         numberOfPatches: UInt32(Terrain.patchNum * Terrain.patchNum)
     )

@@ -180,7 +180,7 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
     float3 normal = uniforms.normalMatrix * normalValue;
 
     out.normal = normal;
-    finalColor += float4(0.505, 0.898, 0.988, 1);
+    finalColor = float4(0.505, 0.898, 0.988, 1);
     out.color = finalColor;
 
     return out;
@@ -209,7 +209,7 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
 //    // This is rather "arbitrary", but looks pretty good in practice.
 //    float color_mod = 1.0 + 3.0 * smoothstep(1.2, 1.8, turbulence);
 
-    return float4(float3(normalValue.r, 0, 0), 1.0);
+    return float4(d, 1.0);
 }
 
 
