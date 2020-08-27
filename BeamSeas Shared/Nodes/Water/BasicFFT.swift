@@ -40,6 +40,7 @@ class BasicFFT: Node {
 
     static var heightDisplacementMap: MTLTexture!
     static var gradientMap: MTLTexture!
+    static var normalMapTexture: MTLTexture!
 
     private var dataBuffer: MTLBuffer!
     private var displacementBuffer: MTLBuffer!
@@ -51,6 +52,7 @@ class BasicFFT: Node {
     private let distributionPipelineState: MTLComputePipelineState
     private let displacementPipelineState: MTLComputePipelineState
     private let gradientPipelineState: MTLComputePipelineState
+    private let normalPipelineState: MTLComputePipelineState
 
     private var source: Water!
     private var seed: Int32 = 0
@@ -59,6 +61,7 @@ class BasicFFT: Node {
     // Then in generate gradient create the heightDisplacementMap from sampling these two textures and mix.
     private var heightMap: MTLTexture!
     private var displacementMap: MTLTexture!
+
 
     override init() {
 
@@ -82,10 +85,21 @@ class BasicFFT: Node {
         heightMap = Renderer.device.makeTexture(descriptor: texDesc)!
         displacementMap = Renderer.device.makeTexture(descriptor: texDesc)!
 
+        // is this different?
+//        let texDesc = MTLTextureDescriptor()
+//        texDesc.width = BasicFFT.imgSize//BasicFFT.heightDisplacementMap.width
+//        texDesc.height = BasicFFT.imgSize//BasicFFT.heightDisplacementMap.height
+//        texDesc.pixelFormat = .rg11b10Float
+//        texDesc.usage = [.shaderRead, .shaderWrite]
+//        texDesc.mipmapLevelCount = 1//Int(log2(Double(max(BasicFFT.heightDisplacementMap.width, BasicFFT.heightDisplacementMap.height))) + 1);
+//        texDesc.storageMode = .private
+        Self.normalMapTexture = Renderer.device.makeTexture(descriptor: texDesc)!
+
         fftPipelineState = Self.buildComputePipelineState(shader: "fft_kernel")
         distributionPipelineState = Self.buildComputePipelineState(shader: "generate_distribution_map_values")
         displacementPipelineState = Self.buildComputePipelineState(shader: "generate_displacement_map_values")
         gradientPipelineState = Self.buildComputePipelineState(shader: "compute_height_graident")
+        normalPipelineState = Self.buildComputePipelineState(shader: "TerrainKnl_ComputeNormalsFromHeightmap")
 
         let mainPipeDescriptor = MTLRenderPipelineDescriptor()
         mainPipeDescriptor.colorAttachments[0].pixelFormat = .bgra8Unorm
@@ -102,7 +116,7 @@ class BasicFFT: Node {
                  resolution: SIMD2<Int>(x: BasicFFT.distributionSize, y: BasicFFT.distributionSize),
                  size: float2(x: Float(256), y: Float(256)),
                  normalmap_freq_mod: float2(repeating: 1),
-                 max_l: 3.0
+                 max_l: 2.0
         )
 
         guard
@@ -333,8 +347,18 @@ extension BasicFFT: Renderable {
     }
 
     func generateTerrainNormals(computeEncoder: MTLComputeCommandEncoder, uniforms: inout Uniforms) {
-        guard dataBuffer != nil else { return }
 
+        let w = normalPipelineState.threadExecutionWidth
+        let h = normalPipelineState.maxTotalThreadsPerThreadgroup / w
+        let threadsPerGroup = MTLSizeMake(w, h, 1)
+        computeEncoder.pushDebugGroup("Generate Normals")
+        computeEncoder.setComputePipelineState(normalPipelineState)
+        computeEncoder.setTexture(BasicFFT.heightDisplacementMap, index: 0)
+        computeEncoder.setTexture(Self.normalMapTexture, index: 2)
+        computeEncoder.setBytes(&Terrain.terrainParams, length: MemoryLayout<TerrainParams>.size, index: 3)
+        computeEncoder.setBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: BufferIndex.uniforms.rawValue)
+        computeEncoder.dispatchThreadgroups(MTLSizeMake(Self.normalMapTexture.width + threadsPerGroup.width - 1, Self.normalMapTexture.height + threadsPerGroup.height - 1, 1), threadsPerThreadgroup: threadsPerGroup)
+        computeEncoder.popDebugGroup()
     }
 
 
@@ -353,7 +377,7 @@ extension BasicFFT: Renderable {
 
         var viewPort = SIMD2<Float>(x: Float(Renderer.metalView.drawableSize.width / 4), y: Float(Renderer.metalView.drawableSize.height / 4))
         renderEncoder.setFragmentBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: BufferIndex.uniforms.rawValue)
-        renderEncoder.setFragmentTexture(Self.heightDisplacementMap, index: 0)
+        renderEncoder.setFragmentTexture(Self.normalMapTexture, index: 0)
         renderEncoder.setFragmentBytes(&viewPort, length: MemoryLayout<SIMD2<Float>>.stride, index: 22)
 
         let mesh = model.submeshes.first!

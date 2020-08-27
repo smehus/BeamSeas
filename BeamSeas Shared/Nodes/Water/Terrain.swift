@@ -11,10 +11,9 @@ import MetalPerformanceShaders
 
 class Terrain: Node {
 
-    static let maxTessellation = 64
+    static let maxTessellation = 16
     static var heightMapName = "simuwater"
     static var alterHeightMapName = "Heightmap_Plateau"
-    static var normalMapTexture: MTLTexture!
 //    static var secondaryNormalMapTexture: MTLTexture!
     static var primarySlopeMap: MTLTexture!
     static var secondarySlopeMap: MTLTexture!
@@ -33,19 +32,18 @@ class Terrain: Node {
         return patches.horizontal * patches.vertical
     }
 
-    var edgeFactors: [Float] = [8]
-    var insideFactors: [Float] = [8]
+    var edgeFactors: [Float] = [4]
+    var insideFactors: [Float] = [2]
     var allPatches: [Patch] = []
 
     lazy var tessellationFactorsBuffer: MTLBuffer? = {
-        let count = patchCount * (8 + 8)
+        let count = patchCount * (4 + 2)
         let size = count * MemoryLayout<Float>.size / 2
         return Renderer.device.makeBuffer(length: size, options: .storageModePrivate)
     }()
 
     private let renderPipelineState: MTLRenderPipelineState
     private let computePipelineState: MTLComputePipelineState
-    private let normalPipelineState: MTLComputePipelineState
 
     static var controlPointsBuffer: MTLBuffer!
 //    private let heightMap: MTLTexture
@@ -96,18 +94,6 @@ class Terrain: Node {
         let kernelFunction = Renderer.library.makeFunction(name: "tessellation_main")!
         computePipelineState = try! Renderer.device.makeComputePipelineState(function: kernelFunction)
 
-        normalPipelineState = Self.buildNormalMapPipelineState()
-
-        // Taken from apple example
-        let texDesc = MTLTextureDescriptor()
-        texDesc.width = BasicFFT.imgSize//BasicFFT.heightDisplacementMap.width
-        texDesc.height = BasicFFT.imgSize//BasicFFT.heightDisplacementMap.height
-        texDesc.pixelFormat = .rg11b10Float
-        texDesc.usage = [.shaderRead, .shaderWrite]
-        texDesc.mipmapLevelCount = 1//Int(log2(Double(max(BasicFFT.heightDisplacementMap.width, BasicFFT.heightDisplacementMap.height))) + 1);
-        texDesc.storageMode = .private
-        Self.normalMapTexture = Renderer.device.makeTexture(descriptor: texDesc)!
-
 
 //        texDesc.width = altHeightMap.width
 //        texDesc.height = altHeightMap.height
@@ -144,30 +130,11 @@ class Terrain: Node {
 
         super.init()
     }
-
-    static func buildNormalMapPipelineState() -> MTLComputePipelineState {
-        guard let kernelFunction = Renderer.library?.makeFunction(name: "TerrainKnl_ComputeNormalsFromHeightmap") else {
-            fatalError("Tessellation shader function not found")
-        }
-
-        return try! Renderer.device.makeComputePipelineState(function: kernelFunction)
-    }
 }
 
 extension Terrain: Renderable {
 
     func generateTerrainNormals(computeEncoder: MTLComputeCommandEncoder, uniforms: inout Uniforms) {
-        let w = normalPipelineState.threadExecutionWidth
-        let h = normalPipelineState.maxTotalThreadsPerThreadgroup / w
-        let threadsPerGroup = MTLSizeMake(w, h, 1)
-        computeEncoder.pushDebugGroup("Generate Normals")
-        computeEncoder.setComputePipelineState(normalPipelineState)
-        computeEncoder.setTexture(BasicFFT.heightDisplacementMap, index: 0)
-        computeEncoder.setTexture(Self.normalMapTexture, index: 2)
-        computeEncoder.setBytes(&Terrain.terrainParams, length: MemoryLayout<TerrainParams>.size, index: 3)
-        computeEncoder.setBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: BufferIndex.uniforms.rawValue)
-        computeEncoder.dispatchThreadgroups(MTLSizeMake(Self.normalMapTexture.width + threadsPerGroup.width - 1, Self.normalMapTexture.height + threadsPerGroup.height - 1, 1), threadsPerThreadgroup: threadsPerGroup)
-        computeEncoder.popDebugGroup()
 
     }
 
@@ -283,7 +250,7 @@ extension Terrain: Renderable {
             index: BufferIndex.uniforms.rawValue
         )
 
-        renderEncoder.setVertexTexture(Self.normalMapTexture, index: 1)
+        renderEncoder.setVertexTexture(BasicFFT.normalMapTexture, index: 1)
 
         renderEncoder.setFragmentTexture(
             BasicFFT.gradientMap,
@@ -291,7 +258,7 @@ extension Terrain: Renderable {
         )
 
         renderEncoder.setFragmentTexture(
-            Self.normalMapTexture,
+            BasicFFT.normalMapTexture,
             index: 2
         )
 

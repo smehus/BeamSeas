@@ -36,7 +36,7 @@ kernel void compute_height(constant float3 &position [[ buffer(0) ]],
 
     // Calculate Height
     float4 color = heightMap.sample(s, xy);
-    float inverseColor = 1 - color.r;
+    float inverseColor = color.r;//1 - color.r;
     float height = (inverseColor * 2 - 1) * terrainParams.height;
     height_buffer = height;
 
@@ -164,7 +164,7 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
     out.uv = xy;
 //    xy.x = fmod(xy.x + (uniforms.deltaTime), 1);
     float4 color = heightMap.sample(sample, xy);
-    float inverseColor = 1 - color.r;
+    float inverseColor = color.r;//1 - color.r;
     float height = (inverseColor * 2 - 1) * terrainParams.height;
     position.y = height;
 
@@ -180,7 +180,7 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
     float3 normal = uniforms.normalMatrix * normalValue;
 
     out.normal = normal;
-    finalColor = float4(0.505, 0.898, 0.988, 1);
+    finalColor += float4(0.505, 0.898, 0.988, 1);
     out.color = finalColor;
 
     return out;
@@ -197,9 +197,10 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
 
 
     constexpr sampler sam(min_filter::linear, mag_filter::linear, mip_filter::nearest);
-    float3 normalValue = normalize(normalMap.sample(sam, fragment_in.uv).xzy * 2.0f - 1.0f);
+//    constexpr sampler sam(filter::linear);
+    float3 normalValue = normalize(normalMap.sample(sam, fragment_in.uv).xzy);
 
-    float3 d = terrainDiffuseLighting(uniforms.normalMatrix * normalValue, fragment_in.position.xyz, fragmentUniforms, lights, fragment_in.color.rgb);
+    float3 d = terrainDiffuseLighting(uniforms.normalMatrix * (normalValue * 2.0f - 1.0f), fragment_in.position.xyz, fragmentUniforms, lights, fragment_in.color.rgb);
 
 
 //    float3 noise_gradient = 0.30 * normal;
@@ -208,7 +209,7 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
 //    // This is rather "arbitrary", but looks pretty good in practice.
 //    float color_mod = 1.0 + 3.0 * smoothstep(1.2, 1.8, turbulence);
 
-    return float4(d, 1.0);
+    return float4(float3(normalValue.r, 0, 0), 1.0);
 }
 
 
@@ -247,14 +248,15 @@ kernel void TerrainKnl_ComputeNormalsFromHeightmap(texture2d<float> height [[tex
 //        // Which we're already doing in the vertex shader. So I think we can just add an altNormalMap to the vetex shader & use that for secondary shader
 
 
+        float mixValue = 0.8;
 
         float2 h_up_uv = (float2)(altTid + uint2(0, 1));
         float h_up_t     = height.sample(sam, h_up_uv).r;
         float h_up_mod = height.sample(sam, h_up_uv + 1).r;
         float h_up_dMod = height.sample(sam, h_up_uv - 1).r;
 
-        float h_up_forward = mix(h_up_t, h_up_mod, 0.5);
-        float h_up_back = mix(h_up_t, h_up_dMod, 0.5);
+        float h_up_forward = mix(h_up_t, h_up_mod, mixValue);
+        float h_up_back = mix(h_up_t, h_up_dMod, mixValue);
         float h_up = mix(h_up_forward, h_up_back, 0.5);
 
         float2 h_down_uv = (float2)(altTid - uint2(0, 1));
@@ -262,8 +264,8 @@ kernel void TerrainKnl_ComputeNormalsFromHeightmap(texture2d<float> height [[tex
         float h_down_mod = height.sample(sam, h_down_uv + 1).r;
         float h_down_dMod = height.sample(sam, h_down_uv - 1).r;
 
-        float h_down_forward = mix(h_down_t, h_down_mod, 0.5);
-        float h_down_back = mix(h_down_t, h_down_dMod, 0.5);
+        float h_down_forward = mix(h_down_t, h_down_mod, mixValue);
+        float h_down_back = mix(h_down_t, h_down_dMod, mixValue);
         float h_down = mix(h_down_forward, h_down_back, 0.5);
 
         float2 h_right_uv = (float2)(altTid + uint2(1, 0));
@@ -271,8 +273,8 @@ kernel void TerrainKnl_ComputeNormalsFromHeightmap(texture2d<float> height [[tex
         float h_right_mod  = height.sample(sam, h_right_uv + 1).r;
         float h_right_dMod  = height.sample(sam, h_right_uv - 1).r;
 
-        float h_right_forward = mix(h_right_t, h_right_mod, 0.5);
-        float h_right_back = mix(h_right_t, h_right_dMod, 0.5);
+        float h_right_forward = mix(h_right_t, h_right_mod, mixValue);
+        float h_right_back = mix(h_right_t, h_right_dMod, mixValue);
         float h_right = mix(h_right_forward, h_right_back, 0.5);
 
         float2 h_left_uv = (float2)(altTid - uint2(1, 0));
@@ -280,8 +282,8 @@ kernel void TerrainKnl_ComputeNormalsFromHeightmap(texture2d<float> height [[tex
         float h_left_mod   = height.sample(sam, h_left_uv + 1).r;
         float h_left_dMod   = height.sample(sam, h_left_uv - 1).r;
 
-        float h_left_forward = mix(h_left_t, h_left_mod, 0.5);
-        float h_left_back = mix(h_left_t, h_left_dMod, 0.5);
+        float h_left_forward = mix(h_left_t, h_left_mod, mixValue);
+        float h_left_back = mix(h_left_t, h_left_dMod, mixValue);
         float h_left = mix(h_left_forward, h_left_back, 0.5);
 
         float2 h_center_uv = (float2)(altTid + uint2(0, 0));
@@ -289,8 +291,8 @@ kernel void TerrainKnl_ComputeNormalsFromHeightmap(texture2d<float> height [[tex
         float h_center_mod = height.sample(sam, h_center_uv + 1).r;
         float h_center_dMod = height.sample(sam, h_center_uv - 1).r;
 
-        float h_center_forward = mix(h_center_t, h_center_mod, 0.5);
-        float h_center_back = mix(h_center_t, h_center_dMod, 0.5);
+        float h_center_forward = mix(h_center_t, h_center_mod, mixValue);
+        float h_center_back = mix(h_center_t, h_center_dMod, mixValue);
         float h_center = mix(h_center_forward, h_center_back, 0.5);
 
         float3 v_up    = float3( 0,        (h_up - h_center) * y_scale,  xz_scale);

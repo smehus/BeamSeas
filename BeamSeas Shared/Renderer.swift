@@ -22,8 +22,8 @@ final class Renderer: NSObject {
 
     lazy var camera: Camera = {
         let camera = ArcballCamera()
-        camera.distance = 30
-        camera.target = [0, 0, -30]
+        camera.distance = 10
+        camera.target = [0, 0, -10]
         camera.rotation.x = Float(-10).degreesToRadians
 //        camera.rotation.y = Float(-60).degreesToRadians
         return camera
@@ -124,6 +124,11 @@ extension Renderer: MTKViewDelegate {
         fft.generateGradient(computeEncoder: gradientEncoder, uniforms: &uniforms)
         gradientEncoder.endEncoding()
 
+        let normalEncoder = commandBuffer.makeComputeCommandEncoder()!
+        fft.generateTerrainNormals(computeEncoder: normalEncoder, uniforms: &uniforms)
+        normalEncoder.endEncoding()
+
+
         // Terrain Pass \\
 
         let computeEncoder = commandBuffer.makeComputeCommandEncoder()!
@@ -138,22 +143,11 @@ extension Renderer: MTKViewDelegate {
             model.compute(computeEncoder: computeEncoder, uniforms: &uniforms, fragmentUniforms: &fragmentUniforms)
         }
 
-
         computeEncoder.popDebugGroup()
         computeEncoder.endEncoding()
 
 
-        let normalEncoder = commandBuffer.makeComputeCommandEncoder()!
-        // Terrain Normal Pass \\
-        // Should this just go into the compute pass? unclear
-
-        for model in models {
-            model.generateTerrainNormals(computeEncoder: normalEncoder, uniforms: &uniforms)
-        }
-
-
-        normalEncoder.endEncoding()
-
+        // Height pass \\
         let computeHeightEncoder = commandBuffer.makeComputeCommandEncoder()!
         computeHeightEncoder.pushDebugGroup("Calc Height")
         for model in models {
