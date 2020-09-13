@@ -193,6 +193,8 @@ half jacobian(half2 dDdx, half2 dDdy)
     return (1.0 + dDdx.x) * (1.0 + dDdy.y) - dDdx.y * dDdy.x;
 }
 
+#define LAMBDA 1.2
+
 kernel void compute_height_graident(uint2 pid [[ thread_position_in_grid]],
                                     constant float4 &uInvSize [[ buffer(0) ]],
                                     constant float4 &uScale [[ buffer(1) ]],
@@ -206,17 +208,24 @@ kernel void compute_height_graident(uint2 pid [[ thread_position_in_grid]],
     float4 uv = (float2(pid.xy) * uInvSize.xy).xyxy + 0.5 * uInvSize;
 
     float h = heightMap.sample(s, uv.xy).r;
-    float displacement = displacementMap.sample(s, uv.xy).r;
 
-    float x0 = heightMap.sample(s, (float2)uv.xy + float2(-1, 0)).r;
-    float x1 = heightMap.sample(s, (float2)uv.xy + float2(1, 0)).r;
-    float y0 = heightMap.sample(s, (float2)uv.xy + float2(0, -1)).r;
-    float y1 = heightMap.sample(s, (float2)uv.xy + float2(0, 1)).r;
-    float2 grad = uScale.xy * 0.2 * float2(x1 - x0, y1 - y0);
+    float x0 = heightMap.sample(s, (float2)uv.xy + float2(-1, 0)).x;
+    float x1 = heightMap.sample(s, (float2)uv.xy + float2(1, 0)).x;
+    float y0 = heightMap.sample(s, (float2)uv.xy + float2(0, -1)).x;
+    float y1 = heightMap.sample(s, (float2)uv.xy + float2(0, 1)).x;
+    float2 grad = uScale.xy * 0.5 * float2(x1 - x0, y1 - y0);
+
+    // Displacement map must be sampled with a different offset since it's a smaller texture.
+    float2 displacement = LAMBDA * displacementMap.sample(s, uv.zw).xy;
 
     // Compute jacobian.
-    float2 dDdx = 0.5 * (displacementMap.sample(s, uv.zw + float2(+1, 0)).xy - displacementMap.sample(s, uv.zw + float2(-1, 0)).xy);
-    float2 dDdy = 0.5 * (displacementMap.sample(s, uv.zw + float2(0, +1)).xy - displacementMap.sample(s, uv.zw + float2(0, -1)).xy);
+    float2 dDdx = 0.5 * LAMBDA * (
+                                  displacementMap.sample(s, uv.zw + float2(1, 0)).xy -
+                                  displacementMap.sample(s, uv.zw + float2(-1, 0)).xy);
+    float2 dDdy = 0.5 * LAMBDA * (
+                                  displacementMap.sample(s, uv.zw + float2(0,   1)).xy -
+                                  displacementMap.sample(s, uv.zw + float2(0, -1)).xy);
+
     float j = jacobian(half2(dDdx * uScale.z), half2(dDdy * uScale.z));
 
 
@@ -224,8 +233,8 @@ kernel void compute_height_graident(uint2 pid [[ thread_position_in_grid]],
     // Wait wat, we're drawing the texture in the bottom method
     // This needs to be rethought through
     // Can i just use one map that already has displacement & height?
-    float heighDis = mix(h, displacement, 0.5);
-    heightDisplacementMap.write(float4(heighDis, heighDis, heighDis, 1), pid);
+//    float heighDis = mix(h, displacement, 0.5);
+    heightDisplacementMap.write(float4(h, displacement, 0.0), pid);
 
     // write to gradient texture for final sampling in fragment
     gradientMap.write(float4(grad, j, 0.0), pid);
