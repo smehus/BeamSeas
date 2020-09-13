@@ -209,10 +209,10 @@ kernel void compute_height_graident(uint2 pid [[ thread_position_in_grid]],
     float displacement = displacementMap.sample(s, uv.xy).r;
 
     float x0 = heightMap.sample(s, (float2)uv.xy + float2(-1, 0)).r;
-    float x1 = heightMap.sample(s, (float2)uv.xy + float2(+1, 0)).r;
+    float x1 = heightMap.sample(s, (float2)uv.xy + float2(1, 0)).r;
     float y0 = heightMap.sample(s, (float2)uv.xy + float2(0, -1)).r;
-    float y1 = heightMap.sample(s, (float2)uv.xy + float2(0, +1)).r;
-    float2 grad = uScale.xy * 0.5 * float2(x1 - x0, y1 - y0);
+    float y1 = heightMap.sample(s, (float2)uv.xy + float2(0, 1)).r;
+    float2 grad = uScale.xy * 0.2 * float2(x1 - x0, y1 - y0);
 
     // Compute jacobian.
     float2 dDdx = 0.5 * (displacementMap.sample(s, uv.zw + float2(+1, 0)).xy - displacementMap.sample(s, uv.zw + float2(-1, 0)).xy);

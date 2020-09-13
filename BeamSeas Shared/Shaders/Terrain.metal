@@ -199,16 +199,19 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
     constexpr sampler sam(min_filter::linear, mag_filter::linear, mip_filter::nearest);
     float3 normalValue = normalize(normalMap.sample(sam, fragment_in.uv).xzy);
     float3 vGradJacobian = normalize(gradientMap.sample(sam, fragment_in.uv).xyz) * 2.0f - 1.0f;
-    float4 color = float4(0.505, 0.898, 0.988, 1);
-    float3 specular = terrainDiffuseLighting(uniforms.normalMatrix * (normalValue * 2.0f - 1.0f), fragment_in.position.xyz, fragmentUniforms, lights, color.rgb);
-
-
-    float3 noise_gradient = 0.30 * normalValue;
+    float3 noise_gradient = 0.3 * normalValue;
     float jacobian = vGradJacobian.z;
     float turbulence = max(2.0 - jacobian + dot(abs(noise_gradient.xy), float2(1.2)), 0.0);
-    // This is rather "arbitrary", but looks pretty good in practice.
-    float color_mod = 1.0 + 3.0 * smoothstep(1.2, 1.8, turbulence);
-    return float4(color_mod * specular, 1.0);
+    float turbulancPercentage = smoothstep(1.2, 1.7, turbulence);
+    float color_mod = 1.0 + 3.0 * turbulancPercentage;
+
+    float3 color = float3(0.1, 0.3, 0.6) * color_mod;
+    float3 specular = terrainDiffuseLighting(uniforms.normalMatrix * (normalValue * 2.0f - 1.0f), fragment_in.position.xyz, fragmentUniforms, lights, color.rgb);
+
+    specular *= color_mod;
+
+
+    return float4(specular, 1.0);
 }
 
 

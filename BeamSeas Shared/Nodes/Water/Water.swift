@@ -58,10 +58,10 @@ class Water {
     var distribution_displacement_imag_buffer: MTLBuffer!
 
 
-    var distribution_normal_real: [Float]
-    var distribution_normal_imag: [Float]
-    var distribution_normal_real_buffer: MTLBuffer!
-    var distribution_normal_imag_buffer: MTLBuffer!
+//    var distribution_normal_real: [Float]
+//    var distribution_normal_imag: [Float]
+//    var distribution_normal_real_buffer: MTLBuffer!
+//    var distribution_normal_imag_buffer: MTLBuffer!
 
     private let wind_velocity: SIMD2<Float>
     private let wind_dir: SIMD2<Float>
@@ -94,7 +94,7 @@ class Water {
 
         let n = vDSP_Length(Nx * Nz)
         var newamplitude = amplitude
-        newamplitude *= 0.6 / sqrt(size.x * size.y)
+        newamplitude *= 0.3 / sqrt(size.x * size.y)
 
         // Factor in phillips spectrum
         L = simd_dot(wind_velocity, wind_velocity) / Self.G;
@@ -107,8 +107,8 @@ class Water {
         distribution_displacement_real = [Float](repeating: 0, count: Int(n))
         distribution_displacement_imag = [Float](repeating: 0, count: Int(n))
 
-        distribution_normal_real = [Float](repeating: 0, count: Int(n))
-        distribution_normal_imag = [Float](repeating: 0, count: Int(n))
+//        distribution_normal_real = [Float](repeating: 0, count: Int(n))
+//        distribution_normal_imag = [Float](repeating: 0, count: Int(n))
 
 
         // Distribution
@@ -168,25 +168,25 @@ class Water {
         // normals
         // Idk how creating a map out of these values could possibly
         // work with the distribtuion created for the heightmap....
-        generate_distribution(
-            distribution_real: &distribution_normal_real,
-            distribution_imag: &distribution_normal_imag,
-            size: size,
-            amplitude: newamplitude,
-            max_l: max_l
-        )
-
-        distribution_real_buffer = Renderer.device.makeBuffer(
-            bytes: &distribution_normal_real,
-            length: MemoryLayout<Float>.stride * Int(n),
-            options: .storageModeShared
-        )!
-
-        distribution_imag_buffer = Renderer.device.makeBuffer(
-            bytes: &distribution_normal_imag,
-            length: MemoryLayout<Float>.stride * Int(n),
-            options: .storageModeShared
-        )!
+//        generate_distribution(
+//            distribution_real: &distribution_normal_real,
+//            distribution_imag: &distribution_normal_imag,
+//            size: size,
+//            amplitude: newamplitude,
+//            max_l: max_l
+//        )
+//
+//        distribution_real_buffer = Renderer.device.makeBuffer(
+//            bytes: &distribution_normal_real,
+//            length: MemoryLayout<Float>.stride * Int(n),
+//            options: .storageModeShared
+//        )!
+//
+//        distribution_imag_buffer = Renderer.device.makeBuffer(
+//            bytes: &distribution_normal_imag,
+//            length: MemoryLayout<Float>.stride * Int(n),
+//            options: .storageModeShared
+//        )!
     }
 
     private func downsample_distribution(displacement_real: inout [Float], displacement_img: inout [Float], in_real: [Float], in_imag: [Float], rate_log2: Int, amplitude: Float)
@@ -212,8 +212,8 @@ class Water {
                     alias_z += Nz;
                 }
 
-                displacement_real[z * out_width + x] = in_real[alias_z * Nx + alias_x] * amplitude;
-                displacement_img[z * out_width + x] = in_imag[alias_z * Nx + alias_x] * amplitude;
+                displacement_real[z * out_width + x] = in_real[alias_z * Nx + alias_x];
+                displacement_img[z * out_width + x] = in_imag[alias_z * Nx + alias_x];
             }
         }
     }
@@ -225,7 +225,7 @@ class Water {
                                        max_l: Float) {
 
         // Modifier to find spatial frequency
-        let mod = SIMD2<Float>(repeating: 2.5 * Float.pi) / size
+        let mod = SIMD2<Float>(repeating: 2.0 * Float.pi) / size
 
         let normal_distribution = Distributions.Normal(m: 0, v: 1)
         for z in 0..<Nz {
@@ -245,10 +245,6 @@ class Water {
                 let idx = z * Nx + x
 
                 if distribution_real.indices.contains(idx), distribution_imag.indices.contains(idx) {
-
-//                    newReal = (newReal - -1) / (1 - -1) * (1 - 0) + 0
-//                    newImag = (newImag - -1) / (1 - -1) * (1 - 0) + 0
-//                    print("*** new real \(newReal)")
                     distribution_real[idx] = newReal
                     distribution_imag[idx] = newImag
                 }

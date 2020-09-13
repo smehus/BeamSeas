@@ -22,8 +22,8 @@ final class Renderer: NSObject {
 
     lazy var camera: Camera = {
         let camera = ArcballCamera()
-        camera.distance = 10
-        camera.target = [0, 0, -10]
+        camera.distance = 30
+        camera.target = [0, 0, -30]
         camera.rotation.x = Float(-10).degreesToRadians
 //        camera.rotation.y = Float(-60).degreesToRadians
         return camera
