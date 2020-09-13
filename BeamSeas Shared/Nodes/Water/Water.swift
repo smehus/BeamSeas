@@ -191,6 +191,8 @@ class Water {
 
     private func downsample_distribution(displacement_real: inout [Float], displacement_img: inout [Float], in_real: [Float], in_imag: [Float], rate_log2: Int, amplitude: Float)
     {
+
+        
         // Pick out the lower frequency samples only which is the same as downsampling "perfectly".
         let out_width: Int = Nx// >> rate_log2;
         let out_height: Int = Nz// >> rate_log2;
