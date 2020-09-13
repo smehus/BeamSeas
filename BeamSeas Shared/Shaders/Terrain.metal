@@ -163,14 +163,14 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
     float2 xy = ((position.xz + terrainParams.size / 2) / terrainParams.size);
     out.uv = xy;
 //    xy.x = fmod(xy.x + (uniforms.deltaTime), 1);
-    float4 color = heightMap.sample(sample, xy);
-    float inverseColor = color.r;//1 - color.r;
-    float height = (inverseColor * 2 - 1) * terrainParams.height;
-    position.y = height;
+    float3 color = heightMap.sample(sample, xy).xyz;
+//    float inverseColor = color.r;//1 - color.r;
+    float3 height = (color * 2 - 1) * terrainParams.height;
+    position.y = height.r;
 
 
     out.position = uniforms.projectionMatrix * uniforms.viewMatrix * uniforms.modelMatrix * position;
-    float4 finalColor = float4(inverseColor, inverseColor, inverseColor, 1);
+    float4 finalColor = float4(height, 1);
 
     // reference AAPLTerrainRenderer in DynamicTerrainWithArgumentBuffers exmaple: EvaluateTerrainAtLocation line 235 -> EvaluateTerrainAtLocation in AAPLTerrainRendererUtilities line: 91
 //    out.normal = uniforms.normalMatrix * primaryLocalNormal;//mix(primaryLocalNormal, secondarLocalNormal, 0.5);
@@ -197,11 +197,11 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
 
 
     constexpr sampler sam(min_filter::linear, mag_filter::linear, mip_filter::nearest);
-    float3 normalValue = normalize(normalMap.sample(sam, fragment_in.uv).xzy);
-    float3 vGradJacobian = normalize(gradientMap.sample(sam, fragment_in.uv).xyz);// * 2.0f - 1.0f;
+    float3 normalValue = normalMap.sample(sam, fragment_in.uv).xzy;
+    float3 vGradJacobian = gradientMap.sample(sam, fragment_in.uv).xyz;
     float3 noise_gradient = 0.3 * normalValue;
 
-    float jacobian = vGradJacobian.y;
+    float jacobian = vGradJacobian.z;
     float turbulence = max(2.0 - jacobian + dot(abs(noise_gradient.xy), float2(1.2)), 0.0);
 
     float color_mod = 1.0 + 3.0 * smoothstep(1.3, 1.8, turbulence);
