@@ -124,7 +124,7 @@ kernel void generate_distribution_map_values(constant GausUniforms &uniforms [[ 
     // and quantizing w such that wrapping uTime does not change the result.
     // See Tessendorf's paper for how to do it.
     // The sqrt(G * k_len) factor represents how fast ocean waves at different frequencies propagate.
-    float w = sqrt(G * k_len) * (mainUniforms.deltaTime * 0.003);
+    float w = sqrt(G * k_len) * (mainUniforms.deltaTime);
     float cw = cos(w);
     float sw = sin(w);
 
@@ -170,7 +170,7 @@ kernel void generate_displacement_map_values(constant GausUniforms &uniforms [[ 
     float k_len = length(k);
 
     const float G = 9.81;
-    float w = sqrt(G * k_len) * (mainUniforms.deltaTime * 0.003); // Do phase accumulation later ...
+    float w = sqrt(G * k_len) * (mainUniforms.deltaTime); // Do phase accumulation later ...
 
     float cw = cos(w);
     float sw = sin(w);
@@ -180,7 +180,7 @@ kernel void generate_displacement_map_values(constant GausUniforms &uniforms [[ 
     b = float2(b.x, -b.y);
     float2 res = a + b;
 
-    float2 grad = cmul(res, float2(-k.y / (k_len + 0.00005), k.x / (k_len + 0.00005)));
+    float2 grad = cmul(res, float2(-k.y / (k_len + 0.00001), k.x / (k_len + 0.00001)));
     output_real[i.y * N.x + i.x] = grad.x;
     output_imag[i.y * N.x + i.x] = grad.y;
 }

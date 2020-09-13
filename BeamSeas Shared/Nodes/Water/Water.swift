@@ -132,24 +132,24 @@ class Water {
             options: .storageModeShared
         )!
 
-//        downsample_distribution(
-//            displacement_real: &distribution_displacement_real,
-//            displacement_img: &distribution_displacement_imag,
-//            in_real: distribution_real,
-//            in_imag: distribution_imag,
-//            rate_log2: displacement_downsample,
-//            amplitude: newamplitude
-//        )
-
 
         // Displacement
-        generate_distribution(
-            distribution_real: &distribution_displacement_real,
-            distribution_imag: &distribution_displacement_imag,
-            size: size,
-            amplitude: newamplitude,
-            max_l: max_l
+        downsample_distribution(
+            displacement_real: &distribution_displacement_real,
+            displacement_img: &distribution_displacement_imag,
+            in_real: distribution_real,
+            in_imag: distribution_imag,
+            rate_log2: displacement_downsample,
+            amplitude: newamplitude
         )
+
+//        generate_distribution(
+//            distribution_real: &distribution_displacement_real,
+//            distribution_imag: &distribution_displacement_imag,
+//            size: size,
+//            amplitude: newamplitude,
+//            max_l: max_l
+//        )
 
         distribution_displacement_real_buffer = Renderer.device.makeBuffer(
             bytes: &distribution_displacement_real,
