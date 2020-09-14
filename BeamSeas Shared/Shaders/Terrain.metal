@@ -163,16 +163,19 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
     float2 xy = ((position.xz + terrainParams.size / 2) / terrainParams.size);
     out.uv = xy;
 //    xy.x = fmod(xy.x + (uniforms.deltaTime), 1);
-    float3 color = heightMap.sample(sample, xy).xyz;
+    float3 heightDisplacement = heightMap.sample(sample, xy).xyz;
+
+
 //    float inverseColor = color.r;//1 - color.r;
-    float3 height = (color * 2 - 1) * terrainParams.height;
+    float3 height = (heightDisplacement * 2 - 1) * terrainParams.height;
 
     // OHHHHH shit - displacment maps dispalce in the horizontal plane.....
     //Using only a straight heightmap, this is not easy to implement, however, we can have another "displacement" map which computes displacement in the horizontal plane as well. If we compute the inverse Fourier transform of the gradient of the heightmap, we can find a horizontal displacement vector which we will push vertices toward. This gives a great choppy look to the waves.
 
-    // This means not just this y value... but also displacing the patches in the x axies 
-    position.y = height.r;
-
+    // This means not just this y value... but also displacing the patches in the x axies
+    // Y & Z values represent the horizontal displacment inside the height map
+    position.xz += (heightDisplacement * 2 - 1).yz;
+    position.y = height.x;
 
     out.position = uniforms.projectionMatrix * uniforms.viewMatrix * uniforms.modelMatrix * position;
     float4 finalColor = float4(height, 1);
