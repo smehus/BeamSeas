@@ -146,60 +146,43 @@ kernel void generate_displacement_map_values(constant GausUniforms &uniforms [[ 
                                   texture2d<float> drawTexture [[ texture(0) ]],
                                   device float *input_real [[ buffer(14) ]],
                                   device float *input_imag [[ buffer(15) ]],
-                                  uint2 pid [[ thread_position_in_grid ]])
+                                  uint2 i [[ thread_position_in_grid ]])
 {
 
-    //    float2 size = uniforms.size;
-        float G = 9.81; // Gravity
-    //    float amplitude = uniforms.amplitude;
-    //
-    //    amplitude *= 0.3 / sqrt(size.x * size.y);
+    uint2 N = uniforms.resolution;
+    float2 uMod = float2(2.0 * M_PI_F) / uniforms.size;
+    int width = uniforms.resolution.x;
+    int height = uniforms.resolution.y;
 
-        // Pick out the negative frequency variant.
-        float2 wi = mix(float2(uniforms.resolution - pid),
-                        float2(0u),
-                        float2(pid == uint2(0u)));
+    uint2 wi = uint2(mix(float2(N - i),
+                    float2(0u),
+                    float2(i == uint2(0u))));
 
-        int width = uniforms.resolution.x;
-        int height = uniforms.resolution.y;
+    float aReal = input_real[i.y * N.x + i.x];
+    float aImag = input_imag[i.y * N.x + i.x];
+    float2 a = float2(aReal, aImag);
 
+    float bReal = input_real[wi.y * N.x + wi.x];
+    float bImag = input_imag[wi.y * N.x + wi.x];
+    float2 b = float2(bReal, bImag);
 
-    //    // Pick out positive and negative travelling waves.
+    float2 k = uMod * vecAlias(i, uint2(width, height));
+    float k_len = length(k);
 
-        int index = (int)pid.y * width + pid.x;
-        int bIndex =  (int)wi.y * width + wi.x;
+    const float G = 9.81;
+    float w = sqrt(G * k_len) * (mainUniforms.deltaTime); // Do phase accumulation later ...
 
-        float a1 = input_real[index];
-        float a2 = input_imag[index];
-        float2 a = float2(a1, a2);
+    float cw = cos(w);
+    float sw = sin(w);
 
-        float b1 = input_real[bIndex];
-        float b2 = input_imag[bIndex];
-        float2 b = float2(b1, b2);
+    a = cmul(a, float2(cw, sw));
+    b = cmul(b, float2(cw, sw));
+    b = float2(b.x, -b.y);
+    float2 res = a + b;
 
-        float2 uMod = float2(2.0 * M_PI_F) / uniforms.size;
-
-
-        float2 k = uMod * vecAlias(pid, uint2(width, height));
-        float k_len = length(k);
-        // If this sample runs for hours on end, the cosines of very large numbers will eventually become unstable.
-        // It is fairly easy to fix this by wrapping uTime,
-        // and quantizing w such that wrapping uTime does not change the result.
-        // See Tessendorf's paper for how to do it.
-        // The sqrt(G * k_len) factor represents how fast ocean waves at different frequencies propagate.
-        float w = sqrt(G * k_len) * (mainUniforms.deltaTime);
-        float cw = cos(w);
-        float sw = sin(w);
-
-        // Complex multiply to rotate our frequency samples.
-
-        a = cmul(a, float2(cw, sw));
-        b = cmul(b, float2(cw, sw));
-        b = float2(b.x, -b.y); // Complex conjugate since we picked a frequency with the opposite direction.
-        float2 res = (a + b); // Sum up forward and backwards travelling waves.
-
-        output_real[index] = res.x;
-        output_imag[bIndex] = res.y;
+    float2 grad = cmul(res, float2(-k.y / (k_len + 0.00005), k.x / (k_len + 0.00005)));
+    output_real[i.y * N.x + i.x] = grad.x;
+    output_imag[i.y * N.x + i.x] = grad.y;
 }
 
 

@@ -46,7 +46,7 @@ class BasicFFT: Node {
     private var displacementBuffer: MTLBuffer!
 
 
-    private let fft: vDSP.FFT<DSPSplitComplex>
+    private let distributionFFT: vDSP.FFT<DSPSplitComplex>
     private let downsampledFFT: vDSP.FFT<DSPSplitComplex>
     private let model: MTKMesh
 
@@ -74,7 +74,7 @@ class BasicFFT: Node {
         model = try! MTKMesh(mesh: prim, device: Renderer.device)
 
         let log2n = vDSP_Length(log2(Float((BasicFFT.distributionSize * BasicFFT.distributionSize))))
-        fft = vDSP.FFT(log2n: log2n, radix: .radix5, ofType: DSPSplitComplex.self)!
+        distributionFFT = vDSP.FFT(log2n: log2n, radix: .radix5, ofType: DSPSplitComplex.self)!
 
         let s = (BasicFFT.distributionSize * BasicFFT.distributionSize) >> (1 * 2)
         let downdSampledLog2n = vDSP_Length(log2(Float(s)))
@@ -161,16 +161,17 @@ class BasicFFT: Node {
     // This runs after 'generate_distributions' - so we get updated distribution_real / imag buffer values.
     // The source buffer values will all remain the same (Buffers in water.swift)
     func runfft(phase: Float) {
-        let recreatedSignal = runfft(real: distribution_real, imag: distribution_imag, count: source.distribution_real.count + source.distribution_imag.count, fft: fft)
+        let recreatedSignal = runfft(real: distribution_real, imag: distribution_imag, count: source.distribution_real.count + source.distribution_imag.count, fft: distributionFFT)
         dataBuffer = Renderer.device.makeBuffer(bytes: recreatedSignal, length: MemoryLayout<Float>.stride * recreatedSignal.count, options: [])
 
         // TODO: - Need to downsample this...
         // Taking toooo much gpu time
-        let displacementSignal = runfft(real: distribution_displacement_real, imag: distribution_displacement_imag, count: source.distribution_displacement_real.count + source.distribution_displacement_imag.count, fft: downsampledFFT)
+
+        let displacementSignal = runfft(real: distribution_displacement_real, imag: distribution_displacement_imag, count: source.distribution_displacement_real.count + source.distribution_displacement_imag.count, fft: downsampledFFT, debug: true)
         displacementBuffer = Renderer.device.makeBuffer(bytes: displacementSignal, length: MemoryLayout<Float>.stride * displacementSignal.count, options: [])
     }
 
-    private func runfft(real: MTLBuffer, imag: MTLBuffer, count: Int, fft transformer: vDSP.FFT<DSPSplitComplex>)  -> [Float] {
+    private func runfft(real: MTLBuffer, imag: MTLBuffer, count: Int, fft transformer: vDSP.FFT<DSPSplitComplex>, debug: Bool = false)  -> [Float] {
 
 //        let halfN = Int((BasicFFT.imgSize * BasicFFT.imgSize) / 2)
 
@@ -185,7 +186,9 @@ class BasicFFT: Node {
 
 
         for index in 0..<(count / 2) {
-
+            if index == 50 && debug {
+                print("*** \(transformer) ** \(realPointer.pointee)")
+            }
             inputReal[index] = realPointer.pointee
             inputImag[index] = imagPointer.pointee
 
