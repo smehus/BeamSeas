@@ -135,6 +135,7 @@ float3 terrainDiffuseLighting(float3 normal,
     return diffuseColor;
 }
 
+
 [[ patch(quad, 4) ]]
 vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control_points [[ stage_in ]],
                                        float2 patch_coord [[ position_in_patch ]],
@@ -156,15 +157,18 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
 
     float2 interpolated = mix(top, bottom, v);
     float4 position = float4(interpolated.x, 0.0, interpolated.y, 1.0);
+
+
     // Changing this to filter linear smoothes out the texture
     // Which ends up smoothing out the rendering
     constexpr sampler sample(filter::linear);
 
     float2 xy = ((position.xz + terrainParams.size / 2) / terrainParams.size);
     out.uv = xy;
-//    xy.x = fmod(xy.x + (uniforms.deltaTime), 1);
-    float3 heightDisplacement = heightMap.sample(sample, xy).xyz;
 
+//    xy.x = fmod(xy.x + (uniforms.deltaTime), 1);
+
+    float3 heightDisplacement = heightMap.sample(sample, xy).xyz;
 
 //    float inverseColor = color.r;//1 - color.r;
     float3 height = (heightDisplacement * 2 - 1) * terrainParams.height;
@@ -174,7 +178,9 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
 
     // This means not just this y value... but also displacing the patches in the x axies
     // Y & Z values represent the horizontal displacment inside the height map
-    position.xz += (heightDisplacement * 2 - 1).yz;
+    // Height displacement would only be between -1 & 1. So we need to modify it somehow to values that
+    // are relevant....
+//    position.xz -= (heightDisplacement.yz * 2 -1);
     position.y = height.x;
 
     out.position = uniforms.projectionMatrix * uniforms.viewMatrix * uniforms.modelMatrix * position;
@@ -217,7 +223,7 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
     float3 color = float3(0.1, 0.3, 0.6);
     float3 specular = terrainDiffuseLighting(uniforms.normalMatrix * (normalValue * 2.0f - 1.0f), fragment_in.position.xyz, fragmentUniforms, lights, color.rgb);
 
-    return float4(color_mod * specular, 1.0);
+    return float4(specular, 1.0);
 }
 
 
@@ -255,59 +261,16 @@ kernel void TerrainKnl_ComputeNormalsFromHeightmap(texture2d<float> height [[tex
         // And mix the two samples. Don't need to do anything else other than handle the mix between maps & fmod something...
 //        // Which we're already doing in the vertex shader. So I think we can just add an altNormalMap to the vetex shader & use that for secondary shader
 
+        float h_up     = height.sample(sam, (float2)(tid + uint2(0, 1))).r;
+        float h_down   = height.sample(sam, (float2)(tid - uint2(0, 1))).r;
+        float h_right  = height.sample(sam, (float2)(tid + uint2(1, 0))).r;
+        float h_left   = height.sample(sam, (float2)(tid - uint2(1, 0))).r;
+        float h_center = height.sample(sam, (float2)(tid + uint2(0, 0))).r;
 
-        float mixValue = 0.8;
-
-        float2 h_up_uv = (float2)(altTid + uint2(0, 1));
-        float h_up_t     = height.sample(sam, h_up_uv).r;
-        float h_up_mod = height.sample(sam, h_up_uv + 1).r;
-        float h_up_dMod = height.sample(sam, h_up_uv - 1).r;
-
-        float h_up_forward = mix(h_up_t, h_up_mod, mixValue);
-        float h_up_back = mix(h_up_t, h_up_dMod, mixValue);
-        float h_up = mix(h_up_forward, h_up_back, 0.5);
-
-        float2 h_down_uv = (float2)(altTid - uint2(0, 1));
-        float h_down_t   = height.sample(sam, h_down_uv).r;
-        float h_down_mod = height.sample(sam, h_down_uv + 1).r;
-        float h_down_dMod = height.sample(sam, h_down_uv - 1).r;
-
-        float h_down_forward = mix(h_down_t, h_down_mod, mixValue);
-        float h_down_back = mix(h_down_t, h_down_dMod, mixValue);
-        float h_down = mix(h_down_forward, h_down_back, 0.5);
-
-        float2 h_right_uv = (float2)(altTid + uint2(1, 0));
-        float h_right_t  = height.sample(sam, h_right_uv).r;
-        float h_right_mod  = height.sample(sam, h_right_uv + 1).r;
-        float h_right_dMod  = height.sample(sam, h_right_uv - 1).r;
-
-        float h_right_forward = mix(h_right_t, h_right_mod, mixValue);
-        float h_right_back = mix(h_right_t, h_right_dMod, mixValue);
-        float h_right = mix(h_right_forward, h_right_back, 0.5);
-
-        float2 h_left_uv = (float2)(altTid - uint2(1, 0));
-        float h_left_t   = height.sample(sam, h_left_uv).r;
-        float h_left_mod   = height.sample(sam, h_left_uv + 1).r;
-        float h_left_dMod   = height.sample(sam, h_left_uv - 1).r;
-
-        float h_left_forward = mix(h_left_t, h_left_mod, mixValue);
-        float h_left_back = mix(h_left_t, h_left_dMod, mixValue);
-        float h_left = mix(h_left_forward, h_left_back, 0.5);
-
-        float2 h_center_uv = (float2)(altTid + uint2(0, 0));
-        float h_center_t = height.sample(sam, h_center_uv).r;
-        float h_center_mod = height.sample(sam, h_center_uv + 1).r;
-        float h_center_dMod = height.sample(sam, h_center_uv - 1).r;
-
-        float h_center_forward = mix(h_center_t, h_center_mod, mixValue);
-        float h_center_back = mix(h_center_t, h_center_dMod, mixValue);
-        float h_center = mix(h_center_forward, h_center_back, 0.5);
-
-        float3 v_up    = float3( 0,        (h_up - h_center) * y_scale,  xz_scale);
-        float3 v_down  = float3( 0,        (h_down - h_center) * y_scale, -xz_scale);
-        // switched h_right & h_center to accomodate for map weirdness
+        float3 v_up    = float3( 0,        (h_up    - h_center) * y_scale,  xz_scale);
+        float3 v_down  = float3( 0,        (h_down  - h_center) * y_scale, -xz_scale);
         float3 v_right = float3( xz_scale, (h_right - h_center) * y_scale,  0);
-        float3 v_left  = float3(-xz_scale, (h_left - h_center) * y_scale,  0);
+        float3 v_left  = float3(-xz_scale, (h_left  - h_center) * y_scale,  0);
 
         float3 n0 = cross(v_up, v_right);
         float3 n1 = cross(v_left, v_up);

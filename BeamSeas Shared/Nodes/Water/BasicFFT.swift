@@ -64,8 +64,8 @@ class BasicFFT: Node {
     private var displacementMap: MTLTexture!
 
 
-    static var wind_velocity = float2(x: 26, y: -22)
-    static var amplitude = 7000
+    static var wind_velocity = float2(x: 10, y: -10)
+    static var amplitude = 25
 
     override init() {
 
@@ -92,7 +92,6 @@ class BasicFFT: Node {
         Self.heightDisplacementMap = Renderer.device.makeTexture(descriptor: texDesc)!
         Self.gradientMap = Renderer.device.makeTexture(descriptor: texDesc)!
         heightMap = Renderer.device.makeTexture(descriptor: texDesc)!
-        displacementMap = Renderer.device.makeTexture(descriptor: texDesc)!
 
         // is this different?
 //        let texDesc = MTLTextureDescriptor()
@@ -103,6 +102,11 @@ class BasicFFT: Node {
 //        texDesc.mipmapLevelCount = 1//Int(log2(Double(max(BasicFFT.heightDisplacementMap.width, BasicFFT.heightDisplacementMap.height))) + 1);
 //        texDesc.storageMode = .private
         Self.normalMapTexture = Renderer.device.makeTexture(descriptor: texDesc)!
+
+        texDesc.width = BasicFFT.distributionSize >> 1
+        texDesc.height = BasicFFT.distributionSize >> 1
+        displacementMap = Renderer.device.makeTexture(descriptor: texDesc)!
+
 
         fftPipelineState = Self.buildComputePipelineState(shader: "fft_kernel")
         distributionPipelineState = Self.buildComputePipelineState(shader: "generate_distribution_map_values")
@@ -162,7 +166,7 @@ class BasicFFT: Node {
 
         // TODO: - Need to downsample this...
         // Taking toooo much gpu time
-        let displacementSignal = runfft(real: distribution_displacement_real, imag: distribution_displacement_imag, count: source.distribution_displacement_real.count + source.distribution_displacement_imag.count, fft: fft)
+        let displacementSignal = runfft(real: distribution_displacement_real, imag: distribution_displacement_imag, count: source.distribution_displacement_real.count + source.distribution_displacement_imag.count, fft: downsampledFFT)
         displacementBuffer = Renderer.device.makeBuffer(bytes: displacementSignal, length: MemoryLayout<Float>.stride * displacementSignal.count, options: [])
     }
 
@@ -254,15 +258,18 @@ extension BasicFFT: Renderable {
         computeEncoder.setBuffer(source.distribution_real_buffer, offset: 0, index: 14)
         computeEncoder.setBuffer(source.distribution_imag_buffer, offset: 0, index: 15)
         computeEncoder.setTexture(BasicFFT.heightDisplacementMap, index: 0)
-        let w = distributionPipelineState.threadExecutionWidth
-        let h = distributionPipelineState.maxTotalThreadsPerThreadgroup / w
-        var threadGroupSize = MTLSizeMake(16, 16, 1)
+//        let w = distributionPipelineState.threadExecutionWidth
+//        let h = distributionPipelineState.maxTotalThreadsPerThreadgroup / w
+        let threadGroupSize = MTLSizeMake(16, 16, 1)
         var threadgroupCount = MTLSizeMake(1, 1, 1)
         threadgroupCount.width = BasicFFT.distributionSize//(BasicFFT.imgSize + threadGroupSize.width - 1) / threadGroupSize.width
         threadgroupCount.height = BasicFFT.distributionSize//(BasicFFT.imgSize + threadGroupSize.height - 1) / threadGroupSize.height
         computeEncoder.dispatchThreads(threadgroupCount, threadsPerThreadgroup: threadGroupSize)
         computeEncoder.popDebugGroup()
 
+
+        threadgroupCount.width = BasicFFT.distributionSize >> 1
+        threadgroupCount.height = BasicFFT.distributionSize >> 1
 
         computeEncoder.pushDebugGroup("FFT-Displacement")
         computeEncoder.setComputePipelineState(displacementPipelineState)
@@ -278,8 +285,6 @@ extension BasicFFT: Renderable {
 
     func generateMaps(computeEncoder: MTLComputeCommandEncoder, uniforms: inout Uniforms) {
         // Create diplacement & height maps
-        
-        computeEncoder.pushDebugGroup("FFT-Drawing")
 
         var gausUniforms = GausUniforms(
             dataLength: Int32(BasicFFT.distributionSize * BasicFFT.distributionSize),
@@ -291,23 +296,32 @@ extension BasicFFT: Renderable {
             seed: seed
         )
 
-        // Apple example
+        computeEncoder.pushDebugGroup("FFT-Drawing-Height")
         let w = fftPipelineState.threadExecutionWidth
         let h = fftPipelineState.maxTotalThreadsPerThreadgroup / w
         var threadGroupSize = MTLSizeMake(w, h, 1)
         var threadgroupCount = MTLSizeMake(1, 1, 1)
-        threadgroupCount.width = BasicFFT.imgSize//(BasicFFT.imgSize + threadGroupSize.width - 1) / threadGroupSize.width
-        threadgroupCount.height = BasicFFT.imgSize//(BasicFFT.imgSize + threadGroupSize.height - 1) / threadGroupSize.height
+        threadgroupCount.width = BasicFFT.distributionSize
+        threadgroupCount.height = BasicFFT.distributionSize
 
         computeEncoder.setComputePipelineState(fftPipelineState)
         computeEncoder.setTexture(heightMap, index: 0)
-        computeEncoder.setTexture(displacementMap, index: 1)
         computeEncoder.setBuffer(dataBuffer, offset: 0, index: 0)
-        computeEncoder.setBuffer(displacementBuffer, offset: 0, index: 1)
         computeEncoder.setBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: 3)
         computeEncoder.setBytes(&gausUniforms, length: MemoryLayout<GausUniforms>.stride, index: 4)
-        
-        // threadsPerGrid determines the thread_posistion dimensions
+        computeEncoder.dispatchThreadgroups(threadgroupCount, threadsPerThreadgroup: threadGroupSize)
+        computeEncoder.popDebugGroup()
+
+        computeEncoder.pushDebugGroup("FFT-Drawing-Displacement")
+
+        threadgroupCount.width = BasicFFT.distributionSize >> 1
+        threadgroupCount.height = BasicFFT.distributionSize >> 1
+
+        computeEncoder.setComputePipelineState(fftPipelineState)
+        computeEncoder.setTexture(displacementMap, index: 0)
+        computeEncoder.setBuffer(displacementBuffer, offset: 0, index: 0)
+        computeEncoder.setBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: 3)
+        computeEncoder.setBytes(&gausUniforms, length: MemoryLayout<GausUniforms>.stride, index: 4)
         computeEncoder.dispatchThreadgroups(threadgroupCount, threadsPerThreadgroup: threadGroupSize)
         computeEncoder.popDebugGroup()
     }
@@ -362,7 +376,7 @@ extension BasicFFT: Renderable {
         let threadsPerGroup = MTLSizeMake(w, h, 1)
         computeEncoder.pushDebugGroup("Generate Normals")
         computeEncoder.setComputePipelineState(normalPipelineState)
-        computeEncoder.setTexture(BasicFFT.heightDisplacementMap, index: 0)
+        computeEncoder.setTexture(heightMap, index: 0)
         computeEncoder.setTexture(Self.normalMapTexture, index: 2)
         computeEncoder.setBytes(&Terrain.terrainParams, length: MemoryLayout<TerrainParams>.size, index: 3)
         computeEncoder.setBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: BufferIndex.uniforms.rawValue)
@@ -386,7 +400,7 @@ extension BasicFFT: Renderable {
 
         var viewPort = SIMD2<Float>(x: Float(Renderer.metalView.drawableSize.width / 4), y: Float(Renderer.metalView.drawableSize.height / 4))
         renderEncoder.setFragmentBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: BufferIndex.uniforms.rawValue)
-        renderEncoder.setFragmentTexture(displacementMap, index: 0)
+        renderEncoder.setFragmentTexture(heightMap, index: 0)
         renderEncoder.setFragmentBytes(&viewPort, length: MemoryLayout<SIMD2<Float>>.stride, index: 22)
 
         let mesh = model.submeshes.first!

@@ -264,31 +264,19 @@ fragment float4 fft_fragment(const FFTVertexOut in [[ stage_in ]],
     return float4(color.xyz, 1.0);
 }
 
-kernel void fft_kernel(texture2d<float, access::write> output_height [[ texture(0) ]],
-                       texture2d<float, access::write> output_displacement [[ texture(1) ]],
+kernel void fft_kernel(texture2d<float, access::write> output_texture [[ texture(0) ]],
                        uint2 tid [[ thread_position_in_grid]],
                        constant float *data [[ buffer(0) ]],
-                       constant float *displacement [[ buffer(1) ]],
                        constant Uniforms &uniforms [[ buffer(3) ]],
                        constant GausUniforms &gausUniforms [[ buffer(4)]])
 {
-    // this will work because both height and displacement are the same size
-    // In the future when i downsample displacement - this will need to be updated
-    uint width = output_height.get_width();
-    uint height = output_height.get_height();
-
+    uint width = output_texture.get_width();
+    uint height = output_texture.get_height();
 
     if (tid.x < width && tid.y < height) {
-
         uint index = (uint)(tid.y * width + tid.x);
-//saturate
         float val = data[index];
         val = (val - -1) / (1  - -1);
-        float displace = displacement[index];
-        displace = (displace - -1) / (1  - -1);
-//         maybe write out both height & displacement textures separately here?
-
-        output_height.write(float4(val, val, val, 1), tid);
-        output_displacement.write(float4(displace, displace, displace, 1), tid);
+        output_texture.write(float4(val, val, val, 1), tid);
     }
 }

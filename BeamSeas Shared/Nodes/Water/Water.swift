@@ -94,7 +94,7 @@ class Water {
 
         let n = vDSP_Length(Nx * Nz)
         var newamplitude = amplitude
-        newamplitude *= 0.3 / sqrt(size.x * size.y)
+//        newamplitude *= 0.3 / sqrt(size.x * size.y)
 
         // Factor in phillips spectrum
         L = simd_dot(wind_velocity, wind_velocity) / Self.G;
@@ -103,9 +103,9 @@ class Water {
         distribution_imag = [Float](repeating: 0, count: Int(n))
 
         // TODO: - Downsampling was breaking fft for some reason
-//        let displacementLength = (Nx * Nz) >> (displacement_downsample * 2)
-        distribution_displacement_real = [Float](repeating: 0, count: Int(n))
-        distribution_displacement_imag = [Float](repeating: 0, count: Int(n))
+        let displacementLength = (Nx * Nz) >> (displacement_downsample * 2)
+        distribution_displacement_real = [Float](repeating: 0, count: Int(displacementLength))
+        distribution_displacement_imag = [Float](repeating: 0, count: Int(displacementLength))
 
 //        distribution_normal_real = [Float](repeating: 0, count: Int(n))
 //        distribution_normal_imag = [Float](repeating: 0, count: Int(n))
@@ -139,8 +139,7 @@ class Water {
             displacement_img: &distribution_displacement_imag,
             in_real: distribution_real,
             in_imag: distribution_imag,
-            rate_log2: displacement_downsample,
-            amplitude: newamplitude
+            rate_log2: displacement_downsample
         )
 
 //        generate_distribution(
@@ -189,13 +188,13 @@ class Water {
 //        )!
     }
 
-    private func downsample_distribution(displacement_real: inout [Float], displacement_img: inout [Float], in_real: [Float], in_imag: [Float], rate_log2: Int, amplitude: Float)
+    private func downsample_distribution(displacement_real: inout [Float], displacement_img: inout [Float], in_real: [Float], in_imag: [Float], rate_log2: Int)
     {
 
         
         // Pick out the lower frequency samples only which is the same as downsampling "perfectly".
-        let out_width: Int = Nx// >> rate_log2;
-        let out_height: Int = Nz// >> rate_log2;
+        let out_width: Int = Nx >> rate_log2;
+        let out_height: Int = Nz >> rate_log2;
 
         for z in 0..<out_height {
             var ioZ = z

@@ -22,7 +22,7 @@ class Terrain: Node {
 
     static var terrainParams = TerrainParams(
         size: [Terrain.terrainSize, Terrain.terrainSize],
-        height: 20,
+        height: 17,
         maxTessellation: UInt32(Terrain.maxTessellation),
         numberOfPatches: UInt32(Terrain.patchNum * Terrain.patchNum)
     )
@@ -35,11 +35,11 @@ class Terrain: Node {
     }
 
     var edgeFactors: [Float] = [4]
-    var insideFactors: [Float] = [4]
+    var insideFactors: [Float] = [2]
     var allPatches: [Patch] = []
 
     lazy var tessellationFactorsBuffer: MTLBuffer? = {
-        let count = patchCount * (4 + 4)
+        let count = patchCount * (4 + 2)
         let size = count * MemoryLayout<Float>.size / 2
         return Renderer.device.makeBuffer(length: size, options: .storageModePrivate)
     }()
@@ -80,7 +80,8 @@ class Terrain: Node {
         descriptor.fragmentFunction = Renderer.library.makeFunction(name: "fragment_terrain")
         descriptor.tessellationFactorStepFunction = .perPatch
         descriptor.maxTessellationFactor = Self.maxTessellation
-        descriptor.tessellationPartitionMode = .pow2
+        descriptor.tessellationPartitionMode = .fractionalEven
+//        descriptor.tessellationPartitionMode = .pow2
 
         let vertexDescriptor = MTLVertexDescriptor()
         vertexDescriptor.attributes[0].format = .float3
@@ -88,6 +89,7 @@ class Terrain: Node {
         vertexDescriptor.attributes[0].bufferIndex = 0
         vertexDescriptor.layouts[0].stepFunction = .perPatchControlPoint
         vertexDescriptor.layouts[0].stride = MemoryLayout<float3>.stride
+        
 
         descriptor.vertexDescriptor = vertexDescriptor
 
@@ -95,7 +97,6 @@ class Terrain: Node {
 
         let kernelFunction = Renderer.library.makeFunction(name: "tessellation_main")!
         computePipelineState = try! Renderer.device.makeComputePipelineState(function: kernelFunction)
-
 
 //        texDesc.width = altHeightMap.width
 //        texDesc.height = altHeightMap.height
@@ -263,6 +264,8 @@ extension Terrain: Renderable {
             BasicFFT.normalMapTexture,
             index: 2
         )
+
+
 
 //        renderEncoder.setTriangleFillMode(.lines)
         renderEncoder.drawPatches(
