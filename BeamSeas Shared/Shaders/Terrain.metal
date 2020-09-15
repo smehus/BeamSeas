@@ -180,7 +180,8 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
     // Y & Z values represent the horizontal displacment inside the height map
     // Height displacement would only be between -1 & 1. So we need to modify it somehow to values that
     // are relevant....
-//    position.xz -= (heightDisplacement.yz * 2 -1);
+    float2 horizontalDisplacement = (heightDisplacement.yz * 2 - 1);
+    position.xz += (1 - horizontalDisplacement);
     position.y = height.x;
 
     out.position = uniforms.projectionMatrix * uniforms.viewMatrix * uniforms.modelMatrix * position;
@@ -194,7 +195,7 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
     float3 normal = uniforms.normalMatrix * normalValue;
 
     out.normal = normal;
-    finalColor = float4(0.505, 0.898, 0.988, 1);
+    finalColor = float4(0.705, 0.898, 0.988, 1);
     out.color = finalColor;
 
     return out;

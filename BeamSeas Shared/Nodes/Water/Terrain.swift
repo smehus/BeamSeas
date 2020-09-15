@@ -80,8 +80,8 @@ class Terrain: Node {
         descriptor.fragmentFunction = Renderer.library.makeFunction(name: "fragment_terrain")
         descriptor.tessellationFactorStepFunction = .perPatch
         descriptor.maxTessellationFactor = Self.maxTessellation
-        descriptor.tessellationPartitionMode = .fractionalEven
-//        descriptor.tessellationPartitionMode = .pow2
+//        descriptor.tessellationPartitionMode = .fractionalEven
+        descriptor.tessellationPartitionMode = .pow2
 
         let vertexDescriptor = MTLVertexDescriptor()
         vertexDescriptor.attributes[0].format = .float3

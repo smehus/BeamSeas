@@ -253,8 +253,11 @@ extension BasicFFT: Renderable {
         computeEncoder.setComputePipelineState(distributionPipelineState)
         computeEncoder.setBytes(&gausUniforms, length: MemoryLayout<GausUniforms>.stride, index: BufferIndex.gausUniforms.rawValue)
         computeEncoder.setBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: BufferIndex.uniforms.rawValue)
+        // Output
         computeEncoder.setBuffer(distribution_real, offset: 0, index: 12)
         computeEncoder.setBuffer(distribution_imag, offset: 0, index: 13)
+
+        // Input
         computeEncoder.setBuffer(source.distribution_real_buffer, offset: 0, index: 14)
         computeEncoder.setBuffer(source.distribution_imag_buffer, offset: 0, index: 15)
         computeEncoder.setTexture(BasicFFT.heightDisplacementMap, index: 0)
@@ -273,10 +276,15 @@ extension BasicFFT: Renderable {
 
         computeEncoder.pushDebugGroup("FFT-Displacement")
         computeEncoder.setComputePipelineState(displacementPipelineState)
+        // output
         computeEncoder.setBuffer(distribution_displacement_real, offset: 0, index: 12)
         computeEncoder.setBuffer(distribution_displacement_imag, offset: 0, index: 13)
+
+        // Input
         computeEncoder.setBuffer(source.distribution_displacement_real_buffer, offset: 0, index: 14)
         computeEncoder.setBuffer(source.distribution_displacement_imag_buffer, offset: 0, index: 15)
+
+        computeEncoder.setBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: BufferIndex.uniforms.rawValue)
         computeEncoder.dispatchThreads(threadgroupCount, threadsPerThreadgroup: threadGroupSize)
         computeEncoder.popDebugGroup()
     }
@@ -320,6 +328,7 @@ extension BasicFFT: Renderable {
         computeEncoder.setComputePipelineState(fftPipelineState)
         computeEncoder.setTexture(displacementMap, index: 0)
         computeEncoder.setBuffer(displacementBuffer, offset: 0, index: 0)
+
         computeEncoder.setBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: 3)
         computeEncoder.setBytes(&gausUniforms, length: MemoryLayout<GausUniforms>.stride, index: 4)
         computeEncoder.dispatchThreadgroups(threadgroupCount, threadsPerThreadgroup: threadGroupSize)
@@ -400,7 +409,7 @@ extension BasicFFT: Renderable {
 
         var viewPort = SIMD2<Float>(x: Float(Renderer.metalView.drawableSize.width / 4), y: Float(Renderer.metalView.drawableSize.height / 4))
         renderEncoder.setFragmentBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: BufferIndex.uniforms.rawValue)
-        renderEncoder.setFragmentTexture(heightMap, index: 0)
+        renderEncoder.setFragmentTexture(displacementMap, index: 0)
         renderEncoder.setFragmentBytes(&viewPort, length: MemoryLayout<SIMD2<Float>>.stride, index: 22)
 
         let mesh = model.submeshes.first!
