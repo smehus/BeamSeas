@@ -430,25 +430,25 @@ extension BasicFFT: Renderable {
 
 
 
-//        renderEncoder.pushDebugGroup("Tiny Map - Height")
-//        position.x = -0.75
-//        position.y = 0
-//
-//        uniforms.modelMatrix = modelMatrix
-//        renderEncoder.setVertexBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: BufferIndex.uniforms.rawValue)
-//        renderEncoder.setFragmentBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: BufferIndex.uniforms.rawValue)
-//        renderEncoder.setFragmentTexture(displacementMap, index: 0)
-////        renderEncoder.setVertexBuffer(model.vertexBuffers.first!.buffer, offset: 0, index: BufferIndex.vertexBuffer.rawValue)
-//        renderEncoder.setTriangleFillMode(.fill)
-//        renderEncoder.drawIndexedPrimitives(
-//            type: .triangle,
-//            indexCount: mesh.indexCount,
-//            indexType: mesh.indexType,
-//            indexBuffer: mesh.indexBuffer.buffer,
-//            indexBufferOffset: mesh.indexBuffer.offset
-//        )
-//
-//        renderEncoder.popDebugGroup()
+        renderEncoder.pushDebugGroup("Tiny Map - Height")
+        position.x = -0.75
+        position.y = 0.25
+
+        uniforms.modelMatrix = modelMatrix
+        renderEncoder.setVertexBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: BufferIndex.uniforms.rawValue)
+        renderEncoder.setFragmentBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: BufferIndex.uniforms.rawValue)
+        renderEncoder.setFragmentTexture(displacementMap, index: 0)
+//        renderEncoder.setVertexBuffer(model.vertexBuffers.first!.buffer, offset: 0, index: BufferIndex.vertexBuffer.rawValue)
+        renderEncoder.setTriangleFillMode(.fill)
+        renderEncoder.drawIndexedPrimitives(
+            type: .triangle,
+            indexCount: mesh.indexCount,
+            indexType: mesh.indexType,
+            indexBuffer: mesh.indexBuffer.buffer,
+            indexBufferOffset: mesh.indexBuffer.offset
+        )
+
+        renderEncoder.popDebugGroup()
     }
 
 }

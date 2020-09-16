@@ -278,20 +278,29 @@ fragment float4 fft_fragment(const FFTVertexOut in [[ stage_in ]],
                              constant float2 &viewPort [[ buffer(22) ]],
                              texture2d<float> noiseMap [[ texture(0) ]],
                              texture2d<float> testMap [[ texture(1) ]]) {
-        constexpr sampler sam;
-    //    float2 normTex = in.textureCoordinates.xy;
-    //    normTex = normTex * 0.5 + 0.5;
+    constexpr sampler sam;
 
-        float width = viewPort.x * 0.25;
-        float height = viewPort.y * 0.25;
+    float2 xy;
+    float3 screenCoord = uniforms.modelMatrix.columns[3].xyz;
+    float width = viewPort.x * 0.25;
+    float height = viewPort.y * 0.25;
+
+    if (screenCoord.y == 0.25) {
+        float yOrigin = viewPort.y * screenCoord.y;
 
         float x = in.position.x / width;
+        float normalizedY = in.position.y - yOrigin;
+        float y = normalizedY / height;
+        xy = float2(x, y);
+    } else {
+        float x = in.position.x / width;
         float y = in.position.y / height;
+        xy = float2(x, y);
+    }
 
-        float2 xy = float2(x, y);
-        float4 color = noiseMap.sample(sam, xy);
+    float4 color = noiseMap.sample(sam, xy);
 
-        return float4(color.xyz, 1.0);
+    return float4(color.xyz, 1.0);
 }
 
 kernel void fft_kernel(texture2d<float, access::write> output_texture [[ texture(0) ]],
