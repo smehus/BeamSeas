@@ -311,10 +311,8 @@ extension BasicFFT: Renderable {
         computeEncoder.pushDebugGroup("FFT-Drawing-Height")
         let w = fftPipelineState.threadExecutionWidth
         let h = fftPipelineState.maxTotalThreadsPerThreadgroup / w
-        var threadGroupSize = MTLSizeMake(w, h, 1)
-        var threadgroupCount = MTLSizeMake(1, 1, 1)
-        threadgroupCount.width = BasicFFT.distributionSize
-        threadgroupCount.height = BasicFFT.distributionSize
+        let threadGroupSize = MTLSizeMake(w, h, 1)
+        var threadgroupCount = MTLSizeMake(BasicFFT.distributionSize, BasicFFT.distributionSize, 1)
 
         computeEncoder.setComputePipelineState(fftPipelineState)
         computeEncoder.setTexture(heightMap, index: 0)
@@ -345,10 +343,8 @@ extension BasicFFT: Renderable {
 
         let w = gradientPipelineState.threadExecutionWidth
         let h = gradientPipelineState.maxTotalThreadsPerThreadgroup / w
-        var threadGroupSize = MTLSizeMake(w, h, 1)
-        var threadgroupCount = MTLSizeMake(1, 1, 1)
-        threadgroupCount.width = BasicFFT.distributionSize//(BasicFFT.imgSize + threadGroupSize.width - 1) / threadGroupSize.width
-        threadgroupCount.height = BasicFFT.distributionSize//(BasicFFT.imgSize + threadGroupSize.height - 1) / threadGroupSize.height
+        let threadGroupSize = MTLSizeMake(w, h, 1)
+        let threadgroupCount = MTLSizeMake(BasicFFT.distributionSize, BasicFFT.distributionSize, 1)
 
         computeEncoder.pushDebugGroup("FFT-Gradient")
         computeEncoder.setComputePipelineState(gradientPipelineState)
@@ -400,9 +396,10 @@ extension BasicFFT: Renderable {
 
     // This is used to draw the height map in the top left
     func draw(renderEncoder: MTLRenderCommandEncoder, uniforms: inout Uniforms, fragmentUniforms: inout FragmentUniforms) {
-        renderEncoder.pushDebugGroup("Tiny Map")
+
         renderEncoder.setRenderPipelineState(mainPipelineState)
 
+        renderEncoder.pushDebugGroup("Tiny Map - Displacement")
         position.x = -0.75
         position.y = 0.75
         //        rotation = [Float(90).degreesToRadians, 0, 0]
@@ -411,9 +408,9 @@ extension BasicFFT: Renderable {
         renderEncoder.setVertexBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: BufferIndex.uniforms.rawValue)
         //        renderEncoder.setVertexBytes(&viewPort, length: MemoryLayout<SIMD2<Float>>.stride, index: 22)
 
-        var viewPort = SIMD2<Float>(x: Float(Renderer.metalView.drawableSize.width / 4), y: Float(Renderer.metalView.drawableSize.height / 4))
+        var viewPort = SIMD2<Float>(x: Float(Renderer.metalView.drawableSize.width), y: Float(Renderer.metalView.drawableSize.height))
         renderEncoder.setFragmentBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: BufferIndex.uniforms.rawValue)
-        renderEncoder.setFragmentTexture(displacementMap, index: 0)
+        renderEncoder.setFragmentTexture(heightMap, index: 0)
         renderEncoder.setFragmentBytes(&viewPort, length: MemoryLayout<SIMD2<Float>>.stride, index: 22)
 
         let mesh = model.submeshes.first!
@@ -429,6 +426,29 @@ extension BasicFFT: Renderable {
         )
 
         renderEncoder.popDebugGroup()
+
+
+
+
+//        renderEncoder.pushDebugGroup("Tiny Map - Height")
+//        position.x = -0.75
+//        position.y = 0
+//
+//        uniforms.modelMatrix = modelMatrix
+//        renderEncoder.setVertexBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: BufferIndex.uniforms.rawValue)
+//        renderEncoder.setFragmentBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: BufferIndex.uniforms.rawValue)
+//        renderEncoder.setFragmentTexture(displacementMap, index: 0)
+////        renderEncoder.setVertexBuffer(model.vertexBuffers.first!.buffer, offset: 0, index: BufferIndex.vertexBuffer.rawValue)
+//        renderEncoder.setTriangleFillMode(.fill)
+//        renderEncoder.drawIndexedPrimitives(
+//            type: .triangle,
+//            indexCount: mesh.indexCount,
+//            indexType: mesh.indexType,
+//            indexBuffer: mesh.indexBuffer.buffer,
+//            indexBufferOffset: mesh.indexBuffer.offset
+//        )
+//
+//        renderEncoder.popDebugGroup()
     }
 
 }

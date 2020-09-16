@@ -140,56 +140,72 @@ kernel void generate_distribution_map_values(constant GausUniforms &uniforms [[ 
 }
 
 kernel void generate_displacement_map_values(constant GausUniforms &uniforms [[ buffer(BufferIndexGausUniforms) ]],
-                                  constant Uniforms &mainUniforms [[ buffer(BufferIndexUniforms) ]],
-                                  device float *output_real [[ buffer(12) ]],
-                                  device float *output_imag [[ buffer(13) ]],
-                                  texture2d<float> drawTexture [[ texture(0) ]],
-                                  device float *input_real [[ buffer(14) ]],
-                                  device float *input_imag [[ buffer(15) ]],
-                                  uint2 i [[ thread_position_in_grid ]])
+                                             constant Uniforms &mainUniforms [[ buffer(BufferIndexUniforms) ]],
+                                             device float *output_real [[ buffer(12) ]],
+                                             device float *output_imag [[ buffer(13) ]],
+                                             texture2d<float> drawTexture [[ texture(0) ]],
+                                             device float *input_real [[ buffer(14) ]],
+                                             device float *input_imag [[ buffer(15) ]],
+                                             uint2 pid [[ thread_position_in_grid ]])
 {
+    float G = 9.81; // Gravity
+    //    float amplitude = uniforms.amplitude;
+    //
+    //    amplitude *= 0.3 / sqrt(size.x * size.y);
 
-     uint2 N = uniforms.resolution >> 1;
-     float2 uMod = float2(2.0 * M_PI_F) / uniforms.size;
-     int width = uniforms.resolution.x >> 1;
-     int height = uniforms.resolution.y >> 1;
+    uint2 resolution = uniforms.resolution >> 1;
+    // Pick out the negative frequency variant.
+    float2 wi = mix(float2(resolution - pid),
+                    float2(0u),
+                    float2(pid == uint2(0u)));
 
-     uint2 wi = uint2(mix(float2(N - i),
-                     float2(0u),
-                     float2(i == uint2(0u))));
+    int width = resolution.x;
+    int height = resolution.y;
 
-     int aIndex = i.y * N.x + i.x;
-     if (aIndex > 16383) { return; }
-     float aReal = input_real[aIndex];
-     float aImag = input_imag[aIndex];
-     float2 a = float2(aReal, aImag);
 
-     int bIndex = wi.y * N.x + wi.x;
+    //    // Pick out positive and negative travelling waves.
 
-     if (bIndex > 16383) { return; }
-     float bReal = input_real[bIndex];
-     float bImag = input_imag[bIndex];
-     float2 b = float2(bReal, bImag);
+    int index = (int)pid.y * width + pid.x;
+    int bIndex =  (int)wi.y * width + wi.x;
+    if (index > 168383) { return; }
+    if (bIndex > 168383) { return; }
 
-     float2 k = uMod * vecAlias(i, uint2(width, height));
-     float k_len = length(k);
+    float a1 = input_real[index];
+    float a2 = input_imag[index];
+    float2 a = float2(a1, a2);
 
-     const float G = 9.81;
-     float w = sqrt(G * k_len) * (mainUniforms.deltaTime); // Do phase accumulation later ...
+    float b1 = input_real[bIndex];
+    float b2 = input_imag[bIndex];
+    float2 b = float2(b1, b2);
 
-     float cw = cos(w);
-     float sw = sin(w);
+    float2 uMod = float2(2.0 * M_PI_F) / uniforms.size;
 
-     a = cmul(a, float2(cw, sw));
-     b = cmul(b, float2(cw, sw));
-     b = float2(b.x, -b.y);
-     float2 res = a + b;
 
-    float2 grad = cmul(res, float2(-k.y / (k_len + 0.00005), k.x / (k_len + 0.00005)));
-     int idx = i.y * N.x + i.x;
-     if (idx > 168383) { return; }
-     output_real[idx] = grad.x;
-     output_imag[idx] = grad.y;
+    float2 k = uMod * vecAlias(pid, uint2(width, height));
+    float k_len = length(k);
+    // If this sample runs for hours on end, the cosines of very large numbers will eventually become unstable.
+    // It is fairly easy to fix this by wrapping uTime,
+    // and quantizing w such that wrapping uTime does not change the result.
+    // See Tessendorf's paper for how to do it.
+    // The sqrt(G * k_len) factor represents how fast ocean waves at different frequencies propagate.
+    float w = sqrt(G * k_len) * (mainUniforms.deltaTime);
+    float cw = cos(w);
+    float sw = sin(w);
+
+    // Complex multiply to rotate our frequency samples.
+
+    a = cmul(a, float2(cw, sw));
+    b = cmul(b, float2(cw, sw));
+    b = float2(b.x, -b.y); // Complex conjugate since we picked a frequency with the opposite direction.
+    float2 res = (a + b); // Sum up forward and backwards travelling waves.
+
+    float2 grad = cmul(res, float2(-k.y / (k_len + 0.00001), k.x / (k_len + 0.00001)));
+    int idx = pid.y * width + pid.x;
+
+    if (idx > 168383) { return; }
+    output_real[idx] = grad.x;
+    output_imag[idx] = grad.y;
+
 }
 
 
@@ -262,13 +278,20 @@ fragment float4 fft_fragment(const FFTVertexOut in [[ stage_in ]],
                              constant float2 &viewPort [[ buffer(22) ]],
                              texture2d<float> noiseMap [[ texture(0) ]],
                              texture2d<float> testMap [[ texture(1) ]]) {
-    constexpr sampler sam;
-//    float2 normTex = in.textureCoordinates.xy;
-//    normTex = normTex * 0.5 + 0.5;
-    float2 tex = in.position.xy / viewPort;
-    float4 color = noiseMap.sample(sam, tex);
+        constexpr sampler sam;
+    //    float2 normTex = in.textureCoordinates.xy;
+    //    normTex = normTex * 0.5 + 0.5;
 
-    return float4(color.xyz, 1.0);
+        float width = viewPort.x * 0.25;
+        float height = viewPort.y * 0.25;
+
+        float x = in.position.x / width;
+        float y = in.position.y / height;
+
+        float2 xy = float2(x, y);
+        float4 color = noiseMap.sample(sam, xy);
+
+        return float4(color.xyz, 1.0);
 }
 
 kernel void fft_kernel(texture2d<float, access::write> output_texture [[ texture(0) ]],
@@ -283,7 +306,7 @@ kernel void fft_kernel(texture2d<float, access::write> output_texture [[ texture
     if (tid.x < width && tid.y < height) {
         uint index = (uint)(tid.y * width + tid.x);
         float val = data[index];
-        val = (val - -1) / (1  - -1);
+        val = (val - -2) / (2  - -2);
         output_texture.write(float4(val, val, val, 1), tid);
     }
 }

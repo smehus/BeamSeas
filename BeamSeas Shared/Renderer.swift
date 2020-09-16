@@ -169,6 +169,10 @@ extension Renderer: MTKViewDelegate {
         renderEncoder.setFragmentBytes(&lights, length: MemoryLayout<Light>.stride * lights.count, index: BufferIndex.lights.rawValue)
 
         for model in models {
+            uniforms.deltaTime = delta
+            uniforms.projectionMatrix = camera.projectionMatrix
+            uniforms.viewMatrix = camera.viewMatrix
+            fragmentUniforms.camera_position = camera.position
             model.draw(renderEncoder: renderEncoder, uniforms: &uniforms, fragmentUniforms: &fragmentUniforms)
         }
 
