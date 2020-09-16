@@ -216,7 +216,7 @@ half jacobian(half2 dDdx, half2 dDdy)
     return (1.0 + dDdx.x) * (1.0 + dDdy.y) - dDdx.y * dDdy.x;
 }
 
-#define LAMBDA 1.2
+#define LAMBDA 1.8
 
 kernel void compute_height_graident(uint2 pid [[ thread_position_in_grid]],
                                     constant float4 &uInvSize [[ buffer(0) ]],
@@ -257,7 +257,7 @@ kernel void compute_height_graident(uint2 pid [[ thread_position_in_grid]],
     // This needs to be rethought through
     // Can i just use one map that already has displacement & height?
 //    float heighDis = mix(h, displacement, 0.5);
-    heightDisplacementMap.write(float4(h, displacement, 0.0), pid);
+    heightDisplacementMap.write(float4(h, -displacement, 0.0), pid);
 
     // write to gradient texture for final sampling in fragment
     gradientMap.write(float4(grad, j, 0.0), pid);
@@ -315,7 +315,7 @@ kernel void fft_kernel(texture2d<float, access::write> output_texture [[ texture
     if (tid.x < width && tid.y < height) {
         uint index = (uint)(tid.y * width + tid.x);
         float val = data[index];
-        val = (val - -2) / (2  - -2);
+        val = val * 0.5 + 0.5;
         output_texture.write(float4(val, val, val, 1), tid);
     }
 }

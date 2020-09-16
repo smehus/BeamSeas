@@ -180,8 +180,10 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
     // Y & Z values represent the horizontal displacment inside the height map
     // Height displacement would only be between -1 & 1. So we need to modify it somehow to values that
     // are relevant....
-    float2 horizontalDisplacement = (heightDisplacement.yz * 2 - 1);
-    position.xz += (1 - horizontalDisplacement);
+    float3 horizontalDisplacement = (heightDisplacement - -1) / (1 - -1);//heightMap.sample(sample, float2(xy.x, xy.y)).xyz;
+
+    position.x += -(horizontalDisplacement.y * 2);
+    position.z += -(horizontalDisplacement.z * 2);
     position.y = height.x;
 
     out.position = uniforms.projectionMatrix * uniforms.viewMatrix * uniforms.modelMatrix * position;
@@ -195,7 +197,7 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
     float3 normal = uniforms.normalMatrix * normalValue;
 
     out.normal = normal;
-    finalColor = float4(0.705, 0.898, 0.988, 1);
+    finalColor += float4(0.1, 0.6, 0.988, 1);
     out.color = finalColor;
 
     return out;
@@ -221,10 +223,10 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
 
     float color_mod = 1.0 + 3.0 * smoothstep(1.3, 1.8, turbulence);
 
-    float3 color = float3(0.1, 0.3, 0.6);
+    float3 color = float3(0.2, 0.6, 1.0);
     float3 specular = terrainDiffuseLighting(uniforms.normalMatrix * (normalValue * 2.0f - 1.0f), fragment_in.position.xyz, fragmentUniforms, lights, color.rgb);
-
-    return float4(specular, 1.0);
+    return float4(specular, 0.0);
+//    return fragment_in.color;
 }
 
 

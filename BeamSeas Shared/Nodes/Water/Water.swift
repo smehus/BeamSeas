@@ -162,11 +162,9 @@ class Water {
         let out_height: Int = Nz >> rate_log2;
 
         for z in 0..<out_height {
-            var ioZ = z
             for x in 0..<out_width {
-                var ioX = x
-                var alias_x = alias(x: &ioX, N: out_width);
-                var alias_z = alias(x: &ioZ, N: out_height);
+                var alias_x = alias(x, N: out_width);
+                var alias_z = alias(z, N: out_height);
 
                 if (alias_x < 0)
                 {
@@ -195,17 +193,15 @@ class Water {
 
         let normal_distribution = Distributions.Normal(m: 0, v: 1)
         for z in 0..<Nz {
-            var ioZ = z
             for x in 0..<Nx {
-                var ioX = x
 
-                let k = mod * SIMD2<Float>(x: Float(alias(x: &ioX, N: Nx)), y: Float(alias(x: &ioZ, N: Nz)))
+                let k = mod * SIMD2<Float>(x: Float(alias(x, N: Nx)), y: Float(alias(z, N: Nz)))
                 let realRand = Float(normal_distribution.random())
                 let imagRand = Float(normal_distribution.random())
 
                 let phillips = philliphs(k: k, max_l: max_l)
-                let newReal = realRand * amplitude * sqrt(0.5 * phillips)
-                let newImag = imagRand * amplitude * sqrt(0.5 * phillips)
+                let newReal = realRand * amplitude * sqrt(phillips)
+                let newImag = imagRand * amplitude * sqrt(phillips)
 
 
                 let idx = z * Nx + x
@@ -236,12 +232,13 @@ class Water {
             pow(k_len, -4.0)
     }
 
-    private func alias(x: inout Int, N: Int) -> Int {
+    private func alias(_ x: Int, N: Int) -> Int {
+        var value = x
         if x > (N / 2) {
-            x -= N
+            value -= N
         }
 
-        return x
+        return value
     }
 }
 

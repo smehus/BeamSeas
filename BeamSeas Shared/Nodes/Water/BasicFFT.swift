@@ -64,8 +64,8 @@ class BasicFFT: Node {
     private var displacementMap: MTLTexture!
 
 
-    static var wind_velocity = float2(x: 1, y: 26)
-    static var amplitude = 18
+    static var wind_velocity = float2(x: 1, y: 22)
+    static var amplitude = 40
 
     override init() {
 
@@ -130,7 +130,7 @@ class BasicFFT: Node {
             resolution: SIMD2<Int>(x: BasicFFT.distributionSize, y: BasicFFT.distributionSize),
             size: float2(x: Terrain.terrainSize, y: Terrain.terrainSize),
             normalmap_freq_mod: float2(repeating: 1),
-            max_l: 0.02
+            max_l: 0.1
         )
 
         guard
@@ -187,9 +187,7 @@ class BasicFFT: Node {
 
 
         for index in 0..<(count / 2) {
-            if index == 50 && debug {
-//                print("*** \(transformer) ** \(realPointer.pointee)")
-            }
+
             inputReal[index] = realPointer.pointee
             inputImag[index] = imagPointer.pointee
 
@@ -218,7 +216,7 @@ class BasicFFT: Node {
                             let scale = 1 / Float((count))
                             return [Float](fromSplitComplex: inverseOutput,
                                            scale: scale,
-                                           count: Int(count / 2))
+                                           count: Int(count))
                         }
                     }
                 }
@@ -399,7 +397,7 @@ extension BasicFFT: Renderable {
 
         renderEncoder.setRenderPipelineState(mainPipelineState)
 
-        renderEncoder.pushDebugGroup("Tiny Map - Displacement")
+        renderEncoder.pushDebugGroup("Tiny Map - Height")
         position.x = -0.75
         position.y = 0.75
         //        rotation = [Float(90).degreesToRadians, 0, 0]
@@ -430,7 +428,7 @@ extension BasicFFT: Renderable {
 
 
 
-        renderEncoder.pushDebugGroup("Tiny Map - Height")
+        renderEncoder.pushDebugGroup("Tiny Map - Displacement")
         position.x = -0.75
         position.y = 0.25
 
