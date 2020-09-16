@@ -107,9 +107,6 @@ class Water {
         distribution_displacement_real = [Float](repeating: 0, count: Int(displacementLength))
         distribution_displacement_imag = [Float](repeating: 0, count: Int(displacementLength))
 
-//        distribution_normal_real = [Float](repeating: 0, count: Int(n))
-//        distribution_normal_imag = [Float](repeating: 0, count: Int(n))
-
 
         // Distribution
         generate_distribution(
@@ -142,14 +139,6 @@ class Water {
             rate_log2: displacement_downsample
         )
 
-//        generate_distribution(
-//            distribution_real: &distribution_displacement_real,
-//            distribution_imag: &distribution_displacement_imag,
-//            size: size,
-//            amplitude: newamplitude,
-//            max_l: max_l
-//        )
-
         distribution_displacement_real_buffer = Renderer.device.makeBuffer(
             bytes: &distribution_displacement_real,
             length: MemoryLayout<Float>.stride * Int(displacementLength),
@@ -161,72 +150,8 @@ class Water {
             length: MemoryLayout<Float>.stride * Int(displacementLength),
             options: .storageModeShared
         )!
-
-
-
-        // normals
-        // Idk how creating a map out of these values could possibly
-        // work with the distribtuion created for the heightmap....
-//        generate_distribution(
-//            distribution_real: &distribution_normal_real,
-//            distribution_imag: &distribution_normal_imag,
-//            size: size,
-//            amplitude: newamplitude,
-//            max_l: max_l
-//        )
-//
-//        distribution_real_buffer = Renderer.device.makeBuffer(
-//            bytes: &distribution_normal_real,
-//            length: MemoryLayout<Float>.stride * Int(n),
-//            options: .storageModeShared
-//        )!
-//
-//        distribution_imag_buffer = Renderer.device.makeBuffer(
-//            bytes: &distribution_normal_imag,
-//            length: MemoryLayout<Float>.stride * Int(n),
-//            options: .storageModeShared
-//        )!
     }
 
-    func re_downsample_distribtuion(in_real: [Float], in_imag: [Float]) {
-        let out_width: Int = Nx >> displacement_downsample;
-        let out_height: Int = Nz >> displacement_downsample;
-
-        for z in 0..<out_height {
-            var ioZ = z
-            for x in 0..<out_width {
-                var ioX = x
-                var alias_x = alias(x: &ioX, N: out_width);
-                var alias_z = alias(x: &ioZ, N: out_height);
-
-                if (alias_x < 0)
-                {
-                    alias_x += Nx;
-                }
-
-                if (alias_z < 0)
-                {
-                    alias_z += Nz;
-                }
-
-                distribution_displacement_real[z * out_width + x] = in_real[alias_z * Nx + alias_x];
-                distribution_displacement_imag[z * out_width + x] = in_imag[alias_z * Nx + alias_x];
-
-                let displacementLength = (Nx * Nz) >> (displacement_downsample * 2)
-                distribution_displacement_real_buffer = Renderer.device.makeBuffer(
-                    bytes: &distribution_displacement_real,
-                    length: MemoryLayout<Float>.stride * Int(displacementLength),
-                    options: .storageModeShared
-                )!
-
-                distribution_displacement_imag_buffer = Renderer.device.makeBuffer(
-                    bytes: &distribution_displacement_imag,
-                    length: MemoryLayout<Float>.stride * Int(displacementLength),
-                    options: .storageModeShared
-                )!
-            }
-        }
-    }
 
     private func downsample_distribution(displacement_real: inout [Float], displacement_img: inout [Float], in_real: [Float], in_imag: [Float], rate_log2: Int)
     {

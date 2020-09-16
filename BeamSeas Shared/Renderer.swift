@@ -102,7 +102,7 @@ extension Renderer: MTKViewDelegate {
             return
         }
 
-        delta += 0.00001
+        delta += 0.000001
         uniforms.deltaTime = delta
         uniforms.projectionMatrix = camera.projectionMatrix
         uniforms.viewMatrix = camera.viewMatrix

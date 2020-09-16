@@ -20,10 +20,10 @@ extension Int {
     }
 }
 
+
 class BasicFFT: Node {
 
 
-    static let imgSize: Int = 256
     static let distributionSize: Int = 256
 
     private var signalCount: Int = 0
@@ -64,8 +64,8 @@ class BasicFFT: Node {
     private var displacementMap: MTLTexture!
 
 
-    static var wind_velocity = float2(x: 10, y: -10)
-    static var amplitude = 25
+    static var wind_velocity = float2(x: 1, y: 26)
+    static var amplitude = 18
 
     override init() {
 
@@ -81,8 +81,8 @@ class BasicFFT: Node {
         downsampledFFT = vDSP.FFT(log2n: downdSampledLog2n, radix: .radix5, ofType: DSPSplitComplex.self)!
 
         let texDesc = MTLTextureDescriptor()
-        texDesc.width = BasicFFT.imgSize
-        texDesc.height = BasicFFT.imgSize
+        texDesc.width = BasicFFT.distributionSize
+        texDesc.height = BasicFFT.distributionSize
         // ooohhhh my god - it was the fucking pixel format
         texDesc.pixelFormat = .rgba32Float
         texDesc.usage = [.shaderRead, .shaderWrite]
@@ -105,6 +105,7 @@ class BasicFFT: Node {
 
         texDesc.width = BasicFFT.distributionSize >> 1
         texDesc.height = BasicFFT.distributionSize >> 1
+        texDesc.pixelFormat = .rgba16Float
         displacementMap = Renderer.device.makeTexture(descriptor: texDesc)!
 
 
@@ -135,8 +136,8 @@ class BasicFFT: Node {
         guard
             let real = Renderer.device.makeBuffer(length: MemoryLayout<Float>.stride * source.distribution_real.count, options: .storageModeShared),
             let imag  = Renderer.device.makeBuffer(length: MemoryLayout<Float>.stride * source.distribution_imag.count, options: .storageModeShared),
-            let displacement_real  = Renderer.device.makeBuffer(length: MemoryLayout<Float>.stride * source.distribution_displacement_real.count, options: .storageModeShared),
-            let displacement_imag  = Renderer.device.makeBuffer(length: MemoryLayout<Float>.stride * source.distribution_displacement_imag.count, options: .storageModeShared)
+            let displacement_real  = Renderer.device.makeBuffer(length: MemoryLayout<Float>.size * source.distribution_displacement_real.count, options: .storageModeShared),
+            let displacement_imag  = Renderer.device.makeBuffer(length: MemoryLayout<Float>.size * source.distribution_displacement_imag.count, options: .storageModeShared)
         else {
             fatalError()
         }
@@ -187,7 +188,7 @@ class BasicFFT: Node {
 
         for index in 0..<(count / 2) {
             if index == 50 && debug {
-                print("*** \(transformer) ** \(realPointer.pointee)")
+//                print("*** \(transformer) ** \(realPointer.pointee)")
             }
             inputReal[index] = realPointer.pointee
             inputImag[index] = imagPointer.pointee
@@ -264,12 +265,12 @@ extension BasicFFT: Renderable {
         computeEncoder.setBuffer(source.distribution_real_buffer, offset: 0, index: 14)
         computeEncoder.setBuffer(source.distribution_imag_buffer, offset: 0, index: 15)
         computeEncoder.setTexture(BasicFFT.heightDisplacementMap, index: 0)
-//        let w = distributionPipelineState.threadExecutionWidth
-//        let h = distributionPipelineState.maxTotalThreadsPerThreadgroup / w
-        let threadGroupSize = MTLSizeMake(16, 16, 1)
-        var threadgroupCount = MTLSizeMake(1, 1, 1)
-        threadgroupCount.width = BasicFFT.distributionSize//(BasicFFT.imgSize + threadGroupSize.width - 1) / threadGroupSize.width
-        threadgroupCount.height = BasicFFT.distributionSize//(BasicFFT.imgSize + threadGroupSize.height - 1) / threadGroupSize.height
+
+        let w = fftPipelineState.threadExecutionWidth
+        let h = fftPipelineState.maxTotalThreadsPerThreadgroup / w
+        let threadGroupSize = MTLSizeMake(w, h, 1)
+        var threadgroupCount = MTLSizeMake(BasicFFT.distributionSize, BasicFFT.distributionSize, 1)
+
         computeEncoder.dispatchThreads(threadgroupCount, threadsPerThreadgroup: threadGroupSize)
         computeEncoder.popDebugGroup()
 
@@ -344,10 +345,10 @@ extension BasicFFT: Renderable {
 
         let w = gradientPipelineState.threadExecutionWidth
         let h = gradientPipelineState.maxTotalThreadsPerThreadgroup / w
-        var threadGroupSize = MTLSizeMake(16, 16, 1)
+        var threadGroupSize = MTLSizeMake(w, h, 1)
         var threadgroupCount = MTLSizeMake(1, 1, 1)
-        threadgroupCount.width = BasicFFT.imgSize//(BasicFFT.imgSize + threadGroupSize.width - 1) / threadGroupSize.width
-        threadgroupCount.height = BasicFFT.imgSize//(BasicFFT.imgSize + threadGroupSize.height - 1) / threadGroupSize.height
+        threadgroupCount.width = BasicFFT.distributionSize//(BasicFFT.imgSize + threadGroupSize.width - 1) / threadGroupSize.width
+        threadgroupCount.height = BasicFFT.distributionSize//(BasicFFT.imgSize + threadGroupSize.height - 1) / threadGroupSize.height
 
         computeEncoder.pushDebugGroup("FFT-Gradient")
         computeEncoder.setComputePipelineState(gradientPipelineState)
@@ -358,25 +359,25 @@ extension BasicFFT: Renderable {
         computeEncoder.setTexture(Self.heightDisplacementMap, index: 2)
         computeEncoder.setTexture(Self.gradientMap, index: 3)
 
+        var invSize = float4(
+            x: 1.0 / Float(BasicFFT.distributionSize),
+            y: 1.0 / Float(BasicFFT.distributionSize),
+            z: 1.0 / Float(BasicFFT.distributionSize >> 1),
+            w: 1.0 / Float(BasicFFT.distributionSize >> 1)
+        )
 
-        // InvSize parameter
-        //        GL_CHECK(glUniform4f(0,
-        //                1.0f / Nx, 1.0f / Nz,
-        //                1.0f / (Nx >> displacement_downsample),
-        //                1.0f / (Nz >> displacement_downsample)));
-
-        // When i end up downsampling the displacement, I'll need to do the implemetnation above
-        var invSize = float4(repeating: 1.0 / Float(BasicFFT.distributionSize))
         computeEncoder.setBytes(&invSize, length: MemoryLayout<SIMD4<Float>>.stride, index: 0)
 
-        // uScale
-        //        GL_CHECK(glUniform4f(1,
-        //                Nx / size.x, Nz / size.y,
-        //                (Nx >> displacement_downsample) / size.x,
-        //                (Nz >> displacement_downsample) / size.y));
-        // do the same as invsize
-        var uScale = float4(repeating: Float(BasicFFT.distributionSize) / Float(BasicFFT.distributionSize))
+        var uScale = float4(
+            x: Float(BasicFFT.distributionSize) / Terrain.terrainSize,
+            y: Float(BasicFFT.distributionSize) / Terrain.terrainSize,
+            z: (Float(BasicFFT.distributionSize >> 1)) / Terrain.terrainSize,
+            w: (Float(BasicFFT.distributionSize >> 1)) / Terrain.terrainSize
+        )
+
         computeEncoder.setBytes(&uScale, length: MemoryLayout<SIMD4<Float>>.stride, index: 1)
+
+
         computeEncoder.dispatchThreads(threadgroupCount, threadsPerThreadgroup: threadGroupSize)
         computeEncoder.popDebugGroup()
     }
@@ -418,6 +419,7 @@ extension BasicFFT: Renderable {
         let mesh = model.submeshes.first!
         // forgot to add this
         renderEncoder.setVertexBuffer(model.vertexBuffers.first!.buffer, offset: 0, index: BufferIndex.vertexBuffer.rawValue)
+        renderEncoder.setTriangleFillMode(.fill)
         renderEncoder.drawIndexedPrimitives(
             type: .triangle,
             indexCount: mesh.indexCount,
