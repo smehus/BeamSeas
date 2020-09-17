@@ -180,10 +180,10 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
     // Y & Z values represent the horizontal displacment inside the height map
     // Height displacement would only be between -1 & 1. So we need to modify it somehow to values that
     // are relevant....
-    float3 horizontalDisplacement = (heightDisplacement - -1) / (1 - -1);//heightMap.sample(sample, float2(xy.x, xy.y)).xyz;
+    float3 horizontalDisplacement = heightDisplacement * 2 - 1;
 
-    position.x += -(horizontalDisplacement.y * 2);
-    position.z += -(horizontalDisplacement.z * 2);
+    position.x += (horizontalDisplacement.y);
+    position.z += (horizontalDisplacement.z);
     position.y = height.x;
 
     out.position = uniforms.projectionMatrix * uniforms.viewMatrix * uniforms.modelMatrix * position;
