@@ -18,11 +18,11 @@ class Terrain: Node {
     static var primarySlopeMap: MTLTexture!
     static var secondarySlopeMap: MTLTexture!
 
-    static let terrainSize: Float = 200
+    static let terrainSize: Float = 512
 
     static var terrainParams = TerrainParams(
-        size: [Terrain.terrainSize, Terrain.terrainSize],
-        height: 30,
+        size: [Terrain.terrainSize / 2, Terrain.terrainSize / 2],
+        height: 5,
         maxTessellation: UInt32(Terrain.maxTessellation),
         numberOfPatches: UInt32(Terrain.patchNum * Terrain.patchNum)
     )

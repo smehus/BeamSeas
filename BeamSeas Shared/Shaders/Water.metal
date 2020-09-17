@@ -22,10 +22,10 @@ struct FFTVertexIn {
 
 float2 alias(float2 i, float2 N)
 {
-    float2 n = 0.5 * float2(N);
-    bool2 b = float2(i) > n;
+    float x = i.x > (0.5 * N.x);
+    float y = i.y > (0.5 * N.y);
 
-    return mix(float2(i), float2(i - N), float2(b));
+    return mix(i, i - N, float2(x, y));
 }
 
 float4 cmul(float4 a, float4 b)
@@ -162,7 +162,7 @@ half jacobian(half2 dDdx, half2 dDdy)
     return (1.0 + dDdx.x) * (1.0 + dDdy.y) - dDdx.y * dDdy.x;
 }
 
-#define LAMBDA 1.2
+#define LAMBDA 2.5
 
 kernel void compute_height_graident(uint2 pid [[ thread_position_in_grid]],
                                     constant float4 &uInvSize [[ buffer(0) ]],
@@ -251,9 +251,7 @@ fragment float4 fft_fragment(const FFTVertexOut in [[ stage_in ]],
 
 kernel void fft_kernel(texture2d<float, access::write> output_texture [[ texture(0) ]],
                        uint2 tid [[ thread_position_in_grid]],
-                       constant float *data [[ buffer(0) ]],
-                       constant Uniforms &uniforms [[ buffer(3) ]],
-                       constant GausUniforms &gausUniforms [[ buffer(4)]])
+                       constant float *data [[ buffer(0) ]])
 {
     uint width = output_texture.get_width();
     uint height = output_texture.get_height();
@@ -261,7 +259,8 @@ kernel void fft_kernel(texture2d<float, access::write> output_texture [[ texture
     if (tid.x < width && tid.y < height) {
         uint index = (uint)(tid.y * width + tid.x);
         float val = data[index];
-        val *= 0.5 + 0.5;
+//        val = (val - -1) / (1 - -1);
+        val = val * 0.5 + 0.5;
         output_texture.write(float4(val, val, val, 1), tid);
     }
 }

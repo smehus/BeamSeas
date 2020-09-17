@@ -64,8 +64,8 @@ class BasicFFT: Node {
     private var displacementMap: MTLTexture!
 
 
-    static var wind_velocity = float2(x: -10, y: 1)
-    static var amplitude = 5
+    static var wind_velocity = float2(x: -26, y: 1)
+    static var amplitude = 15
 
     override init() {
 
@@ -299,16 +299,6 @@ extension BasicFFT: Renderable {
     func generateMaps(computeEncoder: MTLComputeCommandEncoder, uniforms: inout Uniforms) {
         // Create diplacement & height maps
 
-        var gausUniforms = GausUniforms(
-            dataLength: Int32(BasicFFT.distributionSize * BasicFFT.distributionSize),
-            amplitude: Float(BasicFFT.amplitude),
-            wind_velocity: vector_float2(x: BasicFFT.wind_velocity.x, y: BasicFFT.wind_velocity.y),
-            resolution: vector_uint2(x: BasicFFT.distributionSize.unsigned, y: BasicFFT.distributionSize.unsigned),
-            size: vector_float2(x: Terrain.terrainSize, y: Terrain.terrainSize),
-            normalmap_freq_mod: vector_float2(repeating: 7.3),
-            seed: seed
-        )
-
         computeEncoder.pushDebugGroup("FFT-Drawing-Height")
         let w = fftPipelineState.threadExecutionWidth
         let h = fftPipelineState.maxTotalThreadsPerThreadgroup / w
@@ -318,8 +308,6 @@ extension BasicFFT: Renderable {
         computeEncoder.setComputePipelineState(fftPipelineState)
         computeEncoder.setTexture(heightMap, index: 0)
         computeEncoder.setBuffer(dataBuffer, offset: 0, index: 0)
-        computeEncoder.setBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: 3)
-        computeEncoder.setBytes(&gausUniforms, length: MemoryLayout<GausUniforms>.stride, index: 4)
         computeEncoder.dispatchThreadgroups(threadgroupCount, threadsPerThreadgroup: threadGroupSize)
         computeEncoder.popDebugGroup()
 
@@ -332,8 +320,6 @@ extension BasicFFT: Renderable {
         computeEncoder.setTexture(displacementMap, index: 0)
         computeEncoder.setBuffer(displacementBuffer, offset: 0, index: 0)
 
-        computeEncoder.setBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: 3)
-        computeEncoder.setBytes(&gausUniforms, length: MemoryLayout<GausUniforms>.stride, index: 4)
         computeEncoder.dispatchThreadgroups(threadgroupCount, threadsPerThreadgroup: threadGroupSize)
         computeEncoder.popDebugGroup()
     }
