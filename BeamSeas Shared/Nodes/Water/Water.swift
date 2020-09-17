@@ -200,8 +200,8 @@ class Water {
                 let imagRand = Float(normal_distribution.random())
 
                 let phillips = philliphs(k: k, max_l: max_l)
-                let newReal = realRand * amplitude * sqrt(phillips)
-                let newImag = imagRand * amplitude * sqrt(phillips)
+                let newReal = realRand * amplitude * sqrt(0.5 * phillips)
+                let newImag = imagRand * amplitude * sqrt(0.5 * phillips)
 
 
                 let idx = z * Nx + x
@@ -217,7 +217,7 @@ class Water {
     private func philliphs(k: SIMD2<Float>, max_l: Float) -> Float {
         // might have to do this on gpu
         let k_len = simd_length(k)
-        if k_len == 0 {
+        if k_len < 0.0001 {
             return 0
         }
 

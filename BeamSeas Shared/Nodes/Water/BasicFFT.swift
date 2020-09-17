@@ -64,8 +64,8 @@ class BasicFFT: Node {
     private var displacementMap: MTLTexture!
 
 
-    static var wind_velocity = float2(x: 1, y: 22)
-    static var amplitude = 40
+    static var wind_velocity = float2(x: -10, y: 1)
+    static var amplitude = 5
 
     override init() {
 
@@ -130,7 +130,7 @@ class BasicFFT: Node {
             resolution: SIMD2<Int>(x: BasicFFT.distributionSize, y: BasicFFT.distributionSize),
             size: float2(x: Terrain.terrainSize, y: Terrain.terrainSize),
             normalmap_freq_mod: float2(repeating: 1),
-            max_l: 0.1
+            max_l: 0.02
         )
 
         guard
@@ -266,14 +266,17 @@ extension BasicFFT: Renderable {
 
         let w = fftPipelineState.threadExecutionWidth
         let h = fftPipelineState.maxTotalThreadsPerThreadgroup / w
-        let threadGroupSize = MTLSizeMake(w, h, 1)
+        var threadGroupSize = MTLSizeMake(w, h, 1)
         var threadgroupCount = MTLSizeMake(BasicFFT.distributionSize, BasicFFT.distributionSize, 1)
 
         computeEncoder.dispatchThreads(threadgroupCount, threadsPerThreadgroup: threadGroupSize)
         computeEncoder.popDebugGroup()
 
 
-        threadgroupCount.width = BasicFFT.distributionSize >> 1
+
+        threadGroupSize.width = 64
+        threadGroupSize.height = 1
+        threadgroupCount.width = (BasicFFT.distributionSize >> 1) / 64
         threadgroupCount.height = BasicFFT.distributionSize >> 1
 
         computeEncoder.pushDebugGroup("FFT-Displacement")

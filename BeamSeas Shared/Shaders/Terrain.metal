@@ -183,7 +183,7 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
     float3 horizontalDisplacement = heightDisplacement * 2 - 1;
 
     position.x += (horizontalDisplacement.y);
-    position.z += (horizontalDisplacement.z);
+//    position.z += (horizontalDisplacement.z);
     position.y = height.x;
 
     out.position = uniforms.projectionMatrix * uniforms.viewMatrix * uniforms.modelMatrix * position;
