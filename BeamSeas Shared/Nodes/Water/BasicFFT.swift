@@ -24,7 +24,7 @@ extension Int {
 class BasicFFT: Node {
 
 
-    static let distributionSize: Int = 256
+    static let distributionSize: Int = 128
 
     private var signalCount: Int = 0
 
@@ -64,8 +64,8 @@ class BasicFFT: Node {
     private var displacementMap: MTLTexture!
 
 
-    static var wind_velocity = float2(x: -26, y: 40)
-    static var amplitude = 20
+    static var wind_velocity = float2(x: -22, y: 1)
+    static var amplitude = 30
 
     override init() {
 
@@ -130,7 +130,7 @@ class BasicFFT: Node {
             resolution: SIMD2<Int>(x: BasicFFT.distributionSize, y: BasicFFT.distributionSize),
             size: float2(x: Terrain.terrainSize, y: Terrain.terrainSize),
             normalmap_freq_mod: float2(repeating: 1),
-            max_l: 0.2
+            max_l: 0.02
         )
 
         guard
@@ -216,7 +216,8 @@ class BasicFFT: Node {
                             let scale = 1 / Float((count))
                             return [Float](fromSplitComplex: inverseOutput,
                                            scale: scale,
-                                           count: Int(count))
+                                           count: Int(count / 2
+                            ))
                         }
                     }
                 }

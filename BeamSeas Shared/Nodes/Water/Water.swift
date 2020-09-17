@@ -191,7 +191,7 @@ class Water {
         // Modifier to find spatial frequency
         let mod = SIMD2<Float>(repeating: 2.0 * Float.pi) / size
 
-        let normal_distribution = Distributions.Normal(m: 0, v: 1)
+        let normal_distribution = Distributions.Normal(m: 0, v: 1.0)
         for z in 0..<Nz {
             for x in 0..<Nx {
 
@@ -217,7 +217,7 @@ class Water {
     private func philliphs(k: SIMD2<Float>, max_l: Float) -> Float {
         // might have to do this on gpu
         let k_len = simd_length(k)
-        if k_len < 0.0001 {
+        if k_len == 0 {
             return 0
         }
 
