@@ -64,8 +64,8 @@ class BasicFFT: Node {
     private var displacementMap: MTLTexture!
 
 
-    static var wind_velocity = float2(x: -26, y: 1)
-    static var amplitude = 15
+    static var wind_velocity = float2(x: -26, y: 40)
+    static var amplitude = 20
 
     override init() {
 
@@ -130,7 +130,7 @@ class BasicFFT: Node {
             resolution: SIMD2<Int>(x: BasicFFT.distributionSize, y: BasicFFT.distributionSize),
             size: float2(x: Terrain.terrainSize, y: Terrain.terrainSize),
             normalmap_freq_mod: float2(repeating: 1),
-            max_l: 0.02
+            max_l: 0.2
         )
 
         guard

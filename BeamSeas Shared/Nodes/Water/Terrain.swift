@@ -11,22 +11,23 @@ import MetalPerformanceShaders
 
 class Terrain: Node {
 
-    static let maxTessellation = 16
+
     static var heightMapName = "simuwater"
     static var alterHeightMapName = "Heightmap_Plateau"
 //    static var secondaryNormalMapTexture: MTLTexture!
     static var primarySlopeMap: MTLTexture!
     static var secondarySlopeMap: MTLTexture!
 
-    static let terrainSize: Float = 512
+    static let terrainSize: Float = 256
 
     static var terrainParams = TerrainParams(
-        size: [Terrain.terrainSize / 2, Terrain.terrainSize / 2],
-        height: 5,
+        size: [Terrain.terrainSize, Terrain.terrainSize],
+        height: 15,
         maxTessellation: UInt32(Terrain.maxTessellation),
         numberOfPatches: UInt32(Terrain.patchNum * Terrain.patchNum)
     )
 
+    static let maxTessellation = 16
     private static var patchNum = 8
 
     let patches = (horizontal: Terrain.patchNum, vertical: Terrain.patchNum)
@@ -35,11 +36,11 @@ class Terrain: Node {
     }
 
     var edgeFactors: [Float] = [4]
-    var insideFactors: [Float] = [2]
+    var insideFactors: [Float] = [4]
     var allPatches: [Patch] = []
 
     lazy var tessellationFactorsBuffer: MTLBuffer? = {
-        let count = patchCount * (4 + 2)
+        let count = patchCount * (4 + 4)
         let size = count * MemoryLayout<Float>.size / 2
         return Renderer.device.makeBuffer(length: size, options: .storageModePrivate)
     }()
@@ -80,8 +81,8 @@ class Terrain: Node {
         descriptor.fragmentFunction = Renderer.library.makeFunction(name: "fragment_terrain")
         descriptor.tessellationFactorStepFunction = .perPatch
         descriptor.maxTessellationFactor = Self.maxTessellation
-//        descriptor.tessellationPartitionMode = .fractionalEven
-        descriptor.tessellationPartitionMode = .pow2
+        descriptor.tessellationPartitionMode = .fractionalEven
+//        descriptor.tessellationPartitionMode = .pow2
 
         let vertexDescriptor = MTLVertexDescriptor()
         vertexDescriptor.attributes[0].format = .float3

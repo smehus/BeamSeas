@@ -55,22 +55,22 @@ kernel void generate_distribution_map_values(constant GausUniforms &uniforms [[ 
                                   texture2d<float> drawTexture [[ texture(0) ]],
                                   device float *input_real [[ buffer(14) ]],
                                   device float *input_imag [[ buffer(15) ]],
-                                  uint2 pid [[ thread_position_in_grid ]])
+                                  uint2 i [[ thread_position_in_grid ]])
 {
+    uint2 N = uniforms.resolution;
     float G = 9.81; // Gravity
-    // Pick out the negative frequency variant.
-    float2 wi = mix(float2(uniforms.resolution - pid),
-                    float2(0u),
-                    float2(pid == uint2(0u)));
+    float2 uMod = float2(2.0 * M_PI_F) / uniforms.size;
 
-    int width = uniforms.resolution.x;
-    int height = uniforms.resolution.y;
+    // Pick out the negative frequency variant.
+    float2 wi = mix(float2(N - i),
+                    float2(0u),
+                    float2(i == uint2(0u)));
 
 
 //    // Pick out positive and negative travelling waves.
 
-    int index = (int)pid.y * width + pid.x;
-    int bIndex =  (int)wi.y * width + wi.x;
+    int index = (int)i.y * N.x + i.x;
+    int bIndex =  (int)wi.y * N.x + wi.x;
 
     float a1 = input_real[index];
     float a2 = input_imag[index];
@@ -80,10 +80,7 @@ kernel void generate_distribution_map_values(constant GausUniforms &uniforms [[ 
     float b2 = input_imag[bIndex];
     float2 b = float2(b1, b2);
 
-    float2 uMod = float2(2.0 * M_PI_F) / uniforms.size;
-
-
-    float2 k = uMod * alias(float2(pid), float2(width, height));
+    float2 k = uMod * alias(float2(i), float2(N));
     float k_len = length(k);
     // If this sample runs for hours on end, the cosines of very large numbers will eventually become unstable.
     // It is fairly easy to fix this by wrapping uTime,
@@ -101,8 +98,8 @@ kernel void generate_distribution_map_values(constant GausUniforms &uniforms [[ 
     b = float2(b.x, -b.y); // Complex conjugate since we picked a frequency with the opposite direction.
     float2 res = (a + b); // Sum up forward and backwards travelling waves.
 
-    output_real[index] = res.x;
-    output_imag[bIndex] = res.y;
+    output_real[i.y * N.x + i.x] = res.x;
+    output_imag[i.y * N.x + i.x] = res.y;
 }
 
 kernel void generate_displacement_map_values(constant GausUniforms &uniforms [[ buffer(BufferIndexGausUniforms) ]],
@@ -127,8 +124,8 @@ kernel void generate_displacement_map_values(constant GausUniforms &uniforms [[ 
     uint aIndex = i.y * N.x + i.x;
     uint bIndex = wi.y * N.x + wi.x;
 
-    if (aIndex > 16383) { return; }
-    if (bIndex > 16383) { return; }
+//    if (aIndex > 16383) { return; }
+//    if (bIndex > 16383) { return; }
 
     float aReal = input_real[aIndex];
     float aImag = input_imag[aIndex];
@@ -162,7 +159,7 @@ half jacobian(half2 dDdx, half2 dDdy)
     return (1.0 + dDdx.x) * (1.0 + dDdy.y) - dDdx.y * dDdy.x;
 }
 
-#define LAMBDA 2.5
+#define LAMBDA 5.0
 
 kernel void compute_height_graident(uint2 pid [[ thread_position_in_grid]],
                                     constant float4 &uInvSize [[ buffer(0) ]],
@@ -259,8 +256,8 @@ kernel void fft_kernel(texture2d<float, access::write> output_texture [[ texture
     if (tid.x < width && tid.y < height) {
         uint index = (uint)(tid.y * width + tid.x);
         float val = data[index];
-//        val = (val - -1) / (1 - -1);
-        val = val * 0.5 + 0.5;
+        val = (val - -3) / (3 - -3);
+//        val = val * 0.5 + 0.5;
         output_texture.write(float4(val, val, val, 1), tid);
     }
 }
