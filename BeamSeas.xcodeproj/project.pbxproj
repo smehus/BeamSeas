@@ -101,6 +101,8 @@
 		0299535E249A64D90014228F /* Camera.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0299535C249A64D90014228F /* Camera.swift */; };
 		02995360249A64FD0014228F /* Node.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0299535F249A64FD0014228F /* Node.swift */; };
 		02995361249A64FD0014228F /* Node.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0299535F249A64FD0014228F /* Node.swift */; };
+		029DE52325150DB900064C6B /* NormalDistribution.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 029DE52125150DB900064C6B /* NormalDistribution.cpp */; };
+		029DE52425150DB900064C6B /* NormalDistribution.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 029DE52125150DB900064C6B /* NormalDistribution.cpp */; };
 		02A6CB4924D3728000FBE595 /* Water.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02491ABB24D128100091395A /* Water.swift */; };
 		02A6CB4A24D3728100FBE595 /* Water.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02491ABB24D128100091395A /* Water.swift */; };
 		02D773EF24B7571900811B88 /* PBR.metal in Sources */ = {isa = PBXBuildFile; fileRef = 02D773EE24B7571900811B88 /* PBR.metal */; };
@@ -166,6 +168,8 @@
 		028370F1249AFC83006E8AF3 /* DebugLights.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = DebugLights.metal; sourceTree = "<group>"; };
 		0299535C249A64D90014228F /* Camera.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Camera.swift; sourceTree = "<group>"; };
 		0299535F249A64FD0014228F /* Node.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Node.swift; sourceTree = "<group>"; };
+		029DE52125150DB900064C6B /* NormalDistribution.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = NormalDistribution.cpp; sourceTree = "<group>"; };
+		029DE52225150DB900064C6B /* NormalDistribution.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = NormalDistribution.hpp; sourceTree = "<group>"; };
 		02D773EE24B7571900811B88 /* PBR.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = PBR.metal; sourceTree = "<group>"; };
 		02E46DB124AC2D420055167A /* Terrain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Terrain.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -338,6 +342,8 @@
 				028370F0249AFC83006E8AF3 /* DebugLights.swift */,
 				02419D7E249851C700BCB203 /* Math.swift */,
 				0236A744249D0A6C008F197E /* Texturable.swift */,
+				029DE52125150DB900064C6B /* NormalDistribution.cpp */,
+				029DE52225150DB900064C6B /* NormalDistribution.hpp */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -523,6 +529,7 @@
 				020F9868249A7C5900DB4850 /* Extensions.swift in Sources */,
 				020FD8C524D4577200B77CF2 /* Common.swift in Sources */,
 				020F9853249A695900DB4850 /* Mesh.swift in Sources */,
+				029DE52325150DB900064C6B /* NormalDistribution.cpp in Sources */,
 				0236A745249D0A6C008F197E /* Texturable.swift in Sources */,
 				020F9856249A696300DB4850 /* Submesh.swift in Sources */,
 				02995360249A64FD0014228F /* Node.swift in Sources */,
@@ -554,6 +561,7 @@
 				020F9869249A7C5900DB4850 /* Extensions.swift in Sources */,
 				020FD8C624D4577200B77CF2 /* Common.swift in Sources */,
 				020F9854249A695900DB4850 /* Mesh.swift in Sources */,
+				029DE52425150DB900064C6B /* NormalDistribution.cpp in Sources */,
 				0236A746249D0A6C008F197E /* Texturable.swift in Sources */,
 				020F9857249A696300DB4850 /* Submesh.swift in Sources */,
 				02995361249A64FD0014228F /* Node.swift in Sources */,
