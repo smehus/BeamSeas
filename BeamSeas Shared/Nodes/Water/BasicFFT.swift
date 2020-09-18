@@ -64,7 +64,7 @@ class BasicFFT: Node {
     private var displacementMap: MTLTexture!
 
 
-    static var wind_velocity = float2(x: -26, y: 1)
+    static var wind_velocity = float2(x: -26, y: 22)
     static var amplitude = 15
 
     override init() {

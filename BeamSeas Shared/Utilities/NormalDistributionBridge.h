@@ -11,8 +11,9 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface NormalDistributionBridge : NSObject
--(instancetype)init;
--(float)getRandomNormal;
+- (instancetype)init;
+- (float)getRandomNormal;
+//- (void)phillips:(vector2)k;
 
 @end
 

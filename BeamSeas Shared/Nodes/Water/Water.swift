@@ -217,9 +217,11 @@ class Water {
     private func philliphs(k: SIMD2<Float>, max_l: Float) -> Float {
         // might have to do this on gpu
         let k_len = simd_length(k)
-        if k_len < 0.0001 {
+        if k_len < 0.000001 {
             return 0
         }
+
+
 
         let kL = k_len * L
         let k_dir = simd_normalize(k)
