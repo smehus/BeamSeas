@@ -8,6 +8,9 @@
 
 #include "NormalDistribution.hpp"
 
+NormalDistribution::NormalDistribution() { }
+NormalDistribution::NormalDistribution(const std::string &title): m_title(title) {}
+
 float NormalDistribution::generate_normal_random()
 {
     return normal_dist(engine);

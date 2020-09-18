@@ -25,10 +25,19 @@ using namespace std;
 
 class NormalDistribution
 {
+
+public:
+    NormalDistribution();
+    NormalDistribution(const std::string &title);
+    ~NormalDistribution();
+
 public:
     std::normal_distribution<float> normal_dist{0.0f, 1.0f};
     std::default_random_engine engine;
     float generate_normal_random();
+
+private:
+    std::string m_title;
 };
 
 
