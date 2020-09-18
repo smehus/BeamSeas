@@ -89,7 +89,7 @@ float uniformRandomVariable() {
     return (float)rand()/RAND_MAX;
 }
 
-simd_float2 gaussianRandomVariable() {
+vector_float2 NormalDistribution::gaussianRandomVariable() {
     float x1, x2, w;
     do {
         x1 = 2.f * uniformRandomVariable() - 1.f;
@@ -97,6 +97,5 @@ simd_float2 gaussianRandomVariable() {
         w = x1 * x1 + x2 * x2;
     } while ( w >= 1.f );
     w = sqrt((-2.f * log(w)) / w);
-//    return vector2(x1 * w, x2 * w);
-    return simd_make_float2(x1 * w, x2 * w);
+    return vector2(x1 * w, x2 * w);
 }

@@ -192,28 +192,28 @@ class Water {
         // Modifier to find spatial frequency
         let mod = SIMD2<Float>(repeating: 2.0 * Float.pi) / size
 
-//        for z in 0..<Nz {
-//            for x in 0..<Nx {
-//
-//                let k = mod * SIMD2<Float>(x: Float(alias(x, N: Nx)), y: Float(alias(z, N: Nz)))
-////                let r = normal_distribution.gausRandom()
-//                let realRand = Float(normal_distribution.getRandomNormal())
-//                let imagRand = Float(normal_distribution.getRandomNormal())
-//
-////                let phillips = philliphs(k: k, max_l: max_l)
-//                let phillips = normal_distribution.phillips(Float(k.x), y: Float(k.y)) / 2
-//                let newReal = realRand * amplitude * sqrt(phillips)
-//                let newImag = imagRand * amplitude * sqrt(phillips)
-//
-//
-//                let idx = z * Nx + x
-//
-//                if distribution_real.indices.contains(idx), distribution_imag.indices.contains(idx) {
-//                    distribution_real[idx] = newReal
-//                    distribution_imag[idx] = newImag
-//                }
-//            }
-//        }
+        for z in 0..<Nz {
+            for x in 0..<Nx {
+
+                let k = mod * SIMD2<Float>(x: Float(alias(x, N: Nx)), y: Float(alias(z, N: Nz)))
+                let gaus = normal_distribution.gausRandom()
+                let realRand = Float(gaus.x)
+                let imagRand = Float(gaus.y)
+
+//                let phillips = philliphs(k: k, max_l: max_l)
+                let phillips = normal_distribution.phillips(Float(k.x), y: Float(k.y)) / 2
+                let newReal = realRand * amplitude * sqrt(phillips)
+                let newImag = imagRand * amplitude * sqrt(phillips)
+
+
+                let idx = z * Nx + x
+
+                if distribution_real.indices.contains(idx), distribution_imag.indices.contains(idx) {
+                    distribution_real[idx] = newReal
+                    distribution_imag[idx] = newImag
+                }
+            }
+        }
     }
 
     private func philliphs(k: SIMD2<Float>, max_l: Float) -> Float {

@@ -17,7 +17,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)init;
 - (float)getRandomNormal;
 - (float)phillips:(float)x y:(float)y;
-- (void)gausRandom;
+- (vector_float2)gausRandom;
 
 @end
 

@@ -24,7 +24,7 @@
 		0217E77324D5C3130082D199 /* gaussian_noise_5.png in Resources */ = {isa = PBXBuildFile; fileRef = 0217E77224D5C3130082D199 /* gaussian_noise_5.png */; };
 		0217E77424D5C3130082D199 /* gaussian_noise_5.png in Resources */ = {isa = PBXBuildFile; fileRef = 0217E77224D5C3130082D199 /* gaussian_noise_5.png */; };
 		0224BEC42515557100ABE59B /* NormalDistributionBridge.mm in Sources */ = {isa = PBXBuildFile; fileRef = 0224BEC22515557100ABE59B /* NormalDistributionBridge.mm */; };
-		0224BEC52515557100ABE59B /* NormalDistributionBridge.mm in Sources */ = {isa = PBXBuildFile; fileRef = 0224BEC22515557100ABE59B /* NormalDistributionBridge.mm */; };
+		0224BEC52515557100ABE59B /* NormalDistributionBridge.mm in Sources */ = {isa = PBXBuildFile; fileRef = 0224BEC22515557100ABE59B /* NormalDistributionBridge.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		022B51E124B0E33B00FC5C81 /* Terrain.metal in Sources */ = {isa = PBXBuildFile; fileRef = 022B51E024B0E33B00FC5C81 /* Terrain.metal */; };
 		022B51E224B0E33B00FC5C81 /* Terrain.metal in Sources */ = {isa = PBXBuildFile; fileRef = 022B51E024B0E33B00FC5C81 /* Terrain.metal */; };
 		022B51E424B1772300FC5C81 /* mountain.png in Resources */ = {isa = PBXBuildFile; fileRef = 022B51E324B1772300FC5C81 /* mountain.png */; };

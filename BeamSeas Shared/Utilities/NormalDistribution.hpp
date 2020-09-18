@@ -66,7 +66,7 @@ public:
     std::default_random_engine engine;
     float phillips(float x, float y);
     float generate_normal_random();
-    simd_float2 gaussianRandomVariable();
+    vector_float2 gaussianRandomVariable();
 
 private:
     std::string m_title;
