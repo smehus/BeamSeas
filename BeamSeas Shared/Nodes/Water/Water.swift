@@ -75,6 +75,7 @@ class Water {
     static var G: Float = 9.81
 
     private let displacement_downsample: Int = 1
+    private let normal_distribution = NormalDistributionBridge()
 
 
     init(
@@ -191,13 +192,12 @@ class Water {
         // Modifier to find spatial frequency
         let mod = SIMD2<Float>(repeating: 2.0 * Float.pi) / size
 
-        let normal_distribution = Distributions.Normal(m: 0, v: 1.0)
         for z in 0..<Nz {
             for x in 0..<Nx {
 
                 let k = mod * SIMD2<Float>(x: Float(alias(x, N: Nx)), y: Float(alias(z, N: Nz)))
-                let realRand = Float(normal_distribution.random())
-                let imagRand = Float(normal_distribution.random())
+                let realRand = Float(normal_distribution.getRandomNormal())
+                let imagRand = Float(normal_distribution.getRandomNormal())
 
                 let phillips = philliphs(k: k, max_l: max_l)
                 let newReal = realRand * amplitude * sqrt(0.5 * phillips)
@@ -239,29 +239,5 @@ class Water {
         }
 
         return value
-    }
-}
-
-class MyGaussianDistribution {
-    private let randomSource: GKRandomSource
-    let mean: Float
-    let deviation: Float
-
-    init(randomSource: GKRandomSource, mean: Float, deviation: Float) {
-        precondition(deviation >= 0)
-        self.randomSource = randomSource
-        self.mean = mean
-        self.deviation = deviation
-    }
-
-    func nextFloat() -> Float {
-        guard deviation > 0 else { return mean }
-
-        let x1 = randomSource.nextUniform() // a random number between 0 and 1
-        let x2 = randomSource.nextUniform() // a random number between 0 and 1
-        let z1 = sqrt(-2 * log(x1)) * cos(2 * Float.pi * x2) // z1 is normally distributed
-
-        // Convert z1 from the Standard Normal Distribution to our Normal Distribution
-        return z1 * deviation + mean
     }
 }

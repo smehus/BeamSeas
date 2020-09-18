@@ -17,9 +17,11 @@
 #define NSInteger metal::int32_t
 #else
 #import <Foundation/Foundation.h>
+#import "NormalDistributionBridge.h"
 #endif
 
 #include <simd/simd.h>
+
 
 typedef NS_ENUM(NSInteger, BufferIndex)
 {
