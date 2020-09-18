@@ -65,7 +65,7 @@ class BasicFFT: Node {
 
 
     static var wind_velocity = float2(x: 0, y: 32)
-    static var amplitude = 30
+    static var amplitude = 15
 
     override init() {
 
@@ -213,10 +213,10 @@ class BasicFFT: Node {
                             transformer.inverse(input: forwardOutput, output: &inverseOutput)
 
                             // 4: Return an array of real values from the FFT result.
-                            let scale = 1 / Float((count * 2))
+                            let scale = 1 / Float((count))
                             return [Float](fromSplitComplex: inverseOutput,
                                            scale: scale,
-                                           count: Int(count))
+                                           count: Int(count / 2))
                         }
                     }
                 }

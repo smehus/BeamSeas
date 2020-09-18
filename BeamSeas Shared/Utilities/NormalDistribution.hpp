@@ -14,10 +14,11 @@
 
 
 //#include "vector_math.h"
-#include <complex>
+//#include <complex>
 #include <random>
 #include <vector>
 #include <memory>
+#include <simd/SIMD.h>
 //#include "glfft.hpp"
 //#include "common.hpp"
 
@@ -39,19 +40,19 @@ class vector3
     vector3 unit();
 };
 
-class vector2
+class svector2
 {
   public:
     float x, y;
-    vector2();
-    vector2(float x, float y);
-    float operator*(const vector2& v);
-    vector2 operator+(const vector2& v);
-    vector2 operator-(const vector2& v);
-    vector2 operator*(const float s);
-    vector2& operator=(const vector2& v);
+    svector2();
+    svector2(float x, float y);
+    float operator*(const svector2& v);
+    svector2 operator+(const svector2& v);
+    svector2 operator-(const svector2& v);
+    svector2 operator*(const float s);
+    svector2& operator=(const svector2& v);
     float length();
-    vector2 unit();
+    svector2 unit();
 };
 
 class NormalDistribution
@@ -65,6 +66,7 @@ public:
     std::default_random_engine engine;
     float phillips(float x, float y);
     float generate_normal_random();
+    simd_float2 gaussianRandomVariable();
 
 private:
     std::string m_title;

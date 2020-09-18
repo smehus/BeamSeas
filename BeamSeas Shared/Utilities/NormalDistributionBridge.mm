@@ -31,6 +31,12 @@
     return self.dist->generate_normal_random();
 }
 
+- (void)gausRandom
+{
+//    simd_float2 f = self.dist->gaussianRandomVariable();
+//    return simd_make_float2(1.0f, 1.0f);
+}
+
 //cOcean ocean(64, 0.0005f, vector2(0.0f,32.0f), 64, false);
 
 
@@ -38,6 +44,8 @@
 {
     return self.dist->phillips(x, y);
 }
+
+
 
 
 @end

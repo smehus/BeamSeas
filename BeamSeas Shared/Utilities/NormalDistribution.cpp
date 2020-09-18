@@ -8,6 +8,7 @@
 
 #include "NormalDistribution.hpp"
 #include <vector>
+#include <simd/SIMD.h>
 
 
 NormalDistribution::NormalDistribution() { }
@@ -17,20 +18,20 @@ float NormalDistribution::generate_normal_random()
     return normal_dist(engine);
 }
 
-//cOcean ocean(64, 0.0005f, vector2(0.0f,32.0f), 64, false);
+//cOcean ocean(64, 0.0005f, svector2(0.0f,32.0f), 64, false);
 
 float NormalDistribution::phillips(float x, float y)
 {
 
-    vector2 k = vector2(x, y);
+    svector2 k = svector2(x, y);
 //    float N = 64;
 //    float length = 64.0f;
 //    float n_prime = x;
 //    float m_prime = y;
-//    vector2 k(M_PI * (2 * n_prime - N) / length, M_PI * (2 * m_prime - N) / length);
+//    svector2 k(M_PI * (2 * n_prime - N) / length, M_PI * (2 * m_prime - N) / length);
     float g = 9.81;
-    float A = 0.0005f;
-    vector2 w = vector2(0.0f,32.0f);
+    float A = 0.02f;
+    svector2 w = svector2(0.0f,32.0f);
     float k_length  = k.length();
     if (k_length < 0.000001) return 0.0;
 
@@ -44,81 +45,58 @@ float NormalDistribution::phillips(float x, float y)
     float L         = w_length * w_length / g;
     float L2        = L * L;
 
-    float damping   = 0.001;
+    float damping   = 0.0001;
     float l2        = L2 * damping * damping;
 
     return A * exp(-1.0f / (k_length2 * L2)) / k_length4 * k_dot_w2 * exp(-k_length2 * l2);
 }
 
 
-vector3::vector3() : x(0.0f), y(0.0f), z(0.0f) { }
-vector3::vector3(float x, float y, float z) : x(x), y(y), z(z) { }
+svector2::svector2() : x(0.0f), y(0.0f) { }
+svector2::svector2(float x, float y) : x(x), y(y) { }
 
-float vector3::operator*(const vector3& v) {
-    return this->x*v.x + this->y*v.y + this->z*v.z;
-}
-
-vector3 vector3::cross(const vector3& v) {
-    return vector3(this->y*v.z - this->z*v.y, this->z*v.x - this->x*v.z, this->x*v.y - this->y*v.z);
-}
-
-vector3 vector3::operator+(const vector3& v) {
-    return vector3(this->x + v.x, this->y + v.y, this->z + v.z);
-}
-
-vector3 vector3::operator-(const vector3& v) {
-    return vector3(this->x - v.x, this->y - v.y, this->z - v.z);
-}
-
-vector3 vector3::operator*(const float s) {
-    return vector3(this->x*s, this->y*s, this->z*s);
-}
-
-vector3& vector3::operator=(const vector3& v) {
-    this->x = v.x; this->y = v.y; this->z = v.z;
-    return *this;
-}
-
-float vector3::length() {
-    return sqrt(this->x*this->x + this->y*this->y + this->z*this->z);
-}
-
-vector3 vector3::unit() {
-    float l = this->length();
-    return vector3(this->x/l, this->y/l, this->z/l);
-}
-
-
-
-vector2::vector2() : x(0.0f), y(0.0f) { }
-vector2::vector2(float x, float y) : x(x), y(y) { }
-
-float vector2::operator*(const vector2& v) {
+float svector2::operator*(const svector2& v) {
     return this->x*v.x + this->y*v.y;
 }
 
-vector2 vector2::operator+(const vector2& v) {
-    return vector2(this->x + v.x, this->y + v.y);
+svector2 svector2::operator+(const svector2& v) {
+    return svector2(this->x + v.x, this->y + v.y);
 }
 
-vector2 vector2::operator-(const vector2& v) {
-    return vector2(this->x - v.x, this->y - v.y);
+svector2 svector2::operator-(const svector2& v) {
+    return svector2(this->x - v.x, this->y - v.y);
 }
 
-vector2 vector2::operator*(const float s) {
-    return vector2(this->x*s, this->y*s);
+svector2 svector2::operator*(const float s) {
+    return svector2(this->x*s, this->y*s);
 }
 
-vector2& vector2::operator=(const vector2& v) {
+svector2& svector2::operator=(const svector2& v) {
     this->x = v.x; this->y = v.y;
     return *this;
 }
 
-float vector2::length() {
+float svector2::length() {
     return sqrt(this->x*this->x + this->y*this->y);
 }
 
-vector2 vector2::unit() {
+svector2 svector2::unit() {
     float l = this->length();
-    return vector2(this->x/l, this->y/l);
+    return svector2(this->x/l, this->y/l);
+}
+
+float uniformRandomVariable() {
+    return (float)rand()/RAND_MAX;
+}
+
+simd_float2 gaussianRandomVariable() {
+    float x1, x2, w;
+    do {
+        x1 = 2.f * uniformRandomVariable() - 1.f;
+        x2 = 2.f * uniformRandomVariable() - 1.f;
+        w = x1 * x1 + x2 * x2;
+    } while ( w >= 1.f );
+    w = sqrt((-2.f * log(w)) / w);
+//    return vector2(x1 * w, x2 * w);
+    return simd_make_float2(x1 * w, x2 * w);
 }

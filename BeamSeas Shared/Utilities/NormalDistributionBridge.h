@@ -8,6 +8,8 @@
 
 #import <Foundation/Foundation.h>
 //#import "NormalDistribution.hpp"
+#import <simd/SIMD.h>
+#import "ShaderTypes.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -15,6 +17,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)init;
 - (float)getRandomNormal;
 - (float)phillips:(float)x y:(float)y;
+- (void)gausRandom;
 
 @end
 
