@@ -64,7 +64,7 @@ class BasicFFT: Node {
     private var displacementMap: MTLTexture!
 
 
-    static var wind_velocity = float2(x: 1, y: 22)
+    static var wind_velocity = float2(x: -26, y: 1)
     static var amplitude = 15
 
     override init() {
@@ -274,9 +274,9 @@ extension BasicFFT: Renderable {
 
 
 
-//        threadGroupSize.width = 64
-//        threadGroupSize.height = 1
-        threadgroupCount.width = (BasicFFT.distributionSize >> 1)
+        threadGroupSize.width = 64
+        threadGroupSize.height = 1
+        threadgroupCount.width = (BasicFFT.distributionSize >> 1) / 64
         threadgroupCount.height = BasicFFT.distributionSize >> 1
 
         computeEncoder.pushDebugGroup("FFT-Displacement")

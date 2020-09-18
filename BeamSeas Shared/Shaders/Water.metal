@@ -114,7 +114,7 @@ kernel void generate_displacement_map_values(constant GausUniforms &uniforms [[ 
 {
     float2 uMod = float2(2.0f * M_PI_F) / uniforms.size;
 //    uint2 resolution = uniforms.resolution >> 1;
-    uint2 N = uniforms.resolution >> 1;//uint2(64, 1) * thread_size;
+    uint2 N = /*uniforms.resolution >> 1;*/uint2(64, 1) * thread_size;
 
     // I think this just uses 0 if i === 0
     float2 wi = mix(float2(N - i),
