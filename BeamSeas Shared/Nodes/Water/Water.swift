@@ -199,7 +199,8 @@ class Water {
                 let realRand = Float(normal_distribution.getRandomNormal())
                 let imagRand = Float(normal_distribution.getRandomNormal())
 
-                let phillips = philliphs(k: k, max_l: max_l)
+//                let phillips = philliphs(k: k, max_l: max_l)
+                let phillips = normal_distribution.phillips(Float(k.x), y: Float(k.y))
                 let newReal = realRand * amplitude * sqrt(0.5 * phillips)
                 let newImag = imagRand * amplitude * sqrt(0.5 * phillips)
 
@@ -220,8 +221,6 @@ class Water {
         if k_len < 0.000001 {
             return 0
         }
-
-
 
         let kL = k_len * L
         let k_dir = simd_normalize(k)

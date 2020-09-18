@@ -17,9 +17,17 @@ float NormalDistribution::generate_normal_random()
     return normal_dist(engine);
 }
 
+//cOcean ocean(64, 0.0005f, vector2(0.0f,32.0f), 64, false);
 
-float NormalDistribution::phillips(vector2 k) {
+float NormalDistribution::phillips(float x, float y)
+{
 
+    vector2 k = vector2(x, y);
+//    float N = 64;
+//    float length = 64.0f;
+//    float n_prime = x;
+//    float m_prime = y;
+//    vector2 k(M_PI * (2 * n_prime - N) / length, M_PI * (2 * m_prime - N) / length);
     float g = 9.81;
     float A = 0.0005f;
     vector2 w = vector2(0.0f,32.0f);
@@ -41,8 +49,6 @@ float NormalDistribution::phillips(vector2 k) {
 
     return A * exp(-1.0f / (k_length2 * L2)) / k_length4 * k_dot_w2 * exp(-k_length2 * l2);
 }
-
-//cOcean ocean(64, 0.0005f, vector2(0.0f,32.0f), 64, false);
 
 
 vector3::vector3() : x(0.0f), y(0.0f), z(0.0f) { }

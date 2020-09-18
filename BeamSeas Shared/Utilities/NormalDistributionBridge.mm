@@ -31,4 +31,13 @@
     return self.dist->generate_normal_random();
 }
 
+//cOcean ocean(64, 0.0005f, vector2(0.0f,32.0f), 64, false);
+
+
+- (float)phillips:(float)x y:(float)y
+{
+    return self.dist->phillips(x, y);
+}
+
+
 @end

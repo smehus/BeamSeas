@@ -7,13 +7,14 @@
 //
 
 #import <Foundation/Foundation.h>
+//#import "NormalDistribution.hpp"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface NormalDistributionBridge : NSObject
 - (instancetype)init;
 - (float)getRandomNormal;
-//- (void)phillips:(vector2)k;
+- (float)phillips:(float)x y:(float)y;
 
 @end
 

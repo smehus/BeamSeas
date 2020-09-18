@@ -63,7 +63,7 @@ public:
 public:
     std::normal_distribution<float> normal_dist{0.0f, 1.0f};
     std::default_random_engine engine;
-    float phillips(vector2 k);
+    float phillips(float x, float y);
     float generate_normal_random();
 
 private:

@@ -24,7 +24,7 @@ extension Int {
 class BasicFFT: Node {
 
 
-    static let distributionSize: Int = 256
+    static let distributionSize: Int = 64
 
     private var signalCount: Int = 0
 
@@ -64,8 +64,8 @@ class BasicFFT: Node {
     private var displacementMap: MTLTexture!
 
 
-    static var wind_velocity = float2(x: -26, y: 22)
-    static var amplitude = 15
+    static var wind_velocity = float2(x: 0, y: 32)
+    static var amplitude = 30
 
     override init() {
 
@@ -274,9 +274,9 @@ extension BasicFFT: Renderable {
 
 
 
-        threadGroupSize.width = 64
-        threadGroupSize.height = 1
-        threadgroupCount.width = (BasicFFT.distributionSize >> 1) / 64
+//        threadGroupSize.width = 64
+//        threadGroupSize.height = 1
+        threadgroupCount.width = (BasicFFT.distributionSize >> 1)// / 64
         threadgroupCount.height = BasicFFT.distributionSize >> 1
 
         computeEncoder.pushDebugGroup("FFT-Displacement")

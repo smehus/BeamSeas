@@ -114,7 +114,7 @@ kernel void generate_displacement_map_values(constant GausUniforms &uniforms [[ 
 {
     float2 uMod = float2(2.0f * M_PI_F) / uniforms.size;
 //    uint2 resolution = uniforms.resolution >> 1;
-    uint2 N = /*uniforms.resolution >> 1;*/uint2(64, 1) * thread_size;
+    uint2 N = uniforms.resolution >> 1;//uint2(64, 1) * thread_size;
 
     // I think this just uses 0 if i === 0
     float2 wi = mix(float2(N - i),
@@ -159,7 +159,7 @@ half jacobian(half2 dDdx, half2 dDdy)
     return (1.0 + dDdx.x) * (1.0 + dDdy.y) - dDdx.y * dDdy.x;
 }
 
-#define LAMBDA 1.8
+#define LAMBDA 1.2
 
 kernel void compute_height_graident(uint2 pid [[ thread_position_in_grid]],
                                     constant float4 &uInvSize [[ buffer(0) ]],
@@ -200,7 +200,7 @@ kernel void compute_height_graident(uint2 pid [[ thread_position_in_grid]],
     // This needs to be rethought through
     // Can i just use one map that already has displacement & height?
 //    float heighDis = mix(h, displacement, 0.5);
-    heightDisplacementMap.write(float4(h, 1 - displacement, 0.0), pid);
+    heightDisplacementMap.write(float4(h, displacement, 0.0), pid);
 
     // write to gradient texture for final sampling in fragment
     gradientMap.write(float4(grad, j, 0.0), pid);
