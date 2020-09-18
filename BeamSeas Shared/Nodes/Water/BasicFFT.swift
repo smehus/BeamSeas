@@ -65,7 +65,7 @@ class BasicFFT: Node {
 
 
     static var wind_velocity = float2(x: 1, y: 22)
-    static var amplitude = 30
+    static var amplitude = 15
 
     override init() {
 
@@ -216,8 +216,7 @@ class BasicFFT: Node {
                             let scale = 1 / Float((count))
                             return [Float](fromSplitComplex: inverseOutput,
                                            scale: scale,
-                                           count: Int(count / 2
-                            ))
+                                           count: Int(count / 2))
                         }
                     }
                 }
