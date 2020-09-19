@@ -177,20 +177,20 @@ class Water {
                     alias_z += Nz;
                 }
 
-                displacement_real[z * out_width + x] = in_real[alias_z * Nx + alias_x];
-                displacement_img[z * out_width + x] = in_imag[alias_z * Nx + alias_x];
+//                displacement_real[z * out_width + x] = in_real[alias_z * Nx + alias_x];
+//                displacement_img[z * out_width + x] = in_imag[alias_z * Nx + alias_x];
 
 
-//                let index = z * Nx + x
-//                let kxx: Float = Float.pi * (2.0 * Float(x) - Float(Nx))
-//                let kzz: Float = 2.0 * Float(z) - Float(Nz)
-//
-//                let kx: Float = kxx / Float(size.x)
-//                let kz: Float = kzz / Float(size.y)
-//                let len = sqrt(kx * kx + kz * kz)
-//
-//                displacement_real[z * out_width + x] = in_real[index]// * -kx/len;
-//                displacement_img[z * out_width + x] = in_imag[index] * -kz/len;
+                let index = z * Nx + x
+                let kxx: Float = Float.pi * (2.0 * Float(x) - Float(Nx))
+                let kzz: Float = 2.0 * Float(z) - Float(Nz)
+
+                let kx: Float = kxx / Float(BasicFFT.distributionSize)
+                let kz: Float = kzz / Float(BasicFFT.distributionSize)
+                let len = sqrt(kx * kx + kz * kz)
+
+                displacement_real[z * out_width + x] = in_real[index] * -kx/len;
+                displacement_img[z * out_width + x] = in_imag[index] * -kz/len;
             }
         }
     }
