@@ -24,7 +24,7 @@ extension Int {
 class BasicFFT: Node {
 
 
-    static let distributionSize: Int = 64
+    static let distributionSize: Int = 128
 
     private var signalCount: Int = 0
 
@@ -64,8 +64,8 @@ class BasicFFT: Node {
     private var displacementMap: MTLTexture!
 
 
-    static var wind_velocity = float2(x: 0, y: 32)
-    static var amplitude = 15
+//    static var wind_velocity = float2(x: 0, y: 32)
+    static var amplitude = 75
 
     override init() {
 
@@ -126,7 +126,7 @@ class BasicFFT: Node {
 
         source = Water(
             amplitude: Float(BasicFFT.amplitude),
-            wind_velocity: BasicFFT.wind_velocity,
+//            wind_velocity: BasicFFT.wind_velocity,
             resolution: SIMD2<Int>(x: BasicFFT.distributionSize, y: BasicFFT.distributionSize),
             size: float2(x: Terrain.terrainSize, y: Terrain.terrainSize),
             normalmap_freq_mod: float2(repeating: 1),
@@ -212,11 +212,13 @@ class BasicFFT: Node {
                             // 3: Perform the inverse FFT.
                             transformer.inverse(input: forwardOutput, output: &inverseOutput)
 
+
                             // 4: Return an array of real values from the FFT result.
-                            let scale = 1 / Float((count))
+                            let scale = 1 / Float((debug ? count * 2 : count))
                             return [Float](fromSplitComplex: inverseOutput,
                                            scale: scale,
                                            count: Int(count / 2))
+                            
                         }
                     }
                 }
@@ -244,7 +246,7 @@ extension BasicFFT: Renderable {
         var gausUniforms = GausUniforms(
             dataLength: Int32(BasicFFT.distributionSize * BasicFFT.distributionSize),
             amplitude: Float(BasicFFT.amplitude),
-            wind_velocity: vector_float2(x: BasicFFT.wind_velocity.x, y: BasicFFT.wind_velocity.y),
+//            wind_velocity: vector_float2(x: BasicFFT.wind_velocity.x, y: BasicFFT.wind_velocity.y),
             resolution: vector_uint2(x: BasicFFT.distributionSize.unsigned, y: BasicFFT.distributionSize.unsigned),
             size: vector_float2(x: Terrain.terrainSize, y: Terrain.terrainSize),
             normalmap_freq_mod: vector_float2(repeating: 7.3),

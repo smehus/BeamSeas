@@ -159,12 +159,12 @@ half jacobian(half2 dDdx, half2 dDdy)
     return (1.0 + dDdx.x) * (1.0 + dDdy.y) - dDdx.y * dDdy.x;
 }
 
-#define LAMBDA -1.2
+#define LAMBDA -1.5
 
 kernel void compute_height_graident(uint2 pid [[ thread_position_in_grid]],
                                     constant float4 &uInvSize [[ buffer(0) ]],
                                     constant float4 &uScale [[ buffer(1) ]],
-                                    texture2d<float> heightMap [[ texture(0) ]],
+                   	                 texture2d<float> heightMap [[ texture(0) ]],
                                     texture2d<float> displacementMap [[ texture(1) ]],
                                     texture2d<float, access::write> heightDisplacementMap [[ texture(2) ]],
                                     texture2d<float, access::write> gradientMap [[ texture(3) ]])

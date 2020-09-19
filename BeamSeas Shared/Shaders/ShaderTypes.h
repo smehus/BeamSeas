@@ -66,7 +66,7 @@ typedef struct
 {
     int dataLength;
     float amplitude;
-    vector_float2 wind_velocity;
+//    vector_float2 wind_velocity;
     vector_uint2 resolution;
     vector_float2 size;
     vector_float2 normalmap_freq_mod;
