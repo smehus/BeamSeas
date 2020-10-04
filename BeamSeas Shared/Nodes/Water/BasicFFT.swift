@@ -129,8 +129,7 @@ class BasicFFT: Node {
 //            wind_velocity: BasicFFT.wind_velocity,
             resolution: SIMD2<Int>(x: BasicFFT.distributionSize, y: BasicFFT.distributionSize),
             size: float2(x: Terrain.terrainSize, y: Terrain.terrainSize),
-            normalmap_freq_mod: float2(repeating: 1),
-            max_l: 0.02
+            normalmap_freq_mod: float2(repeating: 1)
         )
 
         guard

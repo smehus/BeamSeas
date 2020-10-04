@@ -159,7 +159,7 @@ half jacobian(half2 dDdx, half2 dDdy)
     return (1.0 + dDdx.x) * (1.0 + dDdy.y) - dDdx.y * dDdy.x;
 }
 
-#define LAMBDA -1.5
+#define LAMBDA 5.0
 
 kernel void compute_height_graident(uint2 pid [[ thread_position_in_grid]],
                                     constant float4 &uInvSize [[ buffer(0) ]],
@@ -182,8 +182,7 @@ kernel void compute_height_graident(uint2 pid [[ thread_position_in_grid]],
     float2 grad = uScale.xy * 0.5 * float2(x1 - x0, y1 - y0);
 
     // Displacement map must be sampled with a different offset since it's a smaller texture.
-    float2 displacement = LAMBDA * displacementMap.sample(s, uv.zw).xy;
-
+    float2 displacement = LAMBDA * displacementMap.sample(s, uv.zw).xy * 6;
     // Compute jacobian.
     float2 dDdx = 0.5 * LAMBDA * (
                                   displacementMap.sample(s, uv.zw + float2(1, 0)).xy -

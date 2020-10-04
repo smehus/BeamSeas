@@ -58,8 +58,8 @@ final class Renderer: NSObject {
 
         super.init()
 
-        metalView.clearColor = MTLClearColor(red: 0.0, green: 0.0,
-                                             blue: 0.0, alpha: 1)
+        metalView.clearColor = MTLClearColor(red: 0.4, green: 0.4,
+                                             blue: 0.4, alpha: 1)
 
         metalView.delegate = self
 
@@ -102,7 +102,7 @@ extension Renderer: MTKViewDelegate {
             return
         }
 
-        delta += 0.02
+        delta += 0.05
         uniforms.deltaTime = delta
         uniforms.projectionMatrix = camera.projectionMatrix
         uniforms.viewMatrix = camera.viewMatrix

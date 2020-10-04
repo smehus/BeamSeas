@@ -187,12 +187,13 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
 
     position.x += (horizontalDisplacement.y);
     position.z += (horizontalDisplacement.z);
-//    position.y = 1 - height.x;
+    position.y = height.x;
+    
 
-    float adjustedHeight = heightDisplacement.x;
+    float adjustedHeight = heightDisplacement.y;
 //    adjustedHeight = 1 - adjustedHeight;
     out.position = uniforms.projectionMatrix * uniforms.viewMatrix * uniforms.modelMatrix * position;
-    float4 finalColor = float4(adjustedHeight, adjustedHeight, adjustedHeight, 1);
+    float4 finalColor = float4(heightDisplacement.y, 0, heightDisplacement.z, 1);
 
     // reference AAPLTerrainRenderer in DynamicTerrainWithArgumentBuffers exmaple: EvaluateTerrainAtLocation line 235 -> EvaluateTerrainAtLocation in AAPLTerrainRendererUtilities line: 91
 //    out.normal = uniforms.normalMatrix * primaryLocalNormal;//mix(primaryLocalNormal, secondarLocalNormal, 0.5);
@@ -230,9 +231,9 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
 
     float3 color = float3(0.2, 0.6, 1.0);
     float3 specular = terrainDiffuseLighting(uniforms.normalMatrix * (normalValue * 2.0f - 1.0f), fragment_in.position.xyz, fragmentUniforms, lights, color.rgb);
-//    return float4(color_mod * color, 1.0);
+    return float4(color_mod * color, 1.0);
 //    fragment_in.color.xyz *= 2.0;
-    return fragment_in.color;
+//    return fragment_in.color;
 }
 
 

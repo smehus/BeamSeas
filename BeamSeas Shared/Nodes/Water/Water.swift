@@ -83,8 +83,7 @@ class Water {
 //        wind_velocity: SIMD2<Float>,
         resolution: SIMD2<Int>,
         size: SIMD2<Float>,
-        normalmap_freq_mod: SIMD2<Float>,
-        max_l: Float
+        normalmap_freq_mod: SIMD2<Float>
     ) {
 //        self.wind_velocity = wind_velocity
 //        self.wind_dir = normalize(wind_velocity)
@@ -114,8 +113,7 @@ class Water {
             distribution_real: &distribution_real,
             distribution_imag: &distribution_imag,
             size: size,
-            amplitude: newamplitude,
-            max_l: max_l
+            amplitude: newamplitude
         )
 
         distribution_real_buffer = Renderer.device.makeBuffer(
@@ -198,8 +196,7 @@ class Water {
     private func generate_distribution(distribution_real: inout [Float],
                                        distribution_imag: inout [Float],
                                        size: SIMD2<Float>,
-                                       amplitude: Float,
-                                       max_l: Float) {
+                                       amplitude: Float) {
 
         // Modifier to find spatial frequency
         let mod = SIMD2<Float>(repeating: 2.0 * Float.pi) / size
@@ -214,8 +211,8 @@ class Water {
 
 //                let phillips = philliphs(k: k, max_l: max_l)
                 let phillips = normal_distribution.phillips(Float(k.x), y: Float(k.y))
-                let newReal = realRand * amplitude * sqrt(0.5 * phillips)
-                let newImag = imagRand * amplitude * sqrt(0.5 * phillips)
+                let newReal = realRand * sqrt(0.5 * phillips)
+                let newImag = imagRand * sqrt(0.5 * phillips)
 
 
                 let idx = z * Nx + x
