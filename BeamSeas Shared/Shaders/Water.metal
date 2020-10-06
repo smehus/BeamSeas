@@ -145,7 +145,7 @@ kernel void generate_displacement_map_values(constant GausUniforms &uniforms [[ 
     float2 b = cmul(float2(bReal, bImag), float2(cw, sw));
     float2 res = a + b;
 
-     float2 grad = cmul(res, float2(-k.y / (k_len + 0.00001), k.x / (k_len + 0.00001)));
+     float2 grad = cmul(res, float2(-k.y / (k_len + 0.0000000000001), k.x / (k_len + 0.0000000000001)));
 
     output_real[i.y * N.x + i.x] = grad.x;
     output_imag[i.y * N.x + i.x] = grad.y;
@@ -159,7 +159,7 @@ half jacobian(half2 dDdx, half2 dDdy)
     return (1.0 + dDdx.x) * (1.0 + dDdy.y) - dDdx.y * dDdy.x;
 }
 
-#define LAMBDA 5.0
+#define LAMBDA 0.2
 
 kernel void compute_height_graident(uint2 pid [[ thread_position_in_grid]],
                                     constant float4 &uInvSize [[ buffer(0) ]],
@@ -182,7 +182,7 @@ kernel void compute_height_graident(uint2 pid [[ thread_position_in_grid]],
     float2 grad = uScale.xy * 0.5 * float2(x1 - x0, y1 - y0);
 
     // Displacement map must be sampled with a different offset since it's a smaller texture.
-    float2 displacement = LAMBDA * displacementMap.sample(s, uv.zw).xy * 6;
+    float2 displacement = LAMBDA * displacementMap.sample(s, uv.zw).xy;
     // Compute jacobian.
     float2 dDdx = 0.5 * LAMBDA * (
                                   displacementMap.sample(s, uv.zw + float2(1, 0)).xy -
