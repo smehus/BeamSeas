@@ -164,8 +164,6 @@ class BasicFFT: Node {
         let recreatedSignal = runfft(real: distribution_real, imag: distribution_imag, count: source.distribution_real.count + source.distribution_imag.count, fft: distributionFFT)
         dataBuffer = Renderer.device.makeBuffer(bytes: recreatedSignal, length: MemoryLayout<Float>.stride * recreatedSignal.count, options: [])
 
-        // TODO: - Need to downsample this...
-        // Taking toooo much gpu time
 
         let displacementSignal = runfft(real: distribution_displacement_real, imag: distribution_displacement_imag, count: source.distribution_displacement_real.count + source.distribution_displacement_imag.count, fft: downsampledFFT, debug: true)
         displacementBuffer = Renderer.device.makeBuffer(bytes: displacementSignal, length: MemoryLayout<Float>.stride * displacementSignal.count, options: [])
@@ -213,10 +211,10 @@ class BasicFFT: Node {
 
 
                             // 4: Return an array of real values from the FFT result.
-                            let scale = 1 / Float((debug ? count * 2 : count))
+                            let scale = 1 / Float((count * 2))
                             return [Float](fromSplitComplex: inverseOutput,
                                            scale: scale,
-                                           count: Int(count / 2))
+                                           count: Int(count))
                             
                         }
                     }
