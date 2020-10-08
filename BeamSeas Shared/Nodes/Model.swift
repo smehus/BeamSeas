@@ -20,8 +20,6 @@ class Model: Node {
     var heightBuffer: MTLBuffer
     var normalBuffer: MTLBuffer
 
-    private let heightMap: MTLTexture
-//    private let altHeightMap: MTLTexture
     private let heightComputePipelineState: MTLComputePipelineState
 
     init(name: String, fragment: String) {
@@ -52,9 +50,6 @@ class Model: Node {
 
         meshes = zip(mdlMeshes, mtkMeshes).map { Mesh(mdlMesh: $0, mtkMesh: $1, fragment: fragment) }
         samplerState = Self.buildSamplerState()
-
-        heightMap = BasicFFT.heightDisplacementMap//Submesh.loadTexture(imageName: Terrain.heightMapName, path: "jpg")
-//        altHeightMap = Submesh.loadTexture(imageName: Terrain.alterHeightMapName)
 
         var startingHeight: Float = 0
         heightBuffer = Renderer.device.makeBuffer(bytes: &startingHeight, length: MemoryLayout<Float>.size, options: .storageModeShared)!
@@ -95,7 +90,7 @@ extension Model: Renderable {
         computeEncoder.setBytes(&terrainParams, length: MemoryLayout<TerrainParams>.stride, index: 2)
         computeEncoder.setBuffer(heightBuffer, offset: 0, index: 3)
         computeEncoder.setBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: 4)
-        computeEncoder.setTexture(heightMap, index: 0)
+        computeEncoder.setTexture(BasicFFT.heightDisplacementMap, index: 0)
         computeEncoder.setTexture(BasicFFT.normalMapTexture, index: 2)
         computeEncoder.setBuffer(normalBuffer, offset: 0, index: 5)
         computeEncoder.dispatchThreads(MTLSizeMake(1, 1, 1),

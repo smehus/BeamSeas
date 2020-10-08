@@ -211,7 +211,7 @@ class BasicFFT: Node {
 
 
                             // 4: Return an array of real values from the FFT result.
-                            let scale = 1 / Float((count * 2))
+                            let scale = 1 / Float((count))
                             return [Float](fromSplitComplex: inverseOutput,
                                            scale: scale,
                                            count: Int(count))
@@ -371,7 +371,7 @@ extension BasicFFT: Renderable {
         let threadsPerGroup = MTLSizeMake(w, h, 1)
         computeEncoder.pushDebugGroup("Generate Normals")
         computeEncoder.setComputePipelineState(normalPipelineState)
-        computeEncoder.setTexture(heightMap, index: 0)
+        computeEncoder.setTexture(Self.heightDisplacementMap, index: 0)
         computeEncoder.setTexture(Self.normalMapTexture, index: 2)
         computeEncoder.setBytes(&Terrain.terrainParams, length: MemoryLayout<TerrainParams>.size, index: 3)
         computeEncoder.setBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: BufferIndex.uniforms.rawValue)
