@@ -93,21 +93,18 @@ class BasicFFT: Node {
         Self.gradientMap = Renderer.device.makeTexture(descriptor: texDesc)!
         heightMap = Renderer.device.makeTexture(descriptor: texDesc)!
 
-        // is this different?
-//        let texDesc = MTLTextureDescriptor()
-//        texDesc.width = BasicFFT.imgSize//BasicFFT.heightDisplacementMap.width
-//        texDesc.height = BasicFFT.imgSize//BasicFFT.heightDisplacementMap.height
-//        texDesc.pixelFormat = .rg11b10Float
-//        texDesc.usage = [.shaderRead, .shaderWrite]
-//        texDesc.mipmapLevelCount = 1//Int(log2(Double(max(BasicFFT.heightDisplacementMap.width, BasicFFT.heightDisplacementMap.height))) + 1);
-//        texDesc.storageMode = .private
-        Self.normalMapTexture = Renderer.device.makeTexture(descriptor: texDesc)!
-
         texDesc.width = BasicFFT.distributionSize >> 1
         texDesc.height = BasicFFT.distributionSize >> 1
         texDesc.pixelFormat = .rgba16Float
         displacementMap = Renderer.device.makeTexture(descriptor: texDesc)!
 
+
+        texDesc.width = BasicFFT.distributionSize
+        texDesc.height = BasicFFT.distributionSize
+        texDesc.pixelFormat = .rg11b10Float
+        texDesc.mipmapLevelCount = Int(log2(Double(max(BasicFFT.heightDisplacementMap.width, BasicFFT.heightDisplacementMap.height))) + 1);
+        texDesc.storageMode = .private
+        Self.normalMapTexture = Renderer.device.makeTexture(descriptor: texDesc)!
 
         fftPipelineState = Self.buildComputePipelineState(shader: "fft_kernel")
         distributionPipelineState = Self.buildComputePipelineState(shader: "generate_distribution_map_values")

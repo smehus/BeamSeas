@@ -264,9 +264,8 @@ kernel void TerrainKnl_ComputeNormalsFromHeightmap(texture2d<float> height [[tex
 //    float xz_scale = TERRAIN_SCALE / height.get_width();
     float xz_scale = terrain.size.x / height.get_width();
     float y_scale = terrain.height;
-    uint2 altTid = tid;// / 4;
 
-    if (altTid.x + 1 < height.get_width() && altTid.y + 1 < height.get_height()) {
+    if (tid.x < height.get_width() && tid.y < height.get_height()) {
         // I think we can just compute the normals once for each map - pass both maps into the vertex shader
         // And mix the two samples. Don't need to do anything else other than handle the mix between maps & fmod something...
 //        // Which we're already doing in the vertex shader. So I think we can just add an altNormalMap to the vetex shader & use that for secondary shader
