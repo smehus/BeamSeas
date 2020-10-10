@@ -11,35 +11,36 @@ import MetalPerformanceShaders
 
 class Terrain: Node {
 
-    static let maxTessellation = 16
+
     static var heightMapName = "simuwater"
     static var alterHeightMapName = "Heightmap_Plateau"
 //    static var secondaryNormalMapTexture: MTLTexture!
     static var primarySlopeMap: MTLTexture!
     static var secondarySlopeMap: MTLTexture!
 
-    static let terrainSize: Float = 200
+    static let terrainSize: Float = 256
 
     static var terrainParams = TerrainParams(
         size: [Terrain.terrainSize, Terrain.terrainSize],
-        height: 10,
+        height: 50,
         maxTessellation: UInt32(Terrain.maxTessellation),
         numberOfPatches: UInt32(Terrain.patchNum * Terrain.patchNum)
     )
 
-    private static var patchNum = 8
+    static let maxTessellation = 64
+    private static var patchNum = 2
 
     let patches = (horizontal: Terrain.patchNum, vertical: Terrain.patchNum)
     var patchCount: Int {
         return patches.horizontal * patches.vertical
     }
 
-    var edgeFactors: [Float] = [4]
-    var insideFactors: [Float] = [2]
+    var edgeFactors: [Float] = [16]
+    var insideFactors: [Float] = [16]
     var allPatches: [Patch] = []
 
     lazy var tessellationFactorsBuffer: MTLBuffer? = {
-        let count = patchCount * (4 + 2)
+        let count = patchCount * (16 + 16)
         let size = count * MemoryLayout<Float>.size / 2
         return Renderer.device.makeBuffer(length: size, options: .storageModePrivate)
     }()
@@ -80,8 +81,8 @@ class Terrain: Node {
         descriptor.fragmentFunction = Renderer.library.makeFunction(name: "fragment_terrain")
         descriptor.tessellationFactorStepFunction = .perPatch
         descriptor.maxTessellationFactor = Self.maxTessellation
-//        descriptor.tessellationPartitionMode = .fractionalEven
-        descriptor.tessellationPartitionMode = .pow2
+        descriptor.tessellationPartitionMode = .fractionalEven
+//        descriptor.tessellationPartitionMode = .pow20
 
         let vertexDescriptor = MTLVertexDescriptor()
         vertexDescriptor.attributes[0].format = .float3
@@ -136,6 +137,10 @@ class Terrain: Node {
 }
 
 extension Terrain: Renderable {
+
+    func update(with deltaTime: Float) {
+        
+    }
 
     func generateTerrainNormals(computeEncoder: MTLComputeCommandEncoder, uniforms: inout Uniforms) {
 
@@ -267,7 +272,7 @@ extension Terrain: Renderable {
 
 
 
-        renderEncoder.setTriangleFillMode(.lines)
+//        renderEncoder.setTriangleFillMode(.lines)
         renderEncoder.drawPatches(
             numberOfPatchControlPoints: 4,
             patchStart: 0,

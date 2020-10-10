@@ -20,41 +20,12 @@ struct FFTVertexIn {
     float4 position [[ attribute(VertexAttributePosition) ]];
 };
 
-int alias(int x, int N) {
-    if (x > (N / 2)) { x -= N; }
-    return x;
-}
-
-float rand(int x, int y, int z)
+float2 alias(float2 i, float2 N)
 {
-    int seed = x + y * 57 + z * 241;
-    seed= (seed<< 13) ^ seed;
-    return (( 1.0 - ( (seed * (seed * seed * 15731 + 789221) + 1376312589) & 2147483647) / 1073741824.0f) + 1.0f) / 2.0f;
-}
+    float x = i.x > (0.5 * N.x);
+    float y = i.y > (0.5 * N.y);
 
-float phillips(float2 k, float max_l, float L, float2 wind_dir) {
-    float k_len = length(k);
-    if (k_len == 0) {
-        return 0.0;
-    }
-
-    float kL = k_len * L;
-    float2 k_dir = normalize(k);
-    float kw = dot(k_dir, wind_dir);
-
-    return
-    pow(kw * kw, 1.0) *
-    exp(-1 * k_len * k_len * max_l * max_l) *
-    exp(-1 / (kL * kL)) *
-    pow(k_len, -4.0);
-}
-
-float2 vecAlias(uint2 i, uint2 N)
-{
-    float2 n = 0.5 * float2(N);
-    bool2 b = float2(i) > n;
-
-    return mix(float2(i), float2(i - N), float2(b));
+    return mix(i, i - N, float2(x, y));
 }
 
 float4 cmul(float4 a, float4 b)
@@ -84,27 +55,22 @@ kernel void generate_distribution_map_values(constant GausUniforms &uniforms [[ 
                                   texture2d<float> drawTexture [[ texture(0) ]],
                                   device float *input_real [[ buffer(14) ]],
                                   device float *input_imag [[ buffer(15) ]],
-                                  uint2 pid [[ thread_position_in_grid ]])
+                                  uint2 i [[ thread_position_in_grid ]])
 {
-//    float2 size = uniforms.size;
+    uint2 N = uniforms.resolution;
     float G = 9.81; // Gravity
-//    float amplitude = uniforms.amplitude;
-//
-//    amplitude *= 0.3 / sqrt(size.x * size.y);
+    float2 uMod = float2(2.0 * M_PI_F) / uniforms.size;
 
     // Pick out the negative frequency variant.
-    float2 wi = mix(float2(uniforms.resolution - pid),
+    float2 wi = mix(float2(N - i),
                     float2(0u),
-                    float2(pid == uint2(0u)));
-
-    int width = uniforms.resolution.x;
-    int height = uniforms.resolution.y;
+                    float2(i == uint2(0u)));
 
 
 //    // Pick out positive and negative travelling waves.
 
-    int index = (int)pid.y * width + pid.x;
-    int bIndex =  (int)wi.y * width + wi.x;
+    int index = (int)i.y * N.x + i.x;
+    int bIndex =  (int)wi.y * N.x + wi.x;
 
     float a1 = input_real[index];
     float a2 = input_imag[index];
@@ -114,10 +80,7 @@ kernel void generate_distribution_map_values(constant GausUniforms &uniforms [[ 
     float b2 = input_imag[bIndex];
     float2 b = float2(b1, b2);
 
-    float2 uMod = float2(2.0 * M_PI_F) / uniforms.size;
-
-
-    float2 k = uMod * vecAlias(pid, uint2(width, height));
+    float2 k = uMod * alias(float2(i), float2(N));
     float k_len = length(k);
     // If this sample runs for hours on end, the cosines of very large numbers will eventually become unstable.
     // It is fairly easy to fix this by wrapping uTime,
@@ -135,8 +98,8 @@ kernel void generate_distribution_map_values(constant GausUniforms &uniforms [[ 
     b = float2(b.x, -b.y); // Complex conjugate since we picked a frequency with the opposite direction.
     float2 res = (a + b); // Sum up forward and backwards travelling waves.
 
-    output_real[index] = res.x;
-    output_imag[bIndex] = res.y;
+    output_real[i.y * N.x + i.x] = res.x;
+    output_imag[i.y * N.x + i.x] = res.y;
 }
 
 kernel void generate_displacement_map_values(constant GausUniforms &uniforms [[ buffer(BufferIndexGausUniforms) ]],
@@ -146,66 +109,46 @@ kernel void generate_displacement_map_values(constant GausUniforms &uniforms [[ 
                                              texture2d<float> drawTexture [[ texture(0) ]],
                                              device float *input_real [[ buffer(14) ]],
                                              device float *input_imag [[ buffer(15) ]],
-                                             uint2 pid [[ thread_position_in_grid ]])
+                                             uint2 i [[ thread_position_in_grid ]],
+                                            uint2 thread_size [[ threads_per_grid ]])
 {
-    float G = 9.81; // Gravity
-    //    float amplitude = uniforms.amplitude;
-    //
-    //    amplitude *= 0.3 / sqrt(size.x * size.y);
+    float2 uMod = float2(2.0f * M_PI_F) / uniforms.size;
+//    uint2 resolution = uniforms.resolution >> 1;
+    uint2 N = uniforms.resolution >> 1;//uint2(64, 1) * thread_size;
 
-    uint2 resolution = uniforms.resolution >> 1;
-    // Pick out the negative frequency variant.
-    float2 wi = mix(float2(resolution - pid),
+    // I think this just uses 0 if i === 0
+    float2 wi = mix(float2(N - i),
                     float2(0u),
-                    float2(pid == uint2(0u)));
+                    float2(i == uint2(0u)));
 
-    int width = resolution.x;
-    int height = resolution.y;
+    uint aIndex = i.y * N.x + i.x;
+    uint bIndex = wi.y * N.x + wi.x;
 
+//    if (aIndex > 16383) { return; }
+//    if (bIndex > 16383) { return; }
 
-    //    // Pick out positive and negative travelling waves.
+    float aReal = input_real[aIndex];
+    float aImag = input_imag[aIndex];
+    float bReal = input_real[bIndex];
+    float bImag = input_imag[bIndex];
 
-    int index = (int)pid.y * width + pid.x;
-    int bIndex =  (int)wi.y * width + wi.x;
-    if (index > 168383) { return; }
-    if (bIndex > 168383) { return; }
-
-    float a1 = input_real[index];
-    float a2 = input_imag[index];
-    float2 a = float2(a1, a2);
-
-    float b1 = input_real[bIndex];
-    float b2 = input_imag[bIndex];
-    float2 b = float2(b1, b2);
-
-    float2 uMod = float2(2.0 * M_PI_F) / uniforms.size;
-
-
-    float2 k = uMod * vecAlias(pid, uint2(width, height));
+    float2 k = uMod * alias(float2(i), float2(N));
     float k_len = length(k);
-    // If this sample runs for hours on end, the cosines of very large numbers will eventually become unstable.
-    // It is fairly easy to fix this by wrapping uTime,
-    // and quantizing w such that wrapping uTime does not change the result.
-    // See Tessendorf's paper for how to do it.
-    // The sqrt(G * k_len) factor represents how fast ocean waves at different frequencies propagate.
+
+    float G = 9.81;
     float w = sqrt(G * k_len) * (mainUniforms.deltaTime);
+
     float cw = cos(w);
     float sw = sin(w);
 
-    // Complex multiply to rotate our frequency samples.
+    float2 a = cmul(float2(aReal, aImag), float2(cw, sw));
+    float2 b = cmul(float2(bReal, bImag), float2(cw, sw));
+    float2 res = a + b;
 
-    a = cmul(a, float2(cw, sw));
-    b = cmul(b, float2(cw, sw));
-    b = float2(b.x, -b.y); // Complex conjugate since we picked a frequency with the opposite direction.
-    float2 res = (a + b); // Sum up forward and backwards travelling waves.
+     float2 grad = cmul(res, float2(-k.y / (k_len + 0.0000000000001), k.x / (k_len + 0.0000000000001)));
 
-    float2 grad = cmul(res, float2(-k.y / (k_len + 0.00001), k.x / (k_len + 0.00001)));
-    int idx = pid.y * width + pid.x;
-
-    if (idx > 168383) { return; }
-    output_real[idx] = grad.x;
-    output_imag[idx] = grad.y;
-
+    output_real[i.y * N.x + i.x] = grad.x;
+    output_imag[i.y * N.x + i.x] = grad.y;
 }
 
 
@@ -216,12 +159,12 @@ half jacobian(half2 dDdx, half2 dDdy)
     return (1.0 + dDdx.x) * (1.0 + dDdy.y) - dDdx.y * dDdy.x;
 }
 
-#define LAMBDA 1.2
+#define LAMBDA -2
 
 kernel void compute_height_graident(uint2 pid [[ thread_position_in_grid]],
                                     constant float4 &uInvSize [[ buffer(0) ]],
                                     constant float4 &uScale [[ buffer(1) ]],
-                                    texture2d<float> heightMap [[ texture(0) ]],
+                   	                 texture2d<float> heightMap [[ texture(0) ]],
                                     texture2d<float> displacementMap [[ texture(1) ]],
                                     texture2d<float, access::write> heightDisplacementMap [[ texture(2) ]],
                                     texture2d<float, access::write> gradientMap [[ texture(3) ]])
@@ -240,7 +183,6 @@ kernel void compute_height_graident(uint2 pid [[ thread_position_in_grid]],
 
     // Displacement map must be sampled with a different offset since it's a smaller texture.
     float2 displacement = LAMBDA * displacementMap.sample(s, uv.zw).xy;
-
     // Compute jacobian.
     float2 dDdx = 0.5 * LAMBDA * (
                                   displacementMap.sample(s, uv.zw + float2(1, 0)).xy -
@@ -305,9 +247,7 @@ fragment float4 fft_fragment(const FFTVertexOut in [[ stage_in ]],
 
 kernel void fft_kernel(texture2d<float, access::write> output_texture [[ texture(0) ]],
                        uint2 tid [[ thread_position_in_grid]],
-                       constant float *data [[ buffer(0) ]],
-                       constant Uniforms &uniforms [[ buffer(3) ]],
-                       constant GausUniforms &gausUniforms [[ buffer(4)]])
+                       constant float *data [[ buffer(0) ]])
 {
     uint width = output_texture.get_width();
     uint height = output_texture.get_height();
@@ -315,7 +255,10 @@ kernel void fft_kernel(texture2d<float, access::write> output_texture [[ texture
     if (tid.x < width && tid.y < height) {
         uint index = (uint)(tid.y * width + tid.x);
         float val = data[index];
-        val = (val - -3) / (3 - -3);
+        val = (val - -1) / (1 - -1);
+//        val = val * 0.5 + 0.5;
+        
         output_texture.write(float4(val, val, val, 1), tid);
+
     }
 }

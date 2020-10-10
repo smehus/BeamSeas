@@ -17,9 +17,11 @@
 #define NSInteger metal::int32_t
 #else
 #import <Foundation/Foundation.h>
+#import "NormalDistributionBridge.h"
 #endif
 
 #include <simd/simd.h>
+
 
 typedef NS_ENUM(NSInteger, BufferIndex)
 {
@@ -64,7 +66,7 @@ typedef struct
 {
     int dataLength;
     float amplitude;
-    vector_float2 wind_velocity;
+//    vector_float2 wind_velocity;
     vector_uint2 resolution;
     vector_float2 size;
     vector_float2 normalmap_freq_mod;

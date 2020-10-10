@@ -63,30 +63,30 @@ class Water {
 //    var distribution_normal_real_buffer: MTLBuffer!
 //    var distribution_normal_imag_buffer: MTLBuffer!
 
-    private let wind_velocity: SIMD2<Float>
-    private let wind_dir: SIMD2<Float>
+//    private let wind_velocity: SIMD2<Float>
+//    private let wind_dir: SIMD2<Float>
     private let Nx: Int
     private let Nz: Int
     private let size: SIMD2<Float>
     private let size_normal: SIMD2<Float>
 
 
-    private let L: Float
+//    private let L: Float
     static var G: Float = 9.81
 
     private let displacement_downsample: Int = 1
+    private let normal_distribution = NormalDistributionBridge()
 
 
     init(
         amplitude: Float,
-        wind_velocity: SIMD2<Float>,
+//        wind_velocity: SIMD2<Float>,
         resolution: SIMD2<Int>,
         size: SIMD2<Float>,
-        normalmap_freq_mod: SIMD2<Float>,
-        max_l: Float
+        normalmap_freq_mod: SIMD2<Float>
     ) {
-        self.wind_velocity = wind_velocity
-        self.wind_dir = normalize(wind_velocity)
+//        self.wind_velocity = wind_velocity
+//        self.wind_dir = normalize(wind_velocity)
         self.Nx = resolution.x
         self.Nz = resolution.y
         self.size = size
@@ -97,7 +97,7 @@ class Water {
 //        newamplitude *= 0.3 / sqrt(size.x * size.y)
 
         // Factor in phillips spectrum
-        L = simd_dot(wind_velocity, wind_velocity) / Self.G;
+//        L = simd_dot(wind_velocity, wind_velocity) / Self.G;
 
         distribution_real = [Float](repeating: 0, count: Int(n))
         distribution_imag = [Float](repeating: 0, count: Int(n))
@@ -113,8 +113,7 @@ class Water {
             distribution_real: &distribution_real,
             distribution_imag: &distribution_imag,
             size: size,
-            amplitude: newamplitude,
-            max_l: max_l
+            amplitude: newamplitude
         )
 
         distribution_real_buffer = Renderer.device.makeBuffer(
@@ -178,6 +177,18 @@ class Water {
 
                 displacement_real[z * out_width + x] = in_real[alias_z * Nx + alias_x];
                 displacement_img[z * out_width + x] = in_imag[alias_z * Nx + alias_x];
+
+
+//                let index = z * Nx + x
+//                let kxx: Float = Float.pi * (2.0 * Float(x) - Float(Nx))
+//                let kzz: Float = 2.0 * Float(z) - Float(Nz)
+//
+//                let kx: Float = kxx / Float(BasicFFT.distributionSize)
+//                let kz: Float = kzz / Float(BasicFFT.distributionSize)
+//                let len = sqrt(kx * kx + kz * kz)
+//
+//                displacement_real[z * out_width + x] = in_real[index] * -kx/len;
+//                displacement_img[z * out_width + x] = in_imag[index] * -kz/len;
             }
         }
     }
@@ -185,23 +196,23 @@ class Water {
     private func generate_distribution(distribution_real: inout [Float],
                                        distribution_imag: inout [Float],
                                        size: SIMD2<Float>,
-                                       amplitude: Float,
-                                       max_l: Float) {
+                                       amplitude: Float) {
 
         // Modifier to find spatial frequency
         let mod = SIMD2<Float>(repeating: 2.0 * Float.pi) / size
 
-        let normal_distribution = Distributions.Normal(m: 0, v: 1)
         for z in 0..<Nz {
             for x in 0..<Nx {
 
                 let k = mod * SIMD2<Float>(x: Float(alias(x, N: Nx)), y: Float(alias(z, N: Nz)))
-                let realRand = Float(normal_distribution.random())
-                let imagRand = Float(normal_distribution.random())
+                let gaus = normal_distribution.gausRandom()
+                let realRand = Float(gaus.x)
+                let imagRand = Float(gaus.y)
 
-                let phillips = philliphs(k: k, max_l: max_l)
-                let newReal = realRand * amplitude * sqrt(phillips)
-                let newImag = imagRand * amplitude * sqrt(phillips)
+//                let phillips = philliphs(k: k, max_l: max_l)
+                let phillips = normal_distribution.phillips(Float(k.x), y: Float(k.y))
+                let newReal = realRand * sqrt(0.5 * phillips)
+                let newImag = imagRand * sqrt(0.5 * phillips)
 
 
                 let idx = z * Nx + x
@@ -214,23 +225,23 @@ class Water {
         }
     }
 
-    private func philliphs(k: SIMD2<Float>, max_l: Float) -> Float {
-        // might have to do this on gpu
-        let k_len = simd_length(k)
-        if k_len == 0 {
-            return 0
-        }
-
-        let kL = k_len * L
-        let k_dir = simd_normalize(k)
-        let kw = simd_dot(k_dir, wind_dir)
-
-        return
-            pow(kw * kw, 1.0) *
-            exp(-1.0 * k_len * k_len * max_l * max_l) *
-            exp(-1.0 / (kL * kL)) *
-            pow(k_len, -4.0)
-    }
+//    private func philliphs(k: SIMD2<Float>, max_l: Float) -> Float {
+//        // might have to do this on gpu
+//        let k_len = simd_length(k)
+//        if k_len < 0.000001 {
+//            return 0
+//        }
+//
+//        let kL = k_len * L
+//        let k_dir = simd_normalize(k)
+//        let kw = simd_dot(k_dir, wind_dir)
+//
+//        return
+//            pow(kw * kw, 1.0) *
+//            exp(-1.0 * k_len * k_len * max_l * max_l) *
+//            exp(-1.0 / (kL * kL)) *
+//            pow(k_len, -4.0)
+//    }
 
     private func alias(_ x: Int, N: Int) -> Int {
         var value = x
@@ -239,29 +250,5 @@ class Water {
         }
 
         return value
-    }
-}
-
-class MyGaussianDistribution {
-    private let randomSource: GKRandomSource
-    let mean: Float
-    let deviation: Float
-
-    init(randomSource: GKRandomSource, mean: Float, deviation: Float) {
-        precondition(deviation >= 0)
-        self.randomSource = randomSource
-        self.mean = mean
-        self.deviation = deviation
-    }
-
-    func nextFloat() -> Float {
-        guard deviation > 0 else { return mean }
-
-        let x1 = randomSource.nextUniform() // a random number between 0 and 1
-        let x2 = randomSource.nextUniform() // a random number between 0 and 1
-        let z1 = sqrt(-2 * log(x1)) * cos(2 * Float.pi * x2) // z1 is normally distributed
-
-        // Convert z1 from the Standard Normal Distribution to our Normal Distribution
-        return z1 * deviation + mean
     }
 }

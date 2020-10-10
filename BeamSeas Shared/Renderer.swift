@@ -58,8 +58,8 @@ final class Renderer: NSObject {
 
         super.init()
 
-        metalView.clearColor = MTLClearColor(red: 0.0, green: 0.0,
-                                             blue: 0.0, alpha: 1)
+        metalView.clearColor = MTLClearColor(red: 0.4, green: 0.4,
+                                             blue: 0.4, alpha: 1)
 
         metalView.delegate = self
 
@@ -69,8 +69,7 @@ final class Renderer: NSObject {
         models.append(terrain)
 
         let cube = Model(name: "Ship", fragment: "fragment_pbr")
-        cube.position = [-1, 0, -50]
-        cube.rotation = [Float(-90).degreesToRadians, 0/*Float(-20).degreesToRadians*/, 0]
+        cube.rotation = [Float(-90).degreesToRadians, Float(-90).degreesToRadians, 0]
         models.append(cube)
 
 
@@ -102,12 +101,15 @@ extension Renderer: MTKViewDelegate {
             return
         }
 
-        delta += 0.000003
+        delta += 0.01
+        for model in models {
+            model.update(with: delta)
+        }
+
         uniforms.deltaTime = delta
         uniforms.projectionMatrix = camera.projectionMatrix
         uniforms.viewMatrix = camera.viewMatrix
         fragmentUniforms.camera_position = camera.position
-
 
         let distributionEncoder = commandBuffer.makeComputeCommandEncoder()!
         fft.generateDistributions(computeEncoder: distributionEncoder, uniforms: uniforms)

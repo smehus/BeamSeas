@@ -23,6 +23,8 @@
 		020FD8C624D4577200B77CF2 /* Common.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020FD8C424D4577200B77CF2 /* Common.swift */; };
 		0217E77324D5C3130082D199 /* gaussian_noise_5.png in Resources */ = {isa = PBXBuildFile; fileRef = 0217E77224D5C3130082D199 /* gaussian_noise_5.png */; };
 		0217E77424D5C3130082D199 /* gaussian_noise_5.png in Resources */ = {isa = PBXBuildFile; fileRef = 0217E77224D5C3130082D199 /* gaussian_noise_5.png */; };
+		0224BEC42515557100ABE59B /* NormalDistributionBridge.mm in Sources */ = {isa = PBXBuildFile; fileRef = 0224BEC22515557100ABE59B /* NormalDistributionBridge.mm */; };
+		0224BEC52515557100ABE59B /* NormalDistributionBridge.mm in Sources */ = {isa = PBXBuildFile; fileRef = 0224BEC22515557100ABE59B /* NormalDistributionBridge.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		022B51E124B0E33B00FC5C81 /* Terrain.metal in Sources */ = {isa = PBXBuildFile; fileRef = 022B51E024B0E33B00FC5C81 /* Terrain.metal */; };
 		022B51E224B0E33B00FC5C81 /* Terrain.metal in Sources */ = {isa = PBXBuildFile; fileRef = 022B51E024B0E33B00FC5C81 /* Terrain.metal */; };
 		022B51E424B1772300FC5C81 /* mountain.png in Resources */ = {isa = PBXBuildFile; fileRef = 022B51E324B1772300FC5C81 /* mountain.png */; };
@@ -101,6 +103,8 @@
 		0299535E249A64D90014228F /* Camera.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0299535C249A64D90014228F /* Camera.swift */; };
 		02995360249A64FD0014228F /* Node.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0299535F249A64FD0014228F /* Node.swift */; };
 		02995361249A64FD0014228F /* Node.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0299535F249A64FD0014228F /* Node.swift */; };
+		029DE52325150DB900064C6B /* NormalDistribution.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 029DE52125150DB900064C6B /* NormalDistribution.cpp */; };
+		029DE52425150DB900064C6B /* NormalDistribution.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 029DE52125150DB900064C6B /* NormalDistribution.cpp */; };
 		02A6CB4924D3728000FBE595 /* Water.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02491ABB24D128100091395A /* Water.swift */; };
 		02A6CB4A24D3728100FBE595 /* Water.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02491ABB24D128100091395A /* Water.swift */; };
 		02D773EF24B7571900811B88 /* PBR.metal in Sources */ = {isa = PBXBuildFile; fileRef = 02D773EE24B7571900811B88 /* PBR.metal */; };
@@ -118,6 +122,8 @@
 		020FD8C124D4575A00B77CF2 /* Distributions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Distributions.swift; sourceTree = "<group>"; };
 		020FD8C424D4577200B77CF2 /* Common.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Common.swift; sourceTree = "<group>"; };
 		0217E77224D5C3130082D199 /* gaussian_noise_5.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = gaussian_noise_5.png; sourceTree = "<group>"; };
+		0224BEC22515557100ABE59B /* NormalDistributionBridge.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = NormalDistributionBridge.mm; sourceTree = "<group>"; };
+		0224BEC32515557100ABE59B /* NormalDistributionBridge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NormalDistributionBridge.h; sourceTree = "<group>"; };
 		022B51E024B0E33B00FC5C81 /* Terrain.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Terrain.metal; sourceTree = "<group>"; };
 		022B51E324B1772300FC5C81 /* mountain.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = mountain.png; sourceTree = "<group>"; };
 		022B51E624B22D2200FC5C81 /* Heightmap_Plateau.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Heightmap_Plateau.png; sourceTree = "<group>"; };
@@ -166,6 +172,8 @@
 		028370F1249AFC83006E8AF3 /* DebugLights.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = DebugLights.metal; sourceTree = "<group>"; };
 		0299535C249A64D90014228F /* Camera.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Camera.swift; sourceTree = "<group>"; };
 		0299535F249A64FD0014228F /* Node.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Node.swift; sourceTree = "<group>"; };
+		029DE52125150DB900064C6B /* NormalDistribution.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = NormalDistribution.cpp; sourceTree = "<group>"; };
+		029DE52225150DB900064C6B /* NormalDistribution.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = NormalDistribution.hpp; sourceTree = "<group>"; };
 		02D773EE24B7571900811B88 /* PBR.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = PBR.metal; sourceTree = "<group>"; };
 		02E46DB124AC2D420055167A /* Terrain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Terrain.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -338,6 +346,10 @@
 				028370F0249AFC83006E8AF3 /* DebugLights.swift */,
 				02419D7E249851C700BCB203 /* Math.swift */,
 				0236A744249D0A6C008F197E /* Texturable.swift */,
+				029DE52125150DB900064C6B /* NormalDistribution.cpp */,
+				029DE52225150DB900064C6B /* NormalDistribution.hpp */,
+				0224BEC32515557100ABE59B /* NormalDistributionBridge.h */,
+				0224BEC22515557100ABE59B /* NormalDistributionBridge.mm */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -511,6 +523,7 @@
 				02419D6E249850C100BCB203 /* Shaders.metal in Sources */,
 				0299535D249A64D90014228F /* Camera.swift in Sources */,
 				02419D58249850C100BCB203 /* ViewControllerExtension.swift in Sources */,
+				0224BEC42515557100ABE59B /* NormalDistributionBridge.mm in Sources */,
 				02482E6B24DC4C750000B762 /* Water.metal in Sources */,
 				02E46DB224AC2D420055167A /* Terrain.swift in Sources */,
 				024B76CF249A8D290030B123 /* Light.swift in Sources */,
@@ -523,6 +536,7 @@
 				020F9868249A7C5900DB4850 /* Extensions.swift in Sources */,
 				020FD8C524D4577200B77CF2 /* Common.swift in Sources */,
 				020F9853249A695900DB4850 /* Mesh.swift in Sources */,
+				029DE52325150DB900064C6B /* NormalDistribution.cpp in Sources */,
 				0236A745249D0A6C008F197E /* Texturable.swift in Sources */,
 				020F9856249A696300DB4850 /* Submesh.swift in Sources */,
 				02995360249A64FD0014228F /* Node.swift in Sources */,
@@ -542,6 +556,7 @@
 				02419D6F249850C100BCB203 /* Shaders.metal in Sources */,
 				0299535E249A64D90014228F /* Camera.swift in Sources */,
 				02419D69249850C100BCB203 /* ViewControllerExtension.swift in Sources */,
+				0224BEC52515557100ABE59B /* NormalDistributionBridge.mm in Sources */,
 				02482E6C24DC4C750000B762 /* Water.metal in Sources */,
 				02E46DB324AC2D420055167A /* Terrain.swift in Sources */,
 				024B76D0249A8D290030B123 /* Light.swift in Sources */,
@@ -554,6 +569,7 @@
 				020F9869249A7C5900DB4850 /* Extensions.swift in Sources */,
 				020FD8C624D4577200B77CF2 /* Common.swift in Sources */,
 				020F9854249A695900DB4850 /* Mesh.swift in Sources */,
+				029DE52425150DB900064C6B /* NormalDistribution.cpp in Sources */,
 				0236A746249D0A6C008F197E /* Texturable.swift in Sources */,
 				020F9857249A696300DB4850 /* Submesh.swift in Sources */,
 				02995361249A64FD0014228F /* Node.swift in Sources */,

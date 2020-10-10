@@ -35,14 +35,13 @@ kernel void compute_height(constant float3 &position [[ buffer(0) ]],
     float2 xy = ((position.xz + terrainParams.size / 2) / terrainParams.size);
 
     // Calculate Height
-    float4 color = heightMap.sample(s, xy);
-    float inverseColor = color.r;//1 - color.r;
-    float height = (inverseColor * 2 - 1) * terrainParams.height;
+    float3 mapValue = heightMap.sample(s, xy).xyz;
+    float height = ((mapValue * 2 - 1) * terrainParams.height).x;
     height_buffer = height;
 
 
     // Calculate Normal
-    xy = ((position.xz + normalMap.get_width() / 2) / normalMap.get_width());
+    xy = ((position.xz + terrainParams.size / 2) / terrainParams.size);
     float4 normal = normalMap.sample(s, xy);
     float4 outNormal = normal;//(normal * 2 - 1) * terrainParams.height;
     normal_buffer = outNormal.rgb;//float3(0.75, 0.0, 0);
@@ -165,9 +164,13 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
 
     float2 xy = ((position.xz + terrainParams.size / 2) / terrainParams.size);
     out.uv = xy;
-
+    // Why was i doing this??
+//    xy.y = 1 - xy.y;
+//    xy = 1 - xy;
 //    xy.x = fmod(xy.x + (uniforms.deltaTime), 1);
 
+//    xy *= terrainParams.size;
+//    float3 heightDisplacement = mix(heightMap.sample(sample, xy + 0.5).xyz, heightMap.sample(sample, xy + 1.0).xyz, 0.5);
     float3 heightDisplacement = heightMap.sample(sample, xy).xyz;
 
 //    float inverseColor = color.r;//1 - color.r;
@@ -182,12 +185,15 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
     // are relevant....
     float3 horizontalDisplacement = heightDisplacement * 2 - 1;
 
-    position.x += (horizontalDisplacement.y);
-    position.z += (horizontalDisplacement.z);
+//    position.x += (horizontalDisplacement.y);
+//    position.z += (horizontalDisplacement.z);
     position.y = height.x;
+    
 
+    float adjustedHeight = heightDisplacement.y;
+//    adjustedHeight = 1 - adjustedHeight;
     out.position = uniforms.projectionMatrix * uniforms.viewMatrix * uniforms.modelMatrix * position;
-    float4 finalColor = float4(height, 1);
+    float4 finalColor = float4(heightDisplacement.y, 0, heightDisplacement.z, 1);
 
     // reference AAPLTerrainRenderer in DynamicTerrainWithArgumentBuffers exmaple: EvaluateTerrainAtLocation line 235 -> EvaluateTerrainAtLocation in AAPLTerrainRendererUtilities line: 91
 //    out.normal = uniforms.normalMatrix * primaryLocalNormal;//mix(primaryLocalNormal, secondarLocalNormal, 0.5);
@@ -197,7 +203,7 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
     float3 normal = uniforms.normalMatrix * normalValue;
 
     out.normal = normal;
-    finalColor += float4(0.1, 0.6, 0.988, 1);
+//    finalColor += float4(0.1, 0.6, 0.988, 1);
     out.color = finalColor;
 
     return out;
@@ -221,11 +227,12 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
     float jacobian = vGradJacobian.z;
     float turbulence = max(2.0 - jacobian + dot(abs(noise_gradient.xy), float2(1.2)), 0.0);
 
-    float color_mod = 1.0 + 3.0 * smoothstep(1.3, 1.8, turbulence);
+    float color_mod = 1.0  * smoothstep(1.3, 1.8, turbulence);
 
     float3 color = float3(0.2, 0.6, 1.0);
     float3 specular = terrainDiffuseLighting(uniforms.normalMatrix * (normalValue * 2.0f - 1.0f), fragment_in.position.xyz, fragmentUniforms, lights, color.rgb);
-    return float4(specular, 0.0);
+    return float4(specular, 1.0);
+//    fragment_in.color.xyz *= 2.0;
 //    return fragment_in.color;
 }
 
@@ -257,9 +264,8 @@ kernel void TerrainKnl_ComputeNormalsFromHeightmap(texture2d<float> height [[tex
 //    float xz_scale = TERRAIN_SCALE / height.get_width();
     float xz_scale = terrain.size.x / height.get_width();
     float y_scale = terrain.height;
-    uint2 altTid = tid;// / 4;
 
-    if (altTid.x + 1 < height.get_width() && altTid.y + 1 < height.get_height()) {
+    if (tid.x < height.get_width() && tid.y < height.get_height()) {
         // I think we can just compute the normals once for each map - pass both maps into the vertex shader
         // And mix the two samples. Don't need to do anything else other than handle the mix between maps & fmod something...
 //        // Which we're already doing in the vertex shader. So I think we can just add an altNormalMap to the vetex shader & use that for secondary shader
