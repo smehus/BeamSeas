@@ -9,6 +9,15 @@
 import Foundation
 import MetalKit
 
+protocol GameViewParent {
+    var inputDelegate: GameViewProtocol? { get set }
+}
+
+protocol GameViewProtocol: class {
+    func keyDown()
+    func keyUp()
+}
+
 class ViewController: LocalViewController {
 
     var renderer: Renderer!
@@ -19,5 +28,19 @@ class ViewController: LocalViewController {
         
         renderer = Renderer(metalView: metalView)
         addGestureRecognizers(to: metalView)
+
+        if var gameView = metalView as? GameViewParent {
+            gameView.inputDelegate = self
+        }
+    }
+}
+
+extension ViewController: GameViewProtocol {
+    func keyUp() {
+        renderer.deltaFactor = .normal
+    }
+
+    func keyDown() {
+        renderer.deltaFactor = .forward
     }
 }

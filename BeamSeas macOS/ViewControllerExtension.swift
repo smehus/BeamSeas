@@ -11,6 +11,23 @@ import MetalKit
 
 // Our macOS specific view controller
 
+class GameView: MTKView, GameViewParent {
+
+    weak var inputDelegate: GameViewProtocol?
+
+    override var acceptsFirstResponder: Bool {
+        return true
+    }
+
+    override func keyDown(with event: NSEvent) {
+        inputDelegate?.keyDown()
+    }
+
+    override func keyUp(with event: NSEvent) {
+        inputDelegate?.keyUp()
+    }
+}
+
 extension ViewController {
     func addGestureRecognizers(to view: NSView) {
         let pan = NSPanGestureRecognizer(target: self, action: #selector(handlePan(gesture:)))
@@ -29,4 +46,5 @@ extension ViewController {
     override func scrollWheel(with event: NSEvent) {
         renderer.camera.zoom(delta: Float(event.deltaY))
     }
+
 }

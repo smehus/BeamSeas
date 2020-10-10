@@ -40,8 +40,14 @@ final class Renderer: NSObject {
     var lighting = Lighting()
     var depthStencilState: MTLDepthStencilState
     var delta: Float = 0
+    var deltaFactor: DeltaFactor = .normal
     var firstRun = true
     var fft: BasicFFT
+
+    enum DeltaFactor: Float {
+        case normal = 0.01
+        case forward = 0.025
+    }
 
     init?(metalView: MTKView) {
         Self.metalView = metalView
@@ -101,7 +107,7 @@ extension Renderer: MTKViewDelegate {
             return
         }
 
-        delta += 0.01
+        delta += deltaFactor.rawValue
         for model in models {
             model.update(with: delta)
         }
