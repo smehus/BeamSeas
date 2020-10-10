@@ -69,7 +69,6 @@ final class Renderer: NSObject {
         models.append(terrain)
 
         let cube = Model(name: "Ship", fragment: "fragment_pbr")
-        cube.position = [-1, 0, -50]
         cube.rotation = [Float(-90).degreesToRadians, 0/*Float(-20).degreesToRadians*/, 0]
         models.append(cube)
 
@@ -102,7 +101,7 @@ extension Renderer: MTKViewDelegate {
             return
         }
 
-        delta += 0.05
+        delta += 0.025
         uniforms.deltaTime = delta
         uniforms.projectionMatrix = camera.projectionMatrix
         uniforms.viewMatrix = camera.viewMatrix

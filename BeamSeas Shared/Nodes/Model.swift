@@ -112,16 +112,17 @@ extension Model: Renderable {
         // transform normal values from between 0 - 1 to -1 - 1
         normalMapValue = ((normalMapValue * 2 - 1))
 
-        var currentDegreeRotation = rotation.y.radiansToDegrees
-        let delta = max(currentDegreeRotation, normalMapValue.x) - min(currentDegreeRotation, normalMapValue.x)
-//        print(normalMapValue.x)
-//        let b = simd_mix(<#T##x: Double##Double#>, <#T##y: Double##Double#>, <#T##t: Double##Double#>)
 
-        if currentDegreeRotation > normalMapValue.x {
+        var currentDegreeRotation = rotation.y.radiansToDegrees
+        let delta = max(currentDegreeRotation, normalMapValue.x.radiansToDegrees) - min(currentDegreeRotation, normalMapValue.x.radiansToDegrees)
+        print("*** current \(currentDegreeRotation) normal \(normalMapValue.x.radiansToDegrees)")
+
+        if currentDegreeRotation > normalMapValue.x.radiansToDegrees {
             currentDegreeRotation -= (delta)
         } else {
             currentDegreeRotation += (delta)
         }
+
 
         rotation.y = currentDegreeRotation.degreesToRadians
 

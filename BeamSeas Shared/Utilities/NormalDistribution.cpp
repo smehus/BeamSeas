@@ -30,8 +30,8 @@ float NormalDistribution::phillips(float x, float y)
 //    float m_prime = y;
 //    svector2 k(M_PI * (2 * n_prime - N) / length, M_PI * (2 * m_prime - N) / length);
     float g = 9.81;
-    float A = 5.0f;
-    svector2 w = svector2(0.0f, 17.0f);
+    float A = 10.0f;
+    svector2 w = svector2(0.0f, 33.0f);
     float k_length  = k.length();
     if (k_length < 0.0000000000001) return 0.0;
 
@@ -45,7 +45,7 @@ float NormalDistribution::phillips(float x, float y)
     float L         = w_length * w_length / g;
     float L2        = L * L;
 
-    float damping   = 0.0000000000001;
+    float damping   = 0.001;
     float l2        = L2 * damping * damping;
 
     return A * exp(-1.0f / (k_length2 * L2)) / k_length4 * k_dot_w2 * exp(-k_length2 * l2);

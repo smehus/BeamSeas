@@ -208,7 +208,7 @@ class BasicFFT: Node {
 
 
                             // 4: Return an array of real values from the FFT result.
-                            let scale = 1 / Float((count))
+                            let scale = 1 / Float((count * 2))
                             return [Float](fromSplitComplex: inverseOutput,
                                            scale: scale,
                                            count: Int(count))

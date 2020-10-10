@@ -41,7 +41,7 @@ kernel void compute_height(constant float3 &position [[ buffer(0) ]],
 
 
     // Calculate Normal
-    xy = ((position.xz + normalMap.get_width() / 2) / normalMap.get_width());
+    xy = ((position.xz + terrainParams.size / 2) / terrainParams.size);
     float4 normal = normalMap.sample(s, xy);
     float4 outNormal = normal;//(normal * 2 - 1) * terrainParams.height;
     normal_buffer = outNormal.rgb;//float3(0.75, 0.0, 0);
