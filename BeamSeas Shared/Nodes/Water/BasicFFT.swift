@@ -234,6 +234,10 @@ class BasicFFT: Node {
 
 extension BasicFFT: Renderable {
 
+    func update(with deltaTime: Float) {
+        
+    }
+
     // Modify the rando's created by 'water'
     func generateDistributions(computeEncoder: MTLComputeCommandEncoder, uniforms: Uniforms) {
         computeEncoder.pushDebugGroup("FFT-Distribution")

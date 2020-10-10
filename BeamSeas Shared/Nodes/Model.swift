@@ -77,30 +77,7 @@ class Model: Node {
 
 extension Model: Renderable {
 
-    func computeHeight(computeEncoder: MTLComputeCommandEncoder,
-                       uniforms: inout Uniforms,
-                       controlPoints: MTLBuffer,
-                       terrainParams: inout TerrainParams) {
-
-        var currentPosition = modelMatrix.columns.3.xyz
-        
-        computeEncoder.setComputePipelineState(heightComputePipelineState)
-        computeEncoder.setBytes(&currentPosition, length: MemoryLayout<float3>.size, index: 0)
-        computeEncoder.setBuffer(controlPoints, offset: 0, index: 1)
-        computeEncoder.setBytes(&terrainParams, length: MemoryLayout<TerrainParams>.stride, index: 2)
-        computeEncoder.setBuffer(heightBuffer, offset: 0, index: 3)
-        computeEncoder.setBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: 4)
-        computeEncoder.setTexture(BasicFFT.heightDisplacementMap, index: 0)
-        computeEncoder.setTexture(BasicFFT.normalMapTexture, index: 2)
-        computeEncoder.setBuffer(normalBuffer, offset: 0, index: 5)
-        computeEncoder.dispatchThreads(MTLSizeMake(1, 1, 1),
-                                       threadsPerThreadgroup: MTLSizeMake(1, 1, 1))
-    }
-
-    func draw(renderEncoder: MTLRenderCommandEncoder, uniforms: inout Uniforms, fragmentUniforms: inout FragmentUniforms) {
-
-
-        renderEncoder.pushDebugGroup("Model")
+    func update(with deltaTime: Float) {
         let heightValue = heightBuffer.contents().bindMemory(to: Float.self, capacity: 1).pointee
         assert(meshes.count == 1)
         let size = meshes.first!.mdlMesh.boundingBox.maxBounds - meshes.first!.mdlMesh.boundingBox.minBounds
@@ -115,7 +92,7 @@ extension Model: Renderable {
 
         var currentDegreeRotation = rotation.y.radiansToDegrees
         let delta = max(currentDegreeRotation, normalMapValue.x.radiansToDegrees) - min(currentDegreeRotation, normalMapValue.x.radiansToDegrees)
-        print("*** current \(currentDegreeRotation) normal \(normalMapValue.x.radiansToDegrees)")
+//        print("*** current \(currentDegreeRotation.degreesToRadians) normal \(normalMapValue.x.radiansToDegrees) delta: \(delta)")
 
         if currentDegreeRotation > normalMapValue.x.radiansToDegrees {
             currentDegreeRotation -= (delta)
@@ -123,8 +100,32 @@ extension Model: Renderable {
             currentDegreeRotation += (delta)
         }
 
-
         rotation.y = currentDegreeRotation.degreesToRadians
+
+    }
+
+    func computeHeight(computeEncoder: MTLComputeCommandEncoder,
+                       uniforms: inout Uniforms,
+                       controlPoints: MTLBuffer,
+                       terrainParams: inout TerrainParams) {
+
+        var currentPosition = modelMatrix.columns.3.xyz
+
+        computeEncoder.setComputePipelineState(heightComputePipelineState)
+        computeEncoder.setBytes(&currentPosition, length: MemoryLayout<float3>.size, index: 0)
+        computeEncoder.setBuffer(controlPoints, offset: 0, index: 1)
+        computeEncoder.setBytes(&terrainParams, length: MemoryLayout<TerrainParams>.stride, index: 2)
+        computeEncoder.setBuffer(heightBuffer, offset: 0, index: 3)
+        computeEncoder.setBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: 4)
+        computeEncoder.setTexture(BasicFFT.heightDisplacementMap, index: 0)
+        computeEncoder.setTexture(BasicFFT.normalMapTexture, index: 2)
+        computeEncoder.setBuffer(normalBuffer, offset: 0, index: 5)
+        computeEncoder.dispatchThreads(MTLSizeMake(1, 1, 1),
+                                       threadsPerThreadgroup: MTLSizeMake(1, 1, 1))
+    }
+
+    func draw(renderEncoder: MTLRenderCommandEncoder, uniforms: inout Uniforms, fragmentUniforms: inout FragmentUniforms) {
+        renderEncoder.pushDebugGroup("Model")
 
         fragmentUniforms.tiling = tiling
         uniforms.modelMatrix = modelMatrix

@@ -9,6 +9,9 @@
 import MetalKit
 
 protocol Renderable {
+
+    func update(with deltaTime: Float)
+
     func compute(
         computeEncoder: MTLComputeCommandEncoder,
         uniforms: inout Uniforms,

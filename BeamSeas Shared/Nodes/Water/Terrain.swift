@@ -138,6 +138,10 @@ class Terrain: Node {
 
 extension Terrain: Renderable {
 
+    func update(with deltaTime: Float) {
+        
+    }
+
     func generateTerrainNormals(computeEncoder: MTLComputeCommandEncoder, uniforms: inout Uniforms) {
 
     }
