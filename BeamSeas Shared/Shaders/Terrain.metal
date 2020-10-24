@@ -160,10 +160,10 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
 
     // Changing this to filter linear smoothes out the texture
     // Which ends up smoothing out the rendering
-    constexpr sampler sample(filter::linear);
+    constexpr sampler sample(filter::linear, address::repeat);
 
     float2 xy = ((position.xz + terrainParams.size / 2) / terrainParams.size);
-    out.uv = xy;
+    out.uv = position.xz;
     // Why was i doing this??
 //    xy.y = 1 - xy.y;
 //    xy = 1 - xy;
@@ -171,7 +171,7 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
 
 //    xy *= terrainParams.size;
 //    float3 heightDisplacement = mix(heightMap.sample(sample, xy + 0.5).xyz, heightMap.sample(sample, xy + 1.0).xyz, 0.5);
-    float3 heightDisplacement = heightMap.sample(sample, xy).xyz;
+    float3 heightDisplacement = heightMap.sample(sample, position.xz).xyz;
 
 //    float inverseColor = color.r;//1 - color.r;
     float3 height = (heightDisplacement * 2 - 1) * terrainParams.height;
@@ -219,7 +219,7 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
 {
 
 
-    constexpr sampler sam(min_filter::linear, mag_filter::linear, mip_filter::nearest);
+    constexpr sampler sam(filter::linear, address::repeat);
     float3 normalValue = normalMap.sample(sam, fragment_in.uv).xzy;
     float3 vGradJacobian = gradientMap.sample(sam, fragment_in.uv).xyz;
     float3 noise_gradient = 0.3 * normalValue;

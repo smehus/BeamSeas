@@ -18,8 +18,8 @@ class Terrain: Node {
     static var primarySlopeMap: MTLTexture!
     static var secondarySlopeMap: MTLTexture!
 
-    static let terrainSize: Float = 256
-
+    private static let terrainSize: Float = 2000
+    // IT DOESN'T WORK - ITS JUST A HUGE MAP
     static var terrainParams = TerrainParams(
         size: [Terrain.terrainSize, Terrain.terrainSize],
         height: 50,
@@ -28,7 +28,7 @@ class Terrain: Node {
     )
 
     static let maxTessellation = 64
-    private static var patchNum = 2
+    private static var patchNum = 16
 
     let patches = (horizontal: Terrain.patchNum, vertical: Terrain.patchNum)
     var patchCount: Int {
@@ -272,7 +272,7 @@ extension Terrain: Renderable {
 
 
 
-//        renderEncoder.setTriangleFillMode(.lines)
+        renderEncoder.setTriangleFillMode(.lines)
         renderEncoder.drawPatches(
             numberOfPatchControlPoints: 4,
             patchStart: 0,
