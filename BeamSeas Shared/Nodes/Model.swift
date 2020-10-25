@@ -10,6 +10,11 @@ import MetalKit
 import Foundation
 import simd
 
+enum ModelMoveState {
+    case forward
+    case stopped
+}
+
 class Model: Node {
 
     static var vertexDescriptor: MDLVertexDescriptor = .defaultVertexDescriptor
@@ -19,6 +24,8 @@ class Model: Node {
     let samplerState: MTLSamplerState?
     var heightBuffer: MTLBuffer
     var normalBuffer: MTLBuffer
+    
+    var moveState: ModelMoveState = .stopped
 
     private let heightComputePipelineState: MTLComputePipelineState
 
@@ -82,6 +89,7 @@ extension Model: Renderable {
         assert(meshes.count == 1)
         let size = meshes.first!.mdlMesh.boundingBox.maxBounds - meshes.first!.mdlMesh.boundingBox.minBounds
         position.y = heightValue + (size.y / 2)
+        print(position.y)
 
         // TODO: - Transfer all this over to gpu
         var normalMapValue = normalBuffer.contents().bindMemory(to: SIMD3<Float>.self, capacity: 1).pointee
@@ -102,13 +110,16 @@ extension Model: Renderable {
 
         rotation.y = currentDegreeRotation.degreesToRadians
 
+        if moveState == .forward {
+            position.x += 0.2
+        }
     }
 
     func computeHeight(computeEncoder: MTLComputeCommandEncoder,
                        uniforms: inout Uniforms,
                        controlPoints: MTLBuffer,
                        terrainParams: inout TerrainParams) {
-
+        
         var currentPosition = modelMatrix.columns.3.xyz
 
         computeEncoder.setComputePipelineState(heightComputePipelineState)

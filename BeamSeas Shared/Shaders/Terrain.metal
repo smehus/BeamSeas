@@ -31,8 +31,8 @@ kernel void compute_height(constant float3 &position [[ buffer(0) ]],
                            device float &height_buffer [[ buffer(3) ]],
                            device float3 &normal_buffer [[ buffer(5) ]])
 {
-    constexpr sampler s(filter::linear);
-    float2 xy = ((position.xz + terrainParams.size / 2) / terrainParams.size);
+    constexpr sampler s(filter::linear, address::repeat);
+    float2 xy = ((position.xz + ((terrainParams.size / 16) / 2) / (terrainParams.size / 16)));
 
     // Calculate Height
     float3 mapValue = heightMap.sample(s, xy).xyz;
@@ -162,7 +162,7 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
     // Which ends up smoothing out the rendering
     constexpr sampler sample(filter::linear, address::repeat);
 
-    float2 xy = ((position.xz + terrainParams.size / 2) / terrainParams.size);
+    float2 xy = ((position.xz + ((terrainParams.size / 16) / 2) / (terrainParams.size / 16)));
     out.uv = position.xz;
     // Why was i doing this??
 //    xy.y = 1 - xy.y;
@@ -171,7 +171,7 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
 
 //    xy *= terrainParams.size;
 //    float3 heightDisplacement = mix(heightMap.sample(sample, xy + 0.5).xyz, heightMap.sample(sample, xy + 1.0).xyz, 0.5);
-    float3 heightDisplacement = heightMap.sample(sample, position.xz).xyz;
+    float3 heightDisplacement = heightMap.sample(sample, xy).xyz;
 
 //    float inverseColor = color.r;//1 - color.r;
     float3 height = (heightDisplacement * 2 - 1) * terrainParams.height;
@@ -193,7 +193,7 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
     float adjustedHeight = heightDisplacement.y;
 //    adjustedHeight = 1 - adjustedHeight;
     out.position = uniforms.projectionMatrix * uniforms.viewMatrix * uniforms.modelMatrix * position;
-    float4 finalColor = float4(heightDisplacement.y, 0, heightDisplacement.z, 1);
+    float4 finalColor = float4(heightDisplacement.x);
 
     // reference AAPLTerrainRenderer in DynamicTerrainWithArgumentBuffers exmaple: EvaluateTerrainAtLocation line 235 -> EvaluateTerrainAtLocation in AAPLTerrainRendererUtilities line: 91
 //    out.normal = uniforms.normalMatrix * primaryLocalNormal;//mix(primaryLocalNormal, secondarLocalNormal, 0.5);
@@ -231,9 +231,9 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
 
     float3 color = float3(0.2, 0.6, 1.0);
     float3 specular = terrainDiffuseLighting(uniforms.normalMatrix * (normalValue * 2.0f - 1.0f), fragment_in.position.xyz, fragmentUniforms, lights, color.rgb);
-    return float4(specular, 1.0);
+//    return float4(specular, 1.0);
 //    fragment_in.color.xyz *= 2.0;
-//    return fragment_in.color;
+    return fragment_in.color;
 }
 
 

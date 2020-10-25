@@ -22,7 +22,7 @@ class Terrain: Node {
     // IT DOESN'T WORK - ITS JUST A HUGE MAP
     static var terrainParams = TerrainParams(
         size: [Terrain.terrainSize, Terrain.terrainSize],
-        height: 50,
+        height: 60,
         maxTessellation: UInt32(Terrain.maxTessellation),
         numberOfPatches: UInt32(Terrain.patchNum * Terrain.patchNum)
     )
@@ -272,7 +272,7 @@ extension Terrain: Renderable {
 
 
 
-        renderEncoder.setTriangleFillMode(.lines)
+//        renderEncoder.setTriangleFillMode(.lines)
         renderEncoder.drawPatches(
             numberOfPatchControlPoints: 4,
             patchStart: 0,
