@@ -21,18 +21,18 @@ final class Renderer: NSObject {
     static var library: MTLLibrary!
 
     lazy var camera: Camera = {
-        /*
+        
         let camera = ArcballCamera()
         camera.distance = 30
         camera.target = [0, 0, -30]
         camera.rotation.x = Float(-10).degreesToRadians
 //        camera.rotation.y = Float(-60).degreesToRadians
- */
+ 
         
-        let camera = ThirdPersonCamera()
-        camera.focus = player
-        camera.focusDistance = 20
-        camera.focusHeight = 10
+//        let camera = ThirdPersonCamera()
+//        camera.focus = player
+//        camera.focusDistance = 20
+//        camera.focusHeight = 10
         return camera
     }()
 

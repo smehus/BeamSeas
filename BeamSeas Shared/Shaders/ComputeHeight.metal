@@ -1,5 +1,5 @@
 //
-//  CalculateHeight.metal
+//  ComputeHeight.metal
 //  BeamSeas
 //
 //  Created by Scott Mehus on 11/15/20.
@@ -21,8 +21,9 @@ kernel void compute_height(constant float3 &position [[ buffer(0) ]],
                            device float3 &normal_buffer [[ buffer(5) ]])
 {
     constexpr sampler s(filter::linear, address::repeat);
-    float2 xy = ((position.xz + ((terrainParams.size / 16) / 2) / (terrainParams.size / 16)));
-
+    float2 xy = ((position.xz + terrainParams.size / 2) / terrainParams.size);
+    xy.x += (uniforms.deltaTime * 0.05);
+    
     // Calculate Height
     float3 mapValue = heightMap.sample(s, xy).xyz;
     float height = ((mapValue * 2 - 1) * terrainParams.height).x;
@@ -30,7 +31,7 @@ kernel void compute_height(constant float3 &position [[ buffer(0) ]],
 
 
     // Calculate Normal
-    xy = ((position.xz + terrainParams.size / 2) / terrainParams.size);
+//    xy = ((position.xz + terrainParams.size / 2) / terrainParams.size);
     float4 normal = normalMap.sample(s, xy);
     float4 outNormal = normal;//(normal * 2 - 1) * terrainParams.height;
     normal_buffer = outNormal.rgb;//float3(0.75, 0.0, 0);
