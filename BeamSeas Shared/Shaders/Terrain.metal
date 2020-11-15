@@ -22,31 +22,6 @@ struct TerrainVertexOut {
     float3 normal;
 };
 
-kernel void compute_height(constant float3 &position [[ buffer(0) ]],
-                           constant float3 *control_points [[ buffer(1) ]],
-                           constant TerrainParams &terrainParams [[ buffer(2) ]],
-                           constant Uniforms &uniforms [[ buffer(4) ]],
-                           texture2d<float> heightMap [[ texture(0) ]],
-                           texture2d<float> normalMap [[ texture(2) ]],
-                           device float &height_buffer [[ buffer(3) ]],
-                           device float3 &normal_buffer [[ buffer(5) ]])
-{
-    constexpr sampler s(filter::linear);
-    float2 xy = ((position.xz + terrainParams.size / 2) / terrainParams.size);
-
-    // Calculate Height
-    float3 mapValue = heightMap.sample(s, xy).xyz;
-    float height = ((mapValue * 2 - 1) * terrainParams.height).x;
-    height_buffer = height;
-
-
-    // Calculate Normal
-    xy = ((position.xz + terrainParams.size / 2) / terrainParams.size);
-    float4 normal = normalMap.sample(s, xy);
-    float4 outNormal = normal;//(normal * 2 - 1) * terrainParams.height;
-    normal_buffer = outNormal.rgb;//float3(0.75, 0.0, 0);
-}
-
 float calc_distance(float3 pointA,
                     float3 pointB,
                     float3 camera_position,

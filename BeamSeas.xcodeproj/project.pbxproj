@@ -95,6 +95,8 @@
 		024B76D0249A8D290030B123 /* Light.swift in Sources */ = {isa = PBXBuildFile; fileRef = 024B76CE249A8D290030B123 /* Light.swift */; };
 		026A999D24B56A2A0002D4EA /* Ship.usdz in Resources */ = {isa = PBXBuildFile; fileRef = 026A999C24B56A2A0002D4EA /* Ship.usdz */; };
 		026A999E24B56A2A0002D4EA /* Ship.usdz in Resources */ = {isa = PBXBuildFile; fileRef = 026A999C24B56A2A0002D4EA /* Ship.usdz */; };
+		0276CF17256196540016910A /* ComputeHeight.metal in Sources */ = {isa = PBXBuildFile; fileRef = 0276CF16256196540016910A /* ComputeHeight.metal */; };
+		0276CF18256196540016910A /* ComputeHeight.metal in Sources */ = {isa = PBXBuildFile; fileRef = 0276CF16256196540016910A /* ComputeHeight.metal */; };
 		028370F2249AFC84006E8AF3 /* DebugLights.swift in Sources */ = {isa = PBXBuildFile; fileRef = 028370F0249AFC83006E8AF3 /* DebugLights.swift */; };
 		028370F3249AFC84006E8AF3 /* DebugLights.swift in Sources */ = {isa = PBXBuildFile; fileRef = 028370F0249AFC83006E8AF3 /* DebugLights.swift */; };
 		028370F4249AFC84006E8AF3 /* DebugLights.metal in Sources */ = {isa = PBXBuildFile; fileRef = 028370F1249AFC83006E8AF3 /* DebugLights.metal */; };
@@ -168,6 +170,7 @@
 		02491AC824D21B170091395A /* BasicFFT.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BasicFFT.swift; sourceTree = "<group>"; };
 		024B76CE249A8D290030B123 /* Light.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Light.swift; sourceTree = "<group>"; };
 		026A999C24B56A2A0002D4EA /* Ship.usdz */ = {isa = PBXFileReference; lastKnownFileType = file.usdz; path = Ship.usdz; sourceTree = SOURCE_ROOT; };
+		0276CF16256196540016910A /* ComputeHeight.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = ComputeHeight.metal; sourceTree = "<group>"; };
 		028370F0249AFC83006E8AF3 /* DebugLights.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DebugLights.swift; sourceTree = "<group>"; };
 		028370F1249AFC83006E8AF3 /* DebugLights.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = DebugLights.metal; sourceTree = "<group>"; };
 		0299535C249A64D90014228F /* Camera.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Camera.swift; sourceTree = "<group>"; };
@@ -290,6 +293,7 @@
 				02419D4A249850BF00BCB203 /* Shaders.metal */,
 				022B51E024B0E33B00FC5C81 /* Terrain.metal */,
 				02482E6A24DC4C750000B762 /* Water.metal */,
+				0276CF16256196540016910A /* ComputeHeight.metal */,
 			);
 			path = Shaders;
 			sourceTree = "<group>";
@@ -533,6 +537,7 @@
 				028370F4249AFC84006E8AF3 /* DebugLights.metal in Sources */,
 				02491AC924D21B170091395A /* BasicFFT.swift in Sources */,
 				02419D7F249851C700BCB203 /* Math.swift in Sources */,
+				0276CF17256196540016910A /* ComputeHeight.metal in Sources */,
 				020F9868249A7C5900DB4850 /* Extensions.swift in Sources */,
 				020FD8C524D4577200B77CF2 /* Common.swift in Sources */,
 				020F9853249A695900DB4850 /* Mesh.swift in Sources */,
@@ -566,6 +571,7 @@
 				028370F5249AFC84006E8AF3 /* DebugLights.metal in Sources */,
 				02491ACA24D21B170091395A /* BasicFFT.swift in Sources */,
 				02419D80249851C700BCB203 /* Math.swift in Sources */,
+				0276CF18256196540016910A /* ComputeHeight.metal in Sources */,
 				020F9869249A7C5900DB4850 /* Extensions.swift in Sources */,
 				020FD8C624D4577200B77CF2 /* Common.swift in Sources */,
 				020F9854249A695900DB4850 /* Mesh.swift in Sources */,
