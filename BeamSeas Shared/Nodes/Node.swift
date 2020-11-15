@@ -76,4 +76,9 @@ class Node {
 
         return translationMatrix * rotationMatrix * scaleMatrix
     }
+    
+    var forwardVector: SIMD3<Float> {
+        return normalize([sin(rotation.y), 0, cos(rotation.y)])
+    }
+
 }

@@ -21,11 +21,18 @@ final class Renderer: NSObject {
     static var library: MTLLibrary!
 
     lazy var camera: Camera = {
+        
         let camera = ArcballCamera()
         camera.distance = 30
         camera.target = [0, 0, -30]
         camera.rotation.x = Float(-10).degreesToRadians
 //        camera.rotation.y = Float(-60).degreesToRadians
+ 
+        
+//        let camera = ThirdPersonCamera()
+//        camera.focus = player
+//        camera.focusDistance = 20
+//        camera.focusHeight = 10
         return camera
     }()
 
@@ -43,6 +50,7 @@ final class Renderer: NSObject {
     var deltaFactor: DeltaFactor = .normal
     var firstRun = true
     var fft: BasicFFT
+    var player: Model!
 
     enum DeltaFactor: Float {
         case normal = 0.01
@@ -69,15 +77,12 @@ final class Renderer: NSObject {
 
         metalView.delegate = self
 
-
-
         let terrain = Terrain()
         models.append(terrain)
 
-        let cube = Model(name: "Ship", fragment: "fragment_pbr")
-        cube.rotation = [Float(-90).degreesToRadians, Float(-90).degreesToRadians, 0]
-        models.append(cube)
-
+        player = Model(name: "Ship", fragment: "fragment_pbr")
+        player.rotation = [Float(-90).degreesToRadians, Float(-90).degreesToRadians, 0]
+        models.append(player)
 
         models.append(fft)
         fragmentUniforms.light_count = UInt32(lighting.count)

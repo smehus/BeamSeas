@@ -37,10 +37,10 @@ class ViewController: LocalViewController {
 
 extension ViewController: GameViewProtocol {
     func keyUp() {
-        renderer.deltaFactor = .normal
+        renderer.player.moveState = .stopped
     }
 
     func keyDown() {
-        renderer.deltaFactor = .forward
+        renderer.player.moveState = .forward
     }
 }
