@@ -84,6 +84,7 @@ class BasicFFT: Node {
         texDesc.width = BasicFFT.distributionSize
         texDesc.height = BasicFFT.distributionSize
         // ooohhhh my god - it was the fucking pixel format
+        // Second time! Changing from 32 bit to 16 bit fixed phone choppiness when moving texture coordinates.
         texDesc.pixelFormat = .rgba16Float
         texDesc.usage = [.shaderRead, .shaderWrite]
         //        texDesc.mipmapLevelCount = Int(log2(Double(max(Terrain.normalMapTexture.width, Terrain.normalMapTexture.height))) + 1);
