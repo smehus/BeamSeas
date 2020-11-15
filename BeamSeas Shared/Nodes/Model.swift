@@ -89,7 +89,7 @@ extension Model: Renderable {
         assert(meshes.count == 1)
         let size = meshes.first!.mdlMesh.boundingBox.maxBounds - meshes.first!.mdlMesh.boundingBox.minBounds
         position.y = heightValue + (size.y / 2)
-        print(position.y)
+//        print(position.y)
 
         // TODO: - Transfer all this over to gpu
         var normalMapValue = normalBuffer.contents().bindMemory(to: SIMD3<Float>.self, capacity: 1).pointee
@@ -124,13 +124,13 @@ extension Model: Renderable {
 
         computeEncoder.setComputePipelineState(heightComputePipelineState)
         computeEncoder.setBytes(&currentPosition, length: MemoryLayout<float3>.size, index: 0)
-        computeEncoder.setBuffer(controlPoints, offset: 0, index: 1)
-        computeEncoder.setBytes(&terrainParams, length: MemoryLayout<TerrainParams>.stride, index: 2)
-        computeEncoder.setBuffer(heightBuffer, offset: 0, index: 3)
-        computeEncoder.setBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: 4)
-        computeEncoder.setTexture(BasicFFT.heightDisplacementMap, index: 0)
-        computeEncoder.setTexture(BasicFFT.normalMapTexture, index: 2)
-        computeEncoder.setBuffer(normalBuffer, offset: 0, index: 5)
+//        computeEncoder.setBuffer(controlPoints, offset: 0, index: 1)
+//        computeEncoder.setBytes(&terrainParams, length: MemoryLayout<TerrainParams>.stride, index: 2)
+//        computeEncoder.setBuffer(heightBuffer, offset: 0, index: 3)
+//        computeEncoder.setBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: 4)
+//        computeEncoder.setTexture(BasicFFT.heightDisplacementMap, index: 0)
+//        computeEncoder.setTexture(BasicFFT.normalMapTexture, index: 2)
+//        computeEncoder.setBuffer(normalBuffer, offset: 0, index: 5)
         computeEncoder.dispatchThreads(MTLSizeMake(1, 1, 1),
                                        threadsPerThreadgroup: MTLSizeMake(1, 1, 1))
     }

@@ -21,8 +21,16 @@ extension ViewController {
         let pinch = UIPinchGestureRecognizer(target: self,
                                              action: #selector(handlePinch(gesture:)))
         view.addGestureRecognizer(pinch)
+        
+        let hold = UILongPressGestureRecognizer(target: self,
+                                                action: #selector(handleHold(gesture:)))
+        view.addGestureRecognizer(hold)
     }
 
+    @objc func handleHold(gesture: UILongPressGestureRecognizer) {
+        renderer?.player.moveState = .forward
+    }
+    
     @objc func handlePan(gesture: UIPanGestureRecognizer) {
         let translation = gesture.translation(in: gesture.view)
         let delta = float2(Float(translation.x),

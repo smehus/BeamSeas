@@ -21,18 +21,17 @@ final class Renderer: NSObject {
     static var library: MTLLibrary!
 
     lazy var camera: Camera = {
-        /*
         let camera = ArcballCamera()
         camera.distance = 30
         camera.target = [0, 0, -30]
         camera.rotation.x = Float(-10).degreesToRadians
 //        camera.rotation.y = Float(-60).degreesToRadians
- */
+
         
-        let camera = ThirdPersonCamera()
-        camera.focus = player
-        camera.focusDistance = 20
-        camera.focusHeight = 10
+//        let camera = ThirdPersonCamera()
+//        camera.focus = player
+//        camera.focusDistance = 20
+//        camera.focusHeight = 10
         return camera
     }()
 
@@ -49,11 +48,11 @@ final class Renderer: NSObject {
     var delta: Float = 0
     var deltaFactor: DeltaFactor = .normal
     var firstRun = true
-    var fft: BasicFFT
+//    var fft: BasicFFT
     var player: Model!
 
     enum DeltaFactor: Float {
-        case normal = 0.01
+        case normal = 0.06
         case forward = 0.025
     }
 
@@ -68,7 +67,7 @@ final class Renderer: NSObject {
 
         depthStencilState = Self.buildDepthStencilState()
 
-        fft = BasicFFT()
+//        fft = BasicFFT()
 
         super.init()
 
@@ -77,14 +76,14 @@ final class Renderer: NSObject {
 
         metalView.delegate = self
 
-        let terrain = Terrain()
-        models.append(terrain)
+//        let terrain = Terrain()
+//        models.append(terrain)
 
         player = Model(name: "Ship", fragment: "fragment_pbr")
         player.rotation = [Float(-90).degreesToRadians, Float(-90).degreesToRadians, 0]
         models.append(player)
 
-        models.append(fft)
+//        models.append(fft)
         fragmentUniforms.light_count = UInt32(lighting.count)
 
         mtkView(metalView, drawableSizeWillChange: metalView.bounds.size)
@@ -121,43 +120,43 @@ extension Renderer: MTKViewDelegate {
         uniforms.projectionMatrix = camera.projectionMatrix
         uniforms.viewMatrix = camera.viewMatrix
         fragmentUniforms.camera_position = camera.position
-
-        let distributionEncoder = commandBuffer.makeComputeCommandEncoder()!
-        fft.generateDistributions(computeEncoder: distributionEncoder, uniforms: uniforms)
-        distributionEncoder.endEncoding()
-
-        fft.runfft(phase: delta)
-
-        let mapEncoder = commandBuffer.makeComputeCommandEncoder()!
-        fft.generateMaps(computeEncoder: mapEncoder, uniforms: &uniforms)
-        mapEncoder.endEncoding()
-
-
-        let gradientEncoder = commandBuffer.makeComputeCommandEncoder()!
-        fft.generateGradient(computeEncoder: gradientEncoder, uniforms: &uniforms)
-        gradientEncoder.endEncoding()
-
-        let normalEncoder = commandBuffer.makeComputeCommandEncoder()!
-        fft.generateTerrainNormals(computeEncoder: normalEncoder, uniforms: &uniforms)
-        normalEncoder.endEncoding()
+//
+//        let distributionEncoder = commandBuffer.makeComputeCommandEncoder()!
+//        fft.generateDistributions(computeEncoder: distributionEncoder, uniforms: uniforms)
+//        distributionEncoder.endEncoding()
+//
+//        fft.runfft(phase: delta)
+//
+//        let mapEncoder = commandBuffer.makeComputeCommandEncoder()!
+//        fft.generateMaps(computeEncoder: mapEncoder, uniforms: &uniforms)
+//        mapEncoder.endEncoding()
+//
+//
+//        let gradientEncoder = commandBuffer.makeComputeCommandEncoder()!
+//        fft.generateGradient(computeEncoder: gradientEncoder, uniforms: &uniforms)
+//        gradientEncoder.endEncoding()
+//
+//        let normalEncoder = commandBuffer.makeComputeCommandEncoder()!
+//        fft.generateTerrainNormals(computeEncoder: normalEncoder, uniforms: &uniforms)
+//        normalEncoder.endEncoding()
 
 
         // Terrain Pass \\
 
-        let computeEncoder = commandBuffer.makeComputeCommandEncoder()!
-        computeEncoder.pushDebugGroup("Tessellation")
-        computeEncoder.setBytes(
-            &fragmentUniforms,
-            length: MemoryLayout<FragmentUniforms>.stride,
-            index: BufferIndex.fragmentUniforms.rawValue
-        )
-
-        for model in models {
-            model.compute(computeEncoder: computeEncoder, uniforms: &uniforms, fragmentUniforms: &fragmentUniforms)
-        }
-
-        computeEncoder.popDebugGroup()
-        computeEncoder.endEncoding()
+//        let computeEncoder = commandBuffer.makeComputeCommandEncoder()!
+//        computeEncoder.pushDebugGroup("Tessellation")
+//        computeEncoder.setBytes(
+//            &fragmentUniforms,
+//            length: MemoryLayout<FragmentUniforms>.stride,
+//            index: BufferIndex.fragmentUniforms.rawValue
+//        )
+//
+//        for model in models {
+//            model.compute(computeEncoder: computeEncoder, uniforms: &uniforms, fragmentUniforms: &fragmentUniforms)
+//        }
+//
+//        computeEncoder.popDebugGroup()
+//        computeEncoder.endEncoding()
 
 
         // Height pass \\
@@ -167,7 +166,7 @@ extension Renderer: MTKViewDelegate {
             model.computeHeight(
                 computeEncoder: computeHeightEncoder,
                 uniforms: &uniforms,
-                controlPoints: Terrain.controlPointsBuffer,
+                controlPoints: Renderer.device.makeBuffer(length: MemoryLayout<TerrainParams>.size, options: .storageModePrivate) as! MTLBuffer,
                 terrainParams: &Terrain.terrainParams)
         }
 
@@ -175,23 +174,23 @@ extension Renderer: MTKViewDelegate {
         computeHeightEncoder.endEncoding()
 
         // Render Pass \\
-        let renderEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: descriptor)!
-        renderEncoder.setDepthStencilState(depthStencilState)
+//        let renderEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: descriptor)!
+//        renderEncoder.setDepthStencilState(depthStencilState)
 
-        var lights = lighting.lights
-        renderEncoder.setFragmentBytes(&lights, length: MemoryLayout<Light>.stride * lights.count, index: BufferIndex.lights.rawValue)
+//        var lights = lighting.lights
+//        renderEncoder.setFragmentBytes(&lights, length: MemoryLayout<Light>.stride * lights.count, index: BufferIndex.lights.rawValue)
 
-        for model in models {
-            uniforms.deltaTime = delta
-            uniforms.projectionMatrix = camera.projectionMatrix
-            uniforms.viewMatrix = camera.viewMatrix
-            fragmentUniforms.camera_position = camera.position
-            model.draw(renderEncoder: renderEncoder, uniforms: &uniforms, fragmentUniforms: &fragmentUniforms)
-        }
+//        for model in models {
+//            uniforms.deltaTime = delta
+//            uniforms.projectionMatrix = camera.projectionMatrix
+//            uniforms.viewMatrix = camera.viewMatrix
+//            fragmentUniforms.camera_position = camera.position
+//            model.draw(renderEncoder: renderEncoder, uniforms: &uniforms, fragmentUniforms: &fragmentUniforms)
+//        }
 
         
-        debugLights(renderEncoder: renderEncoder, lightType: Sunlight)
-        renderEncoder.endEncoding()
+//        debugLights(renderEncoder: renderEncoder, lightType: Sunlight)
+//        renderEncoder.endEncoding()
         if let drawable = view.currentDrawable {
             commandBuffer.present(drawable)
         }
