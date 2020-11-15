@@ -35,3 +35,28 @@ kernel void compute_height(constant float3 &position [[ buffer(0) ]],
     float4 outNormal = normal;//(normal * 2 - 1) * terrainParams.height;
     normal_buffer = outNormal.rgb;//float3(0.75, 0.0, 0);
 }
+
+/*
+float u = patch_coord.x;
+float v = patch_coord.y;
+float2 top = mix(control_points[0].position.xz,
+                 control_points[1].position.xz,
+                 u);
+float2 bottom = mix(control_points[3].position.xz,
+                    control_points[2].position.xz,
+                    u);
+
+float2 interpolated = mix(top, bottom, v);
+float4 position = float4(interpolated.x, 0.0, interpolated.y, 1.0);
+
+constexpr sampler sample(filter::linear, address::repeat);
+
+float2 xy = ((position.xz + ((terrainParams.size / 16) / 2) / (terrainParams.size / 16)));
+out.uv = position.xz;
+
+float3 heightDisplacement = heightMap.sample(sample, xy).xyz;
+
+float3 height = (heightDisplacement * 2 - 1) * terrainParams.height;
+float3 horizontalDisplacement = heightDisplacement * 2 - 1;
+position.y = height.x;
+*/
