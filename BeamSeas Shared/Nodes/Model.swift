@@ -88,8 +88,7 @@ extension Model: Renderable {
         let heightValue = heightBuffer.contents().bindMemory(to: Float.self, capacity: 1).pointee
         assert(meshes.count == 1)
         let size = meshes.first!.mdlMesh.boundingBox.maxBounds - meshes.first!.mdlMesh.boundingBox.minBounds
-        position.y = heightValue + (size.y / 2)
-        print(position.y)
+        position.y = heightValue //+ (size.y * 0.3)
 
         // TODO: - Transfer all this over to gpu
         var normalMapValue = normalBuffer.contents().bindMemory(to: SIMD3<Float>.self, capacity: 1).pointee
@@ -100,7 +99,6 @@ extension Model: Renderable {
 
         var currentDegreeRotation = rotation.y.radiansToDegrees
         let delta = max(currentDegreeRotation, normalMapValue.x.radiansToDegrees) - min(currentDegreeRotation, normalMapValue.x.radiansToDegrees)
-//        print("*** current \(currentDegreeRotation.degreesToRadians) normal \(normalMapValue.x.radiansToDegrees) delta: \(delta)")
 
         if currentDegreeRotation > normalMapValue.x.radiansToDegrees {
             currentDegreeRotation -= (delta)
@@ -110,9 +108,6 @@ extension Model: Renderable {
 
         rotation.y = currentDegreeRotation.degreesToRadians
 
-        if moveState == .forward {
-            position.x += 0.2
-        }
     }
 
     func computeHeight(computeEncoder: MTLComputeCommandEncoder,
