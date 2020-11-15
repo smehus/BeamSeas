@@ -22,7 +22,7 @@ kernel void compute_height(constant float3 &position [[ buffer(0) ]],
 {
     constexpr sampler s(filter::linear, address::repeat);
     float2 xy = ((position.xz + terrainParams.size / 2) / terrainParams.size);
-    xy.x += (uniforms.deltaTime * 0.05);
+//    xy += uniforms.playerMovement.xz;
     
     // Calculate Height
     float3 mapValue = heightMap.sample(s, xy).xyz;

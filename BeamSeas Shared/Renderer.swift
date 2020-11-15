@@ -23,8 +23,8 @@ final class Renderer: NSObject {
     lazy var camera: Camera = {
         
         let camera = ArcballCamera()
-        camera.distance = 30
-        camera.target = [0, 0, -30]
+        camera.distance = 80
+        camera.target = [0, 0, -80]
         camera.rotation.x = Float(-10).degreesToRadians
 //        camera.rotation.y = Float(-60).degreesToRadians
  
@@ -51,6 +51,7 @@ final class Renderer: NSObject {
     var firstRun = true
     var fft: BasicFFT
     var player: Model!
+    var playerDelta: Float = 0
 
     enum DeltaFactor: Float {
         case normal = 0.01
@@ -112,7 +113,8 @@ extension Renderer: MTKViewDelegate {
             return
         }
 
-        delta += Float(Float(1) / Float(view.preferredFramesPerSecond))//deltaFactor.rawValue
+        let fps = Float(Float(1) / Float(view.preferredFramesPerSecond))
+        delta += fps
         for model in models {
             model.update(with: delta)
         }
@@ -181,6 +183,16 @@ extension Renderer: MTKViewDelegate {
         var lights = lighting.lights
         renderEncoder.setFragmentBytes(&lights, length: MemoryLayout<Light>.stride * lights.count, index: BufferIndex.lights.rawValue)
 
+
+        if player.moveState == .forward {
+            playerDelta += fps
+            uniforms.playerMovement = (playerDelta + player.forwardVector) * 0.07
+        } else {
+            uniforms.playerMovement = (playerDelta + float3(0, 0, 0)) * 0.07
+        }
+        
+        
+        
         for model in models {
             uniforms.deltaTime = delta
             uniforms.projectionMatrix = camera.projectionMatrix

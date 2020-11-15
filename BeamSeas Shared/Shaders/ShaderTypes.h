@@ -60,6 +60,7 @@ typedef struct
     matrix_float4x4 modelMatrix;
     matrix_float3x3 normalMatrix;
     float deltaTime;
+    vector_float3 playerMovement;
 } Uniforms;
 
 typedef struct
