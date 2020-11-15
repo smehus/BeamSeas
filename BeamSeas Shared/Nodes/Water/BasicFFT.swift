@@ -25,6 +25,7 @@ class BasicFFT: Node {
 
 
     static let distributionSize: Int = 128
+    static let tileSize: Float = 256
 
     private var signalCount: Int = 0
 
@@ -125,7 +126,7 @@ class BasicFFT: Node {
             amplitude: Float(BasicFFT.amplitude),
 //            wind_velocity: BasicFFT.wind_velocity,
             resolution: SIMD2<Int>(x: BasicFFT.distributionSize, y: BasicFFT.distributionSize),
-            size: float2(x: Terrain.terrainSize, y: Terrain.terrainSize),
+            size: float2(x: BasicFFT.tileSize, y: BasicFFT.tileSize),
             normalmap_freq_mod: float2(repeating: 1)
         )
 
@@ -246,7 +247,7 @@ extension BasicFFT: Renderable {
             amplitude: Float(BasicFFT.amplitude),
 //            wind_velocity: vector_float2(x: BasicFFT.wind_velocity.x, y: BasicFFT.wind_velocity.y),
             resolution: vector_uint2(x: BasicFFT.distributionSize.unsigned, y: BasicFFT.distributionSize.unsigned),
-            size: vector_float2(x: Terrain.terrainSize, y: Terrain.terrainSize),
+            size: vector_float2(x: BasicFFT.tileSize, y: BasicFFT.tileSize),
             normalmap_freq_mod: vector_float2(repeating: 7.3),
             seed: seed
         )
@@ -352,10 +353,10 @@ extension BasicFFT: Renderable {
         computeEncoder.setBytes(&invSize, length: MemoryLayout<SIMD4<Float>>.stride, index: 0)
 
         var uScale = float4(
-            x: Float(BasicFFT.distributionSize) / Terrain.terrainSize,
-            y: Float(BasicFFT.distributionSize) / Terrain.terrainSize,
-            z: (Float(BasicFFT.distributionSize >> 1)) / Terrain.terrainSize,
-            w: (Float(BasicFFT.distributionSize >> 1)) / Terrain.terrainSize
+            x: Float(BasicFFT.distributionSize) / BasicFFT.tileSize,
+            y: Float(BasicFFT.distributionSize) / BasicFFT.tileSize,
+            z: (Float(BasicFFT.distributionSize >> 1)) / BasicFFT.tileSize,
+            w: (Float(BasicFFT.distributionSize >> 1)) / BasicFFT.tileSize
         )
 
         computeEncoder.setBytes(&uScale, length: MemoryLayout<SIMD4<Float>>.stride, index: 1)

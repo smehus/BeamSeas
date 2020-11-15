@@ -160,7 +160,7 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
 
     // Changing this to filter linear smoothes out the texture
     // Which ends up smoothing out the rendering
-    constexpr sampler sample(filter::linear);
+    constexpr sampler sample(filter::linear, address::repeat);
 
     float2 xy = ((position.xz + terrainParams.size / 2) / terrainParams.size);
     out.uv = xy;
@@ -171,7 +171,7 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
 
 //    xy *= terrainParams.size;
 //    float3 heightDisplacement = mix(heightMap.sample(sample, xy + 0.5).xyz, heightMap.sample(sample, xy + 1.0).xyz, 0.5);
-    float3 heightDisplacement = heightMap.sample(sample, xy).xyz;
+    float3 heightDisplacement = heightMap.sample(sample, xy * terrainParams.numberOfPatches).xyz;
 
 //    float inverseColor = color.r;//1 - color.r;
     float3 height = (heightDisplacement * 2 - 1) * terrainParams.height;
@@ -193,7 +193,7 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
     float adjustedHeight = heightDisplacement.y;
 //    adjustedHeight = 1 - adjustedHeight;
     out.position = uniforms.projectionMatrix * uniforms.viewMatrix * uniforms.modelMatrix * position;
-    float4 finalColor = float4(heightDisplacement.y, 0, heightDisplacement.z, 1);
+    float4 finalColor = float4(height.x);
 
     // reference AAPLTerrainRenderer in DynamicTerrainWithArgumentBuffers exmaple: EvaluateTerrainAtLocation line 235 -> EvaluateTerrainAtLocation in AAPLTerrainRendererUtilities line: 91
 //    out.normal = uniforms.normalMatrix * primaryLocalNormal;//mix(primaryLocalNormal, secondarLocalNormal, 0.5);

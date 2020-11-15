@@ -45,7 +45,7 @@ final class Renderer: NSObject {
     var fft: BasicFFT
 
     enum DeltaFactor: Float {
-        case normal = 0.01
+        case normal = 0.03
         case forward = 0.025
     }
 
