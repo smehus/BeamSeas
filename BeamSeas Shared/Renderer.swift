@@ -112,7 +112,7 @@ extension Renderer: MTKViewDelegate {
             return
         }
 
-        delta += deltaFactor.rawValue
+        delta += Float(Float(1) / Float(view.preferredFramesPerSecond))//deltaFactor.rawValue
         for model in models {
             model.update(with: delta)
         }

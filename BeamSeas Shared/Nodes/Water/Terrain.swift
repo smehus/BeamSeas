@@ -18,7 +18,7 @@ class Terrain: Node {
     static var primarySlopeMap: MTLTexture!
     static var secondarySlopeMap: MTLTexture!
 
-    static let terrainSize: Float = 256
+    static let terrainSize: Float = 128
     
     static var terrainParams = TerrainParams(
         size: [Terrain.terrainSize, Terrain.terrainSize],
@@ -27,20 +27,23 @@ class Terrain: Node {
         numberOfPatches: UInt32(Terrain.patchNum * Terrain.patchNum)
     )
 
-    static let maxTessellation = 64
-    private static var patchNum = 2
+    static let maxTessellation = 16
+    private static var patchNum = 8
 
     let patches = (horizontal: Terrain.patchNum, vertical: Terrain.patchNum)
     var patchCount: Int {
         return patches.horizontal * patches.vertical
     }
+    
+    static let edgeFactors: Float = 8
+    static let insideFactors: Float = 8
 
-    var edgeFactors: [Float] = [16]
-    var insideFactors: [Float] = [16]
+    var edgeFactors: [Float] = [Terrain.edgeFactors]
+    var insideFactors: [Float] = [Terrain.insideFactors]
     var allPatches: [Patch] = []
 
     lazy var tessellationFactorsBuffer: MTLBuffer? = {
-        let count = patchCount * (16 + 16)
+        let count = patchCount * Int(Terrain.edgeFactors + Terrain.insideFactors)
         let size = count * MemoryLayout<Float>.size / 2
         return Renderer.device.makeBuffer(length: size, options: .storageModePrivate)
     }()

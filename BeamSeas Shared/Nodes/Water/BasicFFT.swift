@@ -84,7 +84,7 @@ class BasicFFT: Node {
         texDesc.width = BasicFFT.distributionSize
         texDesc.height = BasicFFT.distributionSize
         // ooohhhh my god - it was the fucking pixel format
-        texDesc.pixelFormat = .rgba32Float
+        texDesc.pixelFormat = .rgba16Float
         texDesc.usage = [.shaderRead, .shaderWrite]
         //        texDesc.mipmapLevelCount = Int(log2(Double(max(Terrain.normalMapTexture.width, Terrain.normalMapTexture.height))) + 1);
         texDesc.storageMode = .private
