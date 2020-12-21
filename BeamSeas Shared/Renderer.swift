@@ -81,8 +81,9 @@ final class Renderer: NSObject {
         let terrain = Terrain()
         models.append(terrain)
 
-        player = Model(name: "Ship", fragment: "fragment_pbr")
-        player.rotation = [Float(-90).degreesToRadians, Float(-90).degreesToRadians, 0]
+        player = Model(name: "OldBoat", fragment: "fragment_pbr")
+        player.scale = [0.5, 0.5, 0.5]
+//        player.rotation = [0, Float(90).degreesToRadians, 0]
         models.append(player)
 
         models.append(fft)
@@ -183,13 +184,18 @@ extension Renderer: MTKViewDelegate {
         var lights = lighting.lights
         renderEncoder.setFragmentBytes(&lights, length: MemoryLayout<Light>.stride * lights.count, index: BufferIndex.lights.rawValue)
 
+        playerDelta += fps
+        // player forward vector is weird
+        // player delta is being added to each float in vector
+        uniforms.playerMovement = (playerDelta + float3(1, 0, 0))// * 0.07
 
-        if player.moveState == .forward {
-            playerDelta += fps
-            uniforms.playerMovement = (playerDelta + player.forwardVector) * 0.07
-        } else {
-            uniforms.playerMovement = (playerDelta + float3(0, 0, 0)) * 0.07
-        }
+//        if player.moveState == .forward {
+//            playerDelta += fps
+//            // player forward vector is weird
+//            uniforms.playerMovement = (playerDelta + float3(1, 0, 0))// * 0.07
+//        } else {
+//            uniforms.playerMovement = (playerDelta + float3(0, 0, 0)) * 0.07
+//        }
         
         
         

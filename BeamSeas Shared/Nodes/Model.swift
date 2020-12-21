@@ -26,11 +26,12 @@ class Model: Node {
     var normalBuffer: MTLBuffer
     
     var moveState: ModelMoveState = .stopped
+    var rotationMatarix: float4x4 = .identity()
 
     private let heightComputePipelineState: MTLComputePipelineState
 
     init(name: String, fragment: String) {
-        guard let assetURL = Bundle.main.url(forResource: name, withExtension: "usdz") else { fatalError("Model: \(name) not found")  }
+        guard let assetURL = Bundle.main.url(forResource: name, withExtension: "obj") else { fatalError("Model: \(name) not found")  }
 
         let allocator = MTKMeshBufferAllocator(device: Renderer.device)
         let asset = MDLAsset(
@@ -96,18 +97,22 @@ extension Model: Renderable {
         // transform normal values from between 0 - 1 to -1 - 1
         normalMapValue = ((normalMapValue * 2 - 1))
 
+        let rot = float4x4(rotation: normalMapValue)
+        let quat = simd_quatf(rot)
+        rotationMatarix = float4x4(quat)
 
-        var currentDegreeRotation = rotation.y.radiansToDegrees
-        let delta = max(currentDegreeRotation, normalMapValue.x.radiansToDegrees) - min(currentDegreeRotation, normalMapValue.x.radiansToDegrees)
-
-        if currentDegreeRotation > normalMapValue.x.radiansToDegrees {
-            currentDegreeRotation -= (delta)
-        } else {
-            currentDegreeRotation += (delta)
-        }
-
-        rotation.y = currentDegreeRotation.degreesToRadians
-
+//        var currentDegreeRotation = float2(rotation.x, rotation.z)
+//
+//        let delta = max(currentDegreeRotation,
+//                        float2(normalMapValue.x.radiansToDegrees, normalMapValue.z.radiansToDegrees)) -
+//                        min(currentDegreeRotation, float2(normalMapValue.x.radiansToDegrees, normalMapValue.z.radiansToDegrees))
+//
+//
+//        currentDegreeRotation = float2(normalMapValue.x.radiansToDegrees, normalMapValue.z.radiansToDegrees)
+//
+//
+//
+//        rotation = float3(currentDegreeRotation.x.degreesToRadians, rotation.y, currentDegreeRotation.y.degreesToRadians)
     }
 
     func computeHeight(computeEncoder: MTLComputeCommandEncoder,
@@ -154,6 +159,12 @@ extension Model: Renderable {
             &Terrain.terrainParams,
             length: MemoryLayout<TerrainParams>.stride,
             index: BufferIndex.terrainParams.rawValue
+        )
+        
+        renderEncoder.setVertexBytes(
+            &rotationMatarix,
+            length: MemoryLayout<float4x4>.size,
+            index: 30
         )
 
         renderEncoder.setVertexTexture(

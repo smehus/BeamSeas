@@ -37,6 +37,7 @@ struct VertexOut {
 };
 
 vertex VertexOut vertex_main(const VertexIn vertex_in [[ stage_in ]],
+                             constant float4x4 &normalRot [[ buffer(30) ]],
                              constant TerrainParams &terrain [[ buffer(BufferIndexTerrainParams) ]],
                              texture2d<float> terrainNormalMap [[ texture(TextureIndexNormal) ]],
                              texture2d<float> primarySlopMap [[ texture(TextureIndexPrimarySlope) ]],
@@ -83,7 +84,7 @@ vertex VertexOut vertex_main(const VertexIn vertex_in [[ stage_in ]],
     float4x4 slopeModelVertex = uniforms.modelMatrix * modelMatrix;
 
     // I forget why I was calculating the slop here... maybe for white cap things. 
-    out.position = uniforms.projectionMatrix * uniforms.viewMatrix * uniforms.modelMatrix * vertex_in.position;
+    out.position = uniforms.projectionMatrix * uniforms.viewMatrix * uniforms.modelMatrix * normalRot * vertex_in.position;
     out.worldPosition = (uniforms.modelMatrix * vertex_in.position).xyz;
     out.worldNormal = uniforms.normalMatrix * vertex_in.normal;
     out.uv = vertex_in.uv;
