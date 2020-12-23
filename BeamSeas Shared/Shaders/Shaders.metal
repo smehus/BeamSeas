@@ -38,6 +38,7 @@ struct VertexOut {
 
 vertex VertexOut vertex_main(const VertexIn vertex_in [[ stage_in ]],
                              constant float4x4 &normalRot [[ buffer(30) ]],
+                             constant float4x4 &forwardMatrix [[ buffer(29) ]],
                              constant TerrainParams &terrain [[ buffer(BufferIndexTerrainParams) ]],
                              texture2d<float> terrainNormalMap [[ texture(TextureIndexNormal) ]],
                              texture2d<float> primarySlopMap [[ texture(TextureIndexPrimarySlope) ]],

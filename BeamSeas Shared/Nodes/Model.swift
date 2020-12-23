@@ -96,10 +96,26 @@ extension Model: Renderable {
 
         // transform normal values from between 0 - 1 to -1 - 1
         normalMapValue = ((normalMapValue * 2 - 1))
+        
+        var tangent0 = cross(normalMapValue, forwardVector)
+        tangent0 = normalize(tangent0)
+        let tangent1 = normalize(cross(normalMapValue, tangent0))
+        
+        // google "normal to rotation matrix"
+        var rotMat = float4x4.identity()
+        rotMat.columns.0.xyz = tangent0
+        rotMat.columns.1.xyz = tangent1
+        rotMat.columns.2.xyz = normalMapValue
+        rotationMatarix = rotMat
 
-        let rot = float4x4(rotation: normalMapValue)
-        let quat = simd_quatf(rot)
-        rotationMatarix = float4x4(quat)
+//        let rot = float4x4(rotation: float3(normalMapValue.x, rotation.y, normalMapValue.z))
+//        let quat = simd_quatf(rot)
+//        rotationMatarix = float4x4(quat)
+        
+        
+//        let center = normalMapValue
+//        let lookAt = float4x4(eye: position, center: float3(center.z, rotation.y, center.x), up: [0, 1, 0])
+//        rotationMatarix = lookAt
 
 //        var currentDegreeRotation = float2(rotation.x, rotation.z)
 //
@@ -166,7 +182,17 @@ extension Model: Renderable {
             length: MemoryLayout<float4x4>.size,
             index: 30
         )
+        
+        let rot = float4x4(rotation: forwardVector)
+        let quat = simd_quatf(rot)
+        var forwardMatrix = float4x4(quat)
 
+        renderEncoder.setVertexBytes(
+            &forwardMatrix,
+            length: MemoryLayout<float4x4>.size,
+            index: 29
+        )
+        
         renderEncoder.setVertexTexture(
             Terrain.primarySlopeMap,
             index: TextureIndex.primarySlope.rawValue
