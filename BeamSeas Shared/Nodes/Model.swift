@@ -106,7 +106,9 @@ extension Model: Renderable {
         rotMat.columns.0.xyz = tangent0
         rotMat.columns.1.xyz = tangent1
         rotMat.columns.2.xyz = normalMapValue
-        rotationMatarix = rotMat
+        let normalQuat = simd_quatf(rotMat)
+        let slerp = simd_slerp(quaternion, normalQuat, 1.0)
+        rotationMatarix = float4x4(slerp)
 
 //        let rot = float4x4(rotation: float3(normalMapValue.x, rotation.y, normalMapValue.z))
 //        let quat = simd_quatf(rot)

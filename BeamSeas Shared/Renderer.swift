@@ -82,7 +82,7 @@ final class Renderer: NSObject {
         models.append(terrain)
 
         player = Model(name: "OldBoat", fragment: "fragment_pbr")
-        player.scale = [0.5, 0.5, 0.5]
+//        player.scale = [0.5, 0.5, 0.5]
 //        player.rotation = [0, Float(90).degreesToRadians, 0]
         models.append(player)
 
