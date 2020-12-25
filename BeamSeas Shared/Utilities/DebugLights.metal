@@ -46,7 +46,7 @@ vertex VertexOut vertex_light(constant float3 *vertices [[ buffer(0) ]],
   matrix_float4x4 mvp = uniforms.projectionMatrix * uniforms.viewMatrix * uniforms.modelMatrix;
   VertexOut out {
     .position = mvp * float4(vertices[id], 1),
-    .point_size = 20.0
+    .point_size = 100.0
   };
   return out;
 }

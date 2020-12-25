@@ -16,8 +16,17 @@ enum ModelMoveState {
 }
 
 class Model: Node {
+    
+    override var modelMatrix: float4x4 {
+        let translationMatrix = float4x4(translation: position)
+        let scaleMatrix = float4x4(scaling: scale)
+
+        return translationMatrix * rotationMatarix * scaleMatrix
+    }
 
     static var vertexDescriptor: MDLVertexDescriptor = .defaultVertexDescriptor
+    
+    weak var renderer: Renderer!
 
     let meshes: [Mesh]
     var tiling: UInt32 = 1
@@ -95,28 +104,45 @@ extension Model: Renderable {
         var normalMapValue = normalBuffer.contents().bindMemory(to: SIMD3<Float>.self, capacity: 1).pointee
 
         // transform normal values from between 0 - 1 to -1 - 1
-        normalMapValue = ((normalMapValue * 2 - 1))
+//        normalMapValue = normalize((normalMapValue * 2 - 1)) // y
+        normalMapValue.x = normalMapValue.x * 2 - 1
+        normalMapValue.z = normalMapValue.z * 2 - 1
+        normalMapValue = normalize(normalMapValue)
         
-        var tangent0 = cross(normalMapValue, forwardVector)
-        tangent0 = normalize(tangent0)
-        let tangent1 = normalize(cross(normalMapValue, tangent0))
+        
+  
+        var crossVec = float3(0, -1, 0)
+    
+//        if abs(normalMapValue.x) <= abs(normalMapValue.y) {
+//            crossVec.x = 1
+//        } else if abs(normalMapValue.y) <= abs(normalMapValue.z) {
+//            crossVec.y = 1
+//        } else if abs(normalMapValue.z) <= abs(normalMapValue.x) {
+//            crossVec.z = 1
+//        } else {
+//            assertionFailure()
+//        }
+        
+        var tangent0 = normalize(cross(normalMapValue, crossVec)) // x
+        let tangent1 = normalize(cross(normalMapValue, tangent0)) // z
         
         // google "normal to rotation matrix"
         var rotMat = float4x4.identity()
         rotMat.columns.0.xyz = tangent0
         rotMat.columns.1.xyz = tangent1
         rotMat.columns.2.xyz = normalMapValue
-        let normalQuat = simd_quatf(rotMat)
-        let slerp = simd_slerp(quaternion, normalQuat, 1.0)
-        rotationMatarix = float4x4(slerp)
-
+//        let normalQuat = simd_quatf(rotMat)
+//        let slerp = simd_slerp(quaternion, normalQuat, 1.0)
+        rotationMatarix = rotMat//float4x4(slerp)
+  
+        
 //        let rot = float4x4(rotation: float3(normalMapValue.x, rotation.y, normalMapValue.z))
 //        let quat = simd_quatf(rot)
 //        rotationMatarix = float4x4(quat)
         
         
 //        let center = normalMapValue
-//        let lookAt = float4x4(eye: position, center: float3(center.z, rotation.y, center.x), up: [0, 1, 0])
+//        let lookAt = float4x4(eye: forwardVector, center: center, up: [0, 1, 0])
 //        rotationMatarix = lookAt
 
 //        var currentDegreeRotation = float2(rotation.x, rotation.z)
@@ -212,6 +238,7 @@ extension Model: Renderable {
 
         renderEncoder.setVertexTexture(BasicFFT.heightDisplacementMap, index: 20)
 
+        renderEncoder.setTriangleFillMode(.fill)
         for mesh in meshes {
 
             for (index, vertexBuffer) in mesh.mtkMesh.vertexBuffers.enumerated() {
@@ -237,7 +264,14 @@ extension Model: Renderable {
                 )
             }
         }
-
+        
+        var normalMapValue = normalBuffer.contents().bindMemory(to: SIMD3<Float>.self, capacity: 1).pointee
+//        normalMapValue = normalize((normalMapValue * 2 - 1)) // y
+        normalMapValue.x = normalMapValue.x * 2 - 1
+        normalMapValue.z = normalMapValue.z * 2 - 1
+    
+        renderer.normalMapValue = (position, normalize(normalMapValue))
+        
         renderEncoder.popDebugGroup()
     }
 }

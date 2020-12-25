@@ -27,16 +27,16 @@ class Terrain: Node {
         numberOfPatches: UInt32(Terrain.patchNum * Terrain.patchNum)
     )
 
-    static let maxTessellation = 16
-    private static var patchNum = 8
+    static let maxTessellation = 8
+    private static var patchNum = 4
 
     let patches = (horizontal: Terrain.patchNum, vertical: Terrain.patchNum)
     var patchCount: Int {
         return patches.horizontal * patches.vertical
     }
     
-    static let edgeFactors: Float = 8
-    static let insideFactors: Float = 8
+    static let edgeFactors: Float = 4
+    static let insideFactors: Float = 2
 
     var edgeFactors: [Float] = [Terrain.edgeFactors]
     var insideFactors: [Float] = [Terrain.insideFactors]
@@ -275,7 +275,7 @@ extension Terrain: Renderable {
 
 
 
-//        renderEncoder.setTriangleFillMode(.lines)
+        renderEncoder.setTriangleFillMode(.lines)
         renderEncoder.drawPatches(
             numberOfPatchControlPoints: 4,
             patchStart: 0,
