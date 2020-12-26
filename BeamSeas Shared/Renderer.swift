@@ -215,6 +215,7 @@ extension Renderer: MTKViewDelegate {
         let tangent0 = float3(normalMapValue.1.x.radiansToDegrees, normalMapValue.1.y.radiansToDegrees, normalMapValue.1.z.radiansToDegrees)
         let tangent1 = float3(normalMapValue.2.x.radiansToDegrees, normalMapValue.2.y.radiansToDegrees, normalMapValue.2.z.radiansToDegrees)
         let normalMap = float3(normalMapValue.3.x.radiansToDegrees, normalMapValue.3.y.radiansToDegrees, normalMapValue.3.z.radiansToDegrees)
+        
         drawSpotLight(renderEncoder: renderEncoder, position: normalMapValue.0, direction: tangent0, color: float3(1, 0, 0))
         drawSpotLight(renderEncoder: renderEncoder, position: normalMapValue.0, direction: tangent1, color: float3(0, 1, 0))
         drawSpotLight(renderEncoder: renderEncoder, position: normalMapValue.0, direction: normalMap, color: float3(1, 0, 1))
