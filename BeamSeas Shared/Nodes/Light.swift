@@ -15,6 +15,20 @@ struct Lighting {
         light.position = [-30, 10, 0]
         return light
     }()
+    
+    let spotlight: Light = {
+        var light = Lighting.buildDefaultLight()
+        light.position = [0, 0, 0]
+        light.color = [1, 1, 0.7]
+        light.attenuation = float3(2, 0, 0)
+        light.type = Spotlight
+        light.coneAngle = Float(30).degreesToRadians
+        light.coneDirection = [0, 90, 0]
+        light.coneAttenuation = 2
+        light.type = Spotlight
+        return light
+    }()
+    
     let ambientLight: Light = {
         var light = Lighting.buildDefaultLight()
         light.color = [1, 1, 1]
@@ -34,7 +48,7 @@ struct Lighting {
     let count: UInt32
 
     init() {
-        lights = [sunlight]
+        lights = [sunlight, spotlight]
         count = UInt32(lights.count)
     }
 

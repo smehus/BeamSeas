@@ -19,14 +19,14 @@ final class Renderer: NSObject {
     static var metalView: MTKView!
     static var commandQueue: MTLCommandQueue!
     static var library: MTLLibrary!
-    var normalMapValue: (position: float3, vector: float3)!
+    var normalMapValue: (position: float3, tangent0: float3, tangent1: float3, normalMap: float3)!
 
     lazy var camera: Camera = {
         
         let camera = ArcballCamera()
         camera.distance = 80
         camera.target = [0, 0, -80]
-        camera.rotation.x = Float(-10).degreesToRadians
+//        camera.rotation.x = Float(-10).degreesToRadians
 //        camera.rotation.y = Float(-60).degreesToRadians
  
         
@@ -118,6 +118,7 @@ extension Renderer: MTKViewDelegate {
         let fps = Float(Float(1) / Float(view.preferredFramesPerSecond))
         delta += (fps * 1)
         for model in models {
+            (model as? Model)?.renderer = self
             model.update(with: delta)
         }
 
@@ -205,15 +206,21 @@ extension Renderer: MTKViewDelegate {
             uniforms.projectionMatrix = camera.projectionMatrix
             uniforms.viewMatrix = camera.viewMatrix
             fragmentUniforms.camera_position = camera.position
-            (model as? Model)?.renderer = self
+            
             model.draw(renderEncoder: renderEncoder, uniforms: &uniforms, fragmentUniforms: &fragmentUniforms)
         }
 
-        print("*** alskdjfladsfj \(normalMapValue)")
-//        drawSpotLight(renderEncoder: renderEncoder, position: normalMapValue.0, direction: normalMapValue.1, color: float3(1, 0, 0))
-        let direction = float3(normalMapValue.1.x.radiansToDegrees, normalMapValue.1.y.radiansToDegrees, normalMapValue.1.y.radiansToDegrees)
-        drawDirectionalLight(renderEncoder: renderEncoder, direction: direction, color: float3(1, 0, 0), count: 5)
-//        debugLights(renderEncoder: renderEncoder, lightType: Sunlight)
+//        print("*** alskdjfladsfj \(normalMapValue)")
+
+        let tangent0 = float3(normalMapValue.1.x.radiansToDegrees, normalMapValue.1.y.radiansToDegrees, normalMapValue.1.z.radiansToDegrees)
+        let tangent1 = float3(normalMapValue.2.x.radiansToDegrees, normalMapValue.2.y.radiansToDegrees, normalMapValue.2.z.radiansToDegrees)
+        let normalMap = float3(normalMapValue.3.x.radiansToDegrees, normalMapValue.3.y.radiansToDegrees, normalMapValue.3.z.radiansToDegrees)
+        drawSpotLight(renderEncoder: renderEncoder, position: normalMapValue.0, direction: tangent0, color: float3(1, 0, 0))
+        drawSpotLight(renderEncoder: renderEncoder, position: normalMapValue.0, direction: tangent1, color: float3(0, 1, 0))
+        drawSpotLight(renderEncoder: renderEncoder, position: normalMapValue.0, direction: normalMap, color: float3(1, 0, 1))
+
+//        drawDirectionalLight(renderEncoder: renderEncoder, direction: direction, color: float3(1, 0, 0), count: 5)
+//        debugLights(renderEncoder: renderEncoder, lightType: Spotlight)
         renderEncoder.endEncoding()
         if let drawable = view.currentDrawable {
             commandBuffer.present(drawable)
