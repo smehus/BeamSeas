@@ -186,21 +186,10 @@ extension Renderer: MTKViewDelegate {
         var lights = lighting.lights
         renderEncoder.setFragmentBytes(&lights, length: MemoryLayout<Light>.stride * lights.count, index: BufferIndex.lights.rawValue)
 
-        playerDelta += fps
-        // player forward vector is weird
-        // player delta is being added to each float in vector
-
-        // This is broken yoooo
         if player.moveState == .forward {
-            playerDelta += fps
-            // Not sure if this will continue to work as expected.
-            // I'm multiplying the forward vector by like possibly 600 or something
-            uniforms.playerMovement = (playerDelta * player.forwardVector) * 0.05
-        } else {
-//            uniforms.playerMovement = (playerDelta + float3(0, 0, 0)) * 0.07
+            playerDelta += fps // Not used anymore
+            uniforms.playerMovement += player.forwardVector * 0.001
         }
-        
-        
         
         for model in models {
             uniforms.deltaTime = delta
@@ -210,8 +199,6 @@ extension Renderer: MTKViewDelegate {
             
             model.draw(renderEncoder: renderEncoder, uniforms: &uniforms, fragmentUniforms: &fragmentUniforms)
         }
-
-//        print("*** alskdjfladsfj \(playerRotation)")
 
         let tangent0 = float3(playerRotation.1.x.radiansToDegrees, playerRotation.1.y.radiansToDegrees, playerRotation.1.z.radiansToDegrees)
         let tangent1 = float3(playerRotation.2.x.radiansToDegrees, playerRotation.2.y.radiansToDegrees, playerRotation.2.z.radiansToDegrees)
