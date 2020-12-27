@@ -14,8 +14,8 @@ protocol GameViewParent {
 }
 
 protocol GameViewProtocol: class {
-    func keyDown()
-    func keyUp()
+    func keyDown(key: Key)
+    func keyUp(key: Key)
 }
 
 class ViewController: LocalViewController {
@@ -36,11 +36,11 @@ class ViewController: LocalViewController {
 }
 
 extension ViewController: GameViewProtocol {
-    func keyUp() {
+    func keyUp(key: Key) {
         renderer.player.moveState = .stopped
     }
 
-    func keyDown() {
-        renderer.player.moveState = .forward
+    func keyDown(key: Key) {
+        renderer.player.moveState = key.moveState
     }
 }

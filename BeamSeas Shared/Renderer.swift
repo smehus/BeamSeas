@@ -83,7 +83,7 @@ final class Renderer: NSObject {
         models.append(terrain)
 
         player = Model(name: "OldBoat", fragment: "fragment_pbr")
-//        player.scale = [0.5, 0.5, 0.5]
+        player.scale = [0.5, 0.5, 0.5]
 //        player.rotation = [0, Float(90).degreesToRadians, 0]
         models.append(player)
 
@@ -189,15 +189,15 @@ extension Renderer: MTKViewDelegate {
         playerDelta += fps
         // player forward vector is weird
         // player delta is being added to each float in vector
-        uniforms.playerMovement = (playerDelta + float3(1, 0, 0))// * 0.07
 
-//        if player.moveState == .forward {
-//            playerDelta += fps
-//            // player forward vector is weird
-//            uniforms.playerMovement = (playerDelta + float3(1, 0, 0))// * 0.07
-//        } else {
+        // This is broken yoooo
+        if player.moveState == .forward {
+            playerDelta += fps
+            // player forward vector is weird
+            uniforms.playerMovement = (playerDelta + player.forwardVector) * 0.07
+        } else {
 //            uniforms.playerMovement = (playerDelta + float3(0, 0, 0)) * 0.07
-//        }
+        }
         
         
         

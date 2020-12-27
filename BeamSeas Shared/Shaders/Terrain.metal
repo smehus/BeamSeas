@@ -138,7 +138,7 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
     constexpr sampler sample(filter::linear, address::repeat);
 
     float2 xy = ((position.xz + terrainParams.size / 2) / terrainParams.size);
-//    xy += uniforms.playerMovement.xz;
+    xy += uniforms.playerMovement.xz;
     out.uv = xy;
     // Why was i doing this??
 //    xy.y = 1 - xy.y;

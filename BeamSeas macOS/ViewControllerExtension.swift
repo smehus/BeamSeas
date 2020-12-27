@@ -9,6 +9,22 @@
 import Cocoa
 import MetalKit
 
+enum Key: String {
+    case forward = "w"
+    case backwards = "s"
+    case left = "a"
+    case right = "d"
+    
+    var moveState: ModelMoveState {
+        switch self {
+        case .forward: return .forward
+        case .backwards: return .forward
+        case .left: return .rotateLeft
+        case .right: return .rotateRight
+        }
+    }
+}
+
 // Our macOS specific view controller
 
 class GameView: MTKView, GameViewParent {
@@ -20,11 +36,15 @@ class GameView: MTKView, GameViewParent {
     }
 
     override func keyDown(with event: NSEvent) {
-        inputDelegate?.keyDown()
+        guard let key = Key(rawValue: event.charactersIgnoringModifiers!) else { return }
+        
+        inputDelegate?.keyDown(key: key)
     }
 
     override func keyUp(with event: NSEvent) {
-        inputDelegate?.keyUp()
+        guard let key = Key(rawValue: event.charactersIgnoringModifiers!) else { return }
+        
+        inputDelegate?.keyUp(key: key)
     }
 }
 

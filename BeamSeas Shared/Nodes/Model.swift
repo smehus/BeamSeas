@@ -13,16 +13,11 @@ import simd
 enum ModelMoveState {
     case forward
     case stopped
+    case rotateLeft
+    case rotateRight
 }
 
 class Model: Node {
-    
-//    override var modelMatrix: float4x4 {
-//        let translationMatrix = float4x4(translation: position)
-//        let scaleMatrix = float4x4(scaling: scale)
-//
-//        return translationMatrix * rotationMatarix * scaleMatrix
-//    }
 
     static var vertexDescriptor: MDLVertexDescriptor = .defaultVertexDescriptor
     
@@ -95,6 +90,21 @@ class Model: Node {
 extension Model: Renderable {
 
     func update(with deltaTime: Float) {
+        
+        switch moveState {
+        case .rotateRight:
+            var rotDeg = rotation.y.radiansToDegrees
+            rotDeg += 0.3
+            
+            rotation.y = rotDeg.degreesToRadians
+        case .rotateLeft:
+            var rotDeg = rotation.y.radiansToDegrees
+            rotDeg -= 0.3
+            
+            rotation.y = rotDeg.degreesToRadians
+        default: break
+        }
+        
         let heightValue = heightBuffer.contents().bindMemory(to: Float.self, capacity: 1).pointee
         assert(meshes.count == 1)
         let size = meshes.first!.mdlMesh.boundingBox.maxBounds - meshes.first!.mdlMesh.boundingBox.minBounds
@@ -124,27 +134,6 @@ extension Model: Renderable {
         rotationMatarix = rotMat//float4x4(slerp)
   
         
-//        let rot = float4x4(rotation: float3(normalMapValue.x, rotation.y, normalMapValue.z))
-//        let quat = simd_quatf(rot)
-//        rotationMatarix = float4x4(quat)
-        
-        
-//        let center = normalMapValue
-//        let lookAt = float4x4(eye: forwardVector, center: center, up: [0, 1, 0])
-//        rotationMatarix = lookAt
-
-//        var currentDegreeRotation = float2(rotation.x, rotation.z)
-//
-//        let delta = max(currentDegreeRotation,
-//                        float2(normalMapValue.x.radiansToDegrees, normalMapValue.z.radiansToDegrees)) -
-//                        min(currentDegreeRotation, float2(normalMapValue.x.radiansToDegrees, normalMapValue.z.radiansToDegrees))
-//
-//
-//        currentDegreeRotation = float2(normalMapValue.x.radiansToDegrees, normalMapValue.z.radiansToDegrees)
-//
-//
-//
-//        rotation = float3(currentDegreeRotation.x.degreesToRadians, rotation.y, currentDegreeRotation.y.degreesToRadians)
     }
     
     func getRotationFromNormal() -> (tangent0: float3, tangent1: float3, normalMap: float3)  {
@@ -160,7 +149,7 @@ extension Model: Renderable {
         
   
         // need to add the right angle somehow?
-        var crossVec = normalize(rightVector)
+        var crossVec = normalize(-forwardVector)
     
 //        if abs(normalMapValue.x) <= abs(normalMapValue.y) {
 //            crossVec.x = 1
