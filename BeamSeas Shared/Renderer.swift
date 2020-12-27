@@ -195,7 +195,7 @@ extension Renderer: MTKViewDelegate {
             playerDelta += fps
             // Not sure if this will continue to work as expected.
             // I'm multiplying the forward vector by like possibly 600 or something
-            uniforms.playerMovement = (playerDelta * player.forwardVector) * 0.2
+            uniforms.playerMovement = (playerDelta * player.forwardVector) * 0.05
         } else {
 //            uniforms.playerMovement = (playerDelta + float3(0, 0, 0)) * 0.07
         }
