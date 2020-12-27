@@ -19,7 +19,7 @@ final class Renderer: NSObject {
     static var metalView: MTKView!
     static var commandQueue: MTLCommandQueue!
     static var library: MTLLibrary!
-    var normalMapValue: (position: float3, tangent0: float3, tangent1: float3, normalMap: float3)!
+    var playerRotation: (position: float3, tangent0: float3, tangent1: float3, normalMap: float3)!
 
     lazy var camera: Camera = {
         
@@ -193,8 +193,9 @@ extension Renderer: MTKViewDelegate {
         // This is broken yoooo
         if player.moveState == .forward {
             playerDelta += fps
-            // player forward vector is weird
-            uniforms.playerMovement = (playerDelta + player.forwardVector) * 0.07
+            // Not sure if this will continue to work as expected.
+            // I'm multiplying the forward vector by like possibly 600 or something
+            uniforms.playerMovement = (playerDelta * player.forwardVector) * 0.2
         } else {
 //            uniforms.playerMovement = (playerDelta + float3(0, 0, 0)) * 0.07
         }
@@ -210,15 +211,15 @@ extension Renderer: MTKViewDelegate {
             model.draw(renderEncoder: renderEncoder, uniforms: &uniforms, fragmentUniforms: &fragmentUniforms)
         }
 
-//        print("*** alskdjfladsfj \(normalMapValue)")
+//        print("*** alskdjfladsfj \(playerRotation)")
 
-        let tangent0 = float3(normalMapValue.1.x.radiansToDegrees, normalMapValue.1.y.radiansToDegrees, normalMapValue.1.z.radiansToDegrees)
-        let tangent1 = float3(normalMapValue.2.x.radiansToDegrees, normalMapValue.2.y.radiansToDegrees, normalMapValue.2.z.radiansToDegrees)
-        let normalMap = float3(normalMapValue.3.x.radiansToDegrees, normalMapValue.3.y.radiansToDegrees, normalMapValue.3.z.radiansToDegrees)
+        let tangent0 = float3(playerRotation.1.x.radiansToDegrees, playerRotation.1.y.radiansToDegrees, playerRotation.1.z.radiansToDegrees)
+        let tangent1 = float3(playerRotation.2.x.radiansToDegrees, playerRotation.2.y.radiansToDegrees, playerRotation.2.z.radiansToDegrees)
+        let normalMap = float3(playerRotation.3.x.radiansToDegrees, playerRotation.3.y.radiansToDegrees, playerRotation.3.z.radiansToDegrees)
         
-        drawSpotLight(renderEncoder: renderEncoder, position: normalMapValue.0, direction: tangent0, color: float3(1, 0, 0))
-        drawSpotLight(renderEncoder: renderEncoder, position: normalMapValue.0, direction: tangent1, color: float3(0, 1, 0))
-        drawSpotLight(renderEncoder: renderEncoder, position: normalMapValue.0, direction: normalMap, color: float3(1, 0, 1))
+        drawSpotLight(renderEncoder: renderEncoder, position: playerRotation.0, direction: tangent0, color: float3(1, 0, 0))
+        drawSpotLight(renderEncoder: renderEncoder, position: playerRotation.0, direction: tangent1, color: float3(0, 1, 0))
+        drawSpotLight(renderEncoder: renderEncoder, position: playerRotation.0, direction: normalMap, color: float3(1, 0, 1))
 
 //        drawDirectionalLight(renderEncoder: renderEncoder, direction: direction, color: float3(1, 0, 0), count: 5)
 //        debugLights(renderEncoder: renderEncoder, lightType: Spotlight)

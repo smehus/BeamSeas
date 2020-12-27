@@ -85,7 +85,7 @@ vertex VertexOut vertex_main(const VertexIn vertex_in [[ stage_in ]],
     float4x4 slopeModelVertex = uniforms.modelMatrix * modelMatrix;
 
     // I forget why I was calculating the slop here... maybe for white cap things. 
-    out.position = uniforms.projectionMatrix * uniforms.viewMatrix * uniforms.modelMatrix *  normalRot * vertex_in.position;
+    out.position = uniforms.projectionMatrix * uniforms.viewMatrix * uniforms.modelMatrix * vertex_in.position;
     out.worldPosition = (uniforms.modelMatrix * vertex_in.position).xyz;
     out.worldNormal = uniforms.normalMatrix * vertex_in.normal;
     out.uv = vertex_in.uv;

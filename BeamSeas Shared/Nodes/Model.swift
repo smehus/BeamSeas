@@ -30,9 +30,16 @@ class Model: Node {
     var normalBuffer: MTLBuffer
     
     var moveState: ModelMoveState = .stopped
-    var rotationMatarix: float4x4 = .identity()
+    var rotationMatrix: float4x4 = .identity()
 
     private let heightComputePipelineState: MTLComputePipelineState
+    
+    override var modelMatrix: float4x4 {
+        let translationMatrix = float4x4(translation: position)
+        let scaleMatrix = float4x4(scaling: scale)
+
+        return translationMatrix * rotationMatrix * scaleMatrix
+    }
 
     init(name: String, fragment: String) {
         guard let assetURL = Bundle.main.url(forResource: name, withExtension: "obj") else { fatalError("Model: \(name) not found")  }
@@ -114,7 +121,7 @@ extension Model: Renderable {
 
         let (tangent0, tangent1, normalMapValue) = getRotationFromNormal()
         
-        renderer.normalMapValue = (position, tangent0, tangent1, normalMapValue)
+        renderer.playerRotation = (position, tangent0, tangent1, normalMapValue)
         
         var rotMat = float4x4.identity()
         rotMat.columns.0.x = tangent0.x
@@ -129,9 +136,9 @@ extension Model: Renderable {
         rotMat.columns.2.y = tangent1.y
         rotMat.columns.2.z = tangent1.z
         
-        let normalQuat = simd_quatf(rotMat)
-        let slerp = simd_slerp(quaternion, normalQuat, 1.0)
-        rotationMatarix = rotMat//float4x4(slerp)
+//        let normalQuat = simd_quatf(rotMat)
+//        let slerp = simd_slerp(quaternion, normalQuat, 1.0)
+        rotationMatrix = rotMat//float4x4(slerp)
   
         
     }
@@ -140,7 +147,6 @@ extension Model: Renderable {
         var normalMapValue = normalBuffer.contents().bindMemory(to: SIMD3<Float>.self, capacity: 1).pointee
 
         // transform normal values from between 0 - 1 to -1 - 1
-//        normalMapValue = normalize((normalMapValue * 2 - 1)) // y
         normalMapValue.x = normalMapValue.x * 2 - 1
         normalMapValue.y = normalMapValue.y * 2 - 1
         normalMapValue.z = normalMapValue.z * 2 - 1
@@ -161,10 +167,9 @@ extension Model: Renderable {
 //            assertionFailure()
 //        }
         
+        // google "normal to rotation matrix"
         var tangent0 = normalize(cross(normalMapValue, crossVec)) // x
         let tangent1 = normalize(cross(normalMapValue, tangent0)) // z
-        
-        // google "normal to rotation matrix"
         
         return (tangent0, tangent1, normalMapValue)
     }
@@ -216,7 +221,7 @@ extension Model: Renderable {
         )
         
         renderEncoder.setVertexBytes(
-            &rotationMatarix,
+            &rotationMatrix,
             length: MemoryLayout<float4x4>.size,
             index: 30
         )
