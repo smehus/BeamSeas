@@ -107,9 +107,17 @@ extension Model: Renderable {
         renderer.normalMapValue = (position, tangent0, tangent1, normalMapValue)
         
         var rotMat = float4x4.identity()
-        rotMat.columns.0.xyz = tangent0
-        rotMat.columns.1.xyz = normalMapValue
-        rotMat.columns.2.xyz = tangent1
+        rotMat.columns.0.x = tangent0.x
+        rotMat.columns.0.y = tangent0.y
+        rotMat.columns.0.z = tangent0.z
+        
+        rotMat.columns.1.x = normalMapValue.x
+        rotMat.columns.1.y = normalMapValue.y
+        rotMat.columns.1.z = normalMapValue.z
+        
+        rotMat.columns.2.x = tangent1.x
+        rotMat.columns.2.y = tangent1.y
+        rotMat.columns.2.z = tangent1.z
         
         let normalQuat = simd_quatf(rotMat)
         let slerp = simd_slerp(quaternion, normalQuat, 1.0)
@@ -152,7 +160,7 @@ extension Model: Renderable {
         
   
         // need to add the right angle somehow?
-        var crossVec = normalize(float3(0, 1, 0))
+        var crossVec = normalize(rightVector)
     
 //        if abs(normalMapValue.x) <= abs(normalMapValue.y) {
 //            crossVec.x = 1
