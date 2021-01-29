@@ -136,7 +136,7 @@ kernel void generate_displacement_map_values(constant GausUniforms &uniforms [[ 
     float k_len = length(k);
 
     float G = 9.81;
-    float w = sqrt(G * k_len) * (mainUniforms.deltaTime);
+    float w = sqrt(G * k_len) * (-mainUniforms.deltaTime);
 
     float cw = cos(w);
     float sw = sin(w);
@@ -159,7 +159,7 @@ half jacobian(half2 dDdx, half2 dDdy)
     return (1.0 + dDdx.x) * (1.0 + dDdy.y) - dDdx.y * dDdy.x;
 }
 
-#define LAMBDA -2
+#define LAMBDA -4
 
 kernel void compute_height_graident(uint2 pid [[ thread_position_in_grid]],
                                     constant float4 &uInvSize [[ buffer(0) ]],
