@@ -112,6 +112,8 @@ kernel void generate_displacement_map_values(constant GausUniforms &uniforms [[ 
                                              uint2 i [[ thread_position_in_grid ]],
                                             uint2 thread_size [[ threads_per_grid ]])
 {
+    
+    /*
     float2 uMod = float2(2.0f * M_PI_F) / uniforms.size;
 //    uint2 resolution = uniforms.resolution >> 1;
     uint2 N = uniforms.resolution >> 1;//uint2(64, 1) * thread_size;
@@ -136,7 +138,7 @@ kernel void generate_displacement_map_values(constant GausUniforms &uniforms [[ 
     float k_len = length(k);
 
     float G = 9.81;
-    float w = sqrt(G * k_len) * (-mainUniforms.deltaTime);
+    float w = sqrt(G * k_len) * (mainUniforms.deltaTime);
 
     float cw = cos(w);
     float sw = sin(w);
@@ -149,6 +151,41 @@ kernel void generate_displacement_map_values(constant GausUniforms &uniforms [[ 
 
     output_real[i.y * N.x + i.x] = grad.x;
     output_imag[i.y * N.x + i.x] = grad.y;
+     */
+    
+    
+    float2 tSize = float2(32, 32);
+    float2 tNumberOfGroups = float2(64, 64);
+    uint2 N = uniforms.resolution >> 1;//uint2(tSize * tNumberOfGroups);
+    
+    float2 wi = mix(float2(N - i), float2(0u), float2(i == uint2(0u)));
+    uint aIndex = i.y * N.x + i.x;
+    uint bIndex = wi.y * N.x + wi.x;
+    
+    float aReal = input_real[aIndex];
+    float aImag = input_imag[aIndex];
+    float bReal = input_real[bIndex];
+    float bImag = input_imag[bIndex];
+ 
+    float2 uMod = float2(2.0f * M_PI_F) / float2(200, 200);
+    float2 k = uMod * alias(float2(i), float2(N));
+    float k_len = length(k);
+    
+    float G = 9.81;
+    float w = sqrt(G * k_len) * (mainUniforms.deltaTime);
+    
+    float cw = cos(w);
+    float sw = sin(w);
+    
+    float2 a = cmul(float2(aReal, aImag), float2(cw, sw));
+    float2 b = cmul(float2(bReal, bImag), float2(cw, sw));
+    b = float2(b.x, -b.y);
+    float2 res = a + b;
+    
+    float2 grad = cmul(res, float2(-k.y / (k_len + 0.00001), k.x / (k_len + 0.00001)));
+    
+    output_real[i.y * N.x + i.x] = grad.x;
+    output_imag[i.y * N.x + i.x] = grad.y;
 }
 
 
@@ -159,7 +196,7 @@ half jacobian(half2 dDdx, half2 dDdy)
     return (1.0 + dDdx.x) * (1.0 + dDdy.y) - dDdx.y * dDdy.x;
 }
 
-#define LAMBDA -4
+#define LAMBDA -6
 
 kernel void compute_height_graident(uint2 pid [[ thread_position_in_grid]],
                                     constant float4 &uInvSize [[ buffer(0) ]],

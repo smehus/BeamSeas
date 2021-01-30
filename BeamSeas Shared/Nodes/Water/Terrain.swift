@@ -27,7 +27,7 @@ class Terrain: Node {
         numberOfPatches: UInt32(Terrain.patchNum * Terrain.patchNum)
     )
 
-    static let maxTessellation = 8
+    static let maxTessellation = 16
     private static var patchNum = 4
 
     let patches = (horizontal: Terrain.patchNum, vertical: Terrain.patchNum)
