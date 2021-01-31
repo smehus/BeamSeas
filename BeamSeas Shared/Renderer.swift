@@ -24,10 +24,10 @@ final class Renderer: NSObject {
     lazy var camera: Camera = {
         
         let camera = ArcballCamera()
-        camera.distance = 80
+        camera.distance = 400
         camera.target = [0, 0, -80]
-//        camera.rotation.x = Float(-10).degreesToRadians
-//        camera.rotation.y = Float(-60).degreesToRadians
+        camera.rotation.x = Float(-30).degreesToRadians
+        camera.rotation.y = Float(135).degreesToRadians
  
         
 //        let camera = ThirdPersonCamera()
@@ -75,7 +75,7 @@ final class Renderer: NSObject {
         super.init()
 
         metalView.clearColor = MTLClearColor(red: 0.4, green: 0.4,
-                                             blue: 0.4, alpha: 1)
+                                             blue: 0.8, alpha: 1)
 
         metalView.delegate = self
 
@@ -116,7 +116,7 @@ extension Renderer: MTKViewDelegate {
         }
 
         let fps = Float(Float(1) / Float(view.preferredFramesPerSecond))
-        delta += (fps * 1)
+        delta += (fps * 2.5)
         for model in models {
             (model as? Model)?.renderer = self
             model.update(with: delta)

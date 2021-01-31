@@ -157,6 +157,7 @@ kernel void generate_displacement_map_values(constant GausUniforms &uniforms [[ 
     float2 tSize = float2(32, 32);
     float2 tNumberOfGroups = float2(64, 64);
     uint2 N = uniforms.resolution >> 1;//uint2(tSize * tNumberOfGroups);
+//    uint2 N = uint2(64, 1) * thread_size;
     
     float2 wi = mix(float2(N - i), float2(0u), float2(i == uint2(0u)));
     uint aIndex = i.y * N.x + i.x;
@@ -167,7 +168,7 @@ kernel void generate_displacement_map_values(constant GausUniforms &uniforms [[ 
     float bReal = input_real[bIndex];
     float bImag = input_imag[bIndex];
  
-    float2 uMod = float2(2.0f * M_PI_F) / float2(200, 200);
+    float2 uMod = float2(2.0f * M_PI_F) / uniforms.size;
     float2 k = uMod * alias(float2(i), float2(N));
     float k_len = length(k);
     
@@ -179,6 +180,8 @@ kernel void generate_displacement_map_values(constant GausUniforms &uniforms [[ 
     
     float2 a = cmul(float2(aReal, aImag), float2(cw, sw));
     float2 b = cmul(float2(bReal, bImag), float2(cw, sw));
+    
+    // I was missing this before???
     b = float2(b.x, -b.y);
     float2 res = a + b;
     
@@ -196,7 +199,7 @@ half jacobian(half2 dDdx, half2 dDdy)
     return (1.0 + dDdx.x) * (1.0 + dDdy.y) - dDdx.y * dDdy.x;
 }
 
-#define LAMBDA -6
+#define LAMBDA 3
 
 kernel void compute_height_graident(uint2 pid [[ thread_position_in_grid]],
                                     constant float4 &uInvSize [[ buffer(0) ]],

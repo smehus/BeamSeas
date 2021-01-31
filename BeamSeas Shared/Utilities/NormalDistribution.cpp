@@ -22,9 +22,6 @@ float NormalDistribution::generate_normal_random()
 
 float NormalDistribution::phillips(float x, float y)
 {
-
-    return 0.0;
-    
     svector2 k = svector2(x, y);
 //    float N = 64;
 //    float length = 64.0f;
@@ -32,8 +29,8 @@ float NormalDistribution::phillips(float x, float y)
 //    float m_prime = y;
 //    svector2 k(M_PI * (2 * n_prime - N) / length, M_PI * (2 * m_prime - N) / length);
     float g = 9.81;
-    float A = 20.0f;
-    svector2 w = svector2(0.0f, 15.0f);
+    float A = 2.0f;
+    svector2 w = svector2(0.0f, 33.0f);
     float k_length  = k.length();
     if (k_length < 0.0000000000001) return 0.0;
 
