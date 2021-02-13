@@ -67,6 +67,7 @@ public:
     float phillips(float x, float y);
     float generate_normal_random();
     vector_float2 gaussianRandomVariable();
+    vector_float2 gaussian();
 
 private:
     std::string m_title;

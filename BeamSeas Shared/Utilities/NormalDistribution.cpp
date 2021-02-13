@@ -18,6 +18,8 @@ float NormalDistribution::generate_normal_random()
     return normal_dist(engine);
 }
 
+
+
 //cOcean ocean(64, 0.0005f, svector2(0.0f,32.0f), 64, false);
 
 float NormalDistribution::phillips(float x, float y)
@@ -29,7 +31,7 @@ float NormalDistribution::phillips(float x, float y)
 //    float m_prime = y;
 //    svector2 k(M_PI * (2 * n_prime - N) / length, M_PI * (2 * m_prime - N) / length);
     float g = 9.81;
-    float A = 2.0f;
+    float A = 4.0f;
     svector2 w = svector2(0.0f, 33.0f);
     float k_length  = k.length();
     if (k_length < 0.0000000000001) return 0.0;
@@ -49,6 +51,60 @@ float NormalDistribution::phillips(float x, float y)
 
     return A * exp(-1.0f / (k_length2 * L2)) / k_length4 * k_dot_w2 * exp(-k_length2 * l2);
 }
+
+/*
+Philipps spectrum fonctor. See J. Tessendorf's paper for more information
+and the mathematical formula.
+*/
+
+double NormalDistribution::classicPhillips(float lx, float ly, int nx, int ny, float) {
+    const double g    = 9.81;
+    const double kx   = (2*M_PI*x)/lx;
+    const double ky   = (2*M_PI*y)/ly;
+    const double k_sq = kx*kx + ky*ky;
+    const double L_sq = pow((wind_speed*wind_speed)/g, 2);
+    y++;
+    if(k_sq==0) {
+        return 0;
+    }
+    else {
+        double var;
+        var =  A*exp((-1/(k_sq*L_sq)));
+        var *= exp(-k_sq*pow(min_wave_size, 2));
+        var *= pow((kx*kx)/k_sq, wind_alignment);
+        var /= k_sq*k_sq;
+        return var;
+}
+
+    
+    
+    vector_float2 NormalDistribution::gaussianRandomVariable() {
+        float x1, x2, w;
+        do {
+            x1 = 2.f * generate_normal_random() - 1.f;
+            x2 = 2.f * generate_normal_random() - 1.f;
+            w = x1 * x1 + x2 * x2;
+        } while ( w >= 1.f );
+        w = sqrt((-2.f * log(w)) / w);
+        return vector2(x1 * w, x2 * w);
+    }
+
+    /*
+    Gaussian random generator. The numbers are generated
+    using the Box-Muller method.
+    */
+    vector_float2 NormalDistribution::gaussian() {
+        float var1;
+        float var2;
+        float s;
+        do {
+            var1 = (rand() % 201 - 100)/static_cast<double>(100);
+            var2 = (rand() % 201 - 100)/static_cast<double>(100);
+            s    = var1*var1 + var2*var2;
+        } while(s>=1 || s==0);
+        
+        return vector2(var1*sqrt(-log(s)/s), var2*sqrt(-log(s)/s));
+    }
 
 
 svector2::svector2() : x(0.0f), y(0.0f) { }
@@ -88,13 +144,3 @@ float uniformRandomVariable() {
     return (float)rand()/RAND_MAX;
 }
 
-vector_float2 NormalDistribution::gaussianRandomVariable() {
-    float x1, x2, w;
-    do {
-        x1 = 2.f * uniformRandomVariable() - 1.f;
-        x2 = 2.f * uniformRandomVariable() - 1.f;
-        w = x1 * x1 + x2 * x2;
-    } while ( w >= 1.f );
-    w = sqrt((-2.f * log(w)) / w);
-    return vector2(x1 * w, x2 * w);
-}

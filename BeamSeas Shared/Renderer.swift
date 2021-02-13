@@ -27,7 +27,7 @@ final class Renderer: NSObject {
         camera.distance = 400
         camera.target = [0, 0, -80]
         camera.rotation.x = Float(-30).degreesToRadians
-        camera.rotation.y = Float(135).degreesToRadians
+        camera.rotation.y = Float(180).degreesToRadians
  
         
 //        let camera = ThirdPersonCamera()
@@ -74,8 +74,8 @@ final class Renderer: NSObject {
 
         super.init()
 
-        metalView.clearColor = MTLClearColor(red: 0.4, green: 0.4,
-                                             blue: 0.8, alpha: 1)
+        metalView.clearColor = MTLClearColor(red: 1.0, green: 1.0,
+                                             blue: 1.0, alpha: 1)
 
         metalView.delegate = self
 
@@ -116,7 +116,7 @@ extension Renderer: MTKViewDelegate {
         }
 
         let fps = Float(Float(1) / Float(view.preferredFramesPerSecond))
-        delta += (fps * 2.5)
+        delta += (fps * 5)
         for model in models {
             (model as? Model)?.renderer = self
             model.update(with: delta)
