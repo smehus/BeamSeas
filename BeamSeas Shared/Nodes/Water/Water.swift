@@ -77,7 +77,6 @@ class Water {
     private let displacement_downsample: Int = 1
     private let normal_distribution = NormalDistributionBridge()
 
-
     init(
         amplitude: Float,
         wind_velocity: SIMD2<Float>,
@@ -92,44 +91,47 @@ class Water {
         self.size = size
         self.size_normal = size / normalmap_freq_mod
 
-        let n = vDSP_Length(Nx * Nz)
-        var newamplitude = amplitude
-//        newamplitude *= 0.3 / sqrt(size.x * size.y)
-
         // Factor in phillips spectrum
-        L = simd_dot(wind_velocity, wind_velocity) / Self.G;
+        L = simd_dot(wind_velocity, wind_velocity) / Water.G;
 
-        distribution_real = [Float](repeating: 0, count: Int(n))
-        distribution_imag = [Float](repeating: 0, count: Int(n))
+        distribution_real = [Float](repeating: 0,
+                                    count: Int(Nx * Nz))
+        distribution_imag = [Float](repeating: 0,
+                                    count: Int(Nx * Nz))
 
-        // TODO: - Downsampling was breaking fft for some reason
-        let displacementLength = (Nx * Nz) >> (displacement_downsample * 2)
-        distribution_displacement_real = [Float](repeating: 0, count: Int(displacementLength))
-        distribution_displacement_imag = [Float](repeating: 0, count: Int(displacementLength))
+        distribution_displacement_real = [Float](repeating: 0,
+                                                 count: Int((Nx * Nz) >> (displacement_downsample * 2)))
+        distribution_displacement_imag = [Float](repeating: 0,
+                                                 count: Int((Nx * Nz) >> (displacement_downsample * 2)))
 
-
-        // Distribution
+        var newamplitude = amplitude
+        newamplitude *= 0.3 / sqrt(size.x * size.y)
+        
+        
+        // Generate Distribution Values
         generate_distribution(
             distribution_real: &distribution_real,
             distribution_imag: &distribution_imag,
             size: size,
-            amplitude: newamplitude
+            amplitude: newamplitude,
+            max_l: 0.2
         )
 
+        // Create distribution buffers
         distribution_real_buffer = Renderer.device.makeBuffer(
             bytes: &distribution_real,
-            length: MemoryLayout<Float>.stride * Int(n),
+            length: MemoryLayout<Float>.stride * Int(Nx * Nz),
             options: .storageModeShared
         )!
 
         distribution_imag_buffer = Renderer.device.makeBuffer(
             bytes: &distribution_imag,
-            length: MemoryLayout<Float>.stride * Int(n),
+            length: MemoryLayout<Float>.stride * Int(Nx * Nz),
             options: .storageModeShared
         )!
 
 
-        // Displacement
+        // Generate downsampled distribution values
         downsample_distribution(
             displacement_real: &distribution_displacement_real,
             displacement_img: &distribution_displacement_imag,
@@ -138,21 +140,55 @@ class Water {
             rate_log2: displacement_downsample
         )
 
+        // Create Buffers
         distribution_displacement_real_buffer = Renderer.device.makeBuffer(
             bytes: &distribution_displacement_real,
-            length: MemoryLayout<Float>.stride * Int(displacementLength),
+            length: MemoryLayout<Float>.stride * Int((Nx * Nz) >> (displacement_downsample * 2)),
             options: .storageModeShared
         )!
 
         distribution_displacement_imag_buffer = Renderer.device.makeBuffer(
             bytes: &distribution_displacement_imag,
-            length: MemoryLayout<Float>.stride * Int(displacementLength),
+            length: MemoryLayout<Float>.stride * Int((Nx * Nz) >> (displacement_downsample * 2)),
             options: .storageModeShared
         )!
     }
 
+    private func generate_distribution(distribution_real: inout [Float],
+                                       distribution_imag: inout [Float],
+                                       size: SIMD2<Float>,
+                                       amplitude: Float,
+                                       max_l: Float) {
 
-    private func downsample_distribution(displacement_real: inout [Float], displacement_img: inout [Float], in_real: [Float], in_imag: [Float], rate_log2: Int)
+        // Modifier to find spatial frequency
+        let mod = SIMD2<Float>(repeating: 2.0 * Float.pi) / size
+
+        for z in 0..<Nz {
+            for x in 0..<Nx {
+
+                let k = mod * SIMD2<Float>(x: Float(alias(x, N: Nx)),
+                                           y: Float(alias(z, N: Nz)))
+                
+                let realRand = Float(normal_distribution.getRandomNormal())
+                let imagRand = Float(normal_distribution.getRandomNormal())
+
+                let phillips = philliphs(k: k, max_l: max_l)
+//                let phillips = normal_distribution.phillips(Float(k.x), y: Float(k.y))
+                let newReal = realRand * amplitude * sqrt(0.5 * phillips)
+                let newImag = imagRand * amplitude * sqrt(0.5 * phillips)
+
+                let index = z * Nx + x
+                distribution_real[index] = newReal
+                distribution_imag[index] = newImag
+            }
+        }
+    }
+
+    private func downsample_distribution(displacement_real: inout [Float],
+                                         displacement_img: inout [Float],
+                                         in_real: [Float],
+                                         in_imag: [Float],
+                                         rate_log2: Int)
     {
 
         
@@ -178,7 +214,7 @@ class Water {
                 displacement_real[z * out_width + x] = in_real[alias_z * Nx + alias_x];
                 displacement_img[z * out_width + x] = in_imag[alias_z * Nx + alias_x];
 
-
+// Not sure what this is
 //                let index = z * Nx + x
 //                let kxx: Float = Float.pi * (2.0 * Float(x) - Float(Nx))
 //                let kzz: Float = 2.0 * Float(z) - Float(Nz)
@@ -193,42 +229,10 @@ class Water {
         }
     }
 
-    private func generate_distribution(distribution_real: inout [Float],
-                                       distribution_imag: inout [Float],
-                                       size: SIMD2<Float>,
-                                       amplitude: Float) {
-
-        // Modifier to find spatial frequency
-        let mod = SIMD2<Float>(repeating: 2.0 * Float.pi) / size
-
-        for z in 0..<Nz {
-            for x in 0..<Nx {
-
-                let k = mod * SIMD2<Float>(x: Float(alias(x, N: Nx)), y: Float(alias(z, N: Nz)))
-                let gaus = normal_distribution.gausRandom()
-                let realRand = Float(gaus.x)
-                let imagRand = Float(gaus.y)
-
-                let phillips = philliphs(k: k, max_l: 0.02)
-//                let phillips = normal_distribution.phillips(Float(k.x), y: Float(k.y))
-                let newReal = realRand * amplitude * sqrt(0.5 * phillips)
-                let newImag = imagRand * amplitude * sqrt(0.5 * phillips)
-
-
-                let idx = z * Nx + x
-
-                if distribution_real.indices.contains(idx), distribution_imag.indices.contains(idx) {
-                    distribution_real[idx] = newReal
-                    distribution_imag[idx] = newImag
-                }
-            }
-        }
-    }
-
     private func philliphs(k: SIMD2<Float>, max_l: Float) -> Float {
         // might have to do this on gpu
         let k_len = simd_length(k)
-        if k_len < 0.000001 {
+        if k_len == 0.0 {
             return 0
         }
 
