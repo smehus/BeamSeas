@@ -154,8 +154,6 @@ kernel void generate_displacement_map_values(constant GausUniforms &uniforms [[ 
      */
     
     
-    float2 tSize = float2(32, 32);
-    float2 tNumberOfGroups = float2(64, 64);
     uint2 N = uniforms.resolution >> 1;//uint2(tSize * tNumberOfGroups);
 //    uint2 N = uint2(64, 1) * thread_size;
     
@@ -199,7 +197,7 @@ half jacobian(half2 dDdx, half2 dDdy)
     return (1.0 + dDdx.x) * (1.0 + dDdy.y) - dDdx.y * dDdy.x;
 }
 
-#define LAMBDA 3
+#define LAMBDA -3
 
 kernel void compute_height_graident(uint2 pid [[ thread_position_in_grid]],
                                     constant float4 &uInvSize [[ buffer(0) ]],

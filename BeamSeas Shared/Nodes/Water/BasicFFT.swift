@@ -23,9 +23,6 @@ extension Int {
 
 class BasicFFT: Node {
 
-
-    static let distributionSize: Int = 128
-
     private var signalCount: Int = 0
 
     var distribution_real: MTLBuffer
@@ -64,8 +61,10 @@ class BasicFFT: Node {
     private var displacementMap: MTLTexture!
 
 
-    static var wind_velocity = float2(x: 0, y: -33)
-    static var amplitude = 3.5
+    static let SIZE_XY: Int = 256
+    static var wind_velocity = float2(x: 26.0, y: -22.0)
+    static var amplitude: Float = 1.0
+    static var NORMALMAP_FREQ_MOD: Float = 7.3
 
     override init() {
 
@@ -73,16 +72,16 @@ class BasicFFT: Node {
         let prim = MDLMesh(planeWithExtent: [0.5, 0.5, 0], segments: [4, 4], geometryType: .triangles, allocator: allocator)
         model = try! MTKMesh(mesh: prim, device: Renderer.device)
 
-        let log2n = vDSP_Length(log2(Float((BasicFFT.distributionSize * BasicFFT.distributionSize))))
+        let log2n = vDSP_Length(log2(Float((BasicFFT.SIZE_XY * BasicFFT.SIZE_XY))))
         distributionFFT = vDSP.FFT(log2n: log2n, radix: .radix5, ofType: DSPSplitComplex.self)!
 
-        let s = (BasicFFT.distributionSize * BasicFFT.distributionSize) >> (1 * 2)
+        let s = (BasicFFT.SIZE_XY * BasicFFT.SIZE_XY) >> (1 * 2)
         let downdSampledLog2n = vDSP_Length(log2(Float(s)))
         downsampledFFT = vDSP.FFT(log2n: downdSampledLog2n, radix: .radix5, ofType: DSPSplitComplex.self)!
 
         let texDesc = MTLTextureDescriptor()
-        texDesc.width = BasicFFT.distributionSize
-        texDesc.height = BasicFFT.distributionSize
+        texDesc.width = BasicFFT.SIZE_XY
+        texDesc.height = BasicFFT.SIZE_XY
         // ooohhhh my god - it was the fucking pixel format
         // Second time! Changing from 32 bit to 16 bit fixed phone choppiness when moving texture coordinates.
         texDesc.pixelFormat = .rgba16Float
@@ -94,14 +93,14 @@ class BasicFFT: Node {
         Self.gradientMap = Renderer.device.makeTexture(descriptor: texDesc)!
         heightMap = Renderer.device.makeTexture(descriptor: texDesc)!
 
-        texDesc.width = BasicFFT.distributionSize >> 1
-        texDesc.height = BasicFFT.distributionSize >> 1
+        texDesc.width = BasicFFT.SIZE_XY >> 1
+        texDesc.height = BasicFFT.SIZE_XY >> 1
         texDesc.pixelFormat = .rgba16Float
         displacementMap = Renderer.device.makeTexture(descriptor: texDesc)!
 
 
-        texDesc.width = BasicFFT.distributionSize
-        texDesc.height = BasicFFT.distributionSize
+        texDesc.width = BasicFFT.SIZE_XY
+        texDesc.height = BasicFFT.SIZE_XY
         texDesc.pixelFormat = .rg11b10Float
         texDesc.mipmapLevelCount = Int(log2(Double(max(BasicFFT.heightDisplacementMap.width, BasicFFT.heightDisplacementMap.height))) + 1);
         texDesc.storageMode = .private
@@ -125,9 +124,9 @@ class BasicFFT: Node {
         source = Water(
             amplitude: Float(BasicFFT.amplitude),
             wind_velocity: BasicFFT.wind_velocity,
-            resolution: SIMD2<Int>(x: BasicFFT.distributionSize, y: BasicFFT.distributionSize),
+            resolution: SIMD2<Int>(x: BasicFFT.SIZE_XY, y: BasicFFT.SIZE_XY),
             size: float2(x: Terrain.terrainSize, y: Terrain.terrainSize),
-            normalmap_freq_mod: float2(repeating: 1)
+            normalmap_freq_mod: float2(repeating: BasicFFT.NORMALMAP_FREQ_MOD)
         )
 
         guard
@@ -243,10 +242,10 @@ extension BasicFFT: Renderable {
     func generateDistributions(computeEncoder: MTLComputeCommandEncoder, uniforms: Uniforms) {
         computeEncoder.pushDebugGroup("FFT-Distribution")
         var gausUniforms = GausUniforms(
-            dataLength: Int32(BasicFFT.distributionSize * BasicFFT.distributionSize),
+            dataLength: Int32(BasicFFT.SIZE_XY * BasicFFT.SIZE_XY),
             amplitude: Float(BasicFFT.amplitude),
 //            wind_velocity: vector_float2(x: BasicFFT.wind_velocity.x, y: BasicFFT.wind_velocity.y),
-            resolution: vector_uint2(x: BasicFFT.distributionSize.unsigned, y: BasicFFT.distributionSize.unsigned),
+            resolution: vector_uint2(x: BasicFFT.SIZE_XY.unsigned, y: BasicFFT.SIZE_XY.unsigned),
             size: vector_float2(x: Terrain.terrainSize, y: Terrain.terrainSize),
             normalmap_freq_mod: vector_float2(repeating: 7.3),
             seed: seed
@@ -268,7 +267,7 @@ extension BasicFFT: Renderable {
         let w = fftPipelineState.threadExecutionWidth
         let h = fftPipelineState.maxTotalThreadsPerThreadgroup / w
         var threadGroupSize = MTLSizeMake(w, h, 1)
-        var threadgroupCount = MTLSizeMake(BasicFFT.distributionSize, BasicFFT.distributionSize, 1)
+        var threadgroupCount = MTLSizeMake(BasicFFT.SIZE_XY, BasicFFT.SIZE_XY, 1)
 
         computeEncoder.dispatchThreads(threadgroupCount, threadsPerThreadgroup: threadGroupSize)
         computeEncoder.popDebugGroup()
@@ -277,8 +276,8 @@ extension BasicFFT: Renderable {
 
 //        threadGroupSize.width = 64
 //        threadGroupSize.height = 1
-        threadgroupCount.width = (BasicFFT.distributionSize >> 1)// / 64
-        threadgroupCount.height = BasicFFT.distributionSize >> 1
+        threadgroupCount.width = (BasicFFT.SIZE_XY >> 1)// / 64
+        threadgroupCount.height = BasicFFT.SIZE_XY >> 1
 
         computeEncoder.pushDebugGroup("FFT-Displacement")
         computeEncoder.setComputePipelineState(displacementPipelineState)
@@ -304,7 +303,7 @@ extension BasicFFT: Renderable {
         let w = fftPipelineState.threadExecutionWidth
         let h = fftPipelineState.maxTotalThreadsPerThreadgroup / w
         let threadGroupSize = MTLSizeMake(w, h, 1)
-        var threadgroupCount = MTLSizeMake(BasicFFT.distributionSize, BasicFFT.distributionSize, 1)
+        var threadgroupCount = MTLSizeMake(BasicFFT.SIZE_XY, BasicFFT.SIZE_XY, 1)
 
         computeEncoder.setComputePipelineState(fftPipelineState)
         computeEncoder.setTexture(heightMap, index: 0)
@@ -314,8 +313,8 @@ extension BasicFFT: Renderable {
 
         computeEncoder.pushDebugGroup("FFT-Drawing-Displacement")
 
-        threadgroupCount.width = BasicFFT.distributionSize >> 1
-        threadgroupCount.height = BasicFFT.distributionSize >> 1
+        threadgroupCount.width = BasicFFT.SIZE_XY >> 1
+        threadgroupCount.height = BasicFFT.SIZE_XY >> 1
 
         computeEncoder.setComputePipelineState(fftPipelineState)
         computeEncoder.setTexture(displacementMap, index: 0)
@@ -332,7 +331,7 @@ extension BasicFFT: Renderable {
         let w = gradientPipelineState.threadExecutionWidth
         let h = gradientPipelineState.maxTotalThreadsPerThreadgroup / w
         let threadGroupSize = MTLSizeMake(w, h, 1)
-        let threadgroupCount = MTLSizeMake(BasicFFT.distributionSize, BasicFFT.distributionSize, 1)
+        let threadgroupCount = MTLSizeMake(BasicFFT.SIZE_XY, BasicFFT.SIZE_XY, 1)
 
         computeEncoder.pushDebugGroup("FFT-Gradient")
         computeEncoder.setComputePipelineState(gradientPipelineState)
@@ -344,19 +343,19 @@ extension BasicFFT: Renderable {
         computeEncoder.setTexture(Self.gradientMap, index: 3)
 
         var invSize = float4(
-            x: 1.0 / Float(BasicFFT.distributionSize),
-            y: 1.0 / Float(BasicFFT.distributionSize),
-            z: 1.0 / Float(BasicFFT.distributionSize >> 1),
-            w: 1.0 / Float(BasicFFT.distributionSize >> 1)
+            x: 1.0 / Float(BasicFFT.SIZE_XY),
+            y: 1.0 / Float(BasicFFT.SIZE_XY),
+            z: 1.0 / Float(BasicFFT.SIZE_XY >> 1),
+            w: 1.0 / Float(BasicFFT.SIZE_XY >> 1)
         )
 
         computeEncoder.setBytes(&invSize, length: MemoryLayout<SIMD4<Float>>.stride, index: 0)
 
         var uScale = float4(
-            x: Float(BasicFFT.distributionSize) / Terrain.terrainSize,
-            y: Float(BasicFFT.distributionSize) / Terrain.terrainSize,
-            z: (Float(BasicFFT.distributionSize >> 1)) / Terrain.terrainSize,
-            w: (Float(BasicFFT.distributionSize >> 1)) / Terrain.terrainSize
+            x: Float(BasicFFT.SIZE_XY) / Terrain.terrainSize,
+            y: Float(BasicFFT.SIZE_XY) / Terrain.terrainSize,
+            z: (Float(BasicFFT.SIZE_XY >> 1)) / Terrain.terrainSize,
+            w: (Float(BasicFFT.SIZE_XY >> 1)) / Terrain.terrainSize
         )
 
         computeEncoder.setBytes(&uScale, length: MemoryLayout<SIMD4<Float>>.stride, index: 1)

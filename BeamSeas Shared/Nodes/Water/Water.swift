@@ -209,8 +209,8 @@ class Water {
                 let realRand = Float(gaus.x)
                 let imagRand = Float(gaus.y)
 
-//                let phillips = philliphs(k: k, max_l: 0.02)
-                let phillips = normal_distribution.phillips(Float(k.x), y: Float(k.y))
+                let phillips = philliphs(k: k, max_l: 0.02)
+//                let phillips = normal_distribution.phillips(Float(k.x), y: Float(k.y))
                 let newReal = realRand * amplitude * sqrt(0.5 * phillips)
                 let newImag = imagRand * amplitude * sqrt(0.5 * phillips)
 

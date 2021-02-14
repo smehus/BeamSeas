@@ -18,7 +18,7 @@ class Terrain: Node {
     static var primarySlopeMap: MTLTexture!
     static var secondarySlopeMap: MTLTexture!
 
-    static let terrainSize: Float = 400
+    static let terrainSize: Float = 200
     
     static var terrainParams = TerrainParams(
         size: [Terrain.terrainSize, Terrain.terrainSize],

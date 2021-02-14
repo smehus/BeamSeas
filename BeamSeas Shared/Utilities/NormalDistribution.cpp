@@ -57,7 +57,10 @@ Philipps spectrum fonctor. See J. Tessendorf's paper for more information
 and the mathematical formula.
 */
 
-double NormalDistribution::classicPhillips(float lx, float ly, int nx, int ny, float) {
+/*
+ Web Example
+ https://github.com/deiss/fftocean
+double NormalDistribution::operator() {
     const double g    = 9.81;
     const double kx   = (2*M_PI*x)/lx;
     const double ky   = (2*M_PI*y)/ly;
@@ -75,7 +78,7 @@ double NormalDistribution::classicPhillips(float lx, float ly, int nx, int ny, f
         var /= k_sq*k_sq;
         return var;
 }
-
+*/
     
     
     vector_float2 NormalDistribution::gaussianRandomVariable() {
