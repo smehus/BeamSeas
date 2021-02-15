@@ -108,47 +108,6 @@ kernel void generate_displacement_map_values(constant GausUniforms &uniforms [[ 
                                             uint2 thread_size [[ threads_per_grid ]])
 {
     
-    /*
-    float2 uMod = float2(2.0f * M_PI_F) / uniforms.size;
-//    uint2 resolution = uniforms.resolution >> 1;
-    uint2 N = uniforms.resolution >> 1;//uint2(64, 1) * thread_size;
-
-    // I think this just uses 0 if i === 0
-    float2 wi = mix(float2(N - i),
-                    float2(0u),
-                    float2(i == uint2(0u)));
-
-    uint aIndex = i.y * N.x + i.x;
-    uint bIndex = wi.y * N.x + wi.x;
-
-//    if (aIndex > 16383) { return; }
-//    if (bIndex > 16383) { return; }
-
-    float aReal = input_real[aIndex];
-    float aImag = input_imag[aIndex];
-    float bReal = input_real[bIndex];
-    float bImag = input_imag[bIndex];
-
-    float2 k = uMod * alias(float2(i), float2(N));
-    float k_len = length(k);
-
-    float G = 9.81;
-    float w = sqrt(G * k_len) * (mainUniforms.deltaTime);
-
-    float cw = cos(w);
-    float sw = sin(w);
-
-    float2 a = cmul(float2(aReal, aImag), float2(cw, sw));
-    float2 b = cmul(float2(bReal, bImag), float2(cw, sw));
-    float2 res = a + b;
-
-     float2 grad = cmul(res, float2(-k.y / (k_len + 0.0000000000001), k.x / (k_len + 0.0000000000001)));
-
-    output_real[i.y * N.x + i.x] = grad.x;
-    output_imag[i.y * N.x + i.x] = grad.y;
-     */
-    
-    
     uint2 N = uniforms.resolution >> 1;//uint2(tSize * tNumberOfGroups);
 //    uint2 N = uint2(64, 1) * thread_size;
     
@@ -290,7 +249,6 @@ kernel void fft_kernel(texture2d<float, access::write> output_texture [[ texture
         float val = data[index];
         val = (val - -1) / (1 - -1);
 //        val = val * 0.5 + 0.5;
-        
         output_texture.write(float4(val, val, val, 1), tid);
 
     }

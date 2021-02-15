@@ -61,7 +61,7 @@ class BasicFFT: Node {
     private var displacementMap: MTLTexture!
 
 
-    static let SIZE_XY: Int = 256
+    static let SIZE_XY: Int = 128
     static var wind_velocity = float2(x: 26.0, y: -22.0)
     static var amplitude: Float = 1.0
     static var NORMALMAP_FREQ_MOD: Float = 7.3
@@ -73,11 +73,12 @@ class BasicFFT: Node {
         model = try! MTKMesh(mesh: prim, device: Renderer.device)
 
         let log2n = vDSP_Length(log2(Float((BasicFFT.SIZE_XY * BasicFFT.SIZE_XY))))
-        distributionFFT = vDSP.FFT(log2n: log2n, radix: .radix5, ofType: DSPSplitComplex.self)!
+        distributionFFT = vDSP.FFT(log2n: log2n, radix: .radix2, ofType: DSPSplitComplex.self)!
 
+        // Why 1 * 2 again?
         let s = (BasicFFT.SIZE_XY * BasicFFT.SIZE_XY) >> (1 * 2)
         let downdSampledLog2n = vDSP_Length(log2(Float(s)))
-        downsampledFFT = vDSP.FFT(log2n: downdSampledLog2n, radix: .radix5, ofType: DSPSplitComplex.self)!
+        downsampledFFT = vDSP.FFT(log2n: downdSampledLog2n, radix: .radix2, ofType: DSPSplitComplex.self)!
 
         let texDesc = MTLTextureDescriptor()
         texDesc.width = BasicFFT.SIZE_XY
@@ -158,11 +159,23 @@ class BasicFFT: Node {
     // This runs after 'generate_distributions' - so we get updated distribution_real / imag buffer values.
     // The source buffer values will all remain the same (Buffers in water.swift)
     func runfft(phase: Float) {
-        let recreatedSignal = runfft(real: distribution_real, imag: distribution_imag, count: source.distribution_real.count + source.distribution_imag.count, fft: distributionFFT)
+        let recreatedSignal = runfft(
+            real: distribution_real,
+            imag: distribution_imag,
+            count: source.distribution_real.count/* + source.distribution_imag.count*/,
+            fft: distributionFFT
+        )
+        
         dataBuffer = Renderer.device.makeBuffer(bytes: recreatedSignal, length: MemoryLayout<Float>.stride * recreatedSignal.count, options: [])
 
 
-        let displacementSignal = runfft(real: distribution_displacement_real, imag: distribution_displacement_imag, count: source.distribution_displacement_real.count + source.distribution_displacement_imag.count, fft: downsampledFFT, debug: true)
+        let displacementSignal = runfft(
+            real: distribution_displacement_real,
+            imag: distribution_displacement_imag,
+            count: source.distribution_displacement_real.count/*+ source.distribution_displacement_imag.count*/,
+            fft: downsampledFFT, debug: true
+        )
+        
         displacementBuffer = Renderer.device.makeBuffer(bytes: displacementSignal, length: MemoryLayout<Float>.stride * displacementSignal.count, options: [])
     }
 
@@ -170,17 +183,18 @@ class BasicFFT: Node {
 
 //        let halfN = Int((BasicFFT.imgSize * BasicFFT.imgSize) / 2)
 
-        var inverseOutputReal = [Float](repeating: 0, count: count / 2)
-        var inverseOutputImag = [Float](repeating: 0, count: count / 2)
+//        var count = count
+        var inverseOutputReal = [Float](repeating: 0, count: count)
+        var inverseOutputImag = [Float](repeating: 0, count: count)
 
-        var inputReal = [Float](repeating: 0, count: count / 2)
-        var inputImag = [Float](repeating: 0, count: count / 2)
+        var inputReal = [Float](repeating: 0, count: count)
+        var inputImag = [Float](repeating: 0, count: count)
 
-        var realPointer = real.contents().bindMemory(to: Float.self, capacity: count / 2)
-        var imagPointer = imag.contents().bindMemory(to: Float.self, capacity: count / 2)
+        var realPointer = real.contents().bindMemory(to: Float.self, capacity: count)
+        var imagPointer = imag.contents().bindMemory(to: Float.self, capacity: count)
 
 
-        for index in 0..<(count / 2) {
+        for index in 0..<(count) {
 
             inputReal[index] = realPointer.pointee
             inputImag[index] = imagPointer.pointee
@@ -204,11 +218,12 @@ class BasicFFT: Node {
                                                                 imagp: inverseOutputImagPtr.baseAddress!)
 
                             // 3: Perform the inverse FFT.
-                            transformer.inverse(input: forwardOutput, output: &inverseOutput)
+                            transformer.inverse(input: forwardOutput,
+                                                output: &inverseOutput)
 
 
                             // 4: Return an array of real values from the FFT result.
-                            let scale = 1 / Float((count * 2))
+                            let scale: Float = 0.05
                             return [Float](fromSplitComplex: inverseOutput,
                                            scale: scale,
                                            count: Int(count))
@@ -267,7 +282,7 @@ extension BasicFFT: Renderable {
 
         let w = fftPipelineState.threadExecutionWidth
         let h = fftPipelineState.maxTotalThreadsPerThreadgroup / w
-        var threadGroupSize = MTLSizeMake(w, h, 1)
+        let threadGroupSize = MTLSizeMake(w, h, 1)
         var threadgroupCount = MTLSizeMake(BasicFFT.SIZE_XY, BasicFFT.SIZE_XY, 1)
 
         computeEncoder.dispatchThreads(threadgroupCount, threadsPerThreadgroup: threadGroupSize)
