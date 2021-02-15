@@ -255,14 +255,15 @@ extension BasicFFT: Renderable {
         computeEncoder.setComputePipelineState(distributionPipelineState)
         computeEncoder.setBytes(&gausUniforms, length: MemoryLayout<GausUniforms>.stride, index: BufferIndex.gausUniforms.rawValue)
         computeEncoder.setBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: BufferIndex.uniforms.rawValue)
-        // Output
-        computeEncoder.setBuffer(distribution_real, offset: 0, index: 12)
-        computeEncoder.setBuffer(distribution_imag, offset: 0, index: 13)
 
         // Input
         computeEncoder.setBuffer(source.distribution_real_buffer, offset: 0, index: 14)
         computeEncoder.setBuffer(source.distribution_imag_buffer, offset: 0, index: 15)
-        computeEncoder.setTexture(BasicFFT.heightDisplacementMap, index: 0)
+        
+        
+        // Output
+        computeEncoder.setBuffer(distribution_real, offset: 0, index: 12)
+        computeEncoder.setBuffer(distribution_imag, offset: 0, index: 13)
 
         let w = fftPipelineState.threadExecutionWidth
         let h = fftPipelineState.maxTotalThreadsPerThreadgroup / w
