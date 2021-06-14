@@ -63,15 +63,15 @@ class Water {
 //    var distribution_normal_real_buffer: MTLBuffer!
 //    var distribution_normal_imag_buffer: MTLBuffer!
 
-//    private let wind_velocity: SIMD2<Float>
-//    private let wind_dir: SIMD2<Float>
+    private let wind_velocity: SIMD2<Float>
+    private let wind_dir: SIMD2<Float>
     private let Nx: Int
     private let Nz: Int
     private let size: SIMD2<Float>
     private let size_normal: SIMD2<Float>
 
 
-//    private let L: Float
+    private let L: Float
     static var G: Float = 9.81
 
     private let displacement_downsample: Int = 1
@@ -80,13 +80,13 @@ class Water {
 
     init(
         amplitude: Float,
-//        wind_velocity: SIMD2<Float>,
+        wind_velocity: SIMD2<Float>,
         resolution: SIMD2<Int>,
         size: SIMD2<Float>,
         normalmap_freq_mod: SIMD2<Float>
     ) {
-//        self.wind_velocity = wind_velocity
-//        self.wind_dir = normalize(wind_velocity)
+        self.wind_velocity = wind_velocity
+        self.wind_dir = normalize(wind_velocity)
         self.Nx = resolution.x
         self.Nz = resolution.y
         self.size = size
@@ -97,7 +97,7 @@ class Water {
 //        newamplitude *= 0.3 / sqrt(size.x * size.y)
 
         // Factor in phillips spectrum
-//        L = simd_dot(wind_velocity, wind_velocity) / Self.G;
+        L = simd_dot(wind_velocity, wind_velocity) / Self.G;
 
         distribution_real = [Float](repeating: 0, count: Int(n))
         distribution_imag = [Float](repeating: 0, count: Int(n))
@@ -196,7 +196,8 @@ class Water {
     private func generate_distribution(distribution_real: inout [Float],
                                        distribution_imag: inout [Float],
                                        size: SIMD2<Float>,
-                                       amplitude: Float) {
+                                       amplitude: Float,
+                                       max_l: Float = 0.02) {
 
         // Modifier to find spatial frequency
         let mod = SIMD2<Float>(repeating: 2.0 * Float.pi) / size
@@ -209,10 +210,10 @@ class Water {
                 let realRand = Float(gaus.x)
                 let imagRand = Float(gaus.y)
 
-//                let phillips = philliphs(k: k, max_l: max_l)
-                let phillips = normal_distribution.phillips(Float(k.x), y: Float(k.y))
-                let newReal = realRand * sqrt(0.5 * phillips)
-                let newImag = imagRand * sqrt(0.5 * phillips)
+                let phillips = philliphs(k: k, max_l: max_l)
+//                let phillips = normal_distribution.phillips(Float(k.x), y: Float(k.y))
+                let newReal = realRand * amplitude * sqrt(0.5 * phillips)
+                let newImag = imagRand * amplitude * sqrt(0.5 * phillips)
 
 
                 let idx = z * Nx + x
@@ -225,23 +226,23 @@ class Water {
         }
     }
 
-//    private func philliphs(k: SIMD2<Float>, max_l: Float) -> Float {
-//        // might have to do this on gpu
-//        let k_len = simd_length(k)
-//        if k_len < 0.000001 {
-//            return 0
-//        }
-//
-//        let kL = k_len * L
-//        let k_dir = simd_normalize(k)
-//        let kw = simd_dot(k_dir, wind_dir)
-//
-//        return
-//            pow(kw * kw, 1.0) *
-//            exp(-1.0 * k_len * k_len * max_l * max_l) *
-//            exp(-1.0 / (kL * kL)) *
-//            pow(k_len, -4.0)
-//    }
+    private func philliphs(k: SIMD2<Float>, max_l: Float) -> Float {
+        // might have to do this on gpu
+        let k_len = simd_length(k)
+        if k_len < 0.000001 {
+            return 0
+        }
+
+        let kL = k_len * L
+        let k_dir = simd_normalize(k)
+        let kw = simd_dot(k_dir, wind_dir)
+
+        return
+            pow(kw * kw, 1.0) *
+            exp(-1.0 * k_len * k_len * max_l * max_l) *
+            exp(-1.0 / (kL * kL)) *
+            pow(k_len, -4.0)
+    }
 
     private func alias(_ x: Int, N: Int) -> Int {
         var value = x

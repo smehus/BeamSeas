@@ -200,6 +200,7 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
     float3 vGradJacobian = gradientMap.sample(sam, fragment_in.uv).xyz;
     float3 noise_gradient = 0.3 * normalValue;
 
+//    return float4(normalValue, 1.0);
     float jacobian = vGradJacobian.z;
     float turbulence = max(2.0 - jacobian + dot(abs(noise_gradient.xy), float2(1.2)), 0.0);
 

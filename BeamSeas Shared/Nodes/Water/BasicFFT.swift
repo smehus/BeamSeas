@@ -24,7 +24,7 @@ extension Int {
 class BasicFFT: Node {
 
 
-    static let distributionSize: Int = 128
+    static let distributionSize: Int = 256
 
     private var signalCount: Int = 0
 
@@ -64,8 +64,8 @@ class BasicFFT: Node {
     private var displacementMap: MTLTexture!
 
 
-//    static var wind_velocity = float2(x: 0, y: 32)
-    static var amplitude = 75
+    static var wind_velocity = float2(x: 22, y: -26)
+    static var amplitude = 10.0
 
     override init() {
 
@@ -124,7 +124,7 @@ class BasicFFT: Node {
 
         source = Water(
             amplitude: Float(BasicFFT.amplitude),
-//            wind_velocity: BasicFFT.wind_velocity,
+            wind_velocity: BasicFFT.wind_velocity,
             resolution: SIMD2<Int>(x: BasicFFT.distributionSize, y: BasicFFT.distributionSize),
             size: float2(x: Terrain.terrainSize, y: Terrain.terrainSize),
             normalmap_freq_mod: float2(repeating: 1)

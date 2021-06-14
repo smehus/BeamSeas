@@ -116,7 +116,7 @@ extension Renderer: MTKViewDelegate {
         }
 
         let fps = Float(Float(1) / Float(view.preferredFramesPerSecond))
-        delta += (fps * 1)
+        delta += (fps * 2)
         for model in models {
             (model as? Model)?.renderer = self
             model.update(with: delta)
