@@ -109,6 +109,10 @@
 		029DE52425150DB900064C6B /* NormalDistribution.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 029DE52125150DB900064C6B /* NormalDistribution.cpp */; };
 		02A6CB4924D3728000FBE595 /* Water.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02491ABB24D128100091395A /* Water.swift */; };
 		02A6CB4A24D3728100FBE595 /* Water.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02491ABB24D128100091395A /* Water.swift */; };
+		02A98653267A3296003C68FC /* Skybox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02A98652267A3296003C68FC /* Skybox.swift */; };
+		02A98654267A3296003C68FC /* Skybox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02A98652267A3296003C68FC /* Skybox.swift */; };
+		02A98656267A3F9C003C68FC /* Skybox.metal in Sources */ = {isa = PBXBuildFile; fileRef = 02A98655267A3F9C003C68FC /* Skybox.metal */; };
+		02A98657267A3F9C003C68FC /* Skybox.metal in Sources */ = {isa = PBXBuildFile; fileRef = 02A98655267A3F9C003C68FC /* Skybox.metal */; };
 		02D773EF24B7571900811B88 /* PBR.metal in Sources */ = {isa = PBXBuildFile; fileRef = 02D773EE24B7571900811B88 /* PBR.metal */; };
 		02D773F024B7571900811B88 /* PBR.metal in Sources */ = {isa = PBXBuildFile; fileRef = 02D773EE24B7571900811B88 /* PBR.metal */; };
 		02E46DB224AC2D420055167A /* Terrain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02E46DB124AC2D420055167A /* Terrain.swift */; };
@@ -189,6 +193,8 @@
 		0299535F249A64FD0014228F /* Node.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Node.swift; sourceTree = "<group>"; };
 		029DE52125150DB900064C6B /* NormalDistribution.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = NormalDistribution.cpp; sourceTree = "<group>"; };
 		029DE52225150DB900064C6B /* NormalDistribution.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = NormalDistribution.hpp; sourceTree = "<group>"; };
+		02A98652267A3296003C68FC /* Skybox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Skybox.swift; sourceTree = "<group>"; };
+		02A98655267A3F9C003C68FC /* Skybox.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Skybox.metal; sourceTree = "<group>"; };
 		02D773EE24B7571900811B88 /* PBR.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = PBR.metal; sourceTree = "<group>"; };
 		02E46DB124AC2D420055167A /* Terrain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Terrain.swift; sourceTree = "<group>"; };
 		02E9FFBE258E7EBF00DD228D /* OldBoat.mtl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = OldBoat.mtl; sourceTree = "<group>"; };
@@ -312,6 +318,7 @@
 				022B51E024B0E33B00FC5C81 /* Terrain.metal */,
 				02482E6A24DC4C750000B762 /* Water.metal */,
 				0276CF16256196540016910A /* ComputeHeight.metal */,
+				02A98655267A3F9C003C68FC /* Skybox.metal */,
 			);
 			path = Shaders;
 			sourceTree = "<group>";
@@ -387,6 +394,7 @@
 				020F9852249A695900DB4850 /* Mesh.swift */,
 				020F9855249A696300DB4850 /* Submesh.swift */,
 				024B76CE249A8D290030B123 /* Light.swift */,
+				02A98652267A3296003C68FC /* Skybox.swift */,
 			);
 			path = Nodes;
 			sourceTree = "<group>";
@@ -564,6 +572,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				02A98656267A3F9C003C68FC /* Skybox.metal in Sources */,
 				02D773EF24B7571900811B88 /* PBR.metal in Sources */,
 				02A6CB4924D3728000FBE595 /* Water.swift in Sources */,
 				02419D70249850C100BCB203 /* Renderer.swift in Sources */,
@@ -575,6 +584,7 @@
 				02482E6B24DC4C750000B762 /* Water.metal in Sources */,
 				02E46DB224AC2D420055167A /* Terrain.swift in Sources */,
 				024B76CF249A8D290030B123 /* Light.swift in Sources */,
+				02A98653267A3296003C68FC /* Skybox.swift in Sources */,
 				020F9865249A757C00DB4850 /* ViewController.swift in Sources */,
 				02419D56249850C100BCB203 /* AppDelegate.swift in Sources */,
 				020FD8C224D4575A00B77CF2 /* Distributions.swift in Sources */,
@@ -598,6 +608,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				02A98657267A3F9C003C68FC /* Skybox.metal in Sources */,
 				02D773F024B7571900811B88 /* PBR.metal in Sources */,
 				02A6CB4A24D3728100FBE595 /* Water.swift in Sources */,
 				02419D71249850C100BCB203 /* Renderer.swift in Sources */,
@@ -609,6 +620,7 @@
 				02482E6C24DC4C750000B762 /* Water.metal in Sources */,
 				02E46DB324AC2D420055167A /* Terrain.swift in Sources */,
 				024B76D0249A8D290030B123 /* Light.swift in Sources */,
+				02A98654267A3296003C68FC /* Skybox.swift in Sources */,
 				020F9866249A757C00DB4850 /* ViewController.swift in Sources */,
 				02419D67249850C100BCB203 /* AppDelegate.swift in Sources */,
 				020FD8C324D4575A00B77CF2 /* Distributions.swift in Sources */,

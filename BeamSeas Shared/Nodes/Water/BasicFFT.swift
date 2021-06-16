@@ -24,7 +24,7 @@ extension Int {
 class BasicFFT: Node {
 
 
-    static let distributionSize: Int = 256
+    static let distributionSize: Int = 128
 
     private var signalCount: Int = 0
 
@@ -65,7 +65,7 @@ class BasicFFT: Node {
 
 
     static var wind_velocity = float2(x: 22, y: -26)
-    static var amplitude = 10.0
+    static var amplitude = 2.0
 
     override init() {
 

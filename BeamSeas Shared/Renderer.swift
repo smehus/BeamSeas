@@ -53,6 +53,7 @@ final class Renderer: NSObject {
     var fft: BasicFFT
     var player: Model!
     var playerDelta: Float = 0
+    var skybox: Skybox!
 
     enum DeltaFactor: Float {
         case normal = 0.01
@@ -89,6 +90,9 @@ final class Renderer: NSObject {
 
         models.append(fft)
         fragmentUniforms.light_count = UInt32(lighting.count)
+        
+        skybox = Skybox(textureName: nil)
+        models.append(skybox)
 
         mtkView(metalView, drawableSizeWillChange: metalView.bounds.size)
     }

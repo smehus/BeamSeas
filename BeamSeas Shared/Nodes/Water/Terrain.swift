@@ -18,7 +18,7 @@ class Terrain: Node {
     static var primarySlopeMap: MTLTexture!
     static var secondarySlopeMap: MTLTexture!
 
-    static let terrainSize: Float = 200
+    static let terrainSize: Float = 300
     
     static var terrainParams = TerrainParams(
         size: [Terrain.terrainSize, Terrain.terrainSize],
@@ -78,14 +78,14 @@ class Terrain: Node {
         )
 
         let descriptor = MTLRenderPipelineDescriptor()
-        descriptor.colorAttachments[0].pixelFormat = .bgra8Unorm
+        descriptor.colorAttachments[0].pixelFormat = Renderer.metalView.colorPixelFormat//.bgra8Unorm
         descriptor.depthAttachmentPixelFormat = .depth32Float
         descriptor.vertexFunction = Renderer.library.makeFunction(name: "vertex_terrain")
         descriptor.fragmentFunction = Renderer.library.makeFunction(name: "fragment_terrain")
         descriptor.tessellationFactorStepFunction = .perPatch
         descriptor.maxTessellationFactor = Self.maxTessellation
-        descriptor.tessellationPartitionMode = .fractionalEven
-//        descriptor.tessellationPartitionMode = .pow2
+//        descriptor.tessellationPartitionMode = .fractionalEven
+        descriptor.tessellationPartitionMode = .pow2
         descriptor.isTessellationFactorScaleEnabled = false
         descriptor.tessellationFactorFormat = .half
         descriptor.tessellationControlPointIndexType = .none
