@@ -191,10 +191,21 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
                                  constant TerrainParams &terrainParams [[ buffer(BufferIndexTerrainParams) ]],
                                  constant FragmentUniforms &fragmentUniforms [[ buffer(BufferIndexFragmentUniforms) ]],
                                  texture2d<float> gradientMap [[ texture(0) ]],
-                                 texture2d<float> normalMap [[ texture(2) ]])
+                                 texture2d<float> normalMap [[ texture(2) ]],
+                                 texture2d<float> waterReflection [[ texture(TextureIndexReflection) ]])
 {
-
-
+    float3 color = float3(0.2, 0.6, 1.0);
+    
+    constexpr sampler reflectionSampler(filter::linear, address::repeat);
+    float width = float(waterReflection.get_width() * 2.0);
+    float height = float(waterReflection.get_height() * 2.0);
+    float x = fragment_in.position.x / width;
+    float y = fragment_in.position.y / height;
+    float2 reflectionCoords = float2(x, 1 - y);
+    float4 reflectionColor = waterReflection.sample(reflectionSampler, reflectionCoords);
+    float4 mixedColor = mix(reflectionColor, float4(color, 1.0), 0.6);
+    
+    
     constexpr sampler sam(min_filter::linear, mag_filter::linear, mip_filter::nearest, address::repeat);
     float3 normalValue = normalMap.sample(sam, fragment_in.uv).xzy;
     float3 vGradJacobian = gradientMap.sample(sam, fragment_in.uv).xyz;
@@ -206,8 +217,8 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
 
     float color_mod = 1.0  * smoothstep(1.3, 1.8, turbulence);
 
-    float3 color = float3(0.2, 0.6, 1.0);
-    float3 specular = terrainDiffuseLighting(uniforms.normalMatrix * (normalValue * 2.0f - 1.0f), fragment_in.position.xyz, fragmentUniforms, lights, color.rgb);
+    
+    float3 specular = terrainDiffuseLighting(uniforms.normalMatrix * (normalValue * 2.0f - 1.0f), fragment_in.position.xyz, fragmentUniforms, lights, mixedColor.rgb);
     return float4(specular, 1.0);
 //    fragment_in.color.xyz *= 2.0;
 //    return fragment_in.color;
