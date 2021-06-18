@@ -113,6 +113,8 @@
 		02A98654267A3296003C68FC /* Skybox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02A98652267A3296003C68FC /* Skybox.swift */; };
 		02A98656267A3F9C003C68FC /* Skybox.metal in Sources */ = {isa = PBXBuildFile; fileRef = 02A98655267A3F9C003C68FC /* Skybox.metal */; };
 		02A98657267A3F9C003C68FC /* Skybox.metal in Sources */ = {isa = PBXBuildFile; fileRef = 02A98655267A3F9C003C68FC /* Skybox.metal */; };
+		02CF8F86267D3C7300FE244D /* RenderPass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02CF8F85267D3C7300FE244D /* RenderPass.swift */; };
+		02CF8F87267D3C7300FE244D /* RenderPass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02CF8F85267D3C7300FE244D /* RenderPass.swift */; };
 		02D773EF24B7571900811B88 /* PBR.metal in Sources */ = {isa = PBXBuildFile; fileRef = 02D773EE24B7571900811B88 /* PBR.metal */; };
 		02D773F024B7571900811B88 /* PBR.metal in Sources */ = {isa = PBXBuildFile; fileRef = 02D773EE24B7571900811B88 /* PBR.metal */; };
 		02E46DB224AC2D420055167A /* Terrain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02E46DB124AC2D420055167A /* Terrain.swift */; };
@@ -195,6 +197,7 @@
 		029DE52225150DB900064C6B /* NormalDistribution.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = NormalDistribution.hpp; sourceTree = "<group>"; };
 		02A98652267A3296003C68FC /* Skybox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Skybox.swift; sourceTree = "<group>"; };
 		02A98655267A3F9C003C68FC /* Skybox.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Skybox.metal; sourceTree = "<group>"; };
+		02CF8F85267D3C7300FE244D /* RenderPass.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RenderPass.swift; sourceTree = "<group>"; };
 		02D773EE24B7571900811B88 /* PBR.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = PBR.metal; sourceTree = "<group>"; };
 		02E46DB124AC2D420055167A /* Terrain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Terrain.swift; sourceTree = "<group>"; };
 		02E9FFBE258E7EBF00DD228D /* OldBoat.mtl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = OldBoat.mtl; sourceTree = "<group>"; };
@@ -370,6 +373,7 @@
 		0299533B249926070014228F /* Utilities */ = {
 			isa = PBXGroup;
 			children = (
+				02CF8F85267D3C7300FE244D /* RenderPass.swift */,
 				020FD8C424D4577200B77CF2 /* Common.swift */,
 				020FD8C124D4575A00B77CF2 /* Distributions.swift */,
 				028370F1249AFC83006E8AF3 /* DebugLights.metal */,
@@ -596,6 +600,7 @@
 				020FD8C524D4577200B77CF2 /* Common.swift in Sources */,
 				020F9853249A695900DB4850 /* Mesh.swift in Sources */,
 				029DE52325150DB900064C6B /* NormalDistribution.cpp in Sources */,
+				02CF8F86267D3C7300FE244D /* RenderPass.swift in Sources */,
 				0236A745249D0A6C008F197E /* Texturable.swift in Sources */,
 				020F9856249A696300DB4850 /* Submesh.swift in Sources */,
 				02995360249A64FD0014228F /* Node.swift in Sources */,
@@ -632,6 +637,7 @@
 				020FD8C624D4577200B77CF2 /* Common.swift in Sources */,
 				020F9854249A695900DB4850 /* Mesh.swift in Sources */,
 				029DE52425150DB900064C6B /* NormalDistribution.cpp in Sources */,
+				02CF8F87267D3C7300FE244D /* RenderPass.swift in Sources */,
 				0236A746249D0A6C008F197E /* Texturable.swift in Sources */,
 				020F9857249A696300DB4850 /* Submesh.swift in Sources */,
 				02995361249A64FD0014228F /* Node.swift in Sources */,

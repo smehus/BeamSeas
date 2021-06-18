@@ -23,19 +23,21 @@ final class Renderer: NSObject {
 
     lazy var camera: Camera = {
         
-        let camera = ArcballCamera()
-        camera.distance = 80
-        camera.target = [0, 0, -80]
+//        let camera = ArcballCamera()
+//        camera.distance = 80
+//        camera.target = [0, 0, -80]
 //        camera.rotation.x = Float(-10).degreesToRadians
 //        camera.rotation.y = Float(-60).degreesToRadians
  
         
-//        let camera = ThirdPersonCamera()
-//        camera.focus = player
-//        camera.focusDistance = 20
-//        camera.focusHeight = 10
+        let camera = ThirdPersonCamera()
+        camera.focus = player
+        camera.focusDistance = 150
+        camera.focusHeight = 100
         return camera
     }()
+    
+    let reflectionCamera = Camera()
 
     /// Debug lights
     lazy var lightPipelineState: MTLRenderPipelineState = {
@@ -54,6 +56,7 @@ final class Renderer: NSObject {
     var player: Model!
     var playerDelta: Float = 0
     var skybox: Skybox!
+    var reflectionRenderPass: RenderPass
 
     enum DeltaFactor: Float {
         case normal = 0.01
@@ -72,6 +75,9 @@ final class Renderer: NSObject {
         depthStencilState = Self.buildDepthStencilState()
 
         fft = BasicFFT()
+        
+        reflectionRenderPass = RenderPass(name: "Reflection",
+                                          size: metalView.drawableSize)
 
         super.init()
 
@@ -108,6 +114,7 @@ final class Renderer: NSObject {
 extension Renderer: MTKViewDelegate {
     func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {
         camera.aspect = Float(view.bounds.width) / Float(view.bounds.height)
+        reflectionRenderPass.updateTextures(size: size)
     }
 
     func draw(in view: MTKView) {
@@ -118,6 +125,7 @@ extension Renderer: MTKViewDelegate {
             return
         }
 
+        var lights = lighting.lights
         let fps = Float(Float(1) / Float(view.preferredFramesPerSecond))
         delta += (fps * 2)
         for model in models {
@@ -126,10 +134,39 @@ extension Renderer: MTKViewDelegate {
         }
 
         uniforms.deltaTime = delta
+        fragmentUniforms.camera_position = camera.position
+        
+        // Reflection Pass \\
+        let reflectEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: reflectionRenderPass.descriptor)!
+        reflectEncoder.pushDebugGroup("Reflection Pass")
+        reflectEncoder.setDepthStencilState(depthStencilState)
+        reflectEncoder.setFragmentBytes(&lights, length: MemoryLayout<Light>.stride * lights.count, index: BufferIndex.lights.rawValue)
+        reflectionCamera.rotation = camera.rotation
+        reflectionCamera.position = camera.position
+        reflectionCamera.scale = camera.scale
+        
+        reflectionCamera.position.y = -camera.position.y
+        reflectionCamera.rotation.x = -camera.rotation.x
+        uniforms.viewMatrix = reflectionCamera.viewMatrix
+        
+        for renderable in models {
+            guard let model = renderable as? Model, model.name == "OldBoat" else { continue }
+            
+            model.draw(renderEncoder: reflectEncoder,
+                       uniforms: &uniforms,
+                       fragmentUniforms: &fragmentUniforms)
+        }
+        
+        skybox.draw(renderEncoder: reflectEncoder,
+                    uniforms: &uniforms,
+                    fragmentUniforms: &fragmentUniforms)
+        reflectEncoder.endEncoding()
+        reflectEncoder.popDebugGroup()
+        
+        
         uniforms.projectionMatrix = camera.projectionMatrix
         uniforms.viewMatrix = camera.viewMatrix
-        fragmentUniforms.camera_position = camera.position
-
+        
         let distributionEncoder = commandBuffer.makeComputeCommandEncoder()!
         fft.generateDistributions(computeEncoder: distributionEncoder, uniforms: uniforms)
         distributionEncoder.endEncoding()
@@ -186,7 +223,7 @@ extension Renderer: MTKViewDelegate {
         let renderEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: descriptor)!
         renderEncoder.setDepthStencilState(depthStencilState)
 
-        var lights = lighting.lights
+        
         renderEncoder.setFragmentBytes(&lights, length: MemoryLayout<Light>.stride * lights.count, index: BufferIndex.lights.rawValue)
 
         if player.moveState == .forward {
