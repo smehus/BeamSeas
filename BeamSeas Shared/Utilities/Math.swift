@@ -119,19 +119,8 @@ extension float4x4 {
     }
 
     // MARK: - Left handed projection matrix
-//    init(projectionFov fov: Float, near: Float, far: Float, aspect: Float, lhs: Bool = true) {
-//        let y = 1 / tan(fov * 0.5)
-//        let x = y / aspect
-//        let z = lhs ? far / (far - near) : far / (near - far)
-//        let X = float4( x,  0,  0,  0)
-//        let Y = float4( 0,  y,  0,  0)
-//        let Z = lhs ? float4( 0,  0,  z, 1) : float4( 0,  0,  z, -1)
-//        let W = lhs ? float4( 0,  0,  z * -near,  0) : float4( 0,  0,  z * near,  0)
-//        self.init()
-//        columns = (X, Y, Z, W)
-//    }
-
-
+    // Not sure why the second prjojection logic works with skybox but first init does not...
+    
     /// Correct Left Handed projection - One above sucks and doesn't work
     init(perspectiveProjectionFov fovRadians: Float, aspectRatio aspect: Float, nearZ: Float, farZ: Float) {
         let yScale = 1 / tan(fovRadians * 0.5)
@@ -150,6 +139,18 @@ extension float4x4 {
                   float4( 0, yy,  0,  0),
                   float4( 0,  0, zz, zw),
                   float4( 0,  0, wz,  1))
+    }
+    
+    init(projectionFov fov: Float, near: Float, far: Float, aspect: Float, lhs: Bool = true) {
+      let y = 1 / tan(fov * 0.5)
+      let x = y / aspect
+      let z = lhs ? far / (far - near) : far / (near - far)
+      let X = float4( x,  0,  0,  0)
+      let Y = float4( 0,  y,  0,  0)
+      let Z = lhs ? float4( 0,  0,  z, 1) : float4( 0,  0,  z, -1)
+      let W = lhs ? float4( 0,  0,  z * -near,  0) : float4( 0,  0,  z * near,  0)
+      self.init()
+      columns = (X, Y, Z, W)
     }
 
     // left-handed LookAt

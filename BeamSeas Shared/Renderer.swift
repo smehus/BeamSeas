@@ -79,6 +79,8 @@ final class Renderer: NSObject {
                                              blue: 0.4, alpha: 1)
 
         metalView.delegate = self
+        
+        skybox = Skybox(textureName: nil)
 
         let terrain = Terrain()
         models.append(terrain)
@@ -90,9 +92,6 @@ final class Renderer: NSObject {
 
         models.append(fft)
         fragmentUniforms.light_count = UInt32(lighting.count)
-        
-        skybox = Skybox(textureName: nil)
-        models.append(skybox)
 
         mtkView(metalView, drawableSizeWillChange: metalView.bounds.size)
     }
@@ -203,6 +202,8 @@ extension Renderer: MTKViewDelegate {
             
             model.draw(renderEncoder: renderEncoder, uniforms: &uniforms, fragmentUniforms: &fragmentUniforms)
         }
+        
+        skybox.draw(renderEncoder: renderEncoder, uniforms: &uniforms, fragmentUniforms: &fragmentUniforms)
 
         let tangent0 = float3(playerRotation.1.x.radiansToDegrees, playerRotation.1.y.radiansToDegrees, playerRotation.1.z.radiansToDegrees)
         let tangent1 = float3(playerRotation.2.x.radiansToDegrees, playerRotation.2.y.radiansToDegrees, playerRotation.2.z.radiansToDegrees)
