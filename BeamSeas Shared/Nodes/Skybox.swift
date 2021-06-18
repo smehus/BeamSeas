@@ -7,9 +7,18 @@
 //
 
 import MetalKit
+import Foundation
+import simd
 
 class Skybox {
     
+    struct SkySettings {
+        var turbidity: Float = 0.28
+        var sunElevation: Float = 0.5
+        var upperAtmosphereScattering: Float = 0.1
+        var groundAlbedo: Float = 4
+    }
+    var skySettings = SkySettings()
     let mesh: MTKMesh
     var texture: MTLTexture?
     let pipelineState: MTLRenderPipelineState
@@ -41,6 +50,35 @@ class Skybox {
         stencilDescriptor.depthCompareFunction = .lessEqual
         stencilDescriptor.isDepthWriteEnabled = true
         depthStencilState = Renderer.device.makeDepthStencilState(descriptor: stencilDescriptor)
+        
+        if let _ = textureName {
+            // Custome texture if available
+        } else {
+            texture = loadGeneratedSkyboxTexture(dimensions: [256, 256])
+        }
+    }
+    
+    func loadGeneratedSkyboxTexture(dimensions: SIMD2<Int32>) -> MTLTexture? {
+        var texture: MTLTexture?
+        
+        let skyTexture = MDLSkyCubeTexture(
+            name: "sky",
+            channelEncoding: .uInt8,
+            textureDimensions: dimensions,
+            turbidity: skySettings.turbidity,
+            sunElevation: skySettings.sunElevation,
+            upperAtmosphereScattering: skySettings.upperAtmosphereScattering,
+            groundAlbedo: skySettings.groundAlbedo
+        )
+        
+        do {
+            let textureLoader = MTKTextureLoader(device: Renderer.device)
+            texture = try textureLoader.newTexture(texture: skyTexture, options: nil)
+        } catch {
+            fatalError(error.localizedDescription)
+        }
+        
+        return texture
     }
 }
 
@@ -52,14 +90,18 @@ extension Skybox: Renderable {
     
     func draw(renderEncoder: MTLRenderCommandEncoder, uniforms: inout Uniforms, fragmentUniforms: inout FragmentUniforms) {
         renderEncoder.pushDebugGroup("Skybox")
-        
-        renderEncoder.setRenderPipelineState(pipelineState)
-        renderEncoder.setDepthStencilState(depthStencilState)
-        renderEncoder.setVertexBuffer(mesh.vertexBuffers[0].buffer, offset: 0, index: 0)
+
         var viewMatrix = uniforms.viewMatrix
         viewMatrix.columns.3 = [0, 0, 0, 1]
         var viewProjectionMatrix = uniforms.projectionMatrix * viewMatrix
+        
+        renderEncoder.setRenderPipelineState(pipelineState)
+        renderEncoder.setDepthStencilState(depthStencilState)
+        
+        renderEncoder.setVertexBuffer(mesh.vertexBuffers[0].buffer, offset: 0, index: 0)
         renderEncoder.setVertexBytes(&viewProjectionMatrix, length: MemoryLayout<float4x4>.stride, index: 1)
+        renderEncoder.setFragmentTexture(texture, index: TextureIndex.skybox.rawValue)
+        
         let submesh = mesh.submeshes[0]
         renderEncoder.drawIndexedPrimitives(type: .triangle,
           indexCount: submesh.indexCount,

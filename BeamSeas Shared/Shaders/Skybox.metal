@@ -17,16 +17,21 @@ struct SkyboxVertexIn {
 };
 struct SkyboxVertexOut {
     float4 position [[ position ]];
+    float3 textureCoordinates;
 };
 
 
 vertex SkyboxVertexOut vertexSkybox(const SkyboxVertexIn in [[stage_in]],
                                     constant float4x4 &vp [[buffer(1)]]) {
-    SkyboxVertexOut out;
-    out.position = (vp * in.position).xyww;
-    return out;
+    return {
+        .position = (vp * in.position).xyww,
+        .textureCoordinates = in.position.xyz
+    };
 }
 
-fragment half4 fragmentSkybox(SkyboxVertexOut in [[stage_in]]) {
-    return half4(1, 1, 0, 1);
+fragment half4 fragmentSkybox(SkyboxVertexOut in [[stage_in]],
+                              texturecube<half> cubeTexture [[ texture(TextureIndexSkybox) ]]) {
+    constexpr sampler default_sampler(filter::linear);
+    half4 color = cubeTexture.sample(default_sampler, in.textureCoordinates);
+    return color;
 }
