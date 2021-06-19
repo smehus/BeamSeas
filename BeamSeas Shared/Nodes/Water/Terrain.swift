@@ -41,6 +41,7 @@ class Terrain: Node {
     var edgeFactors: [Float] = [Terrain.edgeFactors]
     var insideFactors: [Float] = [Terrain.insideFactors]
     var allPatches: [Patch] = []
+    var waterNormalTexture: MTLTexture?
 
     lazy var tessellationFactorsBuffer: MTLBuffer? = {
         let count = patchCount * Int(Terrain.edgeFactors + Terrain.insideFactors)
@@ -107,6 +108,8 @@ class Terrain: Node {
 
         let kernelFunction = Renderer.library.makeFunction(name: "tessellation_main")!
         computePipelineState = try! Renderer.device.makeComputePipelineState(function: kernelFunction)
+        
+        waterNormalTexture = Self.loadTexture(imageName: "normal-water.png")
 
 //        texDesc.width = altHeightMap.width
 //        texDesc.height = altHeightMap.height
@@ -142,6 +145,8 @@ class Terrain: Node {
 //        commandBuffer.commit()
 
         super.init()
+        
+        
     }
 }
 
@@ -279,6 +284,10 @@ extension Terrain: Renderable {
             index: 2
         )
 
+        renderEncoder.setFragmentTexture(
+            waterNormalTexture,
+            index: TextureIndex.waterRipple.rawValue
+        )
 
 
 //        renderEncoder.setTriangleFillMode(.lines)

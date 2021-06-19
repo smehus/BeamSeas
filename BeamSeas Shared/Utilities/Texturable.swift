@@ -39,7 +39,7 @@ extension Texturable {
              .SRGB: false,
              .generateMipmaps: NSNumber(booleanLiteral: true)]
 
-        let texture = try? textureLoader.newTexture(texture: texture,
+        let texture = try! textureLoader.newTexture(texture: texture,
                                                     options: textureLoaderOptions)
         return texture
     }

@@ -52,7 +52,8 @@ typedef NS_ENUM(NSInteger, TextureIndex)
     TextureIndexPrimarySlope = 2,
     TextureIndexSecondarySlope = 3,
     TextureIndexSkybox = 4,
-    TextureIndexReflection = 5
+    TextureIndexReflection = 5,
+    TextureIndexWaterRipple = 6
 };
 
 typedef struct

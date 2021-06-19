@@ -192,7 +192,8 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
                                  constant FragmentUniforms &fragmentUniforms [[ buffer(BufferIndexFragmentUniforms) ]],
                                  texture2d<float> gradientMap [[ texture(0) ]],
                                  texture2d<float> normalMap [[ texture(2) ]],
-                                 texture2d<float> reflectionTexture [[ texture(TextureIndexReflection) ]])
+                                 texture2d<float> reflectionTexture [[ texture(TextureIndexReflection) ]],
+                                 texture2d<float> waterRippleTexture [[ texture(TextureIndexWaterRipple) ]])
 {
 //    float3 color = float3(0.2, 0.6, 1.0);
     
@@ -202,9 +203,21 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
     float x = fragment_in.position.x / width;
     float y = fragment_in.position.y / height;
     float2 reflectionCoords = float2(x, 1 - y);
+    
+    // Multiplier determines ripple size
+    float timer = uniforms.deltaTime * 0.01;
+    float2 rippleUV = fragment_in.uv;
+    float waveStrength = 0.1;
+    float2 rippleX = float2(rippleUV.x + timer, rippleUV.y);
+    float2 rippleY = float2(-rippleUV.x, rippleUV.y) + timer;
+    float2 ripple =
+        ((waterRippleTexture.sample(reflectionSampler, rippleX).rg * 2.0 - 1.0) +
+         (waterRippleTexture.sample(reflectionSampler, rippleY).rg * 2.0 - 1.0))
+          * waveStrength;
+    reflectionCoords += ripple;
+    reflectionCoords = clamp(reflectionCoords, 0.001, 0.999);
     float4 mixedColor = reflectionTexture.sample(reflectionSampler, reflectionCoords);
 //    mixedColor = mix(mixedColor, float4(0.0, 0.3, 0.5, 1.0), 0.3);
-    
     
     constexpr sampler sam(min_filter::linear, mag_filter::linear, mip_filter::nearest, address::repeat);
     float3 normalValue = normalMap.sample(sam, fragment_in.uv).xzy;
