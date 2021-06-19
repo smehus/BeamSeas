@@ -192,18 +192,18 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
                                  constant FragmentUniforms &fragmentUniforms [[ buffer(BufferIndexFragmentUniforms) ]],
                                  texture2d<float> gradientMap [[ texture(0) ]],
                                  texture2d<float> normalMap [[ texture(2) ]],
-                                 texture2d<float> waterReflection [[ texture(TextureIndexReflection) ]])
+                                 texture2d<float> reflectionTexture [[ texture(TextureIndexReflection) ]])
 {
-    float3 color = float3(0.2, 0.6, 1.0);
+//    float3 color = float3(0.2, 0.6, 1.0);
     
     constexpr sampler reflectionSampler(filter::linear, address::repeat);
-    float width = float(waterReflection.get_width() * 2.0);
-    float height = float(waterReflection.get_height() * 2.0);
+    float width = float(reflectionTexture.get_width() * 2.0);
+    float height = float(reflectionTexture.get_height() * 2.0);
     float x = fragment_in.position.x / width;
     float y = fragment_in.position.y / height;
     float2 reflectionCoords = float2(x, 1 - y);
-    float4 reflectionColor = waterReflection.sample(reflectionSampler, reflectionCoords);
-    float4 mixedColor = mix(reflectionColor, float4(color, 1.0), 0.2);
+    float4 mixedColor = reflectionTexture.sample(reflectionSampler, reflectionCoords);
+//    mixedColor = mix(mixedColor, float4(0.0, 0.3, 0.5, 1.0), 0.3);
     
     
     constexpr sampler sam(min_filter::linear, mag_filter::linear, mip_filter::nearest, address::repeat);
