@@ -203,7 +203,7 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
     float y = fragment_in.position.y / height;
     float2 reflectionCoords = float2(x, 1 - y);
     float4 reflectionColor = waterReflection.sample(reflectionSampler, reflectionCoords);
-    float4 mixedColor = mix(reflectionColor, float4(color, 1.0), 0.6);
+    float4 mixedColor = mix(reflectionColor, float4(color, 1.0), 0.2);
     
     
     constexpr sampler sam(min_filter::linear, mag_filter::linear, mip_filter::nearest, address::repeat);
@@ -217,7 +217,6 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
 
     float color_mod = 1.0  * smoothstep(1.3, 1.8, turbulence);
 
-    
     float3 specular = terrainDiffuseLighting(uniforms.normalMatrix * (normalValue * 2.0f - 1.0f), fragment_in.position.xyz, fragmentUniforms, lights, mixedColor.rgb);
     return float4(specular, 1.0);
 //    fragment_in.color.xyz *= 2.0;

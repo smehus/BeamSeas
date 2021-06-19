@@ -10,7 +10,7 @@ import MetalKit
 import Foundation
 import simd
 
-class Skybox {
+class Skybox: Node {
     
     struct SkySettings {
         var turbidity: Float = 0.28
@@ -50,6 +50,8 @@ class Skybox {
         stencilDescriptor.depthCompareFunction = .lessEqual
         stencilDescriptor.isDepthWriteEnabled = true
         depthStencilState = Renderer.device.makeDepthStencilState(descriptor: stencilDescriptor)
+        
+        super.init()
         
         if let _ = textureName {
             // Custome texture if available
@@ -94,10 +96,13 @@ extension Skybox: Renderable {
         var viewMatrix = uniforms.viewMatrix
         viewMatrix.columns.3 = [0, 0, 0, 1]
         var viewProjectionMatrix = uniforms.projectionMatrix * viewMatrix
+        uniforms.viewMatrix = viewMatrix
+        uniforms.modelMatrix = modelMatrix
         
         renderEncoder.setRenderPipelineState(pipelineState)
         renderEncoder.setDepthStencilState(depthStencilState)
         
+        renderEncoder.setVertexBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: BufferIndex.uniforms.rawValue)
         renderEncoder.setVertexBuffer(mesh.vertexBuffers[0].buffer, offset: 0, index: 0)
         renderEncoder.setVertexBytes(&viewProjectionMatrix, length: MemoryLayout<float4x4>.stride, index: 1)
         renderEncoder.setFragmentTexture(texture, index: TextureIndex.skybox.rawValue)
