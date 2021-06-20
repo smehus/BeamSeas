@@ -204,34 +204,41 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
     float y = fragment_in.position.y / height;
     float2 reflectionCoords = float2(x, 1 - y);
     
+
+    
     // Multiplier determines ripple size
-    float timer = uniforms.deltaTime * 0.01;
-    float2 rippleUV = fragment_in.uv;
+    float timer = uniforms.deltaTime * 0.007;
+    float2 rippleUV = fragment_in.uv * 2;
     float waveStrength = 0.1;
     float2 rippleX = float2(rippleUV.x + timer, rippleUV.y);
     float2 rippleY = float2(-rippleUV.x, rippleUV.y) + timer;
-    float2 ripple =
-        ((waterRippleTexture.sample(reflectionSampler, rippleX).rg * 2.0 - 1.0) +
-         (waterRippleTexture.sample(reflectionSampler, rippleY).rg * 2.0 - 1.0))
-          * waveStrength;
+    
+    float4 rippleSampleX = waterRippleTexture.sample(reflectionSampler, rippleX);
+    float4 rippleSampleY = waterRippleTexture.sample(reflectionSampler, rippleY);
+    float2 normalizedRippleX = rippleSampleX.rg * 2.0 - 1.0;
+    float2 normalizedRippleY = rippleSampleY.rg * 2.0 - 1.0;
+    
+    float2 ripple = (normalizedRippleX + normalizedRippleY) * waveStrength;
+    
     reflectionCoords += ripple;
     reflectionCoords = clamp(reflectionCoords, 0.001, 0.999);
     float4 mixedColor = reflectionTexture.sample(reflectionSampler, reflectionCoords);
-//    mixedColor = mix(mixedColor, float4(0.0, 0.3, 0.5, 1.0), 0.3);
+    mixedColor = mix(mixedColor, float4(0.0, 0.3, 0.5, 1.0), 0.3);
     
-    constexpr sampler sam(min_filter::linear, mag_filter::linear, mip_filter::nearest, address::repeat);
-    float3 normalValue = normalMap.sample(sam, fragment_in.uv).xzy;
-    float3 vGradJacobian = gradientMap.sample(sam, fragment_in.uv).xyz;
-    float3 noise_gradient = 0.3 * normalValue;
+    return  mixedColor;
+//    constexpr sampler sam(min_filter::linear, mag_filter::linear, mip_filter::nearest, address::repeat);
+//    float3 normalValue = normalMap.sample(sam, fragment_in.uv).xzy;
+//    float3 vGradJacobian = gradientMap.sample(sam, fragment_in.uv).xyz;
+//    float3 noise_gradient = 0.3 * normalValue;
+//
+////    return float4(normalValue, 1.0);
+//    float jacobian = vGradJacobian.z;
+//    float turbulence = max(2.0 - jacobian + dot(abs(noise_gradient.xy), float2(1.2)), 0.0);
+//
+//    float color_mod = 1.0  * smoothstep(1.3, 1.8, turbulence);
 
-//    return float4(normalValue, 1.0);
-    float jacobian = vGradJacobian.z;
-    float turbulence = max(2.0 - jacobian + dot(abs(noise_gradient.xy), float2(1.2)), 0.0);
-
-    float color_mod = 1.0  * smoothstep(1.3, 1.8, turbulence);
-
-    float3 specular = terrainDiffuseLighting(uniforms.normalMatrix * (normalValue * 2.0f - 1.0f), fragment_in.position.xyz, fragmentUniforms, lights, mixedColor.rgb);
-    return float4(specular, 1.0);
+//    float3 specular = terrainDiffuseLighting(uniforms.normalMatrix * (normalValue * 2.0f - 1.0f), fragment_in.position.xyz, fragmentUniforms, lights, mixedColor.rgb);
+//    return float4(specular, 1.0);
 //    fragment_in.color.xyz *= 2.0;
 //    return fragment_in.color;
 }

@@ -117,6 +117,18 @@
 		02CF8F87267D3C7300FE244D /* RenderPass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02CF8F85267D3C7300FE244D /* RenderPass.swift */; };
 		02CF8F89267E5EC500FE244D /* normal-water.png in Resources */ = {isa = PBXBuildFile; fileRef = 02CF8F88267E5EC500FE244D /* normal-water.png */; };
 		02CF8F8A267E5EC500FE244D /* normal-water.png in Resources */ = {isa = PBXBuildFile; fileRef = 02CF8F88267E5EC500FE244D /* normal-water.png */; };
+		02CF8F92267FED6500FE244D /* negz.png in Resources */ = {isa = PBXBuildFile; fileRef = 02CF8F8C267FED6500FE244D /* negz.png */; };
+		02CF8F93267FED6500FE244D /* negz.png in Resources */ = {isa = PBXBuildFile; fileRef = 02CF8F8C267FED6500FE244D /* negz.png */; };
+		02CF8F94267FED6500FE244D /* negx.png in Resources */ = {isa = PBXBuildFile; fileRef = 02CF8F8D267FED6500FE244D /* negx.png */; };
+		02CF8F95267FED6500FE244D /* negx.png in Resources */ = {isa = PBXBuildFile; fileRef = 02CF8F8D267FED6500FE244D /* negx.png */; };
+		02CF8F96267FED6500FE244D /* negy.png in Resources */ = {isa = PBXBuildFile; fileRef = 02CF8F8E267FED6500FE244D /* negy.png */; };
+		02CF8F97267FED6500FE244D /* negy.png in Resources */ = {isa = PBXBuildFile; fileRef = 02CF8F8E267FED6500FE244D /* negy.png */; };
+		02CF8F98267FED6500FE244D /* posy.png in Resources */ = {isa = PBXBuildFile; fileRef = 02CF8F8F267FED6500FE244D /* posy.png */; };
+		02CF8F99267FED6500FE244D /* posy.png in Resources */ = {isa = PBXBuildFile; fileRef = 02CF8F8F267FED6500FE244D /* posy.png */; };
+		02CF8F9A267FED6500FE244D /* posx.png in Resources */ = {isa = PBXBuildFile; fileRef = 02CF8F90267FED6500FE244D /* posx.png */; };
+		02CF8F9B267FED6500FE244D /* posx.png in Resources */ = {isa = PBXBuildFile; fileRef = 02CF8F90267FED6500FE244D /* posx.png */; };
+		02CF8F9C267FED6500FE244D /* posz.png in Resources */ = {isa = PBXBuildFile; fileRef = 02CF8F91267FED6500FE244D /* posz.png */; };
+		02CF8F9D267FED6500FE244D /* posz.png in Resources */ = {isa = PBXBuildFile; fileRef = 02CF8F91267FED6500FE244D /* posz.png */; };
 		02D773EF24B7571900811B88 /* PBR.metal in Sources */ = {isa = PBXBuildFile; fileRef = 02D773EE24B7571900811B88 /* PBR.metal */; };
 		02D773F024B7571900811B88 /* PBR.metal in Sources */ = {isa = PBXBuildFile; fileRef = 02D773EE24B7571900811B88 /* PBR.metal */; };
 		02E46DB224AC2D420055167A /* Terrain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02E46DB124AC2D420055167A /* Terrain.swift */; };
@@ -201,6 +213,12 @@
 		02A98655267A3F9C003C68FC /* Skybox.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Skybox.metal; sourceTree = "<group>"; };
 		02CF8F85267D3C7300FE244D /* RenderPass.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RenderPass.swift; sourceTree = "<group>"; };
 		02CF8F88267E5EC500FE244D /* normal-water.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "normal-water.png"; sourceTree = "<group>"; };
+		02CF8F8C267FED6500FE244D /* negz.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = negz.png; sourceTree = "<group>"; };
+		02CF8F8D267FED6500FE244D /* negx.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = negx.png; sourceTree = "<group>"; };
+		02CF8F8E267FED6500FE244D /* negy.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = negy.png; sourceTree = "<group>"; };
+		02CF8F8F267FED6500FE244D /* posy.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = posy.png; sourceTree = "<group>"; };
+		02CF8F90267FED6500FE244D /* posx.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = posx.png; sourceTree = "<group>"; };
+		02CF8F91267FED6500FE244D /* posz.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = posz.png; sourceTree = "<group>"; };
 		02D773EE24B7571900811B88 /* PBR.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = PBR.metal; sourceTree = "<group>"; };
 		02E46DB124AC2D420055167A /* Terrain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Terrain.swift; sourceTree = "<group>"; };
 		02E9FFBE258E7EBF00DD228D /* OldBoat.mtl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = OldBoat.mtl; sourceTree = "<group>"; };
@@ -351,6 +369,7 @@
 		0299533A249925FF0014228F /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				02CF8F8B267FED6500FE244D /* Skybox */,
 				02CF8F88267E5EC500FE244D /* normal-water.png */,
 				0217E77224D5C3130082D199 /* gaussian_noise_5.png */,
 				0231B80624CE87CB00C794B8 /* simuwater2.jpg */,
@@ -405,6 +424,19 @@
 				02A98652267A3296003C68FC /* Skybox.swift */,
 			);
 			path = Nodes;
+			sourceTree = "<group>";
+		};
+		02CF8F8B267FED6500FE244D /* Skybox */ = {
+			isa = PBXGroup;
+			children = (
+				02CF8F8C267FED6500FE244D /* negz.png */,
+				02CF8F8D267FED6500FE244D /* negx.png */,
+				02CF8F8E267FED6500FE244D /* negy.png */,
+				02CF8F8F267FED6500FE244D /* posy.png */,
+				02CF8F90267FED6500FE244D /* posx.png */,
+				02CF8F91267FED6500FE244D /* posz.png */,
+			);
+			path = Skybox;
 			sourceTree = "<group>";
 		};
 		02E9FFBD258E7E9D00DD228D /* RowBoat */ = {
@@ -505,11 +537,15 @@
 				022B51EC24B22D2200FC5C81 /* Heightmap_Billow.png in Resources */,
 				0236A74B249D182B008F197E /* lowpoly-house-color.png in Resources */,
 				022B51E424B1772300FC5C81 /* mountain.png in Resources */,
+				02CF8F92267FED6500FE244D /* negz.png in Resources */,
 				0236A759249D2192008F197E /* ground.png in Resources */,
 				0236A76E249D8ED6008F197E /* cottage1.mtl in Resources */,
+				02CF8F96267FED6500FE244D /* negy.png in Resources */,
 				02E9FFC6258E7EBF00DD228D /* OldBoat.obj in Resources */,
 				0236A75F249D5DFD008F197E /* Textures.xcassets in Resources */,
+				02CF8F98267FED6500FE244D /* posy.png in Resources */,
 				02419D72249850C100BCB203 /* ShaderTypes.h in Resources */,
+				02CF8F9A267FED6500FE244D /* posx.png in Resources */,
 				022B51F024B22D2200FC5C81 /* Heightmap_Mountain.png in Resources */,
 				022B51EA24B22D2200FC5C81 /* Heightmap_Plateau.png in Resources */,
 				026A999D24B56A2A0002D4EA /* Ship.usdz in Resources */,
@@ -526,7 +562,9 @@
 				0236A755249D2192008F197E /* plane.obj in Resources */,
 				02419D5B249850C100BCB203 /* Main.storyboard in Resources */,
 				023ADEF324BB543200478C87 /* Notes in Resources */,
+				02CF8F9C267FED6500FE244D /* posz.png in Resources */,
 				0236A74D249D182B008F197E /* lowpoly-house.obj in Resources */,
+				02CF8F94267FED6500FE244D /* negx.png in Resources */,
 				02E9FFC2258E7EBF00DD228D /* OldBoat.mtl in Resources */,
 				0236A74F249D182B008F197E /* lowpoly-house.mtl in Resources */,
 				0236A76C249D8ED6008F197E /* cottage2.obj in Resources */,
@@ -542,6 +580,7 @@
 			files = (
 				0231B80824CE87CB00C794B8 /* simuwater2.jpg in Resources */,
 				0231B80524CE877800C794B8 /* SimulatingWaterImage.jpg in Resources */,
+				02CF8F99267FED6500FE244D /* posy.png in Resources */,
 				0236A76D249D8ED6008F197E /* cottage2.obj in Resources */,
 				0236A74E249D182B008F197E /* lowpoly-house.obj in Resources */,
 				02E9FFD22593C1F500DD228D /* row_boat.obj in Resources */,
@@ -556,20 +595,25 @@
 				0236A775249D8ED6008F197E /* cottage2.mtl in Resources */,
 				022B51EF24B22D2200FC5C81 /* Heightmap_Rocky.png in Resources */,
 				026A999E24B56A2A0002D4EA /* Ship.usdz in Resources */,
+				02CF8F97267FED6500FE244D /* negy.png in Resources */,
 				02E9FFC5258E7EBF00DD228D /* boattex.jpg in Resources */,
 				0236A75A249D2192008F197E /* ground.png in Resources */,
 				0236A74C249D182B008F197E /* lowpoly-house-color.png in Resources */,
 				022B51ED24B22D2200FC5C81 /* Heightmap_Billow.png in Resources */,
+				02CF8F93267FED6500FE244D /* negz.png in Resources */,
 				02E9FFD42593C1F500DD228D /* row_boat.mtl in Resources */,
 				0236A773249D8ED6008F197E /* cube.mtl in Resources */,
 				0236A750249D182B008F197E /* lowpoly-house.mtl in Resources */,
 				0236A758249D2192008F197E /* plane.mtl in Resources */,
+				02CF8F9B267FED6500FE244D /* posx.png in Resources */,
 				022B51E524B1772300FC5C81 /* mountain.png in Resources */,
 				0236A76F249D8ED6008F197E /* cottage1.mtl in Resources */,
 				0217E77424D5C3130082D199 /* gaussian_noise_5.png in Resources */,
+				02CF8F9D267FED6500FE244D /* posz.png in Resources */,
 				0236A760249D5DFD008F197E /* Textures.xcassets in Resources */,
 				02CF8F8A267E5EC500FE244D /* normal-water.png in Resources */,
 				02419D73249850C100BCB203 /* ShaderTypes.h in Resources */,
+				02CF8F95267FED6500FE244D /* negx.png in Resources */,
 				0236A756249D2192008F197E /* plane.obj in Resources */,
 				0236A76B249D8ED6008F197E /* cottage1.obj in Resources */,
 			);

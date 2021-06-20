@@ -43,4 +43,19 @@ extension Texturable {
                                                     options: textureLoaderOptions)
         return texture
     }
+    
+    func loadSkyboxTexture(names: [String] = ["posx.png", "negx.png", "posy.png", "negy.png", "posz.png", "negz.png"]) -> MTLTexture? {
+        var texture: MTLTexture?
+        let textureLoader = MTKTextureLoader(device: Renderer.device)
+        if let mdlTexture = MDLTexture(cubeWithImagesNamed: names) {
+            do {
+                texture = try textureLoader.newTexture(texture: mdlTexture, options: nil)
+            } catch {
+                print("no texture created")
+            }
+        } else {
+            print("texture image not found")
+        }
+        return texture
+    }
 }

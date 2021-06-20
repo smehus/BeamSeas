@@ -148,7 +148,7 @@ extension Renderer: MTKViewDelegate {
         reflectionCamera.position.y = -camera.position.y
         reflectionCamera.rotation.x = -camera.rotation.x
         uniforms.viewMatrix = reflectionCamera.viewMatrix
-        uniforms.clipPlane = float4(0, 1, 0, 0.3)
+//        uniforms.clipPlane = float4(0, 1, 0, 0.3)
         
         for renderable in models {
             guard let model = renderable as? Model, model.name == "OldBoat" else { continue }

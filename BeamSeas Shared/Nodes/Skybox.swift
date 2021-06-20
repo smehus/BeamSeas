@@ -10,7 +10,7 @@ import MetalKit
 import Foundation
 import simd
 
-class Skybox: Node {
+class Skybox: Node, Texturable {
     
     struct SkySettings {
         var turbidity: Float = 0.28
@@ -52,12 +52,13 @@ class Skybox: Node {
         depthStencilState = Renderer.device.makeDepthStencilState(descriptor: stencilDescriptor)
         
         super.init()
-        
-        if let _ = textureName {
-            // Custome texture if available
-        } else {
-            texture = loadGeneratedSkyboxTexture(dimensions: [256, 256])
-        }
+  
+        texture = loadSkyboxTexture()
+//        if let _ = textureName {
+//            // Custome texture if available
+//        } else {
+//            texture = loadGeneratedSkyboxTexture(dimensions: [256, 256])
+//        }
     }
     
     func loadGeneratedSkyboxTexture(dimensions: SIMD2<Int32>) -> MTLTexture? {
