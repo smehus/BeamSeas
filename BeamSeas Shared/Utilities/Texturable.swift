@@ -44,7 +44,12 @@ extension Texturable {
         return texture
     }
     
-    func loadSkyboxTexture(names: [String] = ["posx.png", "negx.png", "posy.png", "negy.png", "posz.png", "negz.png"]) -> MTLTexture? {
+    func loadSkyboxTexture(names: [String] = ["TropicalSunnyDay_px.jpg",
+                                              "TropicalSunnyDay_nx.jpg",
+                                              "TropicalSunnyDay_py.jpg",
+                                              "TropicalSunnyDay_ny.jpg",
+                                              "TropicalSunnyDay_pz.jpg",
+                                              "TropicalSunnyDay_nz.jpg"]) -> MTLTexture? {
         var texture: MTLTexture?
         let textureLoader = MTKTextureLoader(device: Renderer.device)
         if let mdlTexture = MDLTexture(cubeWithImagesNamed: names) {
@@ -54,7 +59,7 @@ extension Texturable {
                 print("no texture created")
             }
         } else {
-            print("texture image not found")
+            fatalError("Failed to find cube skybox textures")
         }
         return texture
     }

@@ -117,18 +117,30 @@
 		02CF8F87267D3C7300FE244D /* RenderPass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02CF8F85267D3C7300FE244D /* RenderPass.swift */; };
 		02CF8F89267E5EC500FE244D /* normal-water.png in Resources */ = {isa = PBXBuildFile; fileRef = 02CF8F88267E5EC500FE244D /* normal-water.png */; };
 		02CF8F8A267E5EC500FE244D /* normal-water.png in Resources */ = {isa = PBXBuildFile; fileRef = 02CF8F88267E5EC500FE244D /* normal-water.png */; };
-		02CF8F92267FED6500FE244D /* negz.png in Resources */ = {isa = PBXBuildFile; fileRef = 02CF8F8C267FED6500FE244D /* negz.png */; };
-		02CF8F93267FED6500FE244D /* negz.png in Resources */ = {isa = PBXBuildFile; fileRef = 02CF8F8C267FED6500FE244D /* negz.png */; };
-		02CF8F94267FED6500FE244D /* negx.png in Resources */ = {isa = PBXBuildFile; fileRef = 02CF8F8D267FED6500FE244D /* negx.png */; };
-		02CF8F95267FED6500FE244D /* negx.png in Resources */ = {isa = PBXBuildFile; fileRef = 02CF8F8D267FED6500FE244D /* negx.png */; };
-		02CF8F96267FED6500FE244D /* negy.png in Resources */ = {isa = PBXBuildFile; fileRef = 02CF8F8E267FED6500FE244D /* negy.png */; };
-		02CF8F97267FED6500FE244D /* negy.png in Resources */ = {isa = PBXBuildFile; fileRef = 02CF8F8E267FED6500FE244D /* negy.png */; };
-		02CF8F98267FED6500FE244D /* posy.png in Resources */ = {isa = PBXBuildFile; fileRef = 02CF8F8F267FED6500FE244D /* posy.png */; };
-		02CF8F99267FED6500FE244D /* posy.png in Resources */ = {isa = PBXBuildFile; fileRef = 02CF8F8F267FED6500FE244D /* posy.png */; };
-		02CF8F9A267FED6500FE244D /* posx.png in Resources */ = {isa = PBXBuildFile; fileRef = 02CF8F90267FED6500FE244D /* posx.png */; };
-		02CF8F9B267FED6500FE244D /* posx.png in Resources */ = {isa = PBXBuildFile; fileRef = 02CF8F90267FED6500FE244D /* posx.png */; };
-		02CF8F9C267FED6500FE244D /* posz.png in Resources */ = {isa = PBXBuildFile; fileRef = 02CF8F91267FED6500FE244D /* posz.png */; };
-		02CF8F9D267FED6500FE244D /* posz.png in Resources */ = {isa = PBXBuildFile; fileRef = 02CF8F91267FED6500FE244D /* posz.png */; };
+		02CF8FD82680DFAB00FE244D /* negz.png in Resources */ = {isa = PBXBuildFile; fileRef = 02CF8FCB2680DFAB00FE244D /* negz.png */; };
+		02CF8FD92680DFAB00FE244D /* negz.png in Resources */ = {isa = PBXBuildFile; fileRef = 02CF8FCB2680DFAB00FE244D /* negz.png */; };
+		02CF8FDA2680DFAB00FE244D /* negx.png in Resources */ = {isa = PBXBuildFile; fileRef = 02CF8FCC2680DFAB00FE244D /* negx.png */; };
+		02CF8FDB2680DFAB00FE244D /* negx.png in Resources */ = {isa = PBXBuildFile; fileRef = 02CF8FCC2680DFAB00FE244D /* negx.png */; };
+		02CF8FDC2680DFAB00FE244D /* negy.png in Resources */ = {isa = PBXBuildFile; fileRef = 02CF8FCD2680DFAB00FE244D /* negy.png */; };
+		02CF8FDD2680DFAB00FE244D /* negy.png in Resources */ = {isa = PBXBuildFile; fileRef = 02CF8FCD2680DFAB00FE244D /* negy.png */; };
+		02CF8FDE2680DFAB00FE244D /* posy.png in Resources */ = {isa = PBXBuildFile; fileRef = 02CF8FCE2680DFAB00FE244D /* posy.png */; };
+		02CF8FDF2680DFAB00FE244D /* posy.png in Resources */ = {isa = PBXBuildFile; fileRef = 02CF8FCE2680DFAB00FE244D /* posy.png */; };
+		02CF8FE02680DFAB00FE244D /* posx.png in Resources */ = {isa = PBXBuildFile; fileRef = 02CF8FCF2680DFAB00FE244D /* posx.png */; };
+		02CF8FE12680DFAB00FE244D /* posx.png in Resources */ = {isa = PBXBuildFile; fileRef = 02CF8FCF2680DFAB00FE244D /* posx.png */; };
+		02CF8FE22680DFAB00FE244D /* posz.png in Resources */ = {isa = PBXBuildFile; fileRef = 02CF8FD02680DFAB00FE244D /* posz.png */; };
+		02CF8FE32680DFAB00FE244D /* posz.png in Resources */ = {isa = PBXBuildFile; fileRef = 02CF8FD02680DFAB00FE244D /* posz.png */; };
+		02CF8FE42680DFAB00FE244D /* TropicalSunnyDay_ny.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 02CF8FD22680DFAB00FE244D /* TropicalSunnyDay_ny.jpg */; };
+		02CF8FE52680DFAB00FE244D /* TropicalSunnyDay_ny.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 02CF8FD22680DFAB00FE244D /* TropicalSunnyDay_ny.jpg */; };
+		02CF8FE62680DFAB00FE244D /* TropicalSunnyDay_nx.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 02CF8FD32680DFAB00FE244D /* TropicalSunnyDay_nx.jpg */; };
+		02CF8FE72680DFAB00FE244D /* TropicalSunnyDay_nx.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 02CF8FD32680DFAB00FE244D /* TropicalSunnyDay_nx.jpg */; };
+		02CF8FE82680DFAB00FE244D /* TropicalSunnyDay_nz.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 02CF8FD42680DFAB00FE244D /* TropicalSunnyDay_nz.jpg */; };
+		02CF8FE92680DFAB00FE244D /* TropicalSunnyDay_nz.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 02CF8FD42680DFAB00FE244D /* TropicalSunnyDay_nz.jpg */; };
+		02CF8FEA2680DFAB00FE244D /* TropicalSunnyDay_pz.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 02CF8FD52680DFAB00FE244D /* TropicalSunnyDay_pz.jpg */; };
+		02CF8FEB2680DFAB00FE244D /* TropicalSunnyDay_pz.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 02CF8FD52680DFAB00FE244D /* TropicalSunnyDay_pz.jpg */; };
+		02CF8FEC2680DFAB00FE244D /* TropicalSunnyDay_py.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 02CF8FD62680DFAB00FE244D /* TropicalSunnyDay_py.jpg */; };
+		02CF8FED2680DFAB00FE244D /* TropicalSunnyDay_py.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 02CF8FD62680DFAB00FE244D /* TropicalSunnyDay_py.jpg */; };
+		02CF8FEE2680DFAB00FE244D /* TropicalSunnyDay_px.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 02CF8FD72680DFAB00FE244D /* TropicalSunnyDay_px.jpg */; };
+		02CF8FEF2680DFAB00FE244D /* TropicalSunnyDay_px.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 02CF8FD72680DFAB00FE244D /* TropicalSunnyDay_px.jpg */; };
 		02D773EF24B7571900811B88 /* PBR.metal in Sources */ = {isa = PBXBuildFile; fileRef = 02D773EE24B7571900811B88 /* PBR.metal */; };
 		02D773F024B7571900811B88 /* PBR.metal in Sources */ = {isa = PBXBuildFile; fileRef = 02D773EE24B7571900811B88 /* PBR.metal */; };
 		02E46DB224AC2D420055167A /* Terrain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02E46DB124AC2D420055167A /* Terrain.swift */; };
@@ -213,12 +225,18 @@
 		02A98655267A3F9C003C68FC /* Skybox.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Skybox.metal; sourceTree = "<group>"; };
 		02CF8F85267D3C7300FE244D /* RenderPass.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RenderPass.swift; sourceTree = "<group>"; };
 		02CF8F88267E5EC500FE244D /* normal-water.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "normal-water.png"; sourceTree = "<group>"; };
-		02CF8F8C267FED6500FE244D /* negz.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = negz.png; sourceTree = "<group>"; };
-		02CF8F8D267FED6500FE244D /* negx.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = negx.png; sourceTree = "<group>"; };
-		02CF8F8E267FED6500FE244D /* negy.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = negy.png; sourceTree = "<group>"; };
-		02CF8F8F267FED6500FE244D /* posy.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = posy.png; sourceTree = "<group>"; };
-		02CF8F90267FED6500FE244D /* posx.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = posx.png; sourceTree = "<group>"; };
-		02CF8F91267FED6500FE244D /* posz.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = posz.png; sourceTree = "<group>"; };
+		02CF8FCB2680DFAB00FE244D /* negz.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = negz.png; sourceTree = "<group>"; };
+		02CF8FCC2680DFAB00FE244D /* negx.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = negx.png; sourceTree = "<group>"; };
+		02CF8FCD2680DFAB00FE244D /* negy.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = negy.png; sourceTree = "<group>"; };
+		02CF8FCE2680DFAB00FE244D /* posy.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = posy.png; sourceTree = "<group>"; };
+		02CF8FCF2680DFAB00FE244D /* posx.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = posx.png; sourceTree = "<group>"; };
+		02CF8FD02680DFAB00FE244D /* posz.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = posz.png; sourceTree = "<group>"; };
+		02CF8FD22680DFAB00FE244D /* TropicalSunnyDay_ny.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = TropicalSunnyDay_ny.jpg; sourceTree = "<group>"; };
+		02CF8FD32680DFAB00FE244D /* TropicalSunnyDay_nx.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = TropicalSunnyDay_nx.jpg; sourceTree = "<group>"; };
+		02CF8FD42680DFAB00FE244D /* TropicalSunnyDay_nz.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = TropicalSunnyDay_nz.jpg; sourceTree = "<group>"; };
+		02CF8FD52680DFAB00FE244D /* TropicalSunnyDay_pz.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = TropicalSunnyDay_pz.jpg; sourceTree = "<group>"; };
+		02CF8FD62680DFAB00FE244D /* TropicalSunnyDay_py.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = TropicalSunnyDay_py.jpg; sourceTree = "<group>"; };
+		02CF8FD72680DFAB00FE244D /* TropicalSunnyDay_px.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = TropicalSunnyDay_px.jpg; sourceTree = "<group>"; };
 		02D773EE24B7571900811B88 /* PBR.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = PBR.metal; sourceTree = "<group>"; };
 		02E46DB124AC2D420055167A /* Terrain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Terrain.swift; sourceTree = "<group>"; };
 		02E9FFBE258E7EBF00DD228D /* OldBoat.mtl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = OldBoat.mtl; sourceTree = "<group>"; };
@@ -369,7 +387,7 @@
 		0299533A249925FF0014228F /* Models */ = {
 			isa = PBXGroup;
 			children = (
-				02CF8F8B267FED6500FE244D /* Skybox */,
+				02CF8FC92680DFAB00FE244D /* Skybox */,
 				02CF8F88267E5EC500FE244D /* normal-water.png */,
 				0217E77224D5C3130082D199 /* gaussian_noise_5.png */,
 				0231B80624CE87CB00C794B8 /* simuwater2.jpg */,
@@ -426,17 +444,39 @@
 			path = Nodes;
 			sourceTree = "<group>";
 		};
-		02CF8F8B267FED6500FE244D /* Skybox */ = {
+		02CF8FC92680DFAB00FE244D /* Skybox */ = {
 			isa = PBXGroup;
 			children = (
-				02CF8F8C267FED6500FE244D /* negz.png */,
-				02CF8F8D267FED6500FE244D /* negx.png */,
-				02CF8F8E267FED6500FE244D /* negy.png */,
-				02CF8F8F267FED6500FE244D /* posy.png */,
-				02CF8F90267FED6500FE244D /* posx.png */,
-				02CF8F91267FED6500FE244D /* posz.png */,
+				02CF8FCA2680DFAB00FE244D /* Wenderlich */,
+				02CF8FD12680DFAB00FE244D /* Tropical */,
 			);
 			path = Skybox;
+			sourceTree = "<group>";
+		};
+		02CF8FCA2680DFAB00FE244D /* Wenderlich */ = {
+			isa = PBXGroup;
+			children = (
+				02CF8FCB2680DFAB00FE244D /* negz.png */,
+				02CF8FCC2680DFAB00FE244D /* negx.png */,
+				02CF8FCD2680DFAB00FE244D /* negy.png */,
+				02CF8FCE2680DFAB00FE244D /* posy.png */,
+				02CF8FCF2680DFAB00FE244D /* posx.png */,
+				02CF8FD02680DFAB00FE244D /* posz.png */,
+			);
+			path = Wenderlich;
+			sourceTree = "<group>";
+		};
+		02CF8FD12680DFAB00FE244D /* Tropical */ = {
+			isa = PBXGroup;
+			children = (
+				02CF8FD22680DFAB00FE244D /* TropicalSunnyDay_ny.jpg */,
+				02CF8FD32680DFAB00FE244D /* TropicalSunnyDay_nx.jpg */,
+				02CF8FD42680DFAB00FE244D /* TropicalSunnyDay_nz.jpg */,
+				02CF8FD52680DFAB00FE244D /* TropicalSunnyDay_pz.jpg */,
+				02CF8FD62680DFAB00FE244D /* TropicalSunnyDay_py.jpg */,
+				02CF8FD72680DFAB00FE244D /* TropicalSunnyDay_px.jpg */,
+			);
+			path = Tropical;
 			sourceTree = "<group>";
 		};
 		02E9FFBD258E7E9D00DD228D /* RowBoat */ = {
@@ -533,38 +573,44 @@
 			files = (
 				0236A774249D8ED6008F197E /* cottage2.mtl in Resources */,
 				02E9FFC8258E7EBF00DD228D /* boattexnm.jpg in Resources */,
+				02CF8FE42680DFAB00FE244D /* TropicalSunnyDay_ny.jpg in Resources */,
 				0236A757249D2192008F197E /* plane.mtl in Resources */,
 				022B51EC24B22D2200FC5C81 /* Heightmap_Billow.png in Resources */,
 				0236A74B249D182B008F197E /* lowpoly-house-color.png in Resources */,
 				022B51E424B1772300FC5C81 /* mountain.png in Resources */,
-				02CF8F92267FED6500FE244D /* negz.png in Resources */,
+				02CF8FD82680DFAB00FE244D /* negz.png in Resources */,
+				02CF8FE62680DFAB00FE244D /* TropicalSunnyDay_nx.jpg in Resources */,
 				0236A759249D2192008F197E /* ground.png in Resources */,
 				0236A76E249D8ED6008F197E /* cottage1.mtl in Resources */,
-				02CF8F96267FED6500FE244D /* negy.png in Resources */,
+				02CF8FDC2680DFAB00FE244D /* negy.png in Resources */,
 				02E9FFC6258E7EBF00DD228D /* OldBoat.obj in Resources */,
 				0236A75F249D5DFD008F197E /* Textures.xcassets in Resources */,
-				02CF8F98267FED6500FE244D /* posy.png in Resources */,
+				02CF8FDE2680DFAB00FE244D /* posy.png in Resources */,
 				02419D72249850C100BCB203 /* ShaderTypes.h in Resources */,
-				02CF8F9A267FED6500FE244D /* posx.png in Resources */,
+				02CF8FEC2680DFAB00FE244D /* TropicalSunnyDay_py.jpg in Resources */,
+				02CF8FE02680DFAB00FE244D /* posx.png in Resources */,
 				022B51F024B22D2200FC5C81 /* Heightmap_Mountain.png in Resources */,
 				022B51EA24B22D2200FC5C81 /* Heightmap_Plateau.png in Resources */,
 				026A999D24B56A2A0002D4EA /* Ship.usdz in Resources */,
 				0236A772249D8ED6008F197E /* cube.mtl in Resources */,
 				0231B80224CE877800C794B8 /* simuwater.jpg in Resources */,
 				0236A770249D8ED6008F197E /* cube.obj in Resources */,
+				02CF8FEE2680DFAB00FE244D /* TropicalSunnyDay_px.jpg in Resources */,
 				02E9FFC4258E7EBF00DD228D /* boattex.jpg in Resources */,
 				02E9FFD12593C1F500DD228D /* row_boat.obj in Resources */,
 				022B51EE24B22D2200FC5C81 /* Heightmap_Rocky.png in Resources */,
 				02CF8F89267E5EC500FE244D /* normal-water.png in Resources */,
 				0236A76A249D8ED6008F197E /* cottage1.obj in Resources */,
+				02CF8FEA2680DFAB00FE244D /* TropicalSunnyDay_pz.jpg in Resources */,
 				0217E77324D5C3130082D199 /* gaussian_noise_5.png in Resources */,
 				0231B80424CE877800C794B8 /* SimulatingWaterImage.jpg in Resources */,
 				0236A755249D2192008F197E /* plane.obj in Resources */,
+				02CF8FE82680DFAB00FE244D /* TropicalSunnyDay_nz.jpg in Resources */,
 				02419D5B249850C100BCB203 /* Main.storyboard in Resources */,
 				023ADEF324BB543200478C87 /* Notes in Resources */,
-				02CF8F9C267FED6500FE244D /* posz.png in Resources */,
+				02CF8FE22680DFAB00FE244D /* posz.png in Resources */,
 				0236A74D249D182B008F197E /* lowpoly-house.obj in Resources */,
-				02CF8F94267FED6500FE244D /* negx.png in Resources */,
+				02CF8FDA2680DFAB00FE244D /* negx.png in Resources */,
 				02E9FFC2258E7EBF00DD228D /* OldBoat.mtl in Resources */,
 				0236A74F249D182B008F197E /* lowpoly-house.mtl in Resources */,
 				0236A76C249D8ED6008F197E /* cottage2.obj in Resources */,
@@ -580,7 +626,8 @@
 			files = (
 				0231B80824CE87CB00C794B8 /* simuwater2.jpg in Resources */,
 				0231B80524CE877800C794B8 /* SimulatingWaterImage.jpg in Resources */,
-				02CF8F99267FED6500FE244D /* posy.png in Resources */,
+				02CF8FE52680DFAB00FE244D /* TropicalSunnyDay_ny.jpg in Resources */,
+				02CF8FDF2680DFAB00FE244D /* posy.png in Resources */,
 				0236A76D249D8ED6008F197E /* cottage2.obj in Resources */,
 				0236A74E249D182B008F197E /* lowpoly-house.obj in Resources */,
 				02E9FFD22593C1F500DD228D /* row_boat.obj in Resources */,
@@ -589,33 +636,38 @@
 				022B51EB24B22D2200FC5C81 /* Heightmap_Plateau.png in Resources */,
 				02E9FFC9258E7EBF00DD228D /* boattexnm.jpg in Resources */,
 				02419D6C249850C100BCB203 /* Main.storyboard in Resources */,
+				02CF8FE72680DFAB00FE244D /* TropicalSunnyDay_nx.jpg in Resources */,
 				0236A771249D8ED6008F197E /* cube.obj in Resources */,
 				02E9FFC7258E7EBF00DD228D /* OldBoat.obj in Resources */,
 				02E9FFC3258E7EBF00DD228D /* OldBoat.mtl in Resources */,
 				0236A775249D8ED6008F197E /* cottage2.mtl in Resources */,
 				022B51EF24B22D2200FC5C81 /* Heightmap_Rocky.png in Resources */,
+				02CF8FEF2680DFAB00FE244D /* TropicalSunnyDay_px.jpg in Resources */,
 				026A999E24B56A2A0002D4EA /* Ship.usdz in Resources */,
-				02CF8F97267FED6500FE244D /* negy.png in Resources */,
+				02CF8FDD2680DFAB00FE244D /* negy.png in Resources */,
 				02E9FFC5258E7EBF00DD228D /* boattex.jpg in Resources */,
 				0236A75A249D2192008F197E /* ground.png in Resources */,
 				0236A74C249D182B008F197E /* lowpoly-house-color.png in Resources */,
 				022B51ED24B22D2200FC5C81 /* Heightmap_Billow.png in Resources */,
-				02CF8F93267FED6500FE244D /* negz.png in Resources */,
+				02CF8FD92680DFAB00FE244D /* negz.png in Resources */,
 				02E9FFD42593C1F500DD228D /* row_boat.mtl in Resources */,
 				0236A773249D8ED6008F197E /* cube.mtl in Resources */,
 				0236A750249D182B008F197E /* lowpoly-house.mtl in Resources */,
+				02CF8FEB2680DFAB00FE244D /* TropicalSunnyDay_pz.jpg in Resources */,
 				0236A758249D2192008F197E /* plane.mtl in Resources */,
-				02CF8F9B267FED6500FE244D /* posx.png in Resources */,
+				02CF8FE12680DFAB00FE244D /* posx.png in Resources */,
 				022B51E524B1772300FC5C81 /* mountain.png in Resources */,
 				0236A76F249D8ED6008F197E /* cottage1.mtl in Resources */,
 				0217E77424D5C3130082D199 /* gaussian_noise_5.png in Resources */,
-				02CF8F9D267FED6500FE244D /* posz.png in Resources */,
+				02CF8FE32680DFAB00FE244D /* posz.png in Resources */,
 				0236A760249D5DFD008F197E /* Textures.xcassets in Resources */,
 				02CF8F8A267E5EC500FE244D /* normal-water.png in Resources */,
 				02419D73249850C100BCB203 /* ShaderTypes.h in Resources */,
-				02CF8F95267FED6500FE244D /* negx.png in Resources */,
+				02CF8FDB2680DFAB00FE244D /* negx.png in Resources */,
+				02CF8FE92680DFAB00FE244D /* TropicalSunnyDay_nz.jpg in Resources */,
 				0236A756249D2192008F197E /* plane.obj in Resources */,
 				0236A76B249D8ED6008F197E /* cottage1.obj in Resources */,
+				02CF8FED2680DFAB00FE244D /* TropicalSunnyDay_py.jpg in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
