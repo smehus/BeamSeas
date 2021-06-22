@@ -109,7 +109,7 @@ class Terrain: Node {
         let kernelFunction = Renderer.library.makeFunction(name: "tessellation_main")!
         computePipelineState = try! Renderer.device.makeComputePipelineState(function: kernelFunction)
         
-        waterNormalTexture = Self.loadTexture(imageName: "normal-water.png")
+        waterNormalTexture = Self.loadTexture(imageName: "normal-water-rotated.png")
 
 //        texDesc.width = altHeightMap.width
 //        texDesc.height = altHeightMap.height

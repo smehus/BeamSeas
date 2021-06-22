@@ -210,8 +210,8 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
     float timer = uniforms.deltaTime * 0.007;
     float2 rippleUV = fragment_in.uv * 0.5;
     float waveStrength = 0.1;
-    float2 rippleX = float2(rippleUV.x + timer, rippleUV.y);
-    float2 rippleY = float2(-rippleUV.x, rippleUV.y) + timer;
+    float2 rippleX = float2(rippleUV.x/* + timer*/, rippleUV.y) + timer;
+    float2 rippleY = float2(rippleUV.x - timer, rippleUV.y);
     
     float4 rippleSampleX = waterRippleTexture.sample(reflectionSampler, rippleX);
     float4 rippleSampleY = waterRippleTexture.sample(reflectionSampler, rippleY);
