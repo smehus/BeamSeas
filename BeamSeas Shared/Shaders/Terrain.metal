@@ -193,17 +193,18 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
                                  texture2d<float> gradientMap [[ texture(0) ]],
                                  texture2d<float> normalMap [[ texture(2) ]],
                                  texture2d<float> reflectionTexture [[ texture(TextureIndexReflection) ]],
+                                 texture2d<float> refractionTexture [[ texture(TextureIndexRefraction) ]],
                                  texture2d<float> waterRippleTexture [[ texture(TextureIndexWaterRipple) ]])
 {
 //    float3 color = float3(0.2, 0.6, 1.0);
     
-    constexpr sampler reflectionSampler(filter::linear, address::repeat);
+    constexpr sampler mainSampler(filter::linear, address::repeat);
     float width = float(reflectionTexture.get_width() * 2.0);
     float height = float(reflectionTexture.get_height() * 2.0);
     float x = fragment_in.position.x / width;
     float y = fragment_in.position.y / height;
     float2 reflectionCoords = float2(x, 1 - y);
-    
+    float2 refractionCoords = float2(x, y);
 
     
     // Multiplier determines ripple size
@@ -213,16 +214,21 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
     float2 rippleX = float2(rippleUV.x/* + timer*/, rippleUV.y) + timer;
     float2 rippleY = float2(rippleUV.x - timer, rippleUV.y);
     
-    float4 rippleSampleX = waterRippleTexture.sample(reflectionSampler, rippleX);
-    float4 rippleSampleY = waterRippleTexture.sample(reflectionSampler, rippleY);
+    float4 rippleSampleX = waterRippleTexture.sample(mainSampler, rippleX);
+    float4 rippleSampleY = waterRippleTexture.sample(mainSampler, rippleY);
     float2 normalizedRippleX = rippleSampleX.rg * 2.0 - 1.0;
     float2 normalizedRippleY = rippleSampleY.rg * 2.0 - 1.0;
     
     float2 ripple = (normalizedRippleX + normalizedRippleY) * waveStrength;
     
     reflectionCoords += ripple;
+    refractionCoords += ripple;
+    
     reflectionCoords = clamp(reflectionCoords, 0.001, 0.999);
-    float4 mixedColor = reflectionTexture.sample(reflectionSampler, reflectionCoords);
+    refractionCoords = clamp(refractionCoords, 0.001, 0.999);
+    
+//    float4 mixedColor = reflectionTexture.sample(reflectionSampler, reflectionCoords);
+    float4 mixedColor = refractionTexture.sample(mainSampler, refractionCoords);
     mixedColor = mix(mixedColor, float4(0.0, 0.3, 0.5, 1.0), 0.3);
     
     constexpr sampler sam(min_filter::linear, mag_filter::linear, mip_filter::nearest, address::repeat);

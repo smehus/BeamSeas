@@ -57,6 +57,7 @@ final class Renderer: NSObject {
     var playerDelta: Float = 0
     var skybox: Skybox!
     var reflectionRenderPass: RenderPass
+    var refractionRenderPass: RenderPass
 
     enum DeltaFactor: Float {
         case normal = 0.01
@@ -77,6 +78,8 @@ final class Renderer: NSObject {
         fft = BasicFFT()
         
         reflectionRenderPass = RenderPass(name: "Reflection",
+                                          size: metalView.drawableSize)
+        refractionRenderPass = RenderPass(name: "Refraction",
                                           size: metalView.drawableSize)
 
         super.init()
@@ -115,6 +118,7 @@ extension Renderer: MTKViewDelegate {
     func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {
         camera.aspect = Float(view.bounds.width) / Float(view.bounds.height)
         reflectionRenderPass.updateTextures(size: size)
+        refractionRenderPass.updateTextures(size: size)
     }
 
     func draw(in view: MTKView) {
@@ -140,7 +144,12 @@ extension Renderer: MTKViewDelegate {
         let reflectEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: reflectionRenderPass.descriptor)!
         reflectEncoder.pushDebugGroup("Reflection Pass")
         reflectEncoder.setDepthStencilState(depthStencilState)
-        reflectEncoder.setFragmentBytes(&lights, length: MemoryLayout<Light>.stride * lights.count, index: BufferIndex.lights.rawValue)
+        reflectEncoder.setFragmentBytes(
+            &lights,
+            length: MemoryLayout<Light>.stride * lights.count,
+            index: BufferIndex.lights.rawValue
+        )
+        
         reflectionCamera.rotation = camera.rotation
         reflectionCamera.position = camera.position
         reflectionCamera.scale = camera.scale
@@ -153,9 +162,11 @@ extension Renderer: MTKViewDelegate {
         for renderable in models {
             guard let model = renderable as? Model, model.name == "OldBoat" else { continue }
             
-            model.draw(renderEncoder: reflectEncoder,
-                       uniforms: &uniforms,
-                       fragmentUniforms: &fragmentUniforms)
+            model.draw(
+                renderEncoder: reflectEncoder,
+                uniforms: &uniforms,
+                fragmentUniforms: &fragmentUniforms
+            )
         }
         
         skybox.draw(renderEncoder: reflectEncoder,
@@ -163,6 +174,37 @@ extension Renderer: MTKViewDelegate {
                     fragmentUniforms: &fragmentUniforms)
         reflectEncoder.endEncoding()
         reflectEncoder.popDebugGroup()
+        
+        // Refraction \\
+        uniforms.clipPlane = float4(0, -1, 0, 0.1)
+        uniforms.viewMatrix = camera.viewMatrix
+        let refractEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: refractionRenderPass.descriptor)!
+        refractEncoder.pushDebugGroup("Refraction Pass")
+        refractEncoder.setDepthStencilState(depthStencilState)
+        refractEncoder.setFragmentBytes(
+            &lights,
+            length: MemoryLayout<Light>.stride * lights.count,
+            index: BufferIndex.lights.rawValue
+        )
+        
+        for renderable in models {
+            guard let model = renderable as? Model, model.name == "OldBoat" else { continue }
+            
+            model.draw(
+                renderEncoder: refractEncoder,
+                uniforms: &uniforms,
+                fragmentUniforms: &fragmentUniforms
+            )
+        }
+        
+        skybox.draw(
+            renderEncoder: refractEncoder,
+            uniforms: &uniforms,
+            fragmentUniforms: &fragmentUniforms
+        )
+        
+        refractEncoder.endEncoding()
+        refractEncoder.popDebugGroup()
         
         
         uniforms.projectionMatrix = camera.projectionMatrix
@@ -224,8 +266,6 @@ extension Renderer: MTKViewDelegate {
         // Render Pass \\
         let renderEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: descriptor)!
         renderEncoder.setDepthStencilState(depthStencilState)
-
-        
         renderEncoder.setFragmentBytes(&lights, length: MemoryLayout<Light>.stride * lights.count, index: BufferIndex.lights.rawValue)
 
         if player.moveState == .forward {
@@ -233,12 +273,14 @@ extension Renderer: MTKViewDelegate {
             uniforms.playerMovement += player.forwardVector * 0.001
         }
         
+        renderEncoder.setFragmentTexture(reflectionRenderPass.texture, index: TextureIndex.reflection.rawValue)
+        renderEncoder.setFragmentTexture(refractionRenderPass.texture, index: TextureIndex.refraction.rawValue)
+        
         for model in models {
             uniforms.deltaTime = delta
             uniforms.projectionMatrix = camera.projectionMatrix
             uniforms.viewMatrix = camera.viewMatrix
             fragmentUniforms.camera_position = camera.position
-            renderEncoder.setFragmentTexture(reflectionRenderPass.texture, index: TextureIndex.reflection.rawValue)
             model.draw(renderEncoder: renderEncoder, uniforms: &uniforms, fragmentUniforms: &fragmentUniforms)
         }
         

@@ -9,6 +9,22 @@
 import UIKit
 import MetalKit
 
+enum Key: String {
+    case forward
+    case backwards
+    case left
+    case right
+    
+    var moveState: ModelMoveState {
+        switch self {
+        case .forward: return .forward
+        case .backwards: return .forward
+        case .left: return .rotateLeft
+        case .right: return .rotateRight
+        }
+    }
+}
+
 // Our iOS specific view controller
 extension ViewController {
     static var previousScale: CGFloat = 1

@@ -694,6 +694,7 @@
 				02419D58249850C100BCB203 /* ViewControllerExtension.swift in Sources */,
 				0224BEC42515557100ABE59B /* NormalDistributionBridge.mm in Sources */,
 				02482E6B24DC4C750000B762 /* Water.metal in Sources */,
+				02F390A62686215000CE822C /* ViewControllerExtension.swift in Sources */,
 				02E46DB224AC2D420055167A /* Terrain.swift in Sources */,
 				024B76CF249A8D290030B123 /* Light.swift in Sources */,
 				02A98653267A3296003C68FC /* Skybox.swift in Sources */,
