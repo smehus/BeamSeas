@@ -253,7 +253,15 @@ extension Terrain: Renderable {
             length: MemoryLayout<TerrainParams>.stride,
             index: BufferIndex.terrainParams.rawValue
         )
+        
+        renderEncoder.setVertexBytes(
+            &fragmentUniforms,
+            length: MemoryLayout<FragmentUniforms>.stride,
+            index: BufferIndex.fragmentUniforms.rawValue
+        )
 
+        
+        // Fragment shader \\
         renderEncoder.setFragmentBytes(
             &Terrain.terrainParams,
             length: MemoryLayout<TerrainParams>.stride,

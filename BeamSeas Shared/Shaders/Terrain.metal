@@ -20,6 +20,8 @@ struct TerrainVertexOut {
     float4 color;
     float2 uv;
     float3 normal;
+    float3 worldPosition;
+    float3 toCamera;
 };
 
 float calc_distance(float3 pointA,
@@ -117,7 +119,8 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
                                        texture2d<float> normalMap [[ texture(1) ]],
                                        constant TerrainParams &terrainParams [[ buffer(BufferIndexTerrainParams) ]],
                                        uint patchID [[ patch_id ]],
-                                       constant Uniforms &uniforms [[ buffer(BufferIndexUniforms) ]])
+                                       constant Uniforms &uniforms [[ buffer(BufferIndexUniforms) ]],
+                                       constant FragmentUniforms &fragmentUniforms [[ buffer(BufferIndexFragmentUniforms) ]])
 {
     TerrainVertexOut out;
     float u = patch_coord.x;
@@ -161,8 +164,8 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
     // are relevant....
     float3 horizontalDisplacement = heightDisplacement * 2 - 1;
 
-//    position.x += (horizontalDisplacement.y);
-//    position.z += (horizontalDisplacement.z);
+    position.x += (horizontalDisplacement.y);
+    position.z += (horizontalDisplacement.z);
     position.y = height.x;
     
 
@@ -181,6 +184,9 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
     out.normal = normal;
 //    finalColor += float4(0.1, 0.6, 0.988, 1);
     out.color = finalColor;
+    
+    out.worldPosition = (uniforms.modelMatrix * position).xyz;
+    out.toCamera = fragmentUniforms.camera_position - out.worldPosition;
 
     return out;
 }
@@ -228,7 +234,12 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
     refractionCoords = clamp(refractionCoords, 0.001, 0.999);
     
 //    float4 mixedColor = reflectionTexture.sample(reflectionSampler, reflectionCoords);
-    float4 mixedColor = refractionTexture.sample(mainSampler, refractionCoords);
+//    float4 mixedColor = refractionTexture.sample(mainSampler, refractionCoords);
+    float3 viewVector = normalize(fragment_in.toCamera);
+    float mixRatio = dot(viewVector, float3(0.0, 1.0, 0.0));
+    float4 mixedColor = mix(reflectionTexture.sample(mainSampler, reflectionCoords),
+                            refractionTexture.sample(mainSampler, refractionCoords),
+                            mixRatio);
     mixedColor = mix(mixedColor, float4(0.0, 0.3, 0.5, 1.0), 0.3);
     
     constexpr sampler sam(min_filter::linear, mag_filter::linear, mip_filter::nearest, address::repeat);
