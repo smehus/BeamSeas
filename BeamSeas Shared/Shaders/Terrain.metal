@@ -19,6 +19,7 @@ struct TerrainVertexOut {
     float4 position [[ position ]];
     float4 color;
     float2 uv;
+    float4 vGradNormalTex;
     float3 normal;
     float3 worldPosition;
     float3 toCamera;
@@ -72,6 +73,94 @@ kernel void tessellation_main(constant float *edge_factors [[ buffer(0) ]],
     factors[pid].insideTessellationFactor[1] = totalTessellation * 0.25;
 }
 
+
+[[ patch(quad, 4) ]]
+vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control_points [[ stage_in ]],
+                                       float2 patch_coord [[ position_in_patch ]],
+                                       texture2d<float> heightMap [[ texture(0) ]],
+                                       texture2d<float> normalMap [[ texture(1) ]],
+                                       constant TerrainParams &terrainParams [[ buffer(BufferIndexTerrainParams) ]],
+                                       uint patchID [[ patch_id ]],
+                                       constant Uniforms &uniforms [[ buffer(BufferIndexUniforms) ]],
+                                       constant FragmentUniforms &fragmentUniforms [[ buffer(BufferIndexFragmentUniforms) ]])
+{
+    TerrainVertexOut out;
+    float u = patch_coord.x;
+    float v = patch_coord.y;
+    float2 top = mix(control_points[0].position.xz,
+                     control_points[1].position.xz,
+                     u);
+    float2 bottom = mix(control_points[3].position.xz,
+                        control_points[2].position.xz,
+                        u);
+
+    float2 interpolated = mix(top, bottom, v);
+    float4 position = float4(interpolated.x, 0.0, interpolated.y, 1.0);
+
+
+    // Changing this to filter linear smoothes out the texture
+    // Which ends up smoothing out the rendering
+    constexpr sampler sample(filter::linear, address::repeat);
+
+    float2 xy = ((position.xz + terrainParams.size / 2) / terrainParams.size);
+    xy += uniforms.playerMovement.xz;
+    out.uv = xy;
+    float2 uInvHeightmapSize = float2(1.0 / terrainParams.size.x, 1.0 / terrainParams.size.y);
+    float2 tex = position.xz * uInvHeightmapSize;
+    out.vGradNormalTex = float4(tex.x + 0.5 * uInvHeightmapSize.x,
+                                tex.y + 0.5 * uInvHeightmapSize.y,
+                                tex.x,
+                                tex.y);
+    
+//    out.vGradNormalTex = float4(position + 0.5 * terrainParams.size)
+    // Why was i doing this??
+//    xy.y = 1 - xy.y;
+//    xy = 1 - xy;
+//    xy.x = fmod(xy.x + (uniforms.deltaTime), 1);
+
+//    xy *= terrainParams.size;
+//    float3 heightDisplacement = mix(heightMap.sample(sample, xy + 0.5).xyz, heightMap.sample(sample, xy + 1.0).xyz, 0.5);
+    float3 heightDisplacement = heightMap.sample(sample, xy).xyz;
+
+//    float inverseColor = color.r;//1 - color.r;
+    float3 height = (heightDisplacement * 2 - 1) * terrainParams.height;
+
+    // OHHHHH shit - displacment maps dispalce in the horizontal plane.....
+    //Using only a straight heightmap, this is not easy to implement, however, we can have another "displacement" map which computes displacement in the horizontal plane as well. If we compute the inverse Fourier transform of the gradient of the heightmap, we can find a horizontal displacement vector which we will push vertices toward. This gives a great choppy look to the waves.
+
+    // This means not just this y value... but also displacing the patches in the x axies
+    // Y & Z values represent the horizontal displacment inside the height map
+    // Height displacement would only be between -1 & 1. So we need to modify it somehow to values that
+    // are relevant....
+    float3 horizontalDisplacement = heightDisplacement * 2 - 1;
+
+    position.y = height.x;
+    position.x += (horizontalDisplacement.y);
+//    position.z += (horizontalDisplacement.z);
+    
+
+    float adjustedHeight = heightDisplacement.y;
+//    adjustedHeight = 1 - adjustedHeight;
+    out.position = uniforms.projectionMatrix * uniforms.viewMatrix * uniforms.modelMatrix * position;
+    float4 finalColor = float4(heightDisplacement.x);
+
+    // reference AAPLTerrainRenderer in DynamicTerrainWithArgumentBuffers exmaple: EvaluateTerrainAtLocation line 235 -> EvaluateTerrainAtLocation in AAPLTerrainRendererUtilities line: 91
+//    out.normal = uniforms.normalMatrix * primaryLocalNormal;//mix(primaryLocalNormal, secondarLocalNormal, 0.5);
+
+    constexpr sampler normalSampler(min_filter::linear, mag_filter::linear, mip_filter::nearest);
+    float3 normalValue = normalize(normalMap.sample(normalSampler, xy).xzy * 2.0f - 1.0f);
+    float3 normal = uniforms.normalMatrix * normalValue;
+
+    out.normal = normal;
+//    finalColor += float4(0.1, 0.6, 0.988, 1);
+    out.color = finalColor;
+    
+    out.worldPosition = (uniforms.modelMatrix * position).xyz;
+    out.toCamera = fragmentUniforms.camera_position - out.worldPosition;
+
+    return out;
+}
+
 float3 terrainDiffuseLighting(float3 normal,
                        float3 position,
                        constant FragmentUniforms &fragmentUniforms,
@@ -109,86 +198,6 @@ float3 terrainDiffuseLighting(float3 normal,
         }
     }
     return diffuseColor;
-}
-
-
-[[ patch(quad, 4) ]]
-vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control_points [[ stage_in ]],
-                                       float2 patch_coord [[ position_in_patch ]],
-                                       texture2d<float> heightMap [[ texture(0) ]],
-                                       texture2d<float> normalMap [[ texture(1) ]],
-                                       constant TerrainParams &terrainParams [[ buffer(BufferIndexTerrainParams) ]],
-                                       uint patchID [[ patch_id ]],
-                                       constant Uniforms &uniforms [[ buffer(BufferIndexUniforms) ]],
-                                       constant FragmentUniforms &fragmentUniforms [[ buffer(BufferIndexFragmentUniforms) ]])
-{
-    TerrainVertexOut out;
-    float u = patch_coord.x;
-    float v = patch_coord.y;
-    float2 top = mix(control_points[0].position.xz,
-                     control_points[1].position.xz,
-                     u);
-    float2 bottom = mix(control_points[3].position.xz,
-                        control_points[2].position.xz,
-                        u);
-
-    float2 interpolated = mix(top, bottom, v);
-    float4 position = float4(interpolated.x, 0.0, interpolated.y, 1.0);
-
-
-    // Changing this to filter linear smoothes out the texture
-    // Which ends up smoothing out the rendering
-    constexpr sampler sample(filter::linear, address::repeat);
-
-    float2 xy = ((position.xz + terrainParams.size / 2) / terrainParams.size);
-    xy += uniforms.playerMovement.xz;
-    out.uv = xy;
-    // Why was i doing this??
-//    xy.y = 1 - xy.y;
-//    xy = 1 - xy;
-//    xy.x = fmod(xy.x + (uniforms.deltaTime), 1);
-
-//    xy *= terrainParams.size;
-//    float3 heightDisplacement = mix(heightMap.sample(sample, xy + 0.5).xyz, heightMap.sample(sample, xy + 1.0).xyz, 0.5);
-    float3 heightDisplacement = heightMap.sample(sample, xy).xyz;
-
-//    float inverseColor = color.r;//1 - color.r;
-    float3 height = (heightDisplacement * 2 - 1) * terrainParams.height;
-
-    // OHHHHH shit - displacment maps dispalce in the horizontal plane.....
-    //Using only a straight heightmap, this is not easy to implement, however, we can have another "displacement" map which computes displacement in the horizontal plane as well. If we compute the inverse Fourier transform of the gradient of the heightmap, we can find a horizontal displacement vector which we will push vertices toward. This gives a great choppy look to the waves.
-
-    // This means not just this y value... but also displacing the patches in the x axies
-    // Y & Z values represent the horizontal displacment inside the height map
-    // Height displacement would only be between -1 & 1. So we need to modify it somehow to values that
-    // are relevant....
-    float3 horizontalDisplacement = heightDisplacement * 2 - 1;
-
-    position.x += (horizontalDisplacement.y);
-    position.z += (horizontalDisplacement.z);
-    position.y = height.x;
-    
-
-    float adjustedHeight = heightDisplacement.y;
-//    adjustedHeight = 1 - adjustedHeight;
-    out.position = uniforms.projectionMatrix * uniforms.viewMatrix * uniforms.modelMatrix * position;
-    float4 finalColor = float4(heightDisplacement.x);
-
-    // reference AAPLTerrainRenderer in DynamicTerrainWithArgumentBuffers exmaple: EvaluateTerrainAtLocation line 235 -> EvaluateTerrainAtLocation in AAPLTerrainRendererUtilities line: 91
-//    out.normal = uniforms.normalMatrix * primaryLocalNormal;//mix(primaryLocalNormal, secondarLocalNormal, 0.5);
-
-    constexpr sampler normalSampler(min_filter::linear, mag_filter::linear, mip_filter::nearest);
-    float3 normalValue = normalize(normalMap.sample(normalSampler, xy).xzy * 2.0f - 1.0f);
-    float3 normal = uniforms.normalMatrix * normalValue;
-
-    out.normal = normal;
-//    finalColor += float4(0.1, 0.6, 0.988, 1);
-    out.color = finalColor;
-    
-    out.worldPosition = (uniforms.modelMatrix * position).xyz;
-    out.toCamera = fragmentUniforms.camera_position - out.worldPosition;
-
-    return out;
 }
 
 fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
@@ -242,15 +251,23 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
                             mixRatio);
     mixedColor = mix(mixedColor, float4(0.0, 0.3, 0.5, 1.0), 0.3);
     
+    
+    
     constexpr sampler sam(min_filter::linear, mag_filter::linear, mip_filter::nearest, address::repeat);
-    float3 normalValue = normalMap.sample(sam, fragment_in.uv).xzy;
-    float3 vGradJacobian = gradientMap.sample(sam, fragment_in.uv).xyz;
-    float3 noise_gradient = 0.3 * normalValue;
-//
-//    return float4(normalValue, 1.0);
+    float3 vGradJacobian = gradientMap.sample(sam, fragment_in.vGradNormalTex.xy).xyz;
+    float2 noise_gradient = 0.3 * normalMap.sample(sam, fragment_in.vGradNormalTex.zw).xy;
+    float3 normalValue = normalMap.sample(mainSampler, fragment_in.uv).xzy;
+    
     float jacobian = vGradJacobian.z;
     float turbulence = max(2.0 - jacobian + dot(abs(noise_gradient.xy), float2(1.2)), 0.0);
+    
+    
+    // This is from example but not sure if i can use it \\
+//    float3 normal = float3(-vGradJacobian.x, 1.0, -vGradJacobian.y);
+//    normal.xz -= noise_gradient;
+//    normal = normalize(normal);
 
+//  Need to double check creation of gradient map
     float color_mod = 1.0  * smoothstep(1.3, 1.8, turbulence);
 
     float3 specular = terrainDiffuseLighting(uniforms.normalMatrix * (normalValue * 2.0f - 1.0f), fragment_in.position.xyz, fragmentUniforms, lights, mixedColor.rgb);

@@ -65,7 +65,7 @@ class BasicFFT: Node {
 
 
     static var wind_velocity = float2(x: 22, y: -26)
-    static var amplitude = 1.3
+    static var amplitude = 1.7
 
     override init() {
 
