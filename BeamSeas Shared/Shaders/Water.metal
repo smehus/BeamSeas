@@ -208,7 +208,7 @@ kernel void compute_height_graident(uint2 pid [[ thread_position_in_grid]],
 vertex FFTVertexOut fft_vertex(const FFTVertexIn in [[ stage_in ]],
                                constant Uniforms &uniforms [[ buffer(BufferIndexUniforms) ]],
                                texture2d<float> noiseMap [[ texture(8) ]],
-                               constant float2 &viewPort [[ buffer(22) ]]) {
+                               constant float2 &viewPort [[ buffer(BufferIndexViewport) ]]) {
     return {
         .position = uniforms.modelMatrix * in.position,
         .textureCoordinates =  in.position.xy
@@ -217,7 +217,7 @@ vertex FFTVertexOut fft_vertex(const FFTVertexIn in [[ stage_in ]],
 
 fragment float4 fft_fragment(const FFTVertexOut in [[ stage_in ]],
                              constant Uniforms &uniforms [[ buffer(BufferIndexUniforms)]],
-                             constant float2 &viewPort [[ buffer(22) ]],
+                             constant float2 &viewPort [[ buffer(BufferIndexViewport) ]],
                              texture2d<float> noiseMap [[ texture(0) ]],
                              texture2d<float> testMap [[ texture(1) ]]) {
     constexpr sampler sam;

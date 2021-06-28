@@ -92,6 +92,14 @@ class Model: Node {
         descriptor.maxAnisotropy = 8
         return Renderer.device.makeSamplerState(descriptor: descriptor)!
     }
+    
+    static func buildDepthStencilState() -> MTLDepthStencilState {
+        let descriptor = MTLDepthStencilDescriptor()
+        descriptor.depthCompareFunction = .always
+        descriptor.isDepthWriteEnabled = true
+
+        return Renderer.device.makeDepthStencilState(descriptor: descriptor)!
+    }
 }
 
 extension Model: Renderable {
@@ -115,7 +123,7 @@ extension Model: Renderable {
         let heightValue = heightBuffer.contents().bindMemory(to: Float.self, capacity: 1).pointee
         assert(meshes.count == 1)
         let size = meshes.first!.mdlMesh.boundingBox.maxBounds - meshes.first!.mdlMesh.boundingBox.minBounds
-        position.y = heightValue //+ (size.y * 0.3)
+        position.y = heightValue// - (size.y * 0.3)
 
         // TODO: - Transfer all this over to gpu
 
@@ -201,6 +209,7 @@ extension Model: Renderable {
         uniforms.modelMatrix = modelMatrix
         uniforms.normalMatrix = modelMatrix.upperLeft
 
+        renderEncoder.setDepthStencilState(Self.buildDepthStencilState())
         renderEncoder.setFragmentSamplerState(samplerState, index: 0)
         renderEncoder.setVertexBytes(
             &uniforms,

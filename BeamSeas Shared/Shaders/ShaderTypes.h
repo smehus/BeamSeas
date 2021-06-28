@@ -32,7 +32,8 @@ typedef NS_ENUM(NSInteger, BufferIndex)
     BufferIndexMaterials        = 14,
     BufferIndexControlPoints    = 15,
     BufferIndexTerrainParams    = 16,
-    BufferIndexGausUniforms     = 17
+    BufferIndexGausUniforms     = 17,
+    BufferIndexViewport         = 18
 };
 
 typedef NS_ENUM(NSInteger, VertexAttribute)

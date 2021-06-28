@@ -265,7 +265,6 @@ extension Renderer: MTKViewDelegate {
 
         // Render Pass \\
         let renderEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: descriptor)!
-        renderEncoder.setDepthStencilState(depthStencilState)
         renderEncoder.setFragmentBytes(&lights, length: MemoryLayout<Light>.stride * lights.count, index: BufferIndex.lights.rawValue)
 
         if player.moveState == .forward {
@@ -277,6 +276,7 @@ extension Renderer: MTKViewDelegate {
         renderEncoder.setFragmentTexture(refractionRenderPass.texture, index: TextureIndex.refraction.rawValue)
         
         for model in models {
+            renderEncoder.setDepthStencilState(depthStencilState)
             uniforms.deltaTime = delta
             uniforms.projectionMatrix = camera.projectionMatrix
             uniforms.viewMatrix = camera.viewMatrix
