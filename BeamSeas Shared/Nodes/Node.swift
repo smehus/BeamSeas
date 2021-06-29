@@ -10,7 +10,7 @@ import MetalKit
 
 protocol Renderable {
 
-    func update(with deltaTime: Float)
+    func update(with deltaTime: Float, uniforms: Uniforms, fragmentUniforms: FragmentUniforms, camera: Camera)
 
     func compute(
         computeEncoder: MTLComputeCommandEncoder,

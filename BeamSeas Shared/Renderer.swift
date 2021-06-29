@@ -23,17 +23,17 @@ final class Renderer: NSObject {
 
     lazy var camera: Camera = {
         
-        let camera = ArcballCamera()
-        camera.distance = 80
-        camera.target = [0, 0, -80]
-        camera.rotation.x = Float(-10).degreesToRadians
-        camera.rotation.y = Float(-60).degreesToRadians
+//        let camera = ArcballCamera()
+//        camera.distance = 80
+//        camera.target = [0, 0, -80]
+//        camera.rotation.x = Float(-10).degreesToRadians
+//        camera.rotation.y = Float(-60).degreesToRadians
  
         
-//        let camera = ThirdPersonCamera()
-//        camera.focus = player
-//        camera.focusDistance = 150
-//        camera.focusHeight = 100
+        let camera = ThirdPersonCamera()
+        camera.focus = player
+        camera.focusDistance = 150
+        camera.focusHeight = 100
         return camera
     }()
     
@@ -101,6 +101,9 @@ final class Renderer: NSObject {
 
         models.append(fft)
         fragmentUniforms.light_count = UInt32(lighting.count)
+        
+        let worldMap = WorldMap(vertexName: "worldMap_vertex", fragmentName: "worldMap_fragment")
+        models.append(worldMap)
 
         mtkView(metalView, drawableSizeWillChange: metalView.bounds.size)
     }
@@ -132,13 +135,22 @@ extension Renderer: MTKViewDelegate {
         var lights = lighting.lights
         let fps = Float(Float(1) / Float(view.preferredFramesPerSecond))
         delta += (fps * 2)
+        
+        uniforms.deltaTime = delta
+        uniforms.projectionMatrix = camera.projectionMatrix
+        uniforms.viewMatrix = camera.viewMatrix
+        fragmentUniforms.camera_position = camera.position
+        
+        // Update \\
         for model in models {
             (model as? Model)?.renderer = self
-            model.update(with: delta)
+            model.update(
+                with: delta,
+                uniforms: uniforms,
+                fragmentUniforms: fragmentUniforms,
+                camera: camera
+            )
         }
-
-        uniforms.deltaTime = delta
-        fragmentUniforms.camera_position = camera.position
         
         // Reflection Pass \\
         let reflectEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: reflectionRenderPass.descriptor)!
@@ -265,6 +277,7 @@ extension Renderer: MTKViewDelegate {
 
         // Render Pass \\
         let renderEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: descriptor)!
+        renderEncoder.setDepthStencilState(depthStencilState)
         renderEncoder.setFragmentBytes(&lights, length: MemoryLayout<Light>.stride * lights.count, index: BufferIndex.lights.rawValue)
 
         if player.moveState == .forward {
@@ -276,14 +289,16 @@ extension Renderer: MTKViewDelegate {
         renderEncoder.setFragmentTexture(refractionRenderPass.texture, index: TextureIndex.refraction.rawValue)
         
         for model in models {
-            renderEncoder.setDepthStencilState(depthStencilState)
             uniforms.deltaTime = delta
             uniforms.projectionMatrix = camera.projectionMatrix
             uniforms.viewMatrix = camera.viewMatrix
             fragmentUniforms.camera_position = camera.position
             model.draw(renderEncoder: renderEncoder, uniforms: &uniforms, fragmentUniforms: &fragmentUniforms)
+            renderEncoder.setDepthStencilState(depthStencilState)
+            renderEncoder.setTriangleFillMode(.fill)
         }
         
+        renderEncoder.setDepthStencilState(depthStencilState)
         skybox.draw(renderEncoder: renderEncoder, uniforms: &uniforms, fragmentUniforms: &fragmentUniforms)
         
         uniforms.projectionMatrix = camera.projectionMatrix

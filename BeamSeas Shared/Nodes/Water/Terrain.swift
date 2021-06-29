@@ -152,12 +152,8 @@ class Terrain: Node {
 
 extension Terrain: Renderable {
 
-    func update(with deltaTime: Float) {
+    func update(with deltaTime: Float, uniforms: Uniforms, fragmentUniforms: FragmentUniforms, camera: Camera) {
         
-    }
-
-    func generateTerrainNormals(computeEncoder: MTLComputeCommandEncoder, uniforms: inout Uniforms) {
-
     }
 
     // tesellate plane into a bunch of vertices
@@ -298,7 +294,7 @@ extension Terrain: Renderable {
         )
 
 
-//        renderEncoder.setTriangleFillMode(.lines)
+        renderEncoder.setTriangleFillMode(.lines)
         renderEncoder.drawPatches(
             numberOfPatchControlPoints: 4,
             patchStart: 0,

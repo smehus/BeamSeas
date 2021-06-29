@@ -87,7 +87,7 @@ class Skybox: Node, Texturable {
 
 extension Skybox: Renderable {
     
-    func update(with deltaTime: Float) {
+    func update(with deltaTime: Float, uniforms: Uniforms, fragmentUniforms: FragmentUniforms, camera: Camera) {
         
     }
     

@@ -235,7 +235,7 @@ class BasicFFT: Node {
 
 extension BasicFFT: Renderable {
 
-    func update(with deltaTime: Float) {
+    func update(with deltaTime: Float, uniforms: Uniforms, fragmentUniforms: FragmentUniforms, camera: Camera) {
         
     }
 

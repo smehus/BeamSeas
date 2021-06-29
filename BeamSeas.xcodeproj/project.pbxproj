@@ -25,6 +25,8 @@
 		0217E77424D5C3130082D199 /* gaussian_noise_5.png in Resources */ = {isa = PBXBuildFile; fileRef = 0217E77224D5C3130082D199 /* gaussian_noise_5.png */; };
 		022174F2268A09B200F9BCC9 /* WorldMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 022174F1268A09B200F9BCC9 /* WorldMap.swift */; };
 		022174F3268A09B200F9BCC9 /* WorldMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 022174F1268A09B200F9BCC9 /* WorldMap.swift */; };
+		022174F5268A11F600F9BCC9 /* WorldMap.metal in Sources */ = {isa = PBXBuildFile; fileRef = 022174F4268A11F600F9BCC9 /* WorldMap.metal */; };
+		022174F6268A11F600F9BCC9 /* WorldMap.metal in Sources */ = {isa = PBXBuildFile; fileRef = 022174F4268A11F600F9BCC9 /* WorldMap.metal */; };
 		0224BEC42515557100ABE59B /* NormalDistributionBridge.mm in Sources */ = {isa = PBXBuildFile; fileRef = 0224BEC22515557100ABE59B /* NormalDistributionBridge.mm */; };
 		0224BEC52515557100ABE59B /* NormalDistributionBridge.mm in Sources */ = {isa = PBXBuildFile; fileRef = 0224BEC22515557100ABE59B /* NormalDistributionBridge.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		022B51E124B0E33B00FC5C81 /* Terrain.metal in Sources */ = {isa = PBXBuildFile; fileRef = 022B51E024B0E33B00FC5C81 /* Terrain.metal */; };
@@ -173,6 +175,7 @@
 		020FD8C424D4577200B77CF2 /* Common.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Common.swift; sourceTree = "<group>"; };
 		0217E77224D5C3130082D199 /* gaussian_noise_5.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = gaussian_noise_5.png; sourceTree = "<group>"; };
 		022174F1268A09B200F9BCC9 /* WorldMap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorldMap.swift; sourceTree = "<group>"; };
+		022174F4268A11F600F9BCC9 /* WorldMap.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = WorldMap.metal; sourceTree = "<group>"; };
 		0224BEC22515557100ABE59B /* NormalDistributionBridge.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = NormalDistributionBridge.mm; sourceTree = "<group>"; };
 		0224BEC32515557100ABE59B /* NormalDistributionBridge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NormalDistributionBridge.h; sourceTree = "<group>"; };
 		022B51E024B0E33B00FC5C81 /* Terrain.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Terrain.metal; sourceTree = "<group>"; };
@@ -375,6 +378,7 @@
 				02482E6A24DC4C750000B762 /* Water.metal */,
 				0276CF16256196540016910A /* ComputeHeight.metal */,
 				02A98655267A3F9C003C68FC /* Skybox.metal */,
+				022174F4268A11F600F9BCC9 /* WorldMap.metal */,
 			);
 			path = Shaders;
 			sourceTree = "<group>";
@@ -717,6 +721,7 @@
 				02419D7F249851C700BCB203 /* Math.swift in Sources */,
 				0276CF17256196540016910A /* ComputeHeight.metal in Sources */,
 				022174F2268A09B200F9BCC9 /* WorldMap.swift in Sources */,
+				022174F5268A11F600F9BCC9 /* WorldMap.metal in Sources */,
 				020F9868249A7C5900DB4850 /* Extensions.swift in Sources */,
 				020FD8C524D4577200B77CF2 /* Common.swift in Sources */,
 				020F9853249A695900DB4850 /* Mesh.swift in Sources */,
@@ -755,6 +760,7 @@
 				02419D80249851C700BCB203 /* Math.swift in Sources */,
 				0276CF18256196540016910A /* ComputeHeight.metal in Sources */,
 				022174F3268A09B200F9BCC9 /* WorldMap.swift in Sources */,
+				022174F6268A11F600F9BCC9 /* WorldMap.metal in Sources */,
 				020F9869249A7C5900DB4850 /* Extensions.swift in Sources */,
 				020FD8C624D4577200B77CF2 /* Common.swift in Sources */,
 				020F9854249A695900DB4850 /* Mesh.swift in Sources */,

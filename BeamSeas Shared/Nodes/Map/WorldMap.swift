@@ -12,14 +12,22 @@ import MetalKit
 final class WorldMap: Node {
     
     private let model: MTKMesh
+    private let mesh: MDLMesh
     private let pipelineState: MTLRenderPipelineState
+    
+    private lazy var depthStencilState: MTLDepthStencilState = {
+        let descriptor = MTLDepthStencilDescriptor()
+        descriptor.depthCompareFunction = .always
+        descriptor.isDepthWriteEnabled = true
+        return Renderer.device.makeDepthStencilState(descriptor: descriptor)!
+    }()
     
     init(vertexName: String, fragmentName: String) {
         
         let allocator = MTKMeshBufferAllocator(device: Renderer.device)
-        let mesh = MDLMesh(
-            sphereWithExtent: [1, 1, 1],
-            segments: [1, 1],
+        mesh = MDLMesh(
+            sphereWithExtent: [15, 15, 15],
+            segments: [15, 15],
             inwardNormals: false,
             geometryType: .triangles,
             allocator: allocator
@@ -42,14 +50,22 @@ final class WorldMap: Node {
         }
         
         super.init()
+        
+//        scale = [0.3, 0.3, 0.3]
     }
-    
 }
 
 extension WorldMap: Renderable {
     
-    func update(with deltaTime: Float) {
+    func update(with deltaTime: Float, uniforms: Uniforms, fragmentUniforms: FragmentUniforms, camera: Camera) {
         
+        let size = mesh.boundingBox.maxBounds - mesh.boundingBox.minBounds
+        position.y = fragmentUniforms.camera_position.y - (size.y / 2)
+        position.x = camera.forwardVector.x
+        rotation = camera.rotation
+        
+        
+        print(camera.rotation)
     }
 
     func draw(
@@ -59,7 +75,10 @@ extension WorldMap: Renderable {
     ) {
         renderEncoder.pushDebugGroup("World Map")
         uniforms.modelMatrix = modelMatrix
+        
         renderEncoder.setRenderPipelineState(pipelineState)
+        renderEncoder.setDepthStencilState(depthStencilState)
+        
         renderEncoder.setVertexBytes(
             &uniforms,
             length: MemoryLayout<Uniforms>.stride,
@@ -70,8 +89,11 @@ extension WorldMap: Renderable {
             x: Float(Renderer.metalView.drawableSize.width),
             y: Float(Renderer.metalView.drawableSize.height)
         )
-        renderEncoder.setVertexBytes(&viewPort, length: MemoryLayout<SIMD2<Float>>.stride, index: BufferIndex.viewport.rawValue)
-        
+        renderEncoder.setVertexBytes(
+            &viewPort,
+            length: MemoryLayout<SIMD2<Float>>.stride,
+            index: BufferIndex.viewport.rawValue
+        )
         
         let mesh = model.submeshes.first!
         renderEncoder.setVertexBuffer(

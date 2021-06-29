@@ -104,7 +104,7 @@ class Model: Node {
 
 extension Model: Renderable {
 
-    func update(with deltaTime: Float) {
+    func update(with deltaTime: Float, uniforms: Uniforms, fragmentUniforms: FragmentUniforms, camera: Camera) {
         
         switch moveState {
         case .rotateRight:
