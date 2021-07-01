@@ -61,11 +61,12 @@ extension WorldMap: Renderable {
         
         let size = mesh.boundingBox.maxBounds - mesh.boundingBox.minBounds
         position.y = fragmentUniforms.camera_position.y - (size.y / 2)
-        position.x = camera.forwardVector.x
-        rotation = camera.rotation
+        // Need to offset the rotation of the camera somehow...
+//        position.x = -camera.forwardVector.x.radiansToDegrees
+        rotation.y = camera.rotation.y
         
         
-        print(camera.rotation)
+        print("*** camera \(camera.forwardVector.x.radiansToDegrees) self: \(position)")
     }
 
     func draw(
