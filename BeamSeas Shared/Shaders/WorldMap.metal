@@ -13,6 +13,7 @@ using namespace metal;
 struct WorldMapVertexOut {
     float4 position [[ position ]];
     float2 textureCoordinates;
+    uint viewport [[ viewport_array_index ]];
 };
 
 struct WorldMapVertexIn {

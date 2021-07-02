@@ -9,10 +9,10 @@
 import Foundation
 import MetalKit
 
-final class WorldMap: Node {
+final class WorldMap: Node, Meshable {
     
+    private(set) var mesh: MDLMesh
     private let model: MTKMesh
-    private let mesh: MDLMesh
     private let pipelineState: MTLRenderPipelineState
     
     private lazy var depthStencilState: MTLDepthStencilState = {
@@ -26,7 +26,7 @@ final class WorldMap: Node {
         
         let allocator = MTKMeshBufferAllocator(device: Renderer.device)
         mesh = MDLMesh(
-            sphereWithExtent: [15, 15, 15],
+            sphereWithExtent: [100, 100, 100],
             segments: [15, 15],
             inwardNormals: false,
             geometryType: .triangles,
@@ -57,16 +57,17 @@ final class WorldMap: Node {
 
 extension WorldMap: Renderable {
     
-    func update(with deltaTime: Float, uniforms: Uniforms, fragmentUniforms: FragmentUniforms, camera: Camera) {
-        
-        let size = mesh.boundingBox.maxBounds - mesh.boundingBox.minBounds
-        position.y = fragmentUniforms.camera_position.y - (size.y / 2)
-        // Need to offset the rotation of the camera somehow...
-//        position.x = -camera.forwardVector.x.radiansToDegrees
+    func update(
+        deltaTime: Float,
+        uniforms: Uniforms,
+        fragmentUniforms: FragmentUniforms,
+        camera: Camera,
+        player: Model
+    ) {
         rotation.y = camera.rotation.y
         
+        let tempWorldSize = SIMD2<Float>(x: 3000, y: 3000)
         
-        print("*** camera \(camera.forwardVector.x.radiansToDegrees) self: \(position)")
     }
 
     func draw(
@@ -96,6 +97,19 @@ extension WorldMap: Renderable {
             index: BufferIndex.viewport.rawValue
         )
         
+        let drawableWidth = Renderer.metalView.drawableSize.width.double / 4
+        let drawableHeight = Renderer.metalView.drawableSize.height.double / 4
+        
+        renderEncoder.setViewport(
+            MTLViewport(originX: Renderer.metalView.drawableSize.width.double - drawableWidth,
+                        originY: 0,
+                        width: drawableWidth,
+                        height: drawableHeight,
+                        znear: 0.001,
+                        zfar: 1)
+        )
+        
+        
         let mesh = model.submeshes.first!
         renderEncoder.setVertexBuffer(
             model.vertexBuffers.first!.buffer,
@@ -113,5 +127,12 @@ extension WorldMap: Renderable {
         )
         
         renderEncoder.popDebugGroup()
+    }
+}
+
+extension CGFloat {
+    
+    var double: Double {
+        Double(self)
     }
 }

@@ -152,7 +152,13 @@ class Terrain: Node {
 
 extension Terrain: Renderable {
 
-    func update(with deltaTime: Float, uniforms: Uniforms, fragmentUniforms: FragmentUniforms, camera: Camera) {
+    func update(
+        deltaTime: Float,
+        uniforms: Uniforms,
+        fragmentUniforms: FragmentUniforms,
+        camera: Camera,
+        player: Model
+    ) {
         
     }
 
@@ -294,7 +300,7 @@ extension Terrain: Renderable {
         )
 
 
-        renderEncoder.setTriangleFillMode(.lines)
+//        renderEncoder.setTriangleFillMode(.lines)
         renderEncoder.drawPatches(
             numberOfPatchControlPoints: 4,
             patchStart: 0,

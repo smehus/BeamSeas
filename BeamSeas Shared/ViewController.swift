@@ -13,7 +13,7 @@ protocol GameViewParent {
     var inputDelegate: GameViewProtocol? { get set }
 }
 
-protocol GameViewProtocol: class {
+protocol GameViewProtocol: AnyObject {
     func keyDown(key: Key)
     func keyUp(key: Key)
 }

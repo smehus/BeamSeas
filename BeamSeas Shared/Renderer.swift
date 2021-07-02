@@ -45,19 +45,18 @@ final class Renderer: NSObject {
     }()
 
     var uniforms = Uniforms()
-    var fragmentUniforms = FragmentUniforms()
-    var models: [Renderable] = []
-    var lighting = Lighting()
-    var depthStencilState: MTLDepthStencilState
-    var delta: Float = 0
-    var deltaFactor: DeltaFactor = .normal
-    var firstRun = true
-    var fft: BasicFFT
-    var player: Model!
-    var playerDelta: Float = 0
-    var skybox: Skybox!
-    var reflectionRenderPass: RenderPass
-    var refractionRenderPass: RenderPass
+    private(set) var fragmentUniforms = FragmentUniforms()
+    private(set) var models: [Renderable] = []
+    private(set) var lighting = Lighting()
+    private(set) var depthStencilState: MTLDepthStencilState
+    private(set) var delta: Float = 0
+    private(set) var deltaFactor: DeltaFactor = .normal
+    private(set) var firstRun = true
+    private(set) var fft: BasicFFT
+    private(set) var player: Model!
+    private(set) var skybox: Skybox!
+    private(set) var reflectionRenderPass: RenderPass
+    private(set) var refractionRenderPass: RenderPass
 
     enum DeltaFactor: Float {
         case normal = 0.01
@@ -145,10 +144,11 @@ extension Renderer: MTKViewDelegate {
         for model in models {
             (model as? Model)?.renderer = self
             model.update(
-                with: delta,
+                deltaTime: delta,
                 uniforms: uniforms,
                 fragmentUniforms: fragmentUniforms,
-                camera: camera
+                camera: camera,
+                player: player
             )
         }
         
@@ -281,7 +281,6 @@ extension Renderer: MTKViewDelegate {
         renderEncoder.setFragmentBytes(&lights, length: MemoryLayout<Light>.stride * lights.count, index: BufferIndex.lights.rawValue)
 
         if player.moveState == .forward {
-            playerDelta += fps // Not used anymore
             uniforms.playerMovement += player.forwardVector * 0.001
         }
         
@@ -296,6 +295,14 @@ extension Renderer: MTKViewDelegate {
             model.draw(renderEncoder: renderEncoder, uniforms: &uniforms, fragmentUniforms: &fragmentUniforms)
             renderEncoder.setDepthStencilState(depthStencilState)
             renderEncoder.setTriangleFillMode(.fill)
+            renderEncoder.setViewport(
+                MTLViewport(originX: 0,
+                            originY: 0,
+                            width: Renderer.metalView.drawableSize.width.double,
+                            height: Renderer.metalView.drawableSize.height.double,
+                            znear: 0.001,
+                            zfar: 1)
+            )
         }
         
         renderEncoder.setDepthStencilState(depthStencilState)

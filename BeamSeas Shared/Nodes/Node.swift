@@ -10,7 +10,13 @@ import MetalKit
 
 protocol Renderable {
 
-    func update(with deltaTime: Float, uniforms: Uniforms, fragmentUniforms: FragmentUniforms, camera: Camera)
+    func update(
+        deltaTime: Float,
+        uniforms: Uniforms,
+        fragmentUniforms: FragmentUniforms,
+        camera: Camera,
+        player: Model
+    )
 
     func compute(
         computeEncoder: MTLComputeCommandEncoder,
@@ -60,6 +66,17 @@ extension Renderable {
         uniforms: inout Uniforms
     ) {
         // Override
+    }
+}
+
+protocol Meshable {
+    var mesh: MDLMesh { get }
+    var size: SIMD3<Float> { get }
+}
+
+extension Meshable {
+    var size: SIMD3<Float> {
+        mesh.boundingBox.maxBounds - mesh.boundingBox.minBounds
     }
 }
 

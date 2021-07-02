@@ -137,7 +137,7 @@ class ThirdPersonCamera: Camera {
 
     private func setRotatingCamera() {
         position = focus.position - focusDistance * focus.forwardVector
-        position.y = focus.position.y + focusHeight
+        position.y = /*focus.position.y + (This will move camera up and down with player height)*/ focusHeight
         rotation.y = focus.rotation.y
     }
 }

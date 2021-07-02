@@ -65,7 +65,7 @@ class BasicFFT: Node {
 
 
     static var wind_velocity = float2(x: 22, y: -26)
-    static var amplitude = 1.7
+    static var amplitude = 2
 
     override init() {
 
@@ -235,7 +235,7 @@ class BasicFFT: Node {
 
 extension BasicFFT: Renderable {
 
-    func update(with deltaTime: Float, uniforms: Uniforms, fragmentUniforms: FragmentUniforms, camera: Camera) {
+    func update(deltaTime: Float, uniforms: Uniforms, fragmentUniforms: FragmentUniforms, camera: Camera, player: Model) {
         
     }
 
