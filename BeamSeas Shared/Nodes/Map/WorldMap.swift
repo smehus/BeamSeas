@@ -64,10 +64,16 @@ extension WorldMap: Renderable {
         camera: Camera,
         player: Model
     ) {
-        rotation.y = camera.rotation.y
+        
         
         let tempWorldSize = SIMD2<Float>(x: 3000, y: 3000)
         
+        rotation.y = camera.rotation.y
+        rotation.x = uniforms.playerMovement.x
+        rotation.z = uniforms.playerMovement.z
+        
+        
+        print(uniforms.playerMovement)
     }
 
     func draw(
