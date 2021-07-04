@@ -122,6 +122,9 @@ class ThirdPersonCamera: Camera {
 
     override var viewMatrix: float4x4 {
         setRotatingCamera()
+        // Setting the center to 0, 0 ,0 prevents the camera from adjusting rotation.
+        // This is good because if the camera moves with the player rotation
+        // the world map will move around the screen
         return float4x4(eye: position, center: float3(0, 0, 0)/*focus.position*/, up: [0, 1, 0])
 //        return float4x4(lookAtLHEye: position, target: focus.position, up: [0, 1, 0])
 

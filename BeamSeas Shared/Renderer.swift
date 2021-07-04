@@ -118,7 +118,7 @@ final class Renderer: NSObject {
 
 extension Renderer: MTKViewDelegate {
     func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {
-        camera.aspect = Float(view.bounds.width) / Float(view.bounds.height)
+        camera.aspect = Float(size.width) / Float(size.height)
         reflectionRenderPass.updateTextures(size: size)
         refractionRenderPass.updateTextures(size: size)
     }
@@ -130,6 +130,8 @@ extension Renderer: MTKViewDelegate {
         else {
             return
         }
+        
+        mtkView(view, drawableSizeWillChange: view.drawableSize)
 
         var lights = lighting.lights
         let fps = Float(Float(1) / Float(view.preferredFramesPerSecond))
