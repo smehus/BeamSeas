@@ -64,16 +64,19 @@ extension WorldMap: Renderable {
         camera: Camera,
         player: Model
     ) {
+
+        switch player.moveState {
+        case .rotateLeft, .rotateRight:
+            rotation.y = camera.rotation.y
+        case .forward:
+            let fps = (1.float / Renderer.metalView.preferredFramesPerSecond.float)
+            rotation.y += fps * player.forwardVector.x
+        case .stopped:
+            break
+        }
         
-        
-        let tempWorldSize = SIMD2<Float>(x: 3000, y: 3000)
-        
-        rotation.y = camera.rotation.y
-        rotation.x = uniforms.playerMovement.x
-        rotation.z = uniforms.playerMovement.z
-        
-        
-        print(uniforms.playerMovement)
+////        print(uniforms.playerMovement)
+//        print(player.forwardVector)
     }
 
     func draw(
