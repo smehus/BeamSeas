@@ -22,7 +22,7 @@ struct WorldMapVertexIn {
 
 
 vertex WorldMapVertexOut worldMap_vertex(const WorldMapVertexIn in [[ stage_in ]],
-                               constant Uniforms &uniforms [[ buffer(BufferIndexUniforms) ]]) {
+                                         constant Uniforms &uniforms [[ buffer(BufferIndexUniforms) ]]) {
     return {
         .position = uniforms.projectionMatrix * uniforms.viewMatrix * uniforms.modelMatrix * in.position,
         .textureCoordinates =  in.position.xy
@@ -30,12 +30,6 @@ vertex WorldMapVertexOut worldMap_vertex(const WorldMapVertexIn in [[ stage_in ]
 }
 
 fragment float4 worldMap_fragment(const WorldMapVertexOut in [[ stage_in ]],
-                             constant Uniforms &uniforms [[ buffer(BufferIndexUniforms)]]) {
-    float2 xy;
-    float3 screenCoord = uniforms.modelMatrix.columns[3].xyz;
-    float width = viewPort.x * 0.25;
-    float height = viewPort.y * 0.25;
-
-
+                                  constant Uniforms &uniforms [[ buffer(BufferIndexUniforms)]]) {
     return float4(1.0, 0.0, 0.0, 1.0);
 }

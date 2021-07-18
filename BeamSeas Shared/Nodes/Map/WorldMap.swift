@@ -111,8 +111,8 @@ extension WorldMap: Renderable {
         
         renderEncoder.pushDebugGroup("World Map")
         uniforms.modelMatrix = modelMatrix
-//        uniforms.viewMatrix = mapCamera.viewMatrix
-//        uniforms.projectionMatrix = mapCamera.projectionMatrix
+        uniforms.viewMatrix = mapCamera.viewMatrix
+        uniforms.projectionMatrix = mapCamera.projectionMatrix
         
         renderEncoder.setRenderPipelineState(pipelineState)
         renderEncoder.setDepthStencilState(depthStencilState)
@@ -127,10 +127,10 @@ extension WorldMap: Renderable {
         let drawableHeight = Renderer.metalView.drawableSize.height.double / 4
         
         renderEncoder.setViewport(
-            MTLViewport(originX: Renderer.metalView.drawableSize.width.double - drawableWidth,
+            MTLViewport(originX: 0,//Renderer.metalView.drawableSize.width.double - drawableWidth,
                         originY: 0,
-                        width: drawableWidth,
-                        height: drawableHeight,
+                        width: Renderer.metalView.drawableSize.width.double,// drawableWidth,
+                        height: Renderer.metalView.drawableSize.height.double,// drawableHeight,
                         znear: 0.001,
                         zfar: 1)
         )
