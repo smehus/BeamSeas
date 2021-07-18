@@ -38,7 +38,8 @@ class Camera: Node {
         let scaleMatrix = float4x4(scaling: scale)
 
         // move camera to the right means everything else in world should move left
-        return (translateMatrix * rotateMatrix * scaleMatrix).inverse
+        // Should this be inversed??
+        return translateMatrix * rotateMatrix * scaleMatrix
     }
 
     func zoom(delta: Float) { }

@@ -150,7 +150,7 @@ extension Renderer: MTKViewDelegate {
         uniforms.viewMatrix = camera.viewMatrix
         fragmentUniforms.camera_position = camera.position
         
-        // Update \\
+        // MARK: - UPDATE MODELS
         for model in models {
             (model as? Model)?.renderer = self
             model.update(
@@ -162,7 +162,7 @@ extension Renderer: MTKViewDelegate {
             )
         }
         
-        // Reflection Pass \\
+        // MARK: - REFLECTION PASS
         let reflectEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: reflectionRenderPass.descriptor)!
         reflectEncoder.pushDebugGroup("Reflection Pass")
         reflectEncoder.setDepthStencilState(depthStencilState)
@@ -197,7 +197,7 @@ extension Renderer: MTKViewDelegate {
         reflectEncoder.endEncoding()
         reflectEncoder.popDebugGroup()
         
-        // Refraction \\
+        // MARK: - REFRACTION PASS
         uniforms.clipPlane = float4(0, -1, 0, 0.1)
         uniforms.viewMatrix = camera.viewMatrix
         let refractEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: refractionRenderPass.descriptor)!
@@ -233,6 +233,7 @@ extension Renderer: MTKViewDelegate {
         uniforms.viewMatrix = camera.viewMatrix
         uniforms.clipPlane = float4(0, -1, 0, 100)
         
+        // MARK: - FFT PASS
         let distributionEncoder = commandBuffer.makeComputeCommandEncoder()!
         fft.generateDistributions(computeEncoder: distributionEncoder, uniforms: uniforms)
         distributionEncoder.endEncoding()
@@ -253,7 +254,7 @@ extension Renderer: MTKViewDelegate {
         normalEncoder.endEncoding()
 
 
-        // Terrain Pass \\
+        // MARK: - TERRAIN PASS
 
         let computeEncoder = commandBuffer.makeComputeCommandEncoder()!
         computeEncoder.pushDebugGroup("Tessellation")
@@ -271,7 +272,8 @@ extension Renderer: MTKViewDelegate {
         computeEncoder.endEncoding()
 
 
-        // Height pass \\
+        // MARK: - Height Pass
+        
         let computeHeightEncoder = commandBuffer.makeComputeCommandEncoder()!
         computeHeightEncoder.pushDebugGroup("Calc Height")
         for model in models {
@@ -285,7 +287,8 @@ extension Renderer: MTKViewDelegate {
         computeHeightEncoder.popDebugGroup()
         computeHeightEncoder.endEncoding()
 
-        // Render Pass \\
+        
+        // MARK: - Main Render Pass
         let renderEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: descriptor)!
         renderEncoder.setDepthStencilState(depthStencilState)
         renderEncoder.setFragmentBytes(&lights, length: MemoryLayout<Light>.stride * lights.count, index: BufferIndex.lights.rawValue)
@@ -321,6 +324,7 @@ extension Renderer: MTKViewDelegate {
         uniforms.projectionMatrix = camera.projectionMatrix
         uniforms.viewMatrix = camera.viewMatrix
 
+        // MARK: - DEBUG NORMALS
         let tangent0 = float3(playerRotation.1.x.radiansToDegrees, playerRotation.1.y.radiansToDegrees, playerRotation.1.z.radiansToDegrees)
         let tangent1 = float3(playerRotation.2.x.radiansToDegrees, playerRotation.2.y.radiansToDegrees, playerRotation.2.z.radiansToDegrees)
         let normalMap = float3(playerRotation.3.x.radiansToDegrees, playerRotation.3.y.radiansToDegrees, playerRotation.3.z.radiansToDegrees)

@@ -118,10 +118,8 @@ extension float4x4 {
         return float3x3(columns: (x, y, z))
     }
 
-    // MARK: - Left handed projection matrix
-    // Not sure why the second prjojection logic works with skybox but first init does not...
     
-    /// Correct Left Handed projection - One above sucks and doesn't work
+    /// Left Hand Projection (correct)
     init(perspectiveProjectionFov fovRadians: Float, aspectRatio aspect: Float, nearZ: Float, farZ: Float) {
         let yScale = 1 / tan(fovRadians * 0.5)
         let xScale = yScale / aspect
@@ -141,6 +139,8 @@ extension float4x4 {
                   float4( 0,  0, wz,  1))
     }
     
+    
+    /// Projection - Configurable
     init(projectionFov fov: Float, near: Float, far: Float, aspect: Float, lhs: Bool = true) {
       let y = 1 / tan(fov * 0.5)
       let x = y / aspect

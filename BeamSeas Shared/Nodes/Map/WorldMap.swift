@@ -14,10 +14,14 @@ final class WorldMap: Node, Meshable {
     private(set) var mesh: MDLMesh
     private let model: MTKMesh
     private let pipelineState: MTLRenderPipelineState
+    private var mapUniforms = Uniforms()
     
     private lazy var mapCamera: Camera = {
         let camera = Camera()
-        camera.fovDegrees = 180
+        camera.near = 0.0001
+        camera.far = 500
+//        camera.fovDegrees = 180
+        
         return camera
     }()
     
@@ -36,14 +40,15 @@ final class WorldMap: Node, Meshable {
         
         let allocator = MTKMeshBufferAllocator(device: Renderer.device)
         mesh = MDLMesh(
-            sphereWithExtent: [100, 100, 100],
-            segments: [15, 15],
+            sphereWithExtent: [20, 20, 20],
+            segments: [30, 30],
             inwardNormals: false,
             geometryType: .triangles,
             allocator: allocator
         )
         
         model = try! MTKMesh(mesh: mesh, device: Renderer.device)
+        
         
         let pipelineDescriptor = MTLRenderPipelineDescriptor()
         pipelineDescriptor.colorAttachments[0].pixelFormat = Renderer.metalView.colorPixelFormat
@@ -61,7 +66,7 @@ final class WorldMap: Node, Meshable {
         
         super.init()
         
-//        scale = [0.3, 0.3, 0.3]
+        
     }
 }
 
@@ -89,6 +94,7 @@ extension WorldMap: Renderable {
         case .forward:
             let fps = (1.float / Renderer.metalView.preferredFramesPerSecond.float)
             rotation.y += (fps * player.forwardVector.x) //* Constant.rotationModifier
+        fallthrough
         case .stopped:
             break
         }
@@ -102,38 +108,41 @@ extension WorldMap: Renderable {
         uniforms: inout Uniforms,
         fragmentUniforms: inout FragmentUniforms
     ) {
-        
-        let storedUniforms = uniforms
         defer {
-            uniforms = storedUniforms
             renderEncoder.popDebugGroup()
         }
         
         renderEncoder.pushDebugGroup("World Map")
-        uniforms.modelMatrix = modelMatrix
-        uniforms.viewMatrix = mapCamera.viewMatrix
-        uniforms.projectionMatrix = mapCamera.projectionMatrix
+        mapUniforms = uniforms
+//        mapUniforms.modelMatrix = modelMatrix
+        let translation = float4x4(translation: [0, 0, 30])
+        let rotation = float4x4(rotation: [0, 0, 0])
+        let scale = float4x4(scaling: 0.1)
+        mapUniforms.modelMatrix = (translation * rotation * scale)
+        mapUniforms.viewMatrix = float4x4(translation: [0, 0, 0]).inverse
+        mapUniforms.projectionMatrix = float4x4(projectionFov: 70, near: 0.001, far: 100, aspect: mapCamera.aspect, lhs: true)
+            
         
         renderEncoder.setRenderPipelineState(pipelineState)
         renderEncoder.setDepthStencilState(depthStencilState)
         
         renderEncoder.setVertexBytes(
-            &uniforms,
+            &mapUniforms,
             length: MemoryLayout<Uniforms>.stride,
             index: BufferIndex.uniforms.rawValue
         )
         
-        let drawableWidth = Renderer.metalView.drawableSize.width.double / 4
-        let drawableHeight = Renderer.metalView.drawableSize.height.double / 4
+//        let drawableWidth = Renderer.metalView.drawableSize.width.double / 4
+//        let drawableHeight = Renderer.metalView.drawableSize.height.double / 4
         
-        renderEncoder.setViewport(
-            MTLViewport(originX: 0,//Renderer.metalView.drawableSize.width.double - drawableWidth,
-                        originY: 0,
-                        width: Renderer.metalView.drawableSize.width.double,// drawableWidth,
-                        height: Renderer.metalView.drawableSize.height.double,// drawableHeight,
-                        znear: 0.001,
-                        zfar: 1)
-        )
+//        renderEncoder.setViewport(
+//            MTLViewport(originX: 0,//Renderer.metalView.drawableSize.width.double - drawableWidth,
+//                        originY: 0,
+//                        width: Renderer.metalView.drawableSize.width.double,// drawableWidth,
+//                        height: Renderer.metalView.drawableSize.height.double,// drawableHeight,
+//                        znear: 0.0001,
+//                        zfar: 1)
+//        )
         
         
         let mesh = model.submeshes.first!
