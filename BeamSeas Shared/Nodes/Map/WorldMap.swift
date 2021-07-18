@@ -20,7 +20,6 @@ final class WorldMap: Node, Meshable {
         let camera = Camera()
         camera.near = 0.0001
         camera.far = 500
-//        camera.fovDegrees = 180
         
         return camera
     }()
@@ -66,6 +65,8 @@ final class WorldMap: Node, Meshable {
         
         super.init()
         
+        position = float3(0, 0, 30)
+        scale = float3(0.1, 0.1, 0.1)
         
     }
 }
@@ -114,13 +115,12 @@ extension WorldMap: Renderable {
         
         renderEncoder.pushDebugGroup("World Map")
         mapUniforms = uniforms
-//        mapUniforms.modelMatrix = modelMatrix
-        let translation = float4x4(translation: [0, 0, 30])
-        let rotation = float4x4(rotation: [0, 0, 0])
-        let scale = float4x4(scaling: 0.1)
-        mapUniforms.modelMatrix = (translation * rotation * scale)
-        mapUniforms.viewMatrix = float4x4(translation: [0, 0, 0]).inverse
-        mapUniforms.projectionMatrix = float4x4(projectionFov: 70, near: 0.001, far: 100, aspect: mapCamera.aspect, lhs: true)
+//        let translation = float4x4(translation: [0, 0, 30])
+//        let rotation = float4x4(rotation: [0, 0, 0])
+//        let scale = float4x4(scaling: 0.1)
+        mapUniforms.modelMatrix = modelMatrix//(translation * rotation * scale)
+        mapUniforms.viewMatrix = mapCamera.viewMatrix// float4x4(translation: [0, 0, 0]).inverse
+        mapUniforms.projectionMatrix = mapCamera.projectionMatrix// float4x4(projectionFov: 70, near: 0.001, far: 100, aspect: mapCamera.aspect, lhs: true)
             
         
         renderEncoder.setRenderPipelineState(pipelineState)
