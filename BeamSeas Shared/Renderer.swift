@@ -116,11 +116,19 @@ final class Renderer: NSObject {
     }
 }
 
+protocol AspectRatioUpdateable {
+    func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize)
+}
+
 extension Renderer: MTKViewDelegate {
     func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {
         camera.aspect = Float(size.width) / Float(size.height)
         reflectionRenderPass.updateTextures(size: size)
         refractionRenderPass.updateTextures(size: size)
+        
+        for case let aspectRatioUpdateable as AspectRatioUpdateable in models {
+            aspectRatioUpdateable.mtkView(view, drawableSizeWillChange: size)
+        }
     }
 
     func draw(in view: MTKView) {

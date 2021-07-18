@@ -15,6 +15,16 @@ final class WorldMap: Node, Meshable {
     private let model: MTKMesh
     private let pipelineState: MTLRenderPipelineState
     
+    private lazy var mapCamera: Camera = {
+        let camera = Camera()
+        camera.fovDegrees = 180
+        return camera
+    }()
+    
+    struct Constant {
+        static let rotationModifier: Float = 0.1
+    }
+    
     private lazy var depthStencilState: MTLDepthStencilState = {
         let descriptor = MTLDepthStencilDescriptor()
         descriptor.depthCompareFunction = .always
@@ -55,6 +65,12 @@ final class WorldMap: Node, Meshable {
     }
 }
 
+extension WorldMap: AspectRatioUpdateable {
+    func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {
+        mapCamera.aspect = Float(size.width) / Float(size.height)
+    }
+}
+
 extension WorldMap: Renderable {
     
     func update(
@@ -67,10 +83,12 @@ extension WorldMap: Renderable {
 
         switch player.moveState {
         case .rotateLeft, .rotateRight:
-            rotation.y = camera.rotation.y
+            // This resets it yo
+//            rotation.y = camera.rotation.y
+        break
         case .forward:
             let fps = (1.float / Renderer.metalView.preferredFramesPerSecond.float)
-            rotation.y += fps * player.forwardVector.x
+            rotation.y += (fps * player.forwardVector.x) //* Constant.rotationModifier
         case .stopped:
             break
         }
@@ -84,8 +102,17 @@ extension WorldMap: Renderable {
         uniforms: inout Uniforms,
         fragmentUniforms: inout FragmentUniforms
     ) {
+        
+        let storedUniforms = uniforms
+        defer {
+            uniforms = storedUniforms
+            renderEncoder.popDebugGroup()
+        }
+        
         renderEncoder.pushDebugGroup("World Map")
         uniforms.modelMatrix = modelMatrix
+//        uniforms.viewMatrix = mapCamera.viewMatrix
+//        uniforms.projectionMatrix = mapCamera.projectionMatrix
         
         renderEncoder.setRenderPipelineState(pipelineState)
         renderEncoder.setDepthStencilState(depthStencilState)
@@ -94,16 +121,6 @@ extension WorldMap: Renderable {
             &uniforms,
             length: MemoryLayout<Uniforms>.stride,
             index: BufferIndex.uniforms.rawValue
-        )
-        
-        var viewPort = SIMD2<Float>(
-            x: Float(Renderer.metalView.drawableSize.width),
-            y: Float(Renderer.metalView.drawableSize.height)
-        )
-        renderEncoder.setVertexBytes(
-            &viewPort,
-            length: MemoryLayout<SIMD2<Float>>.stride,
-            index: BufferIndex.viewport.rawValue
         )
         
         let drawableWidth = Renderer.metalView.drawableSize.width.double / 4
@@ -134,8 +151,6 @@ extension WorldMap: Renderable {
             indexBuffer: mesh.indexBuffer.buffer,
             indexBufferOffset: mesh.indexBuffer.offset
         )
-        
-        renderEncoder.popDebugGroup()
     }
 }
 
