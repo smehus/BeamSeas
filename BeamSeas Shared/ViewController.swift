@@ -14,6 +14,7 @@ protocol GameViewParent {
 }
 
 protocol GameViewProtocol: AnyObject {
+    var keys: Set<Key> { get set }
     func keyDown(key: Key)
     func keyUp(key: Key)
 }
@@ -21,6 +22,7 @@ protocol GameViewProtocol: AnyObject {
 class ViewController: LocalViewController {
 
     var renderer: Renderer!
+    var keys: Set<Key> = []
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -37,10 +39,34 @@ class ViewController: LocalViewController {
 
 extension ViewController: GameViewProtocol {
     func keyUp(key: Key) {
-        renderer.player.moveState = .stopped
+        print("*** ADDING \(key)")
+        keys.add(key: key)
+        
+        renderer.player.moveStates = keys
     }
 
     func keyDown(key: Key) {
-        renderer.player.moveState = key.moveState
+        keys.remove(key)
+        print("*** REMOVING \(key)")
+        renderer.player.moveStates = keys
+    }
+}
+
+extension Set where Element == Key {
+    mutating func add(key: Element) {
+        switch key {
+        case .forward:
+            remove(.backwards)
+            insert(key)
+        case .backwards:
+            remove(.forward)
+            insert(.backwards)
+        case .right:
+            remove(.left)
+            insert(.right)
+        case .left:
+            remove(.right)
+            insert(.left)
+        }
     }
 }

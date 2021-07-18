@@ -12,6 +12,7 @@ import simd
 
 enum ModelMoveState {
     case forward
+    case backwards
     case stopped
     case rotateLeft
     case rotateRight
@@ -29,7 +30,7 @@ class Model: Node {
     var heightBuffer: MTLBuffer
     var normalBuffer: MTLBuffer
     
-    var moveState: ModelMoveState = .stopped
+    var moveStates: Set<Key> = []
     var rotationMatrix: float4x4 = .identity()
 
     private let heightComputePipelineState: MTLComputePipelineState
@@ -112,18 +113,21 @@ extension Model: Renderable {
         player: Model
     ) {
         
-        switch moveState {
-        case .rotateRight:
-            var rotDeg = rotation.y.radiansToDegrees
-            rotDeg += 0.3
-            
-            rotation.y = rotDeg.degreesToRadians
-        case .rotateLeft:
-            var rotDeg = rotation.y.radiansToDegrees
-            rotDeg -= 0.3
-            
-            rotation.y = rotDeg.degreesToRadians
-        default: break
+        print(moveStates)
+        for state in moveStates {
+            switch state {
+                case .right:
+                    var rotDeg = rotation.y.radiansToDegrees
+                    rotDeg += 0.3
+                    
+                    rotation.y = rotDeg.degreesToRadians
+                case .left:
+                    var rotDeg = rotation.y.radiansToDegrees
+                    rotDeg -= 0.3
+                    
+                    rotation.y = rotDeg.degreesToRadians
+                default: break
+            }
         }
         
         let heightValue = heightBuffer.contents().bindMemory(to: Float.self, capacity: 1).pointee

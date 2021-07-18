@@ -18,7 +18,7 @@ enum Key: String {
     var moveState: ModelMoveState {
         switch self {
         case .forward: return .forward
-        case .backwards: return .forward
+        case .backwards: return .backwards
         case .left: return .rotateLeft
         case .right: return .rotateRight
         }

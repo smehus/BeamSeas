@@ -31,5 +31,5 @@ vertex WorldMapVertexOut worldMap_vertex(const WorldMapVertexIn in [[ stage_in ]
 
 fragment float4 worldMap_fragment(const WorldMapVertexOut in [[ stage_in ]],
                                   constant Uniforms &uniforms [[ buffer(BufferIndexUniforms)]]) {
-    return float4(1.0, 0.0, 0.0, 1.0);
+    return float4(1, 0, 0, 1);
 }

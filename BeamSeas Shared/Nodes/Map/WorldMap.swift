@@ -81,22 +81,19 @@ extension WorldMap: Renderable {
         camera: Camera,
         player: Model
     ) {
-
-        switch player.moveState {
-        case .rotateLeft, .rotateRight:
-            // This resets it yo
-//            rotation.y = camera.rotation.y
-        break
-        case .forward:
-            let fps = (1.float / Renderer.metalView.preferredFramesPerSecond.float)
-            rotation.y += (fps * player.forwardVector.x) //* Constant.rotationModifier
-        fallthrough
-        case .stopped:
-            break
-        }
+        let fps = (1.float / Renderer.metalView.preferredFramesPerSecond.float)
         
-////        print(uniforms.playerMovement)
-//        print(player.forwardVector)
+        for state in player.moveStates {
+            switch state {
+            case .left, .right: break
+            case .forward:
+                rotation.y += (fps * player.forwardVector.x)
+                rotation.x -= (fps * player.forwardVector.z)
+            case .backwards:
+                rotation.y -= (fps * player.forwardVector.x)
+                rotation.x += (fps * player.forwardVector.z)
+            }
+        }
     }
 
     func draw(

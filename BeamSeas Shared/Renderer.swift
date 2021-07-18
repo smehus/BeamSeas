@@ -23,17 +23,17 @@ final class Renderer: NSObject {
 
     lazy var camera: Camera = {
         
-        let camera = ArcballCamera()
-        camera.distance = 80
-        camera.target = [0, 0, -80]
-        camera.rotation.x = Float(-10).degreesToRadians
-        camera.rotation.y = Float(-60).degreesToRadians
+//        let camera = ArcballCamera()
+//        camera.distance = 80
+//        camera.target = [0, 0, -80]
+//        camera.rotation.x = Float(-10).degreesToRadians
+//        camera.rotation.y = Float(-60).degreesToRadians
  
         
-//        let camera = ThirdPersonCamera()
-//        camera.focus = player
-//        camera.focusDistance = 150
-//        camera.focusHeight = 100
+        let camera = ThirdPersonCamera()
+        camera.focus = player
+        camera.focusDistance = 150
+        camera.focusHeight = 100
         return camera
     }()
     
@@ -294,8 +294,10 @@ extension Renderer: MTKViewDelegate {
         renderEncoder.setDepthStencilState(depthStencilState)
         renderEncoder.setFragmentBytes(&lights, length: MemoryLayout<Light>.stride * lights.count, index: BufferIndex.lights.rawValue)
 
-        if player.moveState == .forward {
+        if player.moveStates.contains(.forward) {
             uniforms.playerMovement += player.forwardVector * 0.001
+        } else {
+            uniforms.playerMovement = SIMD3<Float>(0, 0, 0)
         }
         
         renderEncoder.setFragmentTexture(reflectionRenderPass.texture, index: TextureIndex.reflection.rawValue)
