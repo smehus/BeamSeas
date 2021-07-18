@@ -39,7 +39,7 @@ final class WorldMap: Node, Meshable {
         
         let allocator = MTKMeshBufferAllocator(device: Renderer.device)
         mesh = MDLMesh(
-            sphereWithExtent: [20, 20, 20],
+            sphereWithExtent: [15, 15, 15],
             segments: [30, 30],
             inwardNormals: false,
             geometryType: .triangles,
@@ -47,7 +47,6 @@ final class WorldMap: Node, Meshable {
         )
         
         model = try! MTKMesh(mesh: mesh, device: Renderer.device)
-        
         
         let pipelineDescriptor = MTLRenderPipelineDescriptor()
         pipelineDescriptor.colorAttachments[0].pixelFormat = Renderer.metalView.colorPixelFormat
@@ -64,10 +63,6 @@ final class WorldMap: Node, Meshable {
         }
         
         super.init()
-        
-        position = float3(0, 0, 30)
-        scale = float3(0.1, 0.1, 0.1)
-        
     }
 }
 
@@ -132,17 +127,17 @@ extension WorldMap: Renderable {
             index: BufferIndex.uniforms.rawValue
         )
         
-//        let drawableWidth = Renderer.metalView.drawableSize.width.double / 4
-//        let drawableHeight = Renderer.metalView.drawableSize.height.double / 4
+        let drawableWidth = Renderer.metalView.drawableSize.width.double / 4
+        let drawableHeight = Renderer.metalView.drawableSize.height.double / 4
         
-//        renderEncoder.setViewport(
-//            MTLViewport(originX: 0,//Renderer.metalView.drawableSize.width.double - drawableWidth,
-//                        originY: 0,
-//                        width: Renderer.metalView.drawableSize.width.double,// drawableWidth,
-//                        height: Renderer.metalView.drawableSize.height.double,// drawableHeight,
-//                        znear: 0.0001,
-//                        zfar: 1)
-//        )
+        renderEncoder.setViewport(
+            MTLViewport(originX: Renderer.metalView.drawableSize.width.double - drawableWidth,
+                        originY: 0,
+                        width: drawableWidth,
+                        height: drawableHeight,
+                        znear: 0.0001,
+                        zfar: 1)
+        )
         
         
         let mesh = model.submeshes.first!

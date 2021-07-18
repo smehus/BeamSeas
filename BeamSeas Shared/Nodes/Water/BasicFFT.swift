@@ -384,8 +384,6 @@ extension BasicFFT: Renderable {
 
     // This is used to draw the height map in the top left
     func draw(renderEncoder: MTLRenderCommandEncoder, uniforms: inout Uniforms, fragmentUniforms: inout FragmentUniforms) {
-
-        return
         renderEncoder.setRenderPipelineState(mainPipelineState)
 
         renderEncoder.pushDebugGroup("Tiny Map - Height")
