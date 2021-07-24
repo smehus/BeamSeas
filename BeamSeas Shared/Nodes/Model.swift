@@ -112,8 +112,6 @@ extension Model: Renderable {
         camera: Camera,
         player: Model
     ) {
-        
-        print(moveStates)
         for state in moveStates {
             switch state {
                 case .right:

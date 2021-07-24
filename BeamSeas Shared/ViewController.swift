@@ -38,16 +38,16 @@ class ViewController: LocalViewController {
 }
 
 extension ViewController: GameViewProtocol {
-    func keyUp(key: Key) {
-        print("*** ADDING \(key)")
+    func keyDown(key: Key) {
+        
         keys.add(key: key)
         
         renderer.player.moveStates = keys
     }
 
-    func keyDown(key: Key) {
+    func keyUp(key: Key) {
         keys.remove(key)
-        print("*** REMOVING \(key)")
+
         renderer.player.moveStates = keys
     }
 }
@@ -56,7 +56,10 @@ extension Set where Element == Key {
     mutating func add(key: Element) {
         switch key {
         case .forward:
-            remove(.backwards)
+            if contains(.backwards) {
+                remove(.backwards)
+            }
+            
             insert(key)
         case .backwards:
             remove(.forward)
