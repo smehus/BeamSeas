@@ -296,8 +296,6 @@ extension Renderer: MTKViewDelegate {
 
         if player.moveStates.contains(.forward) {
             uniforms.playerMovement += player.forwardVector * 0.001
-        } else {
-            uniforms.playerMovement = SIMD3<Float>(0, 0, 0)
         }
         
         renderEncoder.setFragmentTexture(reflectionRenderPass.texture, index: TextureIndex.reflection.rawValue)
