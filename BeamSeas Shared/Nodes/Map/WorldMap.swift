@@ -9,7 +9,7 @@
 import Foundation
 import MetalKit
 
-final class WorldMap: Node, Meshable, Texturable {
+final class WorldMap: Node, Meshable, Texturable, DepthStencilStateBuilder {
     
     private(set) var mesh: MDLMesh
     private let model: MTKMesh
@@ -32,7 +32,7 @@ final class WorldMap: Node, Meshable, Texturable {
     
     private lazy var depthStencilState: MTLDepthStencilState = {
         let descriptor = MTLDepthStencilDescriptor()
-        descriptor.depthCompareFunction = .always
+        descriptor.depthCompareFunction = .less
         descriptor.isDepthWriteEnabled = true
         return Renderer.device.makeDepthStencilState(descriptor: descriptor)!
     }()

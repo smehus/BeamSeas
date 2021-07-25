@@ -10,7 +10,7 @@ import MetalKit
 import Foundation
 import simd
 
-class Skybox: Node, Texturable {
+class Skybox: Node, Texturable, DepthStencilStateBuilder {
     
     struct SkySettings {
         var turbidity: Float = 0.28

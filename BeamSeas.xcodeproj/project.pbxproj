@@ -87,6 +87,8 @@
 		023A333626ADB81D008E220E /* posx.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 023A332B26ADB81D008E220E /* posx.jpg */; };
 		023A333726ADB81D008E220E /* posz.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 023A332C26ADB81D008E220E /* posz.jpg */; };
 		023A333826ADB81D008E220E /* posz.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 023A332C26ADB81D008E220E /* posz.jpg */; };
+		023A333A26ADBB0D008E220E /* DepthStencilStateBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 023A333926ADBB0D008E220E /* DepthStencilStateBuilder.swift */; };
+		023A333B26ADBB0D008E220E /* DepthStencilStateBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 023A333926ADBB0D008E220E /* DepthStencilStateBuilder.swift */; };
 		023ADEF324BB543200478C87 /* Notes in Resources */ = {isa = PBXBuildFile; fileRef = 023ADEF224BB543200478C87 /* Notes */; };
 		02419D56249850C100BCB203 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02419D55249850C100BCB203 /* AppDelegate.swift */; };
 		02419D58249850C100BCB203 /* ViewControllerExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02419D57249850C100BCB203 /* ViewControllerExtension.swift */; };
@@ -207,6 +209,7 @@
 		023A332A26ADB81D008E220E /* posy.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = posy.jpg; sourceTree = "<group>"; };
 		023A332B26ADB81D008E220E /* posx.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = posx.jpg; sourceTree = "<group>"; };
 		023A332C26ADB81D008E220E /* posz.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = posz.jpg; sourceTree = "<group>"; };
+		023A333926ADBB0D008E220E /* DepthStencilStateBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DepthStencilStateBuilder.swift; sourceTree = "<group>"; };
 		023ADEF224BB543200478C87 /* Notes */ = {isa = PBXFileReference; lastKnownFileType = text; path = Notes; sourceTree = "<group>"; };
 		02419D4A249850BF00BCB203 /* Shaders.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Shaders.metal; sourceTree = "<group>"; };
 		02419D4B249850BF00BCB203 /* Renderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Renderer.swift; sourceTree = "<group>"; };
@@ -463,6 +466,7 @@
 				029DE52225150DB900064C6B /* NormalDistribution.hpp */,
 				0224BEC32515557100ABE59B /* NormalDistributionBridge.h */,
 				0224BEC22515557100ABE59B /* NormalDistributionBridge.mm */,
+				023A333926ADBB0D008E220E /* DepthStencilStateBuilder.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -745,6 +749,7 @@
 				020F9868249A7C5900DB4850 /* Extensions.swift in Sources */,
 				020FD8C524D4577200B77CF2 /* Common.swift in Sources */,
 				020F9853249A695900DB4850 /* Mesh.swift in Sources */,
+				023A333A26ADBB0D008E220E /* DepthStencilStateBuilder.swift in Sources */,
 				029DE52325150DB900064C6B /* NormalDistribution.cpp in Sources */,
 				02CF8F86267D3C7300FE244D /* RenderPass.swift in Sources */,
 				0236A745249D0A6C008F197E /* Texturable.swift in Sources */,
@@ -784,6 +789,7 @@
 				020F9869249A7C5900DB4850 /* Extensions.swift in Sources */,
 				020FD8C624D4577200B77CF2 /* Common.swift in Sources */,
 				020F9854249A695900DB4850 /* Mesh.swift in Sources */,
+				023A333B26ADBB0D008E220E /* DepthStencilStateBuilder.swift in Sources */,
 				029DE52425150DB900064C6B /* NormalDistribution.cpp in Sources */,
 				02CF8F87267D3C7300FE244D /* RenderPass.swift in Sources */,
 				0236A746249D0A6C008F197E /* Texturable.swift in Sources */,

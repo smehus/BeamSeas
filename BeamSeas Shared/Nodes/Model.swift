@@ -18,7 +18,7 @@ enum ModelMoveState {
     case rotateRight
 }
 
-class Model: Node {
+class Model: Node, DepthStencilStateBuilder {
 
     static var vertexDescriptor: MDLVertexDescriptor = .defaultVertexDescriptor
     
@@ -93,14 +93,6 @@ class Model: Node {
         descriptor.maxAnisotropy = 8
         return Renderer.device.makeSamplerState(descriptor: descriptor)!
     }
-    
-    static func buildDepthStencilState() -> MTLDepthStencilState {
-        let descriptor = MTLDepthStencilDescriptor()
-        descriptor.depthCompareFunction = .always
-        descriptor.isDepthWriteEnabled = true
-
-        return Renderer.device.makeDepthStencilState(descriptor: descriptor)!
-    }
 }
 
 extension Model: Renderable {
@@ -171,7 +163,7 @@ extension Model: Renderable {
         
   
         // need to add the right angle somehow?
-        var crossVec = normalize(-forwardVector)
+        let crossVec = normalize(-forwardVector)
     
 //        if abs(normalMapValue.x) <= abs(normalMapValue.y) {
 //            crossVec.x = 1
@@ -184,7 +176,7 @@ extension Model: Renderable {
 //        }
         
         // google "normal to rotation matrix"
-        var tangent0 = normalize(cross(normalMapValue, crossVec)) // x
+        let tangent0 = normalize(cross(normalMapValue, crossVec)) // x
         let tangent1 = normalize(cross(normalMapValue, tangent0)) // z
         
         return (tangent0, tangent1, normalMapValue)

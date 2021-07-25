@@ -63,4 +63,20 @@ extension Texturable {
         }
         return texture
     }
+    
+    func loadCubeMap(names: [String]) -> MTLTexture? {
+        var texture: MTLTexture?
+        let textureLoader = MTKTextureLoader(device: Renderer.device)
+        if let mdlTexture = MDLTexture(cubeWithImagesNamed: names) {
+            do {
+                texture = try textureLoader.newTexture(texture: mdlTexture,
+                                                       options: [.origin: MTKTextureLoader.Origin.bottomLeft])
+            } catch {
+                print("no texture created")
+            }
+        } else {
+            fatalError("Failed to find cube skybox textures")
+        }
+        return texture
+    }
 }
