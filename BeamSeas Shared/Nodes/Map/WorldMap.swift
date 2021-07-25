@@ -84,7 +84,7 @@ extension WorldMap: AspectRatioUpdateable {
     }
 }
 
-extension WorldMap: Renderable {
+extension WorldMap: Renderable, MoveStateNavigatable {
     
     func update(
         deltaTime: Float,
@@ -97,7 +97,9 @@ extension WorldMap: Renderable {
         
         let rules = [
             leftRule(),
-            rightRule()
+            rightRule(),
+            forwardRule(),
+            backwardRule()
         ]
 
         for rule in rules {
@@ -125,35 +127,6 @@ extension WorldMap: Renderable {
 //            }
 //        }
     }
-    
-    typealias MapRotationRule = (Model, Float) -> SIMD3<Float>?
-    
-    private func leftRule() -> MapRotationRule {
-        return { player, fps in
-            let states = player.moveStates
-
-            guard states.contains(.left) && !states.contains(.right) else { return nil }
-            guard !states.contains(.forward) && !states.contains(.backwards) else { return nil }
-            
-            self.rotation.z = player.rotation.y
-            
-            return nil
-        }
-    }
-    
-    private func rightRule() -> MapRotationRule {
-        return { player, fps in
-            let states = player.moveStates
-            
-            guard states.contains(.right) && !states.contains(.left) else { return nil }
-            guard !states.contains(.forward) && !states.contains(.backwards) else { return nil }
-            
-            self.rotation.z = player.rotation.y
-            
-            return nil
-        }
-    }
-    
 
     func draw(
         renderEncoder: MTLRenderCommandEncoder,

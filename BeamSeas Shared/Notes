@@ -9,3 +9,8 @@ SIMD3<Float>(0.8359375, 0.765625, 0.75)
 
 
 https://developer.apple.com/metal/Metal-Feature-Set-Tables.pdf
+
+
+World map to actual map
+ - Maybe create a large actual sized sphere that renders clear to map to mini world map?
+ - Than use the cubemap texture coordinates (float3) to sample cube map texture?
