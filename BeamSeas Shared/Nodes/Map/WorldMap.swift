@@ -9,12 +9,14 @@
 import Foundation
 import MetalKit
 
-final class WorldMap: Node, Meshable {
+final class WorldMap: Node, Meshable, Texturable {
     
     private(set) var mesh: MDLMesh
     private let model: MTKMesh
     private let pipelineState: MTLRenderPipelineState
     private var mapUniforms = Uniforms()
+    private var texture: MTLTexture?
+    private let samplerState: MTLSamplerState?
     
     private lazy var mapCamera: Camera = {
         let camera = Camera()
@@ -62,7 +64,17 @@ final class WorldMap: Node, Meshable {
             fatalError()
         }
         
+        let samplerDescriptor = MTLSamplerDescriptor()
+        samplerState = Renderer.device.makeSamplerState(descriptor: samplerDescriptor)
+        
         super.init()
+        
+        texture = loadSkyboxTexture(names: ["posx.jpg",
+                                            "negx.jpg",
+                                            "posy.jpg",
+                                            "negy.jpg",
+                                            "posz.jpg",
+                                            "negz.jpg"])
     }
 }
 
@@ -144,7 +156,14 @@ extension WorldMap: Renderable {
             index: BufferIndex.vertexBuffer.rawValue
         )
         
-        renderEncoder.setTriangleFillMode(.lines)
+        renderEncoder.setFragmentTexture(
+            texture,
+            index: TextureIndex.color.rawValue
+        )
+        
+        renderEncoder.setFragmentSamplerState(samplerState, index: 0)
+        
+//        renderEncoder.setTriangleFillMode(.lines)
         renderEncoder.drawIndexedPrimitives(
             type: .triangle,
             indexCount: mesh.indexCount,

@@ -12,7 +12,7 @@ using namespace metal;
 
 struct WorldMapVertexOut {
     float4 position [[ position ]];
-    float2 textureCoordinates;
+    float3 textureCoordinates;
     uint viewport [[ viewport_array_index ]];
 };
 
@@ -25,11 +25,15 @@ vertex WorldMapVertexOut worldMap_vertex(const WorldMapVertexIn in [[ stage_in ]
                                          constant Uniforms &uniforms [[ buffer(BufferIndexUniforms) ]]) {
     return {
         .position = uniforms.projectionMatrix * uniforms.viewMatrix * uniforms.modelMatrix * in.position,
-        .textureCoordinates =  in.position.xy
+        .textureCoordinates =  in.position.xyz
     };
 }
 
-fragment float4 worldMap_fragment(const WorldMapVertexOut in [[ stage_in ]],
-                                  constant Uniforms &uniforms [[ buffer(BufferIndexUniforms)]]) {
-    return float4(1, 0, 0, 1);
+fragment half4 worldMap_fragment(const WorldMapVertexOut in [[ stage_in ]],
+                                  constant Uniforms &uniforms [[ buffer(BufferIndexUniforms)]],
+                                  sampler textureSampler [[ sampler(0) ]],
+                                  texturecube<half> cubeMap [[ texture(TextureIndexColor) ]]) {
+    half4 color = cubeMap.sample(textureSampler, in.textureCoordinates);
+    return color;
+//    return float4(1, 0, 0, 1);
 }
