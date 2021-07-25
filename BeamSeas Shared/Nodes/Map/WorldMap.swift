@@ -94,12 +94,15 @@ extension WorldMap: Renderable {
         player: Model
     ) {
         let fps = (1.float / Renderer.metalView.preferredFramesPerSecond.float)
-
-        let rules = [leftRule(),
-                     rightRule()]
+        
+        let rules = [
+            leftRule(),
+            rightRule()
+        ]
 
         for rule in rules {
-            guard let ruleRotation = rule(player.moveStates, player.forwardVector, fps) else { continue }
+            guard let ruleRotation = rule(player, fps) else { continue }
+            
             
             rotation += ruleRotation
         }
@@ -123,27 +126,31 @@ extension WorldMap: Renderable {
 //        }
     }
     
-    typealias MapRotationRule = (Set<Key>, SIMD3<Float>, Float) -> SIMD3<Float>?
+    typealias MapRotationRule = (Model, Float) -> SIMD3<Float>?
     
     private func leftRule() -> MapRotationRule {
-        return { states, forwardVector, fps in
+        return { player, fps in
+            let states = player.moveStates
+
             guard states.contains(.left) && !states.contains(.right) else { return nil }
             guard !states.contains(.forward) && !states.contains(.backwards) else { return nil }
             
-            var localRotation = float3(0, 0, 0)
-            localRotation.z += fps * forwardVector.x
-            return localRotation
+            self.rotation.z = player.rotation.y
+            
+            return nil
         }
     }
     
     private func rightRule() -> MapRotationRule {
-        return { states, forwardVector, fps in
+        return { player, fps in
+            let states = player.moveStates
+            
             guard states.contains(.right) && !states.contains(.left) else { return nil }
             guard !states.contains(.forward) && !states.contains(.backwards) else { return nil }
             
-            var localRotation = float3(0, 0, 0)
-            localRotation.z -= fps * forwardVector.x
-            return localRotation
+            self.rotation.z = player.rotation.y
+            
+            return nil
         }
     }
     
