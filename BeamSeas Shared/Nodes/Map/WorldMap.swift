@@ -94,19 +94,59 @@ extension WorldMap: Renderable {
         player: Model
     ) {
         let fps = (1.float / Renderer.metalView.preferredFramesPerSecond.float)
+
+        let rules = [leftRule(),
+                     rightRule()]
+
+        for rule in rules {
+            guard let ruleRotation = rule(player.moveStates, player.forwardVector, fps) else { continue }
+            
+            rotation += ruleRotation
+        }
         
-        for state in player.moveStates {
-            switch state {
-            case .left, .right: break
-            case .forward:
-                rotation.y += (fps * player.forwardVector.x)
-                rotation.x -= (fps * player.forwardVector.z)
-            case .backwards:
-                rotation.y -= (fps * player.forwardVector.x)
-                rotation.x += (fps * player.forwardVector.z)
-            }
+//        if player.moveStates.count == 1 && player.moveStates.contains(.right) {
+//            rotation.z += (fps * player.forwardVector.x)
+////            rotation.x -= (fps * player.forwardVector.z)
+//        }
+//
+//        for state in player.moveStates {
+//            switch state {
+//            case .left, .right:
+//                rotation.y = player.forwardVector.y
+//            case .forward:
+//                rotation.y += (fps * player.forwardVector.x)
+//                rotation.x -= (fps * player.forwardVector.z)
+//            case .backwards:
+//                rotation.y -= (fps * player.forwardVector.x)
+//                rotation.x += (fps * player.forwardVector.z)
+//            }
+//        }
+    }
+    
+    typealias MapRotationRule = (Set<Key>, SIMD3<Float>, Float) -> SIMD3<Float>?
+    
+    private func leftRule() -> MapRotationRule {
+        return { states, forwardVector, fps in
+            guard states.contains(.left) && !states.contains(.right) else { return nil }
+            guard !states.contains(.forward) && !states.contains(.backwards) else { return nil }
+            
+            var localRotation = float3(0, 0, 0)
+            localRotation.z += fps * forwardVector.x
+            return localRotation
         }
     }
+    
+    private func rightRule() -> MapRotationRule {
+        return { states, forwardVector, fps in
+            guard states.contains(.right) && !states.contains(.left) else { return nil }
+            guard !states.contains(.forward) && !states.contains(.backwards) else { return nil }
+            
+            var localRotation = float3(0, 0, 0)
+            localRotation.z -= fps * forwardVector.x
+            return localRotation
+        }
+    }
+    
 
     func draw(
         renderEncoder: MTLRenderCommandEncoder,
