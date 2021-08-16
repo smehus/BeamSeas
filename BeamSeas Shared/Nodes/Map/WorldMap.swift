@@ -17,6 +17,8 @@ final class WorldMap: Node, Meshable, Texturable, DepthStencilStateBuilder {
     private var mapUniforms = Uniforms()
     private var texture: MTLTexture?
     private let samplerState: MTLSamplerState?
+    var lookAtMatrix: float4x4!
+    var forwardRotation: Float = 0
     
     private lazy var mapCamera: Camera = {
         let camera = Camera()
@@ -36,6 +38,13 @@ final class WorldMap: Node, Meshable, Texturable, DepthStencilStateBuilder {
         descriptor.isDepthWriteEnabled = true
         return Renderer.device.makeDepthStencilState(descriptor: descriptor)!
     }()
+    
+    override var modelMatrix: float4x4 {
+        let translationMatrix = float4x4(translation: position)
+        let scaleMatrix = float4x4(scaling: scale)
+
+        return translationMatrix * lookAtMatrix * scaleMatrix
+    }
     
     init(vertexName: String, fragmentName: String) {
         
@@ -93,39 +102,64 @@ extension WorldMap: Renderable, MoveStateNavigatable {
         camera: Camera,
         player: Model
     ) {
-        let fps = (1.float / Renderer.metalView.preferredFramesPerSecond.float)
+//        let fps = (1.float / Renderer.metalView.preferredFramesPerSecond.float)
+//
+//        let rules = [
+//            leftRule(),
+//            rightRule(),
+//            forwardRule(),
+//            backwardRule()
+//        ]
+//
+//        for rule in rules {
+//            guard let ruleRotation = rule(player, fps) else { continue }
+//
+//
+//            rotation += ruleRotation
+//        }
+  
+//        print("""
+//            X: \(180 * player.forwardVector.x)
+//            """)
+//        return normalize([sin(rotation.y), 0, cos(rotation.y)])
+//        self.rotation = SIMD3<Float>(
+//            asin(player.forwardVector.x),
+//            0,
+//            acos(player.forwardVector.z)
+//        )
+//        self.rotation.z = (self.forwardVector)
         
-        let rules = [
-            leftRule(),
-            rightRule(),
-            forwardRule(),
-            backwardRule()
-        ]
-
-        for rule in rules {
-            guard let ruleRotation = rule(player, fps) else { continue }
-            
-            
-            rotation += ruleRotation
+//        // Look up forwardVector to rotation....
+//        self.rotation = SIMD3<Float>(
+//            (360 * player.forwardVector.z).degreesToRadians,
+//            (360 * player.forwardVector.x).degreesToRadians,
+//            (360 * player.forwardVector.y).degreesToRadians
+//        )
+        
+//        rotation.z = player.rotation.y
+//
+        
+        if player.moveStates.contains(.forward) {
+            forwardRotation -= 0.01
         }
         
-//        if player.moveStates.count == 1 && player.moveStates.contains(.right) {
-//            rotation.z += (fps * player.forwardVector.x)
-////            rotation.x -= (fps * player.forwardVector.z)
-//        }
-//
-//        for state in player.moveStates {
-//            switch state {
-//            case .left, .right:
-//                rotation.y = player.forwardVector.y
-//            case .forward:
-//                rotation.y += (fps * player.forwardVector.x)
-//                rotation.x -= (fps * player.forwardVector.z)
-//            case .backwards:
-//                rotation.y -= (fps * player.forwardVector.x)
-//                rotation.x += (fps * player.forwardVector.z)
-//            }
-//        }
+        // Inverse the current rotation?
+        // Then apply map rotation & then re-apply rotation?
+        
+        let currentRotationMat = float4x4(quaternion)
+        let inversedCurrentMat = currentRotationMat.inverse
+        
+        let initiatedQuaternion = simd_quatf(float4x4(rotation:float3(forwardRotation, 0, player.rotation.y)))
+        let initiatedRotation = float4x4(initiatedQuaternion)
+        
+        lookAtMatrix = inversedCurrentMat * initiatedRotation * currentRotationMat
+        
+//        lookAtMatrix = float4x4(eye: player.forwardVector, center: position, up: float3(0, 1, 0))
+        
+        
+        // ******
+        // Maybe don't try to rotate the actual sphere.
+        // Rotate the camera around the sphere.....
     }
 
     func draw(
@@ -143,7 +177,7 @@ extension WorldMap: Renderable, MoveStateNavigatable {
 //        let rotation = float4x4(rotation: [0, 0, 0])
 //        let scale = float4x4(scaling: 0.1)
         mapUniforms.modelMatrix = modelMatrix//(translation * rotation * scale)
-        mapUniforms.viewMatrix = mapCamera.viewMatrix// float4x4(translation: [0, 0, 0]).inverse
+        mapUniforms.viewMatrix = mapCamera.viewMatrix
         mapUniforms.projectionMatrix = mapCamera.projectionMatrix// float4x4(projectionFov: 70, near: 0.001, far: 100, aspect: mapCamera.aspect, lhs: true)
             
         
