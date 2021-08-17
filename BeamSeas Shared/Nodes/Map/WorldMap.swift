@@ -87,7 +87,7 @@ final class WorldMap: Node, Meshable, Texturable, DepthStencilStateBuilder {
                                             "negy.jpg",
                                             "posz.jpg",
                                             "negz.jpg"])
-        rotation.z = Float(-30).degreesToRadians
+        rotation.x = Float(-10).degreesToRadians
         lookAtMatrix *= float4x4(simd_quatf(float4x4(rotation: rotation)))
     }
 }
@@ -168,26 +168,35 @@ extension WorldMap: Renderable, MoveStateNavigatable {
         
         
 //        let current = float4x4(rotation: rotation)
-//        forwardRotation += 0.01
+
 //        let yRot = float4x4(rotation:float3(forwardRotation, -sin(Float(degRot).degreesToRadians), cos(Float(degRot).degreesToRadians)))
 //        lookAtMatrix =  current * yRot * current.inverse
         
         
         // have to use quaternions for rotation around arbitruary axes
         
+
+        let current = float4x4(simd_quatf(float4x4(rotation: rotation)))
+        let rotateLeftRight = float4x4(simd_quatf(float4x4(rotation: float3(
+                                                            Float(0).degreesToRadians,
+                                                            Float(0).degreesToRadians,
+                                                            player.rotation.y))))
         
-        if first, player.moveStates.contains(.forward) {
-            first = false
+        var moveRot: float4x4 = .identity()
+        if player.moveStates.contains(.forward) {
+            forwardRotation += 0.001
             
-            let current = float4x4(simd_quatf(float4x4(rotation: rotation)))
-            let rotateLeft = float4x4(simd_quatf(float4x4(rotation: float3(
+
+            moveRot = float4x4(simd_quatf(float4x4(rotation: float3(
+                                                            Float(-forwardRotation).degreesToRadians,
                                                             Float(0).degreesToRadians,
-                                                            Float(0).degreesToRadians,
-                                                            Float(-40).degreesToRadians))))
+                                                            Float(0).degreesToRadians))))
             
-            lookAtMatrix = rotateLeft * (lookAtMatrix * current.inverse)
+            
         }
         
+        // idk..
+        lookAtMatrix = current * rotateLeftRight * (lookAtMatrix * current.inverse)
     }
 
     func draw(
