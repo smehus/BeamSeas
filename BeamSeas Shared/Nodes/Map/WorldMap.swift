@@ -17,8 +17,10 @@ final class WorldMap: Node, Meshable, Texturable, DepthStencilStateBuilder {
     private var mapUniforms = Uniforms()
     private var texture: MTLTexture?
     private let samplerState: MTLSamplerState?
-    var lookAtMatrix: float4x4!
-    var forwardRotation: Float = 0
+    private var lookAtMatrix: float4x4 = .identity()
+    private var forwardRotation: Float = 0
+    private var degRot: Float = 0
+    var first = true
     
     private lazy var mapCamera: Camera = {
         let camera = Camera()
@@ -41,6 +43,7 @@ final class WorldMap: Node, Meshable, Texturable, DepthStencilStateBuilder {
     
     override var modelMatrix: float4x4 {
         let translationMatrix = float4x4(translation: position)
+        let rotationMatrix = float4x4(rotation: rotation)
         let scaleMatrix = float4x4(scaling: scale)
 
         return translationMatrix * lookAtMatrix * scaleMatrix
@@ -84,6 +87,8 @@ final class WorldMap: Node, Meshable, Texturable, DepthStencilStateBuilder {
                                             "negy.jpg",
                                             "posz.jpg",
                                             "negz.jpg"])
+        rotation.z = 90
+        lookAtMatrix = float4x4(simd_quatf(float4x4(rotation: rotation)))
     }
 }
 
@@ -137,22 +142,22 @@ extension WorldMap: Renderable, MoveStateNavigatable {
 //        )
         
 //        rotation.z = player.rotation.y
-//
+
         
-        if player.moveStates.contains(.forward) {
-            forwardRotation -= 0.01
-        }
+//        if player.moveStates.contains(.forward) {
+//            rotation.x -= 0.01
+//        }
         
         // Inverse the current rotation?
         // Then apply map rotation & then re-apply rotation?
-        
-        let currentRotationMat = float4x4(quaternion)
-        let inversedCurrentMat = currentRotationMat.inverse
-        
-        let initiatedQuaternion = simd_quatf(float4x4(rotation:float3(forwardRotation, 0, player.rotation.y)))
-        let initiatedRotation = float4x4(initiatedQuaternion)
-        
-        lookAtMatrix = inversedCurrentMat * initiatedRotation * currentRotationMat
+//
+//        let currentRotationMat = float4x4(quaternion)
+//        let inversedCurrentMat = currentRotationMat.inverse
+//
+//        let initiatedQuaternion = simd_quatf(float4x4(rotation:float3(forwardRotation, 0, player.rotation.y)))
+//        let initiatedRotation = float4x4(initiatedQuaternion)
+
+//        lookAtMatrix = currentRotationMat * initiatedRotation * inversedCurrentMat
         
 //        lookAtMatrix = float4x4(eye: player.forwardVector, center: position, up: float3(0, 1, 0))
         
@@ -160,6 +165,26 @@ extension WorldMap: Renderable, MoveStateNavigatable {
         // ******
         // Maybe don't try to rotate the actual sphere.
         // Rotate the camera around the sphere.....
+        
+        
+//        let current = float4x4(rotation: rotation)
+//        forwardRotation += 0.01
+//        let yRot = float4x4(rotation:float3(forwardRotation, -sin(Float(degRot).degreesToRadians), cos(Float(degRot).degreesToRadians)))
+//        lookAtMatrix =  current * yRot * current.inverse
+        
+        
+        // have to use quaternions for rotation around arbitruary axes
+        
+        
+        if first, player.moveStates.contains(.forward) {
+            first = false
+            
+            let current = float4x4(simd_quatf(float4x4(rotation: rotation)))
+            let rotateLeft = float4x4(simd_quatf(float4x4(rotation: float3(0, Float(30).degreesToRadians, 0))))
+            
+            lookAtMatrix = rotateLeft * (lookAtMatrix * current.inverse)
+        }
+        
     }
 
     func draw(
