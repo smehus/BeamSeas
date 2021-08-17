@@ -87,8 +87,8 @@ final class WorldMap: Node, Meshable, Texturable, DepthStencilStateBuilder {
                                             "negy.jpg",
                                             "posz.jpg",
                                             "negz.jpg"])
-        rotation.z = 90
-        lookAtMatrix = float4x4(simd_quatf(float4x4(rotation: rotation)))
+        rotation.z = Float(-30).degreesToRadians
+        lookAtMatrix *= float4x4(simd_quatf(float4x4(rotation: rotation)))
     }
 }
 
@@ -180,7 +180,10 @@ extension WorldMap: Renderable, MoveStateNavigatable {
             first = false
             
             let current = float4x4(simd_quatf(float4x4(rotation: rotation)))
-            let rotateLeft = float4x4(simd_quatf(float4x4(rotation: float3(0, Float(30).degreesToRadians, 0))))
+            let rotateLeft = float4x4(simd_quatf(float4x4(rotation: float3(
+                                                            Float(0).degreesToRadians,
+                                                            Float(0).degreesToRadians,
+                                                            Float(-40).degreesToRadians))))
             
             lookAtMatrix = rotateLeft * (lookAtMatrix * current.inverse)
         }
