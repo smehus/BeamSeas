@@ -41,13 +41,13 @@ final class WorldMap: Node, Meshable, Texturable, DepthStencilStateBuilder {
         return Renderer.device.makeDepthStencilState(descriptor: descriptor)!
     }()
     
-    override var modelMatrix: float4x4 {
-        let translationMatrix = float4x4(translation: position)
-        let rotationMatrix = float4x4(rotation: rotation)
-        let scaleMatrix = float4x4(scaling: scale)
-
-        return translationMatrix * lookAtMatrix * scaleMatrix
-    }
+//    override var modelMatrix: float4x4 {
+//        let translationMatrix = float4x4(translation: position)
+//        let rotationMatrix = float4x4(rotation: rotation)
+//        let scaleMatrix = float4x4(scaling: scale)
+//
+//        return translationMatrix * lookAtMatrix * scaleMatrix
+//    }
     
     init(vertexName: String, fragmentName: String) {
         
@@ -87,8 +87,11 @@ final class WorldMap: Node, Meshable, Texturable, DepthStencilStateBuilder {
                                             "negy.jpg",
                                             "posz.jpg",
                                             "negz.jpg"])
-        rotation.x = Float(-10).degreesToRadians
-        lookAtMatrix *= float4x4(simd_quatf(float4x4(rotation: rotation)))
+
+        let rot = float4x4(rotation: float3(Float(90).degreesToRadians, 0, 0))
+        let initialRotation = simd_quatf(rot)
+        quaternion = initialRotation
+        
     }
 }
 
@@ -176,27 +179,34 @@ extension WorldMap: Renderable, MoveStateNavigatable {
         // have to use quaternions for rotation around arbitruary axes
         
 
-        let current = float4x4(simd_quatf(float4x4(rotation: rotation)))
-        let rotateLeftRight = float4x4(simd_quatf(float4x4(rotation: float3(
-                                                            Float(0).degreesToRadians,
-                                                            Float(0).degreesToRadians,
-                                                            player.rotation.y))))
-        
-        var moveRot: float4x4 = .identity()
-        if player.moveStates.contains(.forward) {
-            forwardRotation += 0.001
-            
-
-            moveRot = float4x4(simd_quatf(float4x4(rotation: float3(
-                                                            Float(-forwardRotation).degreesToRadians,
-                                                            Float(0).degreesToRadians,
-                                                            Float(0).degreesToRadians))))
-            
-            
-        }
-        
+//        let current = float4x4(simd_quatf(float4x4(rotation: rotation)))
+//        let rotateLeftRight = float4x4(simd_quatf(float4x4(rotation: float3(
+//                                                            Float(0).degreesToRadians,
+//                                                            Float(0).degreesToRadians,
+//                                                            player.rotation.y))))
+//
+//        var moveRot: float4x4 = .identity()
+//        if player.moveStates.contains(.forward) {
+//            forwardRotation += 0.001
+//
+//
+//            moveRot = float4x4(simd_quatf(float4x4(rotation: float3(
+//                                                            Float(-forwardRotation).degreesToRadians,
+//                                                            Float(0).degreesToRadians,
+//                                                            Float(0).degreesToRadians))))
+//
+//
+//        }
+//
         // idk..
-        lookAtMatrix = current * rotateLeftRight * (lookAtMatrix * current.inverse)
+//        lookAtMatrix = current * rotateLeftRight * (lookAtMatrix * current.inverse)
+        
+        if first && player.moveStates.contains(.forward) {
+            first = false
+            let rot = float4x4(rotation: float3(0, 0, Float(20).degreesToRadians))
+            let quat = simd_quatf(rot)
+            quaternion = quat * quaternion
+        }
     }
 
     func draw(
