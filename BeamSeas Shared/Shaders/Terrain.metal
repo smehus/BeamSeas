@@ -212,8 +212,6 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
                                  texture2d<float> waterRippleTexture [[ texture(TextureIndexWaterRipple) ]],
                                  texturecube<float> worldMapTexture [[ texture(TextureIndexWorldMap) ]])
 {
-//    float3 color = float3(0.2, 0.6, 1.0);
-    
     discard_fragment();
     
     constexpr sampler mainSampler(filter::linear, address::repeat);

@@ -18,8 +18,6 @@ final class MiniWorldMap: Node, Meshable, Texturable, DepthStencilStateBuilder {
     private var texture: MTLTexture?
     private let samplerState: MTLSamplerState?
     private var degRot: Float = 0
-    var first = true
-    
     private lazy var mapCamera: Camera = {
         let camera = Camera()
         camera.near = 0.0001
@@ -28,24 +26,12 @@ final class MiniWorldMap: Node, Meshable, Texturable, DepthStencilStateBuilder {
         return camera
     }()
     
-    struct Constant {
-        static let rotationModifier: Float = 0.1
-    }
-    
     private lazy var depthStencilState: MTLDepthStencilState = {
         let descriptor = MTLDepthStencilDescriptor()
         descriptor.depthCompareFunction = .less
         descriptor.isDepthWriteEnabled = true
         return Renderer.device.makeDepthStencilState(descriptor: descriptor)!
     }()
-    
-//    override var modelMatrix: float4x4 {
-//        let translationMatrix = float4x4(translation: position)
-//        let rotationMatrix = float4x4(rotation: rotation)
-//        let scaleMatrix = float4x4(scaling: scale)
-//
-//        return translationMatrix * lookAtMatrix * scaleMatrix
-//    }
     
     init(vertexName: String, fragmentName: String) {
         
@@ -105,6 +91,7 @@ extension MiniWorldMap: Renderable, MoveStateNavigatable {
     ) {
         // The players rotation will always be on the y axis
         let rotDiff = player.rotation.y - degRot
+        print(rotDiff)
         var newRot = float3(0, 0, rotDiff)
         if player.moveStates.contains(.forward) {
             newRot.x = -0.001
@@ -129,13 +116,9 @@ extension MiniWorldMap: Renderable, MoveStateNavigatable {
         
         renderEncoder.pushDebugGroup("World Map")
         mapUniforms = uniforms
-//        let translation = float4x4(translation: [0, 0, 30])
-//        let rotation = float4x4(rotation: [0, 0, 0])
-//        let scale = float4x4(scaling: 0.1)
-        mapUniforms.modelMatrix = modelMatrix//(translation * rotation * scale)
+        mapUniforms.modelMatrix = modelMatrix
         mapUniforms.viewMatrix = mapCamera.viewMatrix
-        mapUniforms.projectionMatrix = mapCamera.projectionMatrix// float4x4(projectionFov: 70, near: 0.001, far: 100, aspect: mapCamera.aspect, lhs: true)
-            
+        mapUniforms.projectionMatrix = mapCamera.projectionMatrix
         
         renderEncoder.setRenderPipelineState(pipelineState)
         renderEncoder.setDepthStencilState(depthStencilState)
@@ -198,6 +181,16 @@ final class WorldMapScaffolding: Node, Texturable {
     private let model: MTKMesh
     private let pipelineState: MTLRenderPipelineState
     private var texture: MTLTexture!
+    private var mapUniforms = Uniforms()
+    private var degRot: Float = 0
+    
+    private lazy var mapCamera: Camera = {
+        let camera = Camera()
+        camera.near = 0.0001
+        camera.far = 1000
+        
+        return camera
+    }()
     
     init(extent: vector_float3, segments: vector_uint2) {
         let allocator = MTKMeshBufferAllocator(device: Renderer.device)
@@ -234,6 +227,10 @@ final class WorldMapScaffolding: Node, Texturable {
         super.init()
         
         texture = worldMapTexture()
+        
+        let rot = float4x4(rotation: float3(Float(180).degreesToRadians, 0, 0))
+        let initialRotation = simd_quatf(rot)
+        quaternion = initialRotation
     }
     
     private lazy var depthStencilState: MTLDepthStencilState = {
@@ -244,22 +241,44 @@ final class WorldMapScaffolding: Node, Texturable {
     }()
 }
 
+
+extension WorldMapScaffolding: AspectRatioUpdateable {
+    func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {
+        mapCamera.aspect = Float(size.width) / Float(size.height)
+    }
+}
+
 extension WorldMapScaffolding: Renderable {
     
     func update(deltaTime: Float, uniforms: Uniforms, fragmentUniforms: FragmentUniforms, camera: Camera, player: Model) {
-        
+        // The players rotation will always be on the y axis
+        let rotDiff = degRot - player.rotation.y
+        print(rotDiff)
+        var newRot = float3(0, rotDiff, 0)
+        if player.moveStates.contains(.forward) {
+            newRot.x = -0.001
+        }
+
+        let rotMat = float4x4(rotation: newRot)
+        let newRotQuat = simd_quatf(rotMat)
+        quaternion = newRotQuat * quaternion
+
+        degRot = player.rotation.y
     }
     
     func draw(renderEncoder: MTLRenderCommandEncoder, uniforms: inout Uniforms, fragmentUniforms: inout FragmentUniforms) {
-     
         defer {
             renderEncoder.popDebugGroup()
         }
         
         renderEncoder.pushDebugGroup("WorldMap Scaffolding")
-        
-        // Need to use separate camera like the actual mini map
-        uniforms.modelMatrix = modelMatrix
+
+        // don't need separate camera for this?
+        mapUniforms = uniforms
+        mapUniforms.modelMatrix = modelMatrix
+        mapUniforms.viewMatrix = mapCamera.viewMatrix
+        mapUniforms.projectionMatrix = mapCamera.projectionMatrix
+  
         renderEncoder.setRenderPipelineState(pipelineState)
         renderEncoder.setDepthStencilState(depthStencilState)
         
@@ -270,8 +289,16 @@ extension WorldMapScaffolding: Renderable {
             index: BufferIndex.vertexBuffer.rawValue
         )
         
-        renderEncoder.setVertexBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: BufferIndex.uniforms.rawValue)
-        renderEncoder.setFragmentTexture(texture, index: TextureIndex.color.rawValue)
+        renderEncoder.setVertexBytes(
+            &mapUniforms,
+            length: MemoryLayout<Uniforms>.stride,
+            index: BufferIndex.uniforms.rawValue
+        )
+        
+        renderEncoder.setFragmentTexture(
+            texture,
+            index: TextureIndex.color.rawValue
+        )
         
         renderEncoder.drawIndexedPrimitives(
             type: .triangle,
