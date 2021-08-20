@@ -178,35 +178,27 @@ extension WorldMap: Renderable, MoveStateNavigatable {
         
         // have to use quaternions for rotation around arbitruary axes
         
-
-//        let current = float4x4(simd_quatf(float4x4(rotation: rotation)))
-//        let rotateLeftRight = float4x4(simd_quatf(float4x4(rotation: float3(
-//                                                            Float(0).degreesToRadians,
-//                                                            Float(0).degreesToRadians,
-//                                                            player.rotation.y))))
-//
-//        var moveRot: float4x4 = .identity()
-//        if player.moveStates.contains(.forward) {
+        
+        // The players rotation will always be on the y axis
+        var newRot = float3(0, 0, player.rotation.y)
+        if player.moveStates.contains(.forward) {
 //            forwardRotation += 0.001
-//
-//
-//            moveRot = float4x4(simd_quatf(float4x4(rotation: float3(
-//                                                            Float(-forwardRotation).degreesToRadians,
-//                                                            Float(0).degreesToRadians,
-//                                                            Float(0).degreesToRadians))))
-//
-//
-//        }
+            newRot.x -= 0.007
+        }
+        
+        let rotMat = float4x4(rotation: newRot)
+        let newRotQuat = simd_quatf(rotMat)
+        quaternion = newRotQuat * quaternion
 //
         // idk..
 //        lookAtMatrix = current * rotateLeftRight * (lookAtMatrix * current.inverse)
         
-        if first && player.moveStates.contains(.forward) {
-            first = false
-            let rot = float4x4(rotation: float3(0, 0, Float(20).degreesToRadians))
-            let quat = simd_quatf(rot)
-            quaternion = quat * quaternion
-        }
+//        if first && player.moveStates.contains(.forward) {
+//            first = false
+//            let rot = float4x4(rotation: float3(0, 0, Float(20).degreesToRadians))
+//            let quat = simd_quatf(rot)
+//            quaternion = quat * quaternion
+//        }
     }
 
     func draw(
