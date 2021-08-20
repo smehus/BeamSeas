@@ -9,7 +9,7 @@
 import Foundation
 import MetalKit
 
-final class WorldMap: Node, Meshable, Texturable, DepthStencilStateBuilder {
+final class MiniWorldMap: Node, Meshable, Texturable, DepthStencilStateBuilder {
     
     private(set) var mesh: MDLMesh
     private let model: MTKMesh
@@ -88,13 +88,13 @@ final class WorldMap: Node, Meshable, Texturable, DepthStencilStateBuilder {
     }
 }
 
-extension WorldMap: AspectRatioUpdateable {
+extension MiniWorldMap: AspectRatioUpdateable {
     func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {
         mapCamera.aspect = Float(size.width) / Float(size.height)
     }
 }
 
-extension WorldMap: Renderable, MoveStateNavigatable {
+extension MiniWorldMap: Renderable, MoveStateNavigatable {
     
     func update(
         deltaTime: Float,
@@ -188,5 +188,97 @@ extension CGFloat {
     
     var double: Double {
         Double(self)
+    }
+}
+
+/// Used to help create the vector for sampling world map texture cube
+final class WorldMapScaffolding: Node, Texturable {
+    
+    private let mesh: MDLMesh
+    private let model: MTKMesh
+    private let pipelineState: MTLRenderPipelineState
+    private var texture: MTLTexture!
+    
+    init(extent: vector_float3, segments: vector_uint2) {
+        let allocator = MTKMeshBufferAllocator(device: Renderer.device)
+        mesh = MDLMesh(
+            sphereWithExtent: extent,
+            segments: segments,
+            inwardNormals: false,
+            geometryType: .triangles,
+            allocator: allocator
+        )
+        
+        do {
+            model = try MTKMesh(mesh: mesh, device: Renderer.device)
+
+            let constants = MTLFunctionConstantValues()
+            var property = false
+            constants.setConstantValue(&property, type: .bool, index: 0) // texture
+            constants.setConstantValue(&property, type: .bool, index: 1) // normal texture
+            constants.setConstantValue(&property, type: .bool, index: 2) // roughness texture
+            constants.setConstantValue(&property, type: .bool, index: 3) // metal texture
+            constants.setConstantValue(&property, type: .bool, index: 4) // AO Texture
+
+            let pipelineDescriptor = MTLRenderPipelineDescriptor()
+            pipelineDescriptor.colorAttachments[0].pixelFormat = Renderer.metalView.colorPixelFormat
+            pipelineDescriptor.depthAttachmentPixelFormat = .depth32Float
+            pipelineDescriptor.vertexFunction = Renderer.library.makeFunction(name: "worldMap_vertex")
+            pipelineDescriptor.fragmentFunction = Renderer.library.makeFunction(name: "worldMap_fragment")
+            pipelineDescriptor.vertexDescriptor = MTKMetalVertexDescriptorFromModelIO(mesh.vertexDescriptor)
+            
+            pipelineState = try Renderer.device.makeRenderPipelineState(descriptor: pipelineDescriptor)
+            
+        } catch { fatalError(error.localizedDescription) }
+        
+        super.init()
+        
+        texture = worldMapTexture()
+    }
+    
+    private lazy var depthStencilState: MTLDepthStencilState = {
+        let descriptor = MTLDepthStencilDescriptor()
+        descriptor.depthCompareFunction = .lessEqual
+        descriptor.isDepthWriteEnabled = true
+        return Renderer.device.makeDepthStencilState(descriptor: descriptor)!
+    }()
+}
+
+extension WorldMapScaffolding: Renderable {
+    
+    func update(deltaTime: Float, uniforms: Uniforms, fragmentUniforms: FragmentUniforms, camera: Camera, player: Model) {
+        
+    }
+    
+    func draw(renderEncoder: MTLRenderCommandEncoder, uniforms: inout Uniforms, fragmentUniforms: inout FragmentUniforms) {
+     
+        defer {
+            renderEncoder.popDebugGroup()
+        }
+        
+        renderEncoder.pushDebugGroup("WorldMap Scaffolding")
+        
+        // Need to use separate camera like the actual mini map
+        uniforms.modelMatrix = modelMatrix
+        renderEncoder.setRenderPipelineState(pipelineState)
+        renderEncoder.setDepthStencilState(depthStencilState)
+        
+        let mesh = model.submeshes.first!
+        renderEncoder.setVertexBuffer(
+            model.vertexBuffers.first!.buffer,
+            offset: 0,
+            index: BufferIndex.vertexBuffer.rawValue
+        )
+        
+        renderEncoder.setVertexBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: BufferIndex.uniforms.rawValue)
+        renderEncoder.setFragmentTexture(texture, index: TextureIndex.color.rawValue)
+        
+        renderEncoder.drawIndexedPrimitives(
+            type: .triangle,
+            indexCount: mesh.indexCount,
+            indexType: mesh.indexType,
+            indexBuffer: mesh.indexBuffer.buffer,
+            indexBufferOffset: mesh.indexBuffer.offset
+        )
     }
 }

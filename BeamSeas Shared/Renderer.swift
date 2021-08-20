@@ -101,9 +101,13 @@ final class Renderer: NSObject {
         models.append(fft)
         fragmentUniforms.light_count = UInt32(lighting.count)
         
-        let worldMap = WorldMap(vertexName: "worldMap_vertex", fragmentName: "worldMap_fragment")
+        let worldMap = MiniWorldMap(vertexName: "worldMap_vertex", fragmentName: "worldMap_fragment")
         worldMap.position = float3(0, 0, 30)
         models.append(worldMap)
+
+        let mapScaffolding = WorldMapScaffolding(extent: [50, 50, 50], segments: [50, 50])
+        mapScaffolding.position = float3(0, 0, 200)
+        models.append(mapScaffolding)
 
         mtkView(metalView, drawableSizeWillChange: metalView.bounds.size)
     }

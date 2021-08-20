@@ -14,3 +14,7 @@ https://developer.apple.com/metal/Metal-Feature-Set-Tables.pdf
 World map to actual map
  - Maybe create a large actual sized sphere that renders clear to map to mini world map?
  - Than use the cubemap texture coordinates (float3) to sample cube map texture?
+ - also, take the vector of the center of sphere to the player ( or the fragment that needs a sample/ color)
+
+
+

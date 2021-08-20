@@ -214,6 +214,8 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
 {
 //    float3 color = float3(0.2, 0.6, 1.0);
     
+    discard_fragment();
+    
     constexpr sampler mainSampler(filter::linear, address::repeat);
     float width = float(reflectionTexture.get_width() * 2.0);
     float height = float(reflectionTexture.get_height() * 2.0);
