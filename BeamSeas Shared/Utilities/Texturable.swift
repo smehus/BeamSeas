@@ -80,3 +80,14 @@ extension Texturable {
         return texture
     }
 }
+
+extension Texturable {
+    func worldMapTexture() -> MTLTexture? {
+        return loadSkyboxTexture(names: ["posx.jpg",
+                                         "negx.jpg",
+                                         "posy.jpg",
+                                         "negy.jpg",
+                                         "posz.jpg",
+                                         "negz.jpg"])
+    }
+}

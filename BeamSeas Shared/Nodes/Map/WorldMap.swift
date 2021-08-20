@@ -79,12 +79,7 @@ final class WorldMap: Node, Meshable, Texturable, DepthStencilStateBuilder {
         
         super.init()
         
-        texture = loadSkyboxTexture(names: ["posx.jpg",
-                                            "negx.jpg",
-                                            "posy.jpg",
-                                            "negy.jpg",
-                                            "posz.jpg",
-                                            "negz.jpg"])
+        texture = worldMapTexture()
 
         let rot = float4x4(rotation: float3(Float(90).degreesToRadians, 0, 0))
         let initialRotation = simd_quatf(rot)
@@ -112,7 +107,7 @@ extension WorldMap: Renderable, MoveStateNavigatable {
         let rotDiff = player.rotation.y - degRot
         var newRot = float3(0, 0, rotDiff)
         if player.moveStates.contains(.forward) {
-            newRot.x = -0.007
+            newRot.x = -0.001
         }
         
         let rotMat = float4x4(rotation: newRot)

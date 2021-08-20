@@ -209,7 +209,8 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
                                  texture2d<float> normalMap [[ texture(2) ]],
                                  texture2d<float> reflectionTexture [[ texture(TextureIndexReflection) ]],
                                  texture2d<float> refractionTexture [[ texture(TextureIndexRefraction) ]],
-                                 texture2d<float> waterRippleTexture [[ texture(TextureIndexWaterRipple) ]])
+                                 texture2d<float> waterRippleTexture [[ texture(TextureIndexWaterRipple) ]],
+                                 texturecube<float> worldMapTexture [[ texture(TextureIndexWorldMap) ]])
 {
 //    float3 color = float3(0.2, 0.6, 1.0);
     
@@ -249,7 +250,9 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
     float4 mixedColor = mix(reflectionTexture.sample(mainSampler, reflectionCoords),
                             refractionTexture.sample(mainSampler, refractionCoords),
                             mixRatio);
-    mixedColor = mix(mixedColor, float4(0.0, 0.3, 0.5, 1.0), 0.3);
+    // Mix map texture here yooooo
+    float4 mapColor = worldMapTexture.sample(mainSampler, fragment_in.position.yzx);
+    mixedColor = mapColor;//mix(mixedColor, mapColor, 0.3);
     
     
     

@@ -42,6 +42,7 @@ class Terrain: Node {
     var insideFactors: [Float] = [Terrain.insideFactors]
     var allPatches: [Patch] = []
     var waterNormalTexture: MTLTexture?
+    var worldMapTexture: MTLTexture!
 
     lazy var tessellationFactorsBuffer: MTLBuffer? = {
         let count = patchCount * Int(Terrain.edgeFactors + Terrain.insideFactors)
@@ -146,7 +147,7 @@ class Terrain: Node {
 
         super.init()
         
-        
+        worldMapTexture = worldMapTexture()
     }
 }
 
@@ -297,6 +298,11 @@ extension Terrain: Renderable {
         renderEncoder.setFragmentTexture(
             waterNormalTexture,
             index: TextureIndex.waterRipple.rawValue
+        )
+        
+        renderEncoder.setFragmentTexture(
+            worldMapTexture,
+            index: TextureIndex.worldMap.rawValue
         )
 
 
