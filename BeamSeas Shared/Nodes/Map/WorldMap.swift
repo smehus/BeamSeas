@@ -91,7 +91,6 @@ extension MiniWorldMap: Renderable, MoveStateNavigatable {
     ) {
         // The players rotation will always be on the y axis
         let rotDiff = player.rotation.y - degRot
-        print(rotDiff)
         var newRot = float3(0, 0, rotDiff)
         if player.moveStates.contains(.forward) {
             newRot.x = -0.001
@@ -255,10 +254,11 @@ extension WorldMapScaffolding: AspectRatioUpdateable {
 
 extension WorldMapScaffolding: Renderable {
     
+    
     func update(deltaTime: Float, uniforms: Uniforms, fragmentUniforms: FragmentUniforms, camera: Camera, player: Model) {
+        return
         // The players rotation will always be on the y axis
         let rotDiff = degRot - player.rotation.y
-        print(rotDiff)
         var newRot = float3(0, rotDiff, 0)
         if player.moveStates.contains(.forward) {
             newRot.x = -0.001
@@ -272,6 +272,7 @@ extension WorldMapScaffolding: Renderable {
     }
     
     func draw(renderEncoder: MTLRenderCommandEncoder, uniforms: inout Uniforms, fragmentUniforms: inout FragmentUniforms) {
+        return
         defer {
             renderEncoder.popDebugGroup()
         }
