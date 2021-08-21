@@ -185,10 +185,15 @@ final class WorldMapScaffolding: Node, Texturable {
     private var degRot: Float = 0
     
     private lazy var mapCamera: Camera = {
-        let camera = Camera()
-        camera.near = 0.0001
-        camera.far = 1000
-        
+//        let camera = Camera()
+//        camera.near = 0.0001
+//        camera.far = 1000
+  
+        let camera = ThirdPersonCamera()
+        camera.far = 2000
+        camera.focus = self
+        camera.focusDistance = 150
+        camera.focusHeight = 100
         return camera
     }()
     

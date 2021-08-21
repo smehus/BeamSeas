@@ -105,8 +105,8 @@ final class Renderer: NSObject {
         worldMap.position = float3(0, 0, 30)
         models.append(worldMap)
 
-        let mapScaffolding = WorldMapScaffolding(extent: [300, 300, 300], segments: [50, 50])
-        mapScaffolding.position = float3(0, -300, 0)
+        let mapScaffolding = WorldMapScaffolding(extent: [1500, 1500, 1500], segments: [50, 50])
+        mapScaffolding.position = float3(0, -1600, 0)
         models.append(mapScaffolding)
 
         mtkView(metalView, drawableSizeWillChange: metalView.bounds.size)
