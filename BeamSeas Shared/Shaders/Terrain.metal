@@ -252,8 +252,12 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
     
     // Mix map texture here yooooo
     // Get the world position yooo
+    // Is it not rotation becuase..
+    // Always going from the scaffoling position to the same world position.
+    // Not adding any rotation to the uv coordinates
+    // Scaffolding map rotates the object but not the texture coords
     float4 mapColor = worldMapTexture.sample(mainSampler, normalize(fragmentUniforms.scaffoldingPosition - fragment_in.worldPosition));
-    mixedColor = mapColor;//mix(mixedColor, mapColor, 0.3);
+    mixedColor = mix(mixedColor, mapColor, 0.3);
     
     
     

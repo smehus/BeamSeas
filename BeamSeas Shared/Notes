@@ -17,4 +17,6 @@ World map to actual map
  - also, take the vector of the center of sphere to the player ( or the fragment that needs a sample/ color)
 
 
+particles for boat waves in water shouldn't be bad because we're rendering them in the same position as we are not actually moving the boat!
+
 
