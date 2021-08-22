@@ -141,7 +141,7 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
 
     float adjustedHeight = heightDisplacement.y;
 //    adjustedHeight = 1 - adjustedHeight;
-    out.position = uniforms.projectionMatrix * uniforms.viewMatrix * fragmentUniforms.scaffoldingModelMatrix * position;
+    out.position = uniforms.projectionMatrix * uniforms.viewMatrix * uniforms.modelMatrix * position;
     float4 finalColor = float4(heightDisplacement.x);
 
     // reference AAPLTerrainRenderer in DynamicTerrainWithArgumentBuffers exmaple: EvaluateTerrainAtLocation line 235 -> EvaluateTerrainAtLocation in AAPLTerrainRendererUtilities line: 91
@@ -258,7 +258,7 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
     // Scaffolding map rotates the object but not the texture coords
     
     float4 positionMapSpace = fragmentUniforms.scaffoldingModelMatrix * fragment_in.worldPosition * fragmentUniforms.inverseTerrainModelMatrix;
-    float3 scaffoldVector = fragmentUniforms.scaffoldingPosition * fragmentUniforms.scaffoldingPosition;
+    float3 scaffoldVector = fragmentUniforms.scaffoldingPosition;
     
     // Need translate the two coordinate spaces
     // Cause if we use world space, the vector coordinates will always be the same as we don't move the player, we move the FFT

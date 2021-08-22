@@ -155,8 +155,8 @@ extension Terrain: Renderable {
 
     func update(
         deltaTime: Float,
-        uniforms: Uniforms,
-        fragmentUniforms: FragmentUniforms,
+        uniforms: inout Uniforms,
+        fragmentUniforms: inout FragmentUniforms,
         camera: Camera,
         player: Model
     ) {

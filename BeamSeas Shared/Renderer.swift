@@ -23,17 +23,17 @@ final class Renderer: NSObject {
 
     lazy var camera: Camera = {
         
-        let camera = ArcballCamera()
-        camera.distance = 80
-        camera.target = [0, 0, -80]
-        camera.rotation.x = Float(-10).degreesToRadians
-        camera.rotation.y = Float(-60).degreesToRadians
+//        let camera = ArcballCamera()
+//        camera.distance = 80
+//        camera.target = [0, 0, -80]
+//        camera.rotation.x = Float(-10).degreesToRadians
+//        camera.rotation.y = Float(-60).degreesToRadians
  
         
-//        let camera = ThirdPersonCamera()
-//        camera.focus = player
-//        camera.focusDistance = 150
-//        camera.focusHeight = 100
+        let camera = ThirdPersonCamera()
+        camera.focus = player
+        camera.focusDistance = 150
+        camera.focusHeight = 100
         return camera
     }()
     
@@ -164,8 +164,8 @@ extension Renderer: MTKViewDelegate {
             (model as? Model)?.renderer = self
             model.update(
                 deltaTime: delta,
-                uniforms: uniforms,
-                fragmentUniforms: fragmentUniforms,
+                uniforms: &uniforms,
+                fragmentUniforms: &fragmentUniforms,
                 camera: camera,
                 player: player
             )

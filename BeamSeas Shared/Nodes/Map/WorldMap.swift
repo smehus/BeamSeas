@@ -84,8 +84,8 @@ extension MiniWorldMap: Renderable, MoveStateNavigatable {
     
     func update(
         deltaTime: Float,
-        uniforms: Uniforms,
-        fragmentUniforms: FragmentUniforms,
+        uniforms: inout Uniforms,
+        fragmentUniforms: inout FragmentUniforms,
         camera: Camera,
         player: Model
     ) {
@@ -119,10 +119,6 @@ extension MiniWorldMap: Renderable, MoveStateNavigatable {
         mapUniforms.viewMatrix = mapCamera.viewMatrix
         mapUniforms.projectionMatrix = mapCamera.projectionMatrix
         
-        
-        fragmentUniforms.scaffoldingModelMatrix = modelMatrix
-        fragmentUniforms.scaffoldingPosition = position
-        print(modelMatrix)
         renderEncoder.setRenderPipelineState(pipelineState)
         renderEncoder.setDepthStencilState(depthStencilState)
         
@@ -259,8 +255,13 @@ extension WorldMapScaffolding: AspectRatioUpdateable {
 extension WorldMapScaffolding: Renderable {
     
     
-    func update(deltaTime: Float, uniforms: Uniforms, fragmentUniforms: FragmentUniforms, camera: Camera, player: Model) {
-        return
+    func update(
+        deltaTime: Float,
+        uniforms: inout Uniforms,
+        fragmentUniforms: inout FragmentUniforms,
+        camera: Camera,
+        player: Model
+    ) {
         // The players rotation will always be on the y axis
         let rotDiff = degRot - player.rotation.y
         var newRot = float3(0, rotDiff, 0)
@@ -273,6 +274,11 @@ extension WorldMapScaffolding: Renderable {
         quaternion = newRotQuat * quaternion
 
         degRot = player.rotation.y
+        
+        fragmentUniforms.scaffoldingModelMatrix = modelMatrix
+        fragmentUniforms.scaffoldingPosition = modelMatrix.upperLeft * position
+        print(position)
+        print(modelMatrix.upperLeft * position)
     }
     
     func draw(renderEncoder: MTLRenderCommandEncoder, uniforms: inout Uniforms, fragmentUniforms: inout FragmentUniforms) {
