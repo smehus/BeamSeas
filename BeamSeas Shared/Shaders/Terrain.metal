@@ -21,7 +21,7 @@ struct TerrainVertexOut {
     float2 uv;
     float4 vGradNormalTex;
     float3 normal;
-    float3 worldPosition;
+    float4 worldPosition;
     float3 toCamera;
 };
 
@@ -134,14 +134,14 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
     // are relevant....
     float3 horizontalDisplacement = heightDisplacement * 2 - 1;
 
-    position.y = height.x;
-    position.x += (horizontalDisplacement.y);
-    position.z += (horizontalDisplacement.z);
+//    position.y = height.x;
+//    position.x += (horizontalDisplacement.y);
+//    position.z += (horizontalDisplacement.z);
     
 
     float adjustedHeight = heightDisplacement.y;
 //    adjustedHeight = 1 - adjustedHeight;
-    out.position = uniforms.projectionMatrix * uniforms.viewMatrix * uniforms.modelMatrix * position;
+    out.position = uniforms.projectionMatrix * uniforms.viewMatrix * fragmentUniforms.scaffoldingModelMatrix * position;
     float4 finalColor = float4(heightDisplacement.x);
 
     // reference AAPLTerrainRenderer in DynamicTerrainWithArgumentBuffers exmaple: EvaluateTerrainAtLocation line 235 -> EvaluateTerrainAtLocation in AAPLTerrainRendererUtilities line: 91
@@ -155,8 +155,8 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
 //    finalColor += float4(0.1, 0.6, 0.988, 1);
     out.color = finalColor;
     
-    out.worldPosition = (uniforms.modelMatrix * position).xyz;
-    out.toCamera = fragmentUniforms.camera_position - out.worldPosition;
+    out.worldPosition = uniforms.modelMatrix * position;
+    out.toCamera = fragmentUniforms.camera_position - out.worldPosition.xyz;
 
     return out;
 }
@@ -256,8 +256,14 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
     // Always going from the scaffoling position to the same world position.
     // Not adding any rotation to the uv coordinates
     // Scaffolding map rotates the object but not the texture coords
-    float4 mapColor = worldMapTexture.sample(mainSampler, normalize(fragmentUniforms.scaffoldingPosition - fragment_in.worldPosition));
-    mixedColor = mix(mixedColor, mapColor, 0.3);
+    
+    float4 positionMapSpace = fragmentUniforms.scaffoldingModelMatrix * fragment_in.worldPosition * fragmentUniforms.inverseTerrainModelMatrix;
+    float3 scaffoldVector = fragmentUniforms.scaffoldingPosition * fragmentUniforms.scaffoldingPosition;
+    
+    // Need translate the two coordinate spaces
+    // Cause if we use world space, the vector coordinates will always be the same as we don't move the player, we move the FFT
+    float4 mapColor = worldMapTexture.sample(mainSampler, normalize(positionMapSpace.xyz - scaffoldVector));
+    mixedColor = mapColor;//mix(mixedColor, mapColor, 0.3);
     
     
     

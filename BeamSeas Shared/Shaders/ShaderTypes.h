@@ -87,6 +87,8 @@ typedef struct
     vector_float3 camera_position;
     uint tiling;
     vector_float3 scaffoldingPosition;
+    matrix_float4x4 scaffoldingModelMatrix;
+    matrix_float4x4 inverseTerrainModelMatrix;
 } FragmentUniforms;
 
 typedef enum {

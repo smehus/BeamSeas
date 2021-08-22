@@ -119,6 +119,10 @@ extension MiniWorldMap: Renderable, MoveStateNavigatable {
         mapUniforms.viewMatrix = mapCamera.viewMatrix
         mapUniforms.projectionMatrix = mapCamera.projectionMatrix
         
+        
+        fragmentUniforms.scaffoldingModelMatrix = modelMatrix
+        fragmentUniforms.scaffoldingPosition = position
+        print(modelMatrix)
         renderEncoder.setRenderPipelineState(pipelineState)
         renderEncoder.setDepthStencilState(depthStencilState)
         

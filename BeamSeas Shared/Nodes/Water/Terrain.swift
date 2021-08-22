@@ -224,6 +224,7 @@ extension Terrain: Renderable {
         renderEncoder.pushDebugGroup("Terrain Vertex")
         uniforms.modelMatrix = modelMatrix
         uniforms.normalMatrix = modelMatrix.upperLeft
+        fragmentUniforms.inverseTerrainModelMatrix = modelMatrix.inverse
 
         renderEncoder.setTriangleFillMode(.fill)
         renderEncoder.setRenderPipelineState(renderPipelineState)

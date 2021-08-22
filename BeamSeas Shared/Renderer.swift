@@ -23,17 +23,17 @@ final class Renderer: NSObject {
 
     lazy var camera: Camera = {
         
-//        let camera = ArcballCamera()
-//        camera.distance = 80
-//        camera.target = [0, 0, -80]
-//        camera.rotation.x = Float(-10).degreesToRadians
-//        camera.rotation.y = Float(-60).degreesToRadians
+        let camera = ArcballCamera()
+        camera.distance = 80
+        camera.target = [0, 0, -80]
+        camera.rotation.x = Float(-10).degreesToRadians
+        camera.rotation.y = Float(-60).degreesToRadians
  
         
-        let camera = ThirdPersonCamera()
-        camera.focus = player
-        camera.focusDistance = 150
-        camera.focusHeight = 100
+//        let camera = ThirdPersonCamera()
+//        camera.focus = player
+//        camera.focusDistance = 150
+//        camera.focusHeight = 100
         return camera
     }()
     
@@ -55,6 +55,8 @@ final class Renderer: NSObject {
     private(set) var fft: BasicFFT
     private(set) var player: Model!
     private(set) var skybox: Skybox!
+    private(set) var terrain: Terrain!
+    private(set) var mapScaffolding: WorldMapScaffolding!
     private(set) var reflectionRenderPass: RenderPass
     private(set) var refractionRenderPass: RenderPass
 
@@ -89,8 +91,12 @@ final class Renderer: NSObject {
         metalView.delegate = self
         
         skybox = Skybox(textureName: nil)
+        
+        mapScaffolding = WorldMapScaffolding(extent: [1500, 1500, 1500], segments: [50, 50])
+        mapScaffolding.position = float3(0, -1500, 0)
+        models.append(mapScaffolding)
 
-        let terrain = Terrain()
+        terrain = Terrain()
         models.append(terrain)
 
         player = Model(name: "OldBoat", fragment: "fragment_pbr")
@@ -105,11 +111,7 @@ final class Renderer: NSObject {
         worldMap.position = float3(0, 0, 30)
         models.append(worldMap)
 
-        let mapScaffolding = WorldMapScaffolding(extent: [1500, 1500, 1500], segments: [50, 50])
-        mapScaffolding.position = float3(0, -1600, 0)
-        models.append(mapScaffolding)
-        
-        fragmentUniforms.scaffoldingPosition = mapScaffolding.position
+
 
         mtkView(metalView, drawableSizeWillChange: metalView.bounds.size)
     }
