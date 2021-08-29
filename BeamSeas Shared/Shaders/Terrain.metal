@@ -258,12 +258,14 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
     // Scaffolding map rotates the object but not the texture coords
     
     float4 positionMapSpace = fragmentUniforms.scaffoldingModelMatrix * fragment_in.worldPosition * fragmentUniforms.inverseTerrainModelMatrix;
-    float3 scaffoldVector = fragmentUniforms.scaffoldingPosition;
+    float4 scaffoldVector = fragmentUniforms.scaffoldingPosition;
     
     // Need translate the two coordinate spaces
     // Cause if we use world space, the vector coordinates will always be the same as we don't move the player, we move the FFT
-    float4 mapColor = worldMapTexture.sample(mainSampler, normalize(positionMapSpace.xyz - scaffoldVector));
-    mixedColor = mapColor;//mix(mixedColor, mapColor, 0.3);
+    float3 inversedVector = normalize(positionMapSpace - scaffoldVector).xyz;
+    inversedVector = -inversedVector;
+    float4 mapColor = worldMapTexture.sample(mainSampler, inversedVector);
+    mixedColor = mix(mixedColor, mapColor, 0.3);
     
     
     

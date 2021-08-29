@@ -221,6 +221,8 @@ extension Terrain: Renderable {
         uniforms: inout Uniforms,
         fragmentUniforms: inout FragmentUniforms
     ) {
+        
+        return
         renderEncoder.pushDebugGroup("Terrain Vertex")
         uniforms.modelMatrix = modelMatrix
         uniforms.normalMatrix = modelMatrix.upperLeft

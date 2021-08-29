@@ -182,6 +182,7 @@ final class WorldMapScaffolding: Node, Texturable {
     private var texture: MTLTexture!
     private var mapUniforms = Uniforms()
     private var degRot: Float = 0
+    private let samplerState: MTLSamplerState?
     
     private lazy var mapCamera: Camera = {
 //        let camera = Camera()
@@ -227,6 +228,9 @@ final class WorldMapScaffolding: Node, Texturable {
             pipelineState = try Renderer.device.makeRenderPipelineState(descriptor: pipelineDescriptor)
             
         } catch { fatalError(error.localizedDescription) }
+        
+        let samplerDescriptor = MTLSamplerDescriptor()
+        samplerState = Renderer.device.makeSamplerState(descriptor: samplerDescriptor)
         
         super.init()
         
@@ -276,13 +280,12 @@ extension WorldMapScaffolding: Renderable {
         degRot = player.rotation.y
         
         fragmentUniforms.scaffoldingModelMatrix = modelMatrix
-        fragmentUniforms.scaffoldingPosition = modelMatrix.upperLeft * position
+        fragmentUniforms.scaffoldingPosition = modelMatrix * float4(position, 1)
         print(position)
         print(modelMatrix.upperLeft * position)
     }
     
     func draw(renderEncoder: MTLRenderCommandEncoder, uniforms: inout Uniforms, fragmentUniforms: inout FragmentUniforms) {
-        return
         defer {
             renderEncoder.popDebugGroup()
         }
@@ -315,6 +318,8 @@ extension WorldMapScaffolding: Renderable {
             texture,
             index: TextureIndex.color.rawValue
         )
+
+        renderEncoder.setFragmentSamplerState(samplerState, index: 0)
         
         renderEncoder.drawIndexedPrimitives(
             type: .triangle,
