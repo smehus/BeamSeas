@@ -141,7 +141,7 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
 
     float adjustedHeight = heightDisplacement.y;
 //    adjustedHeight = 1 - adjustedHeight;
-    out.position = uniforms.projectionMatrix * uniforms.viewMatrix * uniforms.modelMatrix * position;
+    out.position = uniforms.projectionMatrix * uniforms.viewMatrix * fragmentUniforms.scaffoldingModelMatrix * position;
     float4 finalColor = float4(heightDisplacement.x);
 
     // reference AAPLTerrainRenderer in DynamicTerrainWithArgumentBuffers exmaple: EvaluateTerrainAtLocation line 235 -> EvaluateTerrainAtLocation in AAPLTerrainRendererUtilities line: 91
@@ -257,15 +257,33 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
     // Not adding any rotation to the uv coordinates
     // Scaffolding map rotates the object but not the texture coords
     
-    float4 positionMapSpace = fragmentUniforms.scaffoldingModelMatrix * fragment_in.worldPosition * fragmentUniforms.inverseTerrainModelMatrix;
-    float4 scaffoldVector = fragmentUniforms.scaffoldingPosition;
+//    float4 positionMapSpace = fragmentUniforms.scaffoldingModelMatrix * fragment_in.worldPosition * fragmentUniforms.inverseTerrainModelMatrix;
+//    float4 scaffoldVector = fragmentUniforms.scaffoldingPosition;
+//
+//    // Need translate the two coordinate spaces
+//    // Cause if we use world space, the vector coordinates will always be the same as we don't move the player, we move the FFT
+//    float3 inversedVector = normalize(positionMapSpace - scaffoldVector).xyz;
+//    inversedVector = -inversedVector;
+//    float4 mapColor = worldMapTexture.sample(mainSampler, inversedVector);
+//
+//
     
-    // Need translate the two coordinate spaces
-    // Cause if we use world space, the vector coordinates will always be the same as we don't move the player, we move the FFT
-    float3 inversedVector = normalize(positionMapSpace - scaffoldVector).xyz;
-    inversedVector = -inversedVector;
-    float4 mapColor = worldMapTexture.sample(mainSampler, inversedVector);
-    mixedColor = mix(mixedColor, mapColor, 0.3);
+    // ------------------ \\
+    // Start fresh
+    
+    // Transform the vertex_in.position into the scaffolding model coordinate space
+    float4 fragment_localPosition = fragment_in.position;
+    float4 fragment_scaffoldingSpacePosition = fragmentUniforms.scaffoldingModelMatrix * fragment_in.position;
+    
+    // Determine vector for scaffolding postion to transformed player position
+    
+    // Use vector to sample texture cube
+    
+    // ------------------ \\
+    
+    
+    
+//    mixedColor = mix(mixedColor, mapColor, 0.3);
     
     
     
