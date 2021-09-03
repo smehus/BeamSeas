@@ -221,7 +221,6 @@ extension Terrain: Renderable {
         uniforms: inout Uniforms,
         fragmentUniforms: inout FragmentUniforms
     ) {
-        return
         renderEncoder.pushDebugGroup("Terrain Vertex")
         uniforms.modelMatrix = worldTransform
         uniforms.normalMatrix = float3x3(normalFrom4x4: worldTransform)
@@ -308,7 +307,7 @@ extension Terrain: Renderable {
         )
 
 
-//        renderEncoder.setTriangleFillMode(.lines)
+        renderEncoder.setTriangleFillMode(.lines)
         renderEncoder.drawPatches(
             numberOfPatchControlPoints: 4,
             patchStart: 0,
@@ -506,11 +505,11 @@ extension WorldMapScaffolding: Renderable {
         
         renderEncoder.pushDebugGroup("WorldMap Scaffolding")
 
-        // don't need separate camera for this?
-//        mapUniforms = uniforms
-        uniforms.modelMatrix = worldTransform
-//        mapUniforms.viewMatrix = mapCamera.viewMatrix
-//        mapUniforms.projectionMatrix = mapCamera.projectionMatrix
+        // Using the same camera as scene will mess up the rotation for some reason.
+        mapUniforms = uniforms
+        mapUniforms.modelMatrix = worldTransform
+        mapUniforms.viewMatrix = mapCamera.viewMatrix
+        mapUniforms.projectionMatrix = mapCamera.projectionMatrix
   
         renderEncoder.setRenderPipelineState(pipelineState)
         renderEncoder.setDepthStencilState(depthStencilState)
@@ -523,7 +522,7 @@ extension WorldMapScaffolding: Renderable {
         )
         
         renderEncoder.setVertexBytes(
-            &uniforms,
+            &mapUniforms,
             length: MemoryLayout<Uniforms>.stride,
             index: BufferIndex.uniforms.rawValue
         )
