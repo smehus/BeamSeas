@@ -277,7 +277,9 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
     // Start fresh
     
     // Do i need to find the vector between scaffolding position & the fragment_in parentFrag Pos
-    float4 mapColor = worldMapTexture.sample(mainSampler, float3(0.46, 0.928, -0.37));
+    float4 textureCoord = fragment_in.parentFragmentPosition;
+    float4 normalizedTexCoord = normalize(textureCoord);
+    float4 mapColor = worldMapTexture.sample(mainSampler, normalizedTexCoord.xyz);
     
     
     // ------------------ \\
