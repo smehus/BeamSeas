@@ -445,6 +445,7 @@ final class WorldMapScaffolding: Node, Texturable {
         
         super.init()
         
+        boundingBox = mesh.boundingBox
         texture = worldMapTexture()
         
         let rot = float4x4(rotation: float3(Float(180).degreesToRadians, 0, 0))

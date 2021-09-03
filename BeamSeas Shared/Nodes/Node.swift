@@ -93,6 +93,11 @@ class Node {
     var quaternion = simd_quatf()
     var parent: Node?
     var children: [Node] = []
+    
+    var boundingBox = MDLAxisAlignedBoundingBox()
+    var size: SIMD3<Float> {
+        return boundingBox.maxBounds - boundingBox.minBounds
+    }
 
     var modelMatrix: float4x4 {
         let translationMatrix = float4x4(translation: position)
