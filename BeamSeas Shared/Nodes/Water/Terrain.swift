@@ -225,8 +225,8 @@ extension Terrain: Renderable {
         renderEncoder.pushDebugGroup("Terrain Vertex")
         // Using model matrix instead of worldTransform because the parent is the scaffolding and we only want to mimick the rotation in order to get the correct texture cube vector
         uniforms.modelMatrix = worldTransform
-        uniforms.normalMatrix = float3x3(normalFrom4x4: worldTransform)
-        fragmentUniforms.inverseTerrainModelMatrix = worldTransform.inverse
+        uniforms.normalMatrix = float3x3(normalFrom4x4: modelMatrix)
+        fragmentUniforms.inverseTerrainModelMatrix = modelMatrix.inverse
 
         renderEncoder.setTriangleFillMode(.fill)
         renderEncoder.setRenderPipelineState(renderPipelineState)
@@ -494,7 +494,7 @@ extension WorldMapScaffolding: Renderable {
         degRot = player.rotation.y
         
 //        fragmentUniforms.scaffoldingModelMatrix = worldTransform
-        fragmentUniforms.scaffoldingPosition = worldTransform * float4(position, 1)
+        fragmentUniforms.scaffoldingPosition = float4(position, 1)
         
         print(position)
         print(modelMatrix.upperLeft * position)

@@ -160,6 +160,7 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
     out.worldPosition = uniforms.modelMatrix * position;
     // Map the position coordinates to the terrains parent (the scaffolding) so that we can mimick the rotation & grab
     // the sample from the mimicked rotation
+    // This is the position of the terrain when transformed with the parent (scaffolding)
     out.parentFragmentPosition = uniforms.parentTreeMatrix * position;
     out.toCamera = fragmentUniforms.camera_position - out.worldPosition.xyz;
 
@@ -273,12 +274,24 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
 //
 //
     
+//    float4 positionMapSpace = fragmentUniforms.scaffoldingModelMatrix * fragment_in.worldPosition * fragmentUniforms.inverseTerrainModelMatrix;
+//    float4 scaffoldVector = fragmentUniforms.scaffoldingPosition;
+//
+//    // Need translate the two coordinate spaces
+//    // Cause if we use world space, the vector coordinates will always be the same as we don't move the player, we move the FFT
+//    float3 inversedVector = normalize(positionMapSpace - scaffoldVector).xyz;
+//    inversedVector = -inversedVector;
+//    float4 mapColor = worldMapTexture.sample(mainSampler, inversedVector);
+//    mixedColor = mapColor;//mix(mixedColor, mapColor, 0.3);
+//
+    
     // ------------------ \\
     // Start fresh
     
     // Do i need to find the vector between scaffolding position & the fragment_in parentFrag Pos
-    float4 textureCoord = fragment_in.parentFragmentPosition;
+    float4 textureCoord = fragment_in.parentFragmentPosition * fragmentUniforms.inverseTerrainModelMatrix;
     float4 normalizedTexCoord = normalize(textureCoord);
+    normalizedTexCoord = -normalizedTexCoord;
     float4 mapColor = worldMapTexture.sample(mainSampler, normalizedTexCoord.xyz);
     
     
