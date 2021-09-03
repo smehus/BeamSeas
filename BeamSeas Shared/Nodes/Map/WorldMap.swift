@@ -287,7 +287,7 @@ extension WorldMapScaffolding: Renderable {
     }
     
     func draw(renderEncoder: MTLRenderCommandEncoder, uniforms: inout Uniforms, fragmentUniforms: inout FragmentUniforms) {
-        return
+//        return
         defer {
             renderEncoder.popDebugGroup()
         }
@@ -295,10 +295,10 @@ extension WorldMapScaffolding: Renderable {
         renderEncoder.pushDebugGroup("WorldMap Scaffolding")
 
         // don't need separate camera for this?
-//        mapUniforms = uniforms
-        uniforms.modelMatrix = modelMatrix
-//        uniforms.viewMatrix = mapCamera.viewMatrix
-//        uniforms.projectionMatrix = mapCamera.projectionMatrix
+        mapUniforms = uniforms
+        mapUniforms.modelMatrix = modelMatrix
+        mapUniforms.viewMatrix = mapCamera.viewMatrix
+        mapUniforms.projectionMatrix = mapCamera.projectionMatrix
   
         renderEncoder.setRenderPipelineState(pipelineState)
         renderEncoder.setDepthStencilState(depthStencilState)
@@ -311,7 +311,7 @@ extension WorldMapScaffolding: Renderable {
         )
         
         renderEncoder.setVertexBytes(
-            &uniforms,
+            &mapUniforms,
             length: MemoryLayout<Uniforms>.stride,
             index: BufferIndex.uniforms.rawValue
         )
