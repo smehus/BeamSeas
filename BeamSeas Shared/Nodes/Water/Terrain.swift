@@ -161,6 +161,7 @@ extension Terrain: Renderable {
         player: Model
     ) {
         
+        uniforms.parentTreeMatrix = worldTransform
     }
 
     // tesellate plane into a bunch of vertices
@@ -222,8 +223,9 @@ extension Terrain: Renderable {
         fragmentUniforms: inout FragmentUniforms
     ) {
         renderEncoder.pushDebugGroup("Terrain Vertex")
-        uniforms.modelMatrix = worldTransform
-        uniforms.normalMatrix = float3x3(normalFrom4x4: worldTransform)
+        // Using model matrix instead of worldTransform because the parent is the scaffolding and we only want to mimick the rotation in order to get the correct texture cube vector
+        uniforms.modelMatrix = modelMatrix
+        uniforms.normalMatrix = float3x3(normalFrom4x4: modelMatrix)
         fragmentUniforms.inverseTerrainModelMatrix = modelMatrix.inverse
 
         renderEncoder.setTriangleFillMode(.fill)
@@ -307,7 +309,7 @@ extension Terrain: Renderable {
         )
 
 
-        renderEncoder.setTriangleFillMode(.lines)
+//        renderEncoder.setTriangleFillMode(.lines)
         renderEncoder.drawPatches(
             numberOfPatchControlPoints: 4,
             patchStart: 0,
@@ -491,15 +493,15 @@ extension WorldMapScaffolding: Renderable {
 
         degRot = player.rotation.y
         
-        fragmentUniforms.scaffoldingModelMatrix = modelMatrix//float4x4(translation: position) * float4x4(quaternion)
-        fragmentUniforms.scaffoldingPosition = modelMatrix * float4(position, 1)
+//        fragmentUniforms.scaffoldingModelMatrix = worldTransform
+        fragmentUniforms.scaffoldingPosition = worldTransform * float4(position, 1)
         
         print(position)
         print(modelMatrix.upperLeft * position)
     }
     
     func draw(renderEncoder: MTLRenderCommandEncoder, uniforms: inout Uniforms, fragmentUniforms: inout FragmentUniforms) {
-//        return
+        return
         defer {
             renderEncoder.popDebugGroup()
         }

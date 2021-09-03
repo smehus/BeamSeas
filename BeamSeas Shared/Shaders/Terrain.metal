@@ -23,6 +23,7 @@ struct TerrainVertexOut {
     float3 normal;
     float4 worldPosition;
     float3 toCamera;
+    float4 parentFragmentPosition;
 };
 
 float calc_distance(float3 pointA,
@@ -157,6 +158,9 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
     out.color = finalColor;
     
     out.worldPosition = uniforms.modelMatrix * position;
+    // Map the position coordinates to the terrains parent (the scaffolding) so that we can mimick the rotation & grab
+    // the sample from the mimicked rotation
+    out.parentFragmentPosition = uniforms.parentTreeMatrix * position;
     out.toCamera = fragmentUniforms.camera_position - out.worldPosition.xyz;
 
     return out;
@@ -272,19 +276,15 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
     // ------------------ \\
     // Start fresh
     
-    // Transform the vertex_in.position into the scaffolding model coordinate space
-    float4 fragment_localPosition = fragment_in.position;
-    float4 fragment_scaffoldingSpacePosition = fragmentUniforms.scaffoldingModelMatrix * fragment_in.position;
+    // Do i need to find the vector between scaffolding position & the fragment_in parentFrag Pos
+    float4 mapColor = worldMapTexture.sample(mainSampler, normalize(fragment_in.parentFragmentPosition - fragmentUniforms.scaffoldingPosition).xyz);
     
-    // Determine vector for scaffolding postion to transformed player position
-    
-    // Use vector to sample texture cube
     
     // ------------------ \\
     
     
     
-//    mixedColor = mix(mixedColor, mapColor, 0.3);
+    mixedColor = mapColor;//mix(mixedColor, mapColor, 0.3);
     
     
     

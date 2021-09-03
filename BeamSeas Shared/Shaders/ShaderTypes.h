@@ -65,6 +65,7 @@ typedef struct
     matrix_float4x4 viewMatrix;
     matrix_float4x4 modelMatrix;
     matrix_float3x3 normalMatrix;
+    matrix_float4x4 parentTreeMatrix;
     float deltaTime;
     vector_float3 playerMovement;
     vector_float4 clipPlane;
