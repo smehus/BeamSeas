@@ -287,7 +287,7 @@ extension WorldMapScaffolding: Renderable {
     }
     
     func draw(renderEncoder: MTLRenderCommandEncoder, uniforms: inout Uniforms, fragmentUniforms: inout FragmentUniforms) {
-//        return
+        return
         defer {
             renderEncoder.popDebugGroup()
         }

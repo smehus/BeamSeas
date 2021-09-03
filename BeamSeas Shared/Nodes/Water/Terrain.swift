@@ -222,8 +222,8 @@ extension Terrain: Renderable {
         fragmentUniforms: inout FragmentUniforms
     ) {
         renderEncoder.pushDebugGroup("Terrain Vertex")
-        uniforms.modelMatrix = modelMatrix
-        uniforms.normalMatrix = modelMatrix.upperLeft
+        uniforms.modelMatrix = worldTransform
+        uniforms.normalMatrix = float3x3(normalFrom4x4: worldTransform)
         fragmentUniforms.inverseTerrainModelMatrix = modelMatrix.inverse
 
         renderEncoder.setTriangleFillMode(.fill)
@@ -307,7 +307,7 @@ extension Terrain: Renderable {
         )
 
 
-        renderEncoder.setTriangleFillMode(.lines)
+//        renderEncoder.setTriangleFillMode(.lines)
         renderEncoder.drawPatches(
             numberOfPatchControlPoints: 4,
             patchStart: 0,

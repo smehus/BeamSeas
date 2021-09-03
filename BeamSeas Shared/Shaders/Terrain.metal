@@ -95,6 +95,7 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
                         u);
 
     float2 interpolated = mix(top, bottom, v);
+    // Actual position
     float4 position = float4(interpolated.x, 0.0, interpolated.y, 1.0);
 
 
@@ -141,7 +142,7 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
 
     float adjustedHeight = heightDisplacement.y;
 //    adjustedHeight = 1 - adjustedHeight;
-    out.position = uniforms.projectionMatrix * uniforms.viewMatrix * fragmentUniforms.scaffoldingModelMatrix * position;
+    out.position = uniforms.projectionMatrix * uniforms.viewMatrix * uniforms.modelMatrix * position;
     float4 finalColor = float4(heightDisplacement.x);
 
     // reference AAPLTerrainRenderer in DynamicTerrainWithArgumentBuffers exmaple: EvaluateTerrainAtLocation line 235 -> EvaluateTerrainAtLocation in AAPLTerrainRendererUtilities line: 91
