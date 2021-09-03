@@ -224,9 +224,9 @@ extension Terrain: Renderable {
     ) {
         renderEncoder.pushDebugGroup("Terrain Vertex")
         // Using model matrix instead of worldTransform because the parent is the scaffolding and we only want to mimick the rotation in order to get the correct texture cube vector
-        uniforms.modelMatrix = modelMatrix
-        uniforms.normalMatrix = float3x3(normalFrom4x4: modelMatrix)
-        fragmentUniforms.inverseTerrainModelMatrix = modelMatrix.inverse
+        uniforms.modelMatrix = worldTransform
+        uniforms.normalMatrix = float3x3(normalFrom4x4: worldTransform)
+        fragmentUniforms.inverseTerrainModelMatrix = worldTransform.inverse
 
         renderEncoder.setTriangleFillMode(.fill)
         renderEncoder.setRenderPipelineState(renderPipelineState)
@@ -501,7 +501,7 @@ extension WorldMapScaffolding: Renderable {
     }
     
     func draw(renderEncoder: MTLRenderCommandEncoder, uniforms: inout Uniforms, fragmentUniforms: inout FragmentUniforms) {
-        return
+//        return
         defer {
             renderEncoder.popDebugGroup()
         }
