@@ -265,7 +265,7 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
     float3 inversedVector = normalize(positionMapSpace - scaffoldVector).xyz;
     inversedVector = -inversedVector;
     float4 mapColor = worldMapTexture.sample(mainSampler, inversedVector);
-    mixedColor = mix(mixedColor, mapColor, 0.3);
+    mixedColor = mapColor;//mix(mixedColor, mapColor, 0.3);
     
     
     
