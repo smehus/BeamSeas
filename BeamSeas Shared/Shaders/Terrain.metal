@@ -274,25 +274,25 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
 //
 //
     
-//    float4 positionMapSpace = fragmentUniforms.scaffoldingModelMatrix * fragment_in.worldPosition * fragmentUniforms.inverseTerrainModelMatrix;
-//    float4 scaffoldVector = fragmentUniforms.scaffoldingPosition;
-//
-//    // Need translate the two coordinate spaces
-//    // Cause if we use world space, the vector coordinates will always be the same as we don't move the player, we move the FFT
-//    float3 inversedVector = normalize(positionMapSpace - scaffoldVector).xyz;
-//    inversedVector = -inversedVector;
-//    float4 mapColor = worldMapTexture.sample(mainSampler, inversedVector);
-//    mixedColor = mapColor;//mix(mixedColor, mapColor, 0.3);
+    float4 positionMapSpace = fragment_in.worldPosition;// * fragmentUniforms.inverseTerrainModelMatrix;
+    float4 scaffoldVector = fragmentUniforms.scaffoldingPosition;
+
+    // Need translate the two coordinate spaces
+    // Cause if we use world space, the vector coordinates will always be the same as we don't move the player, we move the FFT
+    float3 inversedVector = normalize(positionMapSpace - scaffoldVector).xyz;
+    inversedVector = -inversedVector;
+    float4 mapColor = worldMapTexture.sample(mainSampler, inversedVector);
+    mixedColor = mapColor;//mix(mixedColor, mapColor, 0.3);
 //
     
     // ------------------ \\
     // Start fresh
     
     // Do i need to find the vector between scaffolding position & the fragment_in parentFrag Pos
-    float4 textureCoord = fragment_in.parentFragmentPosition * fragmentUniforms.inverseTerrainModelMatrix;
-    float4 normalizedTexCoord = normalize(textureCoord);
-    normalizedTexCoord = -normalizedTexCoord;
-    float4 mapColor = worldMapTexture.sample(mainSampler, normalizedTexCoord.xyz);
+//    float4 textureCoord = fragment_in.parentFragmentPosition * fragmentUniforms.inverseTerrainModelMatrix;
+//    float4 normalizedTexCoord = normalize(textureCoord);
+//    normalizedTexCoord = -normalizedTexCoord;
+//    float4 mapColor = worldMapTexture.sample(mainSampler, normalizedTexCoord.xyz);
     
     
     // ------------------ \\
