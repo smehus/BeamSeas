@@ -274,7 +274,7 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
 //
 //
     
-    float4 positionMapSpace = fragment_in.worldPosition;// * fragmentUniforms.inverseTerrainModelMatrix;
+    float4 positionMapSpace = fragment_in.parentFragmentPosition;// * fragmentUniforms.inverseTerrainModelMatrix;
     float4 scaffoldVector = fragmentUniforms.scaffoldingPosition;
 
     // Need translate the two coordinate spaces
