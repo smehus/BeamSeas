@@ -224,7 +224,7 @@ extension Terrain: Renderable {
     ) {
         renderEncoder.pushDebugGroup("Terrain Vertex")
         // Using model matrix instead of worldTransform because the parent is the scaffolding and we only want to mimick the rotation in order to get the correct texture cube vector
-        uniforms.modelMatrix = modelMatrix
+        uniforms.modelMatrix = worldTransform
         uniforms.normalMatrix = float3x3(normalFrom4x4: modelMatrix)
         fragmentUniforms.inverseTerrainModelMatrix = modelMatrix.inverse
 
@@ -450,7 +450,7 @@ final class WorldMapScaffolding: Node, Texturable {
         boundingBox = mesh.boundingBox
         texture = worldMapTexture(options: nil)
         
-        let rot = float4x4(rotation: float3(Float(180).degreesToRadians, 0, 0))
+        let rot = float4x4.identity()
         let initialRotation = simd_quatf(rot)
         quaternion = initialRotation
     }
@@ -483,6 +483,7 @@ extension WorldMapScaffolding: Renderable, MapRotationHandler {
         // The players rotation will always be on the y axis
         let rotMat = float4x4(rotation: getRotation(player: player, degRot: degRot))
         let newRotQuat = simd_quatf(rotMat)
+        // Not rotating because the quat is zero?
         quaternion = newRotQuat * quaternion
 
         degRot = player.rotation.y
@@ -498,7 +499,7 @@ extension WorldMapScaffolding: Renderable, MapRotationHandler {
     }
     
     func draw(renderEncoder: MTLRenderCommandEncoder, uniforms: inout Uniforms, fragmentUniforms: inout FragmentUniforms) {
-        return
+//        return
         defer {
             renderEncoder.popDebugGroup()
         }

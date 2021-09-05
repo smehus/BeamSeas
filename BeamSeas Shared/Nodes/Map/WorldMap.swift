@@ -18,9 +18,9 @@ extension MapRotationHandler {
         let rotDiff = player.rotation.y - degRot
         var newRot = float3(0, 0, rotDiff)
         if player.moveStates.contains(.forward) {
-            newRot.x = -0.001
+            newRot.x = -0.005
         } else if player.moveStates.contains(.backwards) {
-            newRot.x = 0.001
+            newRot.x = 0.005
         }
         
         return newRot
