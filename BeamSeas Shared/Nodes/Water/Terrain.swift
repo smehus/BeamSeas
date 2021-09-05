@@ -147,7 +147,7 @@ class Terrain: Node {
 
         super.init()
         
-        worldMapTexture = worldMapTexture()
+        worldMapTexture = worldMapTexture(options: nil)
     }
 }
 
@@ -448,7 +448,7 @@ final class WorldMapScaffolding: Node, Texturable {
         super.init()
         
         boundingBox = mesh.boundingBox
-        texture = worldMapTexture()
+        texture = worldMapTexture(options: nil)
         
         let rot = float4x4(rotation: float3(Float(180).degreesToRadians, 0, 0))
         let initialRotation = simd_quatf(rot)
@@ -470,7 +470,7 @@ extension WorldMapScaffolding: AspectRatioUpdateable {
     }
 }
 
-extension WorldMapScaffolding: Renderable {
+extension WorldMapScaffolding: Renderable, MapRotationHandler {
     
     
     func update(
@@ -481,13 +481,7 @@ extension WorldMapScaffolding: Renderable {
         player: Model
     ) {
         // The players rotation will always be on the y axis
-        let rotDiff = degRot - player.rotation.y
-        var newRot = float3(0, rotDiff, 0)
-        if player.moveStates.contains(.forward) {
-            newRot.x = -0.001
-        }
-
-        let rotMat = float4x4(rotation: newRot)
+        let rotMat = float4x4(rotation: getRotation(player: player, degRot: degRot))
         let newRotQuat = simd_quatf(rotMat)
         quaternion = newRotQuat * quaternion
 

@@ -279,8 +279,8 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
 
     // Need translate the two coordinate spaces
     // Cause if we use world space, the vector coordinates will always be the same as we don't move the player, we move the FFT
-    float3 inversedVector = normalize(positionMapSpace - scaffoldVector).xyz;
-    inversedVector = -inversedVector;
+    float3 inversedVector = normalize(scaffoldVector - positionMapSpace).xyz;
+//    inversedVector = -inversedVector;
     float4 mapColor = worldMapTexture.sample(mainSampler, inversedVector);
     mixedColor = mapColor;//mix(mixedColor, mapColor, 0.3);
 //

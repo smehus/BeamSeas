@@ -9,7 +9,25 @@
 import Foundation
 import MetalKit
 
-final class MiniWorldMap: Node, Meshable, Texturable, DepthStencilStateBuilder {
+protocol MapRotationHandler {
+    func getRotation(player: Model, degRot: Float) -> float3
+}
+
+extension MapRotationHandler {
+    func getRotation(player: Model, degRot: Float) -> float3 {
+        let rotDiff = player.rotation.y - degRot
+        var newRot = float3(0, 0, rotDiff)
+        if player.moveStates.contains(.forward) {
+            newRot.x = -0.001
+        } else if player.moveStates.contains(.backwards) {
+            newRot.x = 0.001
+        }
+        
+        return newRot
+    }
+}
+
+final class MiniWorldMap: Node, Meshable, Texturable, DepthStencilStateBuilder, MapRotationHandler {
     
     private(set) var mesh: MDLMesh
     private let model: MTKMesh
@@ -65,7 +83,7 @@ final class MiniWorldMap: Node, Meshable, Texturable, DepthStencilStateBuilder {
         
         super.init()
         
-        texture = worldMapTexture()
+        texture = worldMapTexture(options: nil)
 
         let rot = float4x4(rotation: float3(Float(90).degreesToRadians, 0, 0))
         let initialRotation = simd_quatf(rot)
@@ -90,13 +108,7 @@ extension MiniWorldMap: Renderable, MoveStateNavigatable {
         player: Model
     ) {
         // The players rotation will always be on the y axis
-        let rotDiff = player.rotation.y - degRot
-        var newRot = float3(0, 0, rotDiff)
-        if player.moveStates.contains(.forward) {
-            newRot.x = -0.001
-        }
-        
-        let rotMat = float4x4(rotation: newRot)
+        let rotMat = float4x4(rotation: getRotation(player: player, degRot: degRot))
         let newRotQuat = simd_quatf(rotMat)
         quaternion = newRotQuat * quaternion
 
