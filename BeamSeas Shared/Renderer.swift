@@ -23,17 +23,17 @@ final class Renderer: NSObject {
 
     lazy var camera: Camera = {
         
-        let camera = ArcballCamera()
-        camera.distance = 80
-        camera.target = [0, 0, -80]
-        camera.rotation.x = Float(-10).degreesToRadians
-        camera.rotation.y = Float(-60).degreesToRadians
+//        let camera = ArcballCamera()
+//        camera.distance = 80
+//        camera.target = [0, 0, -80]
+//        camera.rotation.x = Float(-10).degreesToRadians
+//        camera.rotation.y = Float(-60).degreesToRadians
  
         
-//        let camera = ThirdPersonCamera()
-//        camera.focus = player
-//        camera.focusDistance = 150
-//        camera.focusHeight = 100
+        let camera = ThirdPersonCamera()
+        camera.focus = player
+        camera.focusDistance = 150
+        camera.focusHeight = 100
         return camera
     }()
     
@@ -97,7 +97,8 @@ final class Renderer: NSObject {
     
         terrain = Terrain()
         // Used for when visualizing the scaffolding vector creation
-        terrain.position = [0, -(mapScaffolding.size.x), 0]
+//        terrain.position = [0, -(mapScaffolding.size.x), 0]
+        terrain.position = [0, 50, 0]
         models.append(terrain)
         mapScaffolding.add(child: terrain)
         
