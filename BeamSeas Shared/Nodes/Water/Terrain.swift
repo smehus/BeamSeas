@@ -508,7 +508,7 @@ extension WorldMapScaffolding: Renderable, MapRotationHandler {
 
         // Using the same camera as scene will mess up the rotation for some reason.
         mapUniforms = uniforms
-        mapUniforms.modelMatrix = worldTransform
+        mapUniforms.modelMatrix = float4x4(translation: position) * float4x4(scaling: scale)//worldTransform
         mapUniforms.viewMatrix = mapCamera.viewMatrix
         mapUniforms.projectionMatrix = mapCamera.projectionMatrix
   
