@@ -92,8 +92,8 @@ final class Renderer: NSObject {
         
         skybox = Skybox(textureName: nil)
         
-        mapScaffolding = WorldMapScaffolding(extent: [50, 50, 50], segments: [50, 50])
-        mapScaffolding.position = float3(0, 0, 0)
+        mapScaffolding = WorldMapScaffolding(extent: [1500, 1500, 1500], segments: [50, 50])
+        mapScaffolding.position = float3(0, -(mapScaffolding.size.x / 2), 0)
     
         terrain = Terrain()
         // Used for when visualizing the scaffolding vector creation

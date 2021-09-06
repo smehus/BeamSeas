@@ -15,6 +15,9 @@ extension MapRotationHandler {
         
         // Another solution is to scrap the scaffolding and figure out a way to sample just the texture? Or maybe say screw it to the world map and just use a 2d texture?
         
+        // Another solution - just rotate the scaffolding & do an offscreen draw of the scaffolding to a color texture from the point of view of top down.
+        // So the camera would be above the scaffolding & terrain pointing downards. Then sample that texture for the color & height of the terrain?
+        
         let rotDiff = player.rotation.y - degRot
         var newRot = float3(0, rotDiff, 0)
         if player.moveStates.contains(.forward) {
@@ -124,21 +127,28 @@ extension WorldMapScaffolding: Renderable, MapRotationHandler {
         player: Model
     ) {
         // The players rotation will always be on the y axis
-        let rotMat = float4x4(rotation: getRotation(player: player, degRot: degRot))
-        let newRotQuat = simd_quatf(rotMat)
-        // Not rotating because the quat is zero?
-        quaternion = newRotQuat * quaternion
-
-        degRot = player.rotation.y
+//        let rotMat = float4x4(rotation: getRotation(player: player, degRot: degRot))
+//        let newRotQuat = simd_quatf(rotMat)
+//        // Not rotating because the quat is zero?
+//        quaternion = newRotQuat * quaternion
+//
+//        degRot = player.rotation.y
+//
+////        fragmentUniforms.scaffoldingModelMatrix = worldTransform
+//
+//        // CURRENT TASK - TRYING TO GET TEXTURE SAMPLING TO WORK
+//        // WHILE THE TERRAIN IS A CHILD TO SCAFFOLDING AND WILL ROTATE WITH THE PARENT COORDINATE SPACE
+//        fragmentUniforms.scaffoldingPosition = float4(position, 1)
+//
+//        print(position)
+//        print(modelMatrix.upperLeft * position)
         
-//        fragmentUniforms.scaffoldingModelMatrix = worldTransform
-        
-        // CURRENT TASK - TRYING TO GET TEXTURE SAMPLING TO WORK
-        // WHILE THE TERRAIN IS A CHILD TO SCAFFOLDING AND WILL ROTATE WITH THE PARENT COORDINATE SPACE
-        fragmentUniforms.scaffoldingPosition = float4(position, 1)
-        
-        print(position)
-        print(modelMatrix.upperLeft * position)
+        if player.moveStates.contains(.forward) {
+            let forwardVector = player.forwardVector * 0.001
+            let rotMat = float4x4(rotation: float3(-forwardVector.z, forwardVector.y, forwardVector.x))
+            let quat = simd_quatf(rotMat)
+            quaternion = quat * quaternion
+        }
     }
     
     func draw(renderEncoder: MTLRenderCommandEncoder, uniforms: inout Uniforms, fragmentUniforms: inout FragmentUniforms) {
@@ -150,11 +160,12 @@ extension WorldMapScaffolding: Renderable, MapRotationHandler {
         renderEncoder.pushDebugGroup("WorldMap Scaffolding")
 
         // Using the same camera as scene will mess up the rotation for some reason.
-        mapUniforms = uniforms
-        mapUniforms.modelMatrix = modelMatrix//float4x4(translation: position) * float4x4(scaling: scale)//worldTransform
-        mapUniforms.viewMatrix = mapCamera.viewMatrix
-        mapUniforms.projectionMatrix = mapCamera.projectionMatrix
+//        mapUniforms = uniforms
+//        mapUniforms.modelMatrix = modelMatrix//float4x4(translation: position) * float4x4(scaling: scale)//worldTransform
+//        mapUniforms.viewMatrix = mapCamera.viewMatrix
+//        mapUniforms.projectionMatrix = mapCamera.projectionMatrix
   
+        uniforms.modelMatrix = modelMatrix
         renderEncoder.setRenderPipelineState(pipelineState)
         renderEncoder.setDepthStencilState(depthStencilState)
         
@@ -166,7 +177,7 @@ extension WorldMapScaffolding: Renderable, MapRotationHandler {
         )
         
         renderEncoder.setVertexBytes(
-            &mapUniforms,
+            &uniforms,
             length: MemoryLayout<Uniforms>.stride,
             index: BufferIndex.uniforms.rawValue
         )
