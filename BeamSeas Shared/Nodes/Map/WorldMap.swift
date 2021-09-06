@@ -27,20 +27,6 @@ extension MapRotationHandler where Self: MiniWorldMap {
     }
 }
 
-extension MapRotationHandler {
-    func getRotation(player: Model, degRot: Float) -> float3 {
-        let rotDiff = player.rotation.y - degRot
-        var newRot = float3(0, rotDiff, 0)
-        if player.moveStates.contains(.forward) {
-            newRot.z = -0.005
-        } else if player.moveStates.contains(.backwards) {
-            newRot.z = 0.005
-        }
-        
-        return newRot
-    }
-}
-
 final class MiniWorldMap: Node, Meshable, Texturable, DepthStencilStateBuilder, MapRotationHandler {
     
     private(set) var mesh: MDLMesh
@@ -99,7 +85,7 @@ final class MiniWorldMap: Node, Meshable, Texturable, DepthStencilStateBuilder, 
         
         texture = worldMapTexture(options: nil)
 
-        let rot = float4x4(rotation: float3(Float(90).degreesToRadians, 0, 0))
+        let rot: float4x4 = .identity()// float4x4(rotation: float3(Float(90).degreesToRadians, 0, 0))
         let initialRotation = simd_quatf(rot)
         quaternion = initialRotation
         

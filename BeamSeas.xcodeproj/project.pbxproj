@@ -123,6 +123,8 @@
 		028370F3249AFC84006E8AF3 /* DebugLights.swift in Sources */ = {isa = PBXBuildFile; fileRef = 028370F0249AFC83006E8AF3 /* DebugLights.swift */; };
 		028370F4249AFC84006E8AF3 /* DebugLights.metal in Sources */ = {isa = PBXBuildFile; fileRef = 028370F1249AFC83006E8AF3 /* DebugLights.metal */; };
 		028370F5249AFC84006E8AF3 /* DebugLights.metal in Sources */ = {isa = PBXBuildFile; fileRef = 028370F1249AFC83006E8AF3 /* DebugLights.metal */; };
+		028BCAC826E6BA3100FDE2FD /* WorldMapScaffolding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 028BCAC726E6BA3100FDE2FD /* WorldMapScaffolding.swift */; };
+		028BCAC926E6BA3100FDE2FD /* WorldMapScaffolding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 028BCAC726E6BA3100FDE2FD /* WorldMapScaffolding.swift */; };
 		0299535D249A64D90014228F /* Camera.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0299535C249A64D90014228F /* Camera.swift */; };
 		0299535E249A64D90014228F /* Camera.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0299535C249A64D90014228F /* Camera.swift */; };
 		02995360249A64FD0014228F /* Node.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0299535F249A64FD0014228F /* Node.swift */; };
@@ -238,6 +240,7 @@
 		0276CF16256196540016910A /* ComputeHeight.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = ComputeHeight.metal; sourceTree = "<group>"; };
 		028370F0249AFC83006E8AF3 /* DebugLights.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DebugLights.swift; sourceTree = "<group>"; };
 		028370F1249AFC83006E8AF3 /* DebugLights.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = DebugLights.metal; sourceTree = "<group>"; };
+		028BCAC726E6BA3100FDE2FD /* WorldMapScaffolding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorldMapScaffolding.swift; sourceTree = "<group>"; };
 		0299535C249A64D90014228F /* Camera.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Camera.swift; sourceTree = "<group>"; };
 		0299535F249A64FD0014228F /* Node.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Node.swift; sourceTree = "<group>"; };
 		029DE52125150DB900064C6B /* NormalDistribution.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = NormalDistribution.cpp; sourceTree = "<group>"; };
@@ -298,6 +301,7 @@
 			isa = PBXGroup;
 			children = (
 				022174F1268A09B200F9BCC9 /* WorldMap.swift */,
+				028BCAC726E6BA3100FDE2FD /* WorldMapScaffolding.swift */,
 			);
 			path = Map;
 			sourceTree = "<group>";
@@ -743,6 +747,7 @@
 				02A98653267A3296003C68FC /* Skybox.swift in Sources */,
 				020F9865249A757C00DB4850 /* ViewController.swift in Sources */,
 				02419D56249850C100BCB203 /* AppDelegate.swift in Sources */,
+				028BCAC826E6BA3100FDE2FD /* WorldMapScaffolding.swift in Sources */,
 				020FD8C224D4575A00B77CF2 /* Distributions.swift in Sources */,
 				028370F4249AFC84006E8AF3 /* DebugLights.metal in Sources */,
 				02491AC924D21B170091395A /* BasicFFT.swift in Sources */,
@@ -784,6 +789,7 @@
 				02A98654267A3296003C68FC /* Skybox.swift in Sources */,
 				020F9866249A757C00DB4850 /* ViewController.swift in Sources */,
 				02419D67249850C100BCB203 /* AppDelegate.swift in Sources */,
+				028BCAC926E6BA3100FDE2FD /* WorldMapScaffolding.swift in Sources */,
 				020FD8C324D4575A00B77CF2 /* Distributions.swift in Sources */,
 				028370F5249AFC84006E8AF3 /* DebugLights.metal in Sources */,
 				02491ACA24D21B170091395A /* BasicFFT.swift in Sources */,
