@@ -13,7 +13,7 @@ protocol MapRotationHandler {
     func getRotation(player: Model, degRot: Float) -> float3
 }
 
-extension MapRotationHandler {
+extension MapRotationHandler where Self: MiniWorldMap {
     func getRotation(player: Model, degRot: Float) -> float3 {
         let rotDiff = player.rotation.y - degRot
         var newRot = float3(0, 0, rotDiff)
@@ -21,6 +21,20 @@ extension MapRotationHandler {
             newRot.x = -0.005
         } else if player.moveStates.contains(.backwards) {
             newRot.x = 0.005
+        }
+        
+        return newRot
+    }
+}
+
+extension MapRotationHandler {
+    func getRotation(player: Model, degRot: Float) -> float3 {
+        let rotDiff = player.rotation.y - degRot
+        var newRot = float3(0, rotDiff, 0)
+        if player.moveStates.contains(.forward) {
+            newRot.z = -0.005
+        } else if player.moveStates.contains(.backwards) {
+            newRot.z = 0.005
         }
         
         return newRot
