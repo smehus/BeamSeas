@@ -8,6 +8,13 @@
 
 extension MapRotationHandler {
     func getRotation(player: Model, degRot: Float) -> float3 {
+        // maybe i need to use the player forwardVector to figure out the forwards backwards vectors / rotation for scaffolding
+        
+        // One solution (maybe) is to have the terrain not move at all except with the scaffolding.
+        // Don't rotate the scaffolding unless the player moves and only rotate / move forward by the forward vector?
+        
+        // Another solution is to scrap the scaffolding and figure out a way to sample just the texture? Or maybe say screw it to the world map and just use a 2d texture?
+        
         let rotDiff = player.rotation.y - degRot
         var newRot = float3(0, rotDiff, 0)
         if player.moveStates.contains(.forward) {

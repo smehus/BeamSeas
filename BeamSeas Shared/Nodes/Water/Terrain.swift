@@ -222,7 +222,7 @@ extension Terrain: Renderable {
         uniforms: inout Uniforms,
         fragmentUniforms: inout FragmentUniforms
     ) {
-        return
+        
         renderEncoder.pushDebugGroup("Terrain Vertex")
         // Using model matrix instead of worldTransform because the parent is the scaffolding and we only want to mimick the rotation in order to get the correct texture cube vector
         uniforms.modelMatrix = modelMatrix
