@@ -144,7 +144,7 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
     float adjustedHeight = heightDisplacement.y;
 //    adjustedHeight = 1 - adjustedHeight;
     // Changing the modelMatrix here shouldn't have any affect on the texture coordinatores.... but it does....?
-    out.position = uniforms.projectionMatrix * uniforms.viewMatrix * uniforms.parentTreeMatrix * position;
+    out.position = uniforms.projectionMatrix * uniforms.viewMatrix * uniforms.modelMatrix * position;
     float4 finalColor = float4(heightDisplacement.x);
 
     // reference AAPLTerrainRenderer in DynamicTerrainWithArgumentBuffers exmaple: EvaluateTerrainAtLocation line 235 -> EvaluateTerrainAtLocation in AAPLTerrainRendererUtilities line: 91
@@ -229,33 +229,42 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
     float2 refractionCoords = float2(x, y);
 
     
+    /// Maybe this shit is fuckingit up.....
+    
+    
     // Multiplier determines ripple size
-    float timer = uniforms.deltaTime * 0.007;
-    float2 rippleUV = fragment_in.uv * 0.5;
-    float waveStrength = 0.1;
-    float2 rippleX = float2(rippleUV.x/* + timer*/, rippleUV.y) + timer;
-    float2 rippleY = float2(rippleUV.x - timer, rippleUV.y);
+//    float timer = uniforms.deltaTime * 0.007;
+//    float2 rippleUV = fragment_in.uv * 0.5;
+//    float waveStrength = 0.1;
+//    float2 rippleX = float2(rippleUV.x/* + timer*/, rippleUV.y) + timer;
+//    float2 rippleY = float2(rippleUV.x - timer, rippleUV.y);
+//
+//    float4 rippleSampleX = waterRippleTexture.sample(mainSampler, rippleX);
+//    float4 rippleSampleY = waterRippleTexture.sample(mainSampler, rippleY);
+//    float2 normalizedRippleX = rippleSampleX.rg * 2.0 - 1.0;
+//    float2 normalizedRippleY = rippleSampleY.rg * 2.0 - 1.0;
+//
+//    float2 ripple = (normalizedRippleX + normalizedRippleY) * waveStrength;
+//
+//    reflectionCoords += ripple;
+//    refractionCoords += ripple;
+//
+//    reflectionCoords = clamp(reflectionCoords, 0.001, 0.999);
+//    refractionCoords = clamp(refractionCoords, 0.001, 0.999);
+//
+////    float4 mixedColor = reflectionTexture.sample(reflectionSampler, reflectionCoords);
+////    float4 mixedColor = refractionTexture.sample(mainSampler, refractionCoords);
+//    float3 viewVector = normalize(fragment_in.toCamera);
+//    float mixRatio = dot(viewVector, float3(0.0, 1.0, 0.0));
+//    float4 mixedColor = mix(reflectionTexture.sample(mainSampler, reflectionCoords),
+//                            refractionTexture.sample(mainSampler, refractionCoords),
+//                            mixRatio);
+//
     
-    float4 rippleSampleX = waterRippleTexture.sample(mainSampler, rippleX);
-    float4 rippleSampleY = waterRippleTexture.sample(mainSampler, rippleY);
-    float2 normalizedRippleX = rippleSampleX.rg * 2.0 - 1.0;
-    float2 normalizedRippleY = rippleSampleY.rg * 2.0 - 1.0;
     
-    float2 ripple = (normalizedRippleX + normalizedRippleY) * waveStrength;
     
-    reflectionCoords += ripple;
-    refractionCoords += ripple;
     
-    reflectionCoords = clamp(reflectionCoords, 0.001, 0.999);
-    refractionCoords = clamp(refractionCoords, 0.001, 0.999);
-    
-//    float4 mixedColor = reflectionTexture.sample(reflectionSampler, reflectionCoords);
-//    float4 mixedColor = refractionTexture.sample(mainSampler, refractionCoords);
-    float3 viewVector = normalize(fragment_in.toCamera);
-    float mixRatio = dot(viewVector, float3(0.0, 1.0, 0.0));
-    float4 mixedColor = mix(reflectionTexture.sample(mainSampler, reflectionCoords),
-                            refractionTexture.sample(mainSampler, refractionCoords),
-                            mixRatio);
+// ---------- UNCOMMENT ------\\
     
     // Mix map texture here yooooo
     // Get the world position yooo
@@ -283,7 +292,7 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
     float3 inversedVector = normalize(positionMapSpace - scaffoldVector).xyz;
 //    inversedVector = -inversedVector;
     float4 mapColor = worldMapTexture.sample(mainSampler, inversedVector);
-    mixedColor = mapColor;//mix(mixedColor, mapColor, 0.3);
+    float4 mixedColor = mapColor;//mix(mixedColor, mapColor, 0.3);
 //
     
     // ------------------ \\
