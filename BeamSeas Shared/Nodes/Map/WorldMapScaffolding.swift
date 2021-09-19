@@ -144,7 +144,7 @@ extension WorldMapScaffolding: Renderable, MapRotationHandler {
 //        print(modelMatrix.upperLeft * position)
         
         if player.moveStates.contains(.forward) {
-            let forwardVector = player.forwardVector * 0.001
+            let forwardVector = player.forwardVector * -0.001
             let rotMat = float4x4(rotation: float3(-forwardVector.z, forwardVector.y, forwardVector.x))
             let quat = simd_quatf(rotMat)
             quaternion = quat * quaternion
@@ -152,7 +152,6 @@ extension WorldMapScaffolding: Renderable, MapRotationHandler {
     }
     
     func draw(renderEncoder: MTLRenderCommandEncoder, uniforms: inout Uniforms, fragmentUniforms: inout FragmentUniforms) {
-//        return
         defer {
             renderEncoder.popDebugGroup()
         }
@@ -160,12 +159,12 @@ extension WorldMapScaffolding: Renderable, MapRotationHandler {
         renderEncoder.pushDebugGroup("WorldMap Scaffolding")
 
         // Using the same camera as scene will mess up the rotation for some reason.
-//        mapUniforms = uniforms
-//        mapUniforms.modelMatrix = modelMatrix//float4x4(translation: position) * float4x4(scaling: scale)//worldTransform
-//        mapUniforms.viewMatrix = mapCamera.viewMatrix
-//        mapUniforms.projectionMatrix = mapCamera.projectionMatrix
+        mapUniforms = uniforms
+        mapUniforms.modelMatrix = float4x4(translation: position) * float4x4(scaling: scale) //mapUniforms.modelMatrix//modelMatrix//float4x4(translation: position) * float4x4(scaling: scale)//worldTransform
+        mapUniforms.viewMatrix = mapCamera.viewMatrix
+        mapUniforms.projectionMatrix = mapCamera.projectionMatrix
   
-        uniforms.modelMatrix = modelMatrix
+//        uniforms.modelMatrix = modelMatrix
         renderEncoder.setRenderPipelineState(pipelineState)
         renderEncoder.setDepthStencilState(depthStencilState)
         
@@ -177,7 +176,7 @@ extension WorldMapScaffolding: Renderable, MapRotationHandler {
         )
         
         renderEncoder.setVertexBytes(
-            &uniforms,
+            &mapUniforms,
             length: MemoryLayout<Uniforms>.stride,
             index: BufferIndex.uniforms.rawValue
         )

@@ -143,6 +143,7 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
 
     float adjustedHeight = heightDisplacement.y;
 //    adjustedHeight = 1 - adjustedHeight;
+    // Changing the modelMatrix here shouldn't have any affect on the texture coordinatores.... but it does....?
     out.position = uniforms.projectionMatrix * uniforms.viewMatrix * uniforms.parentTreeMatrix * position;
     float4 finalColor = float4(heightDisplacement.x);
 
