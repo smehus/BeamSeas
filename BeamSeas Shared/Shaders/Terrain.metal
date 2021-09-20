@@ -164,6 +164,8 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
     // Map the position coordinates to the terrains parent (the scaffolding) so that we can mimick the rotation & grab
     // the sample from the mimicked rotation
     // This is the position of the terrain when transformed with the parent (scaffolding)
+    
+    // I don't think theres any reason for positon relative to parent... have to use position because its calculated
     out.parentFragmentPosition = uniforms.parentTreeModelMatrix * position;
     out.toCamera = fragmentUniforms.camera_position - out.worldPosition.xyz;
 

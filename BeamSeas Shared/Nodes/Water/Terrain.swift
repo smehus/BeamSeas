@@ -168,7 +168,6 @@ extension Terrain: Renderable {
         camera: Camera,
         player: Model
     ) {
-        fragmentUniforms.terrainPositionRelativeToParent = float4(scaffoldingPositon, 1)
         uniforms.parentTreeModelMatrix = parent!.worldTransform * scaffoldingModelMatrix
     }
 
@@ -235,7 +234,7 @@ extension Terrain: Renderable {
         // Using model matrix instead of worldTransform because the parent is the scaffolding and we only want to mimick the rotation in order to get the correct texture cube vector
         uniforms.modelMatrix = modelMatrix
         uniforms.normalMatrix = float3x3(normalFrom4x4: modelMatrix)
-        fragmentUniforms.inverseTerrainModelMatrix = modelMatrix.inverse
+//        fragmentUniforms.inverseTerrainModelMatrix = modelMatrix.inverse
 
         renderEncoder.setTriangleFillMode(.fill)
         renderEncoder.setRenderPipelineState(renderPipelineState)
