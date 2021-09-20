@@ -144,6 +144,8 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
     float adjustedHeight = heightDisplacement.y;
 //    adjustedHeight = 1 - adjustedHeight;
     // Changing the modelMatrix here shouldn't have any affect on the texture coordinatores.... but it does....?
+    // Using scaffolding positon makes no sense here since its the position of the vertex ( or the calculated position of abstract vertext )
+    // Using scaffolding position just sets the same position for all fragments
     out.position = uniforms.projectionMatrix * uniforms.viewMatrix * uniforms.parentTreeModelMatrix * position;
     float4 finalColor = float4(heightDisplacement.x);
 
