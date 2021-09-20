@@ -144,7 +144,7 @@ extension WorldMapScaffolding: Renderable, MapRotationHandler {
 //        print(modelMatrix.upperLeft * position)
         
         if player.moveStates.contains(.forward) {
-            let forwardVector = player.forwardVector * -0.001
+            let forwardVector = player.forwardVector * -0.003
             let rotMat = float4x4(rotation: float3(-forwardVector.z, forwardVector.y, forwardVector.x))
             let quat = simd_quatf(rotMat)
             quaternion = quat * quaternion
@@ -152,7 +152,7 @@ extension WorldMapScaffolding: Renderable, MapRotationHandler {
     }
     
     func draw(renderEncoder: MTLRenderCommandEncoder, uniforms: inout Uniforms, fragmentUniforms: inout FragmentUniforms) {
-        return
+//        return
         defer {
             renderEncoder.popDebugGroup()
         }
@@ -160,10 +160,12 @@ extension WorldMapScaffolding: Renderable, MapRotationHandler {
         renderEncoder.pushDebugGroup("WorldMap Scaffolding")
 
         // Using the same camera as scene will mess up the rotation for some reason.
-        mapUniforms = uniforms
-        mapUniforms.modelMatrix = float4x4(translation: position) * float4x4(scaling: scale) //mapUniforms.modelMatrix//modelMatrix//float4x4(translation: position) * float4x4(scaling: scale)//worldTransform
-        mapUniforms.viewMatrix = mapCamera.viewMatrix
-        mapUniforms.projectionMatrix = mapCamera.projectionMatrix
+//        mapUniforms = uniforms
+//        mapUniforms.modelMatrix = worldTransform
+//        mapUniforms.viewMatrix = mapCamera.viewMatrix
+//        mapUniforms.projectionMatrix = mapCamera.projectionMatrix
+        
+        uniforms.modelMatrix = float4x4(translation: position) * .identity() * float4x4(scaling: scale)//worldTransform
   
 //        uniforms.modelMatrix = modelMatrix
         renderEncoder.setRenderPipelineState(pipelineState)
@@ -177,7 +179,7 @@ extension WorldMapScaffolding: Renderable, MapRotationHandler {
         )
         
         renderEncoder.setVertexBytes(
-            &mapUniforms,
+            &uniforms,
             length: MemoryLayout<Uniforms>.stride,
             index: BufferIndex.uniforms.rawValue
         )

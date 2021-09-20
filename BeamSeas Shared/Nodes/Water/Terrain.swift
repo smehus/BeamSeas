@@ -18,7 +18,7 @@ class Terrain: Node {
     static var primarySlopeMap: MTLTexture!
     static var secondarySlopeMap: MTLTexture!
 
-    static let terrainSize: Float = 300
+    static let terrainSize: Float = 100
     
     static var terrainParams = TerrainParams(
         size: [Terrain.terrainSize, Terrain.terrainSize],
@@ -43,15 +43,6 @@ class Terrain: Node {
     var allPatches: [Patch] = []
     var waterNormalTexture: MTLTexture?
     var worldMapTexture: MTLTexture!
-    var scaffoldingPositon: SIMD3<Float> = [0, 0, 0]
-    var scaffoldingModelMatrix: float4x4 {
-        let translationMatrix = float4x4(translation: scaffoldingPositon)
-        let rotationMatrix = float4x4(quaternion)
-        let scaleMatrix = float4x4(scaling: scale)
-
-        return translationMatrix * rotationMatrix * scaleMatrix
-    }
-
     lazy var tessellationFactorsBuffer: MTLBuffer? = {
         let count = patchCount * Int(Terrain.edgeFactors + Terrain.insideFactors)
         let size = count * MemoryLayout<Float>.size / 2
@@ -168,7 +159,7 @@ extension Terrain: Renderable {
         camera: Camera,
         player: Model
     ) {
-        uniforms.parentTreeModelMatrix = parent!.worldTransform * scaffoldingModelMatrix
+        uniforms.parentTreeModelMatrix = parent!.worldTransform * modelMatrix
     }
 
     // tesellate plane into a bunch of vertices

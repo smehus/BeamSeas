@@ -32,8 +32,8 @@ final class Renderer: NSObject {
         
         let camera = ThirdPersonCamera()
         camera.focus = player
-        camera.focusDistance = 150
-        camera.focusHeight = 100
+        camera.focusDistance = 200
+        camera.focusHeight = 200
         return camera
     }()
     
@@ -92,12 +92,12 @@ final class Renderer: NSObject {
         
         skybox = Skybox(textureName: nil)
         
-        let scaffoldingSize: Float = 1500
+        let scaffoldingSize: Float = 500
         mapScaffolding = WorldMapScaffolding(extent: SIMD3<Float>(repeating: scaffoldingSize), segments: [50, 50])
         mapScaffolding.position = float3(0, -(mapScaffolding.size.x / 2), 0)
     
         terrain = Terrain()
-        terrain.scaffoldingPositon = [0, mapScaffolding.size.x, 0]
+        terrain.position = [0, 30, 0]
         models.append(terrain)
         mapScaffolding.add(child: terrain)
         
