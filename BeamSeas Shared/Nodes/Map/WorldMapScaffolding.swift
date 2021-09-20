@@ -165,7 +165,7 @@ extension WorldMapScaffolding: Renderable, MapRotationHandler {
 //        mapUniforms.viewMatrix = mapCamera.viewMatrix
 //        mapUniforms.projectionMatrix = mapCamera.projectionMatrix
         
-        uniforms.modelMatrix = float4x4(translation: position) * .identity() * float4x4(scaling: scale)//worldTransform
+        uniforms.modelMatrix = worldTransform//float4x4(translation: position) * .identity() * float4x4(scaling: scale)//worldTransform
   
 //        uniforms.modelMatrix = modelMatrix
         renderEncoder.setRenderPipelineState(pipelineState)
