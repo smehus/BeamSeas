@@ -146,7 +146,7 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
     // Changing the modelMatrix here shouldn't have any affect on the texture coordinatores.... but it does....?
     // Using scaffolding positon makes no sense here since its the position of the vertex ( or the calculated position of abstract vertext )
     // Using scaffolding position just sets the same position for all fragments
-    out.position = uniforms.projectionMatrix * uniforms.viewMatrix * uniforms.parentTreeModelMatrix * position;
+    out.position = uniforms.projectionMatrix * uniforms.viewMatrix * uniforms.modelMatrix * position;
     float4 finalColor = float4(heightDisplacement.x);
 
     // reference AAPLTerrainRenderer in DynamicTerrainWithArgumentBuffers exmaple: EvaluateTerrainAtLocation line 235 -> EvaluateTerrainAtLocation in AAPLTerrainRendererUtilities line: 91
@@ -166,6 +166,7 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
     // This is the position of the terrain when transformed with the parent (scaffolding)
     
     // I don't think theres any reason for positon relative to parent... have to use position because its calculated
+    // I WONDER IF I NEED TO USE THE MODELMATRIX / POSITION OF THE TERRAIN?
     out.parentFragmentPosition = uniforms.parentTreeModelMatrix * position;
     out.toCamera = fragmentUniforms.camera_position - out.worldPosition.xyz;
 
@@ -288,7 +289,7 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
 //
 //
     
-    float4 positionMapSpace = fragment_in.parentFragmentPosition;// * fragmentUniforms.inverseTerrainModelMatrix;
+    float4 positionMapSpace = fragment_in.parentFragmentPosition;// position relative to parent coord space
     float4 scaffoldVector = fragmentUniforms.scaffoldingPosition;
 
     // Need translate the two coordinate spaces
