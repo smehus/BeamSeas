@@ -161,7 +161,7 @@ extension Terrain: Renderable {
         player: Model
     ) {
         
-        uniforms.parentTreeMatrix = worldTransform
+        uniforms.parentTreeModelMatrix = worldTransform
     }
 
     // tesellate plane into a bunch of vertices

@@ -96,12 +96,7 @@ final class Renderer: NSObject {
         mapScaffolding.position = float3(0, -(mapScaffolding.size.x / 2), 0)
     
         terrain = Terrain()
-        // Used for when visualizing the scaffolding vector creation
-        
-        /// FIX THISSSSSSSSS SEPT19
-        // Changing the y postion fucks it all up (mapScaffolding.size.x / 2) instead of this below
-        terrain.position = [0, (mapScaffolding.size.x), 0]
-//        terrain.position = [0, 0, 0]
+        terrain.position = [0, mapScaffolding.size.x, 0]
         models.append(terrain)
         mapScaffolding.add(child: terrain)
         

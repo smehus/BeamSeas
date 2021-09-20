@@ -144,7 +144,7 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
     float adjustedHeight = heightDisplacement.y;
 //    adjustedHeight = 1 - adjustedHeight;
     // Changing the modelMatrix here shouldn't have any affect on the texture coordinatores.... but it does....?
-    out.position = uniforms.projectionMatrix * uniforms.viewMatrix * uniforms.modelMatrix * position;
+    out.position = uniforms.projectionMatrix * uniforms.viewMatrix * uniforms.parentTreeModelMatrix * position;
     float4 finalColor = float4(heightDisplacement.x);
 
     // reference AAPLTerrainRenderer in DynamicTerrainWithArgumentBuffers exmaple: EvaluateTerrainAtLocation line 235 -> EvaluateTerrainAtLocation in AAPLTerrainRendererUtilities line: 91
@@ -162,7 +162,7 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
     // Map the position coordinates to the terrains parent (the scaffolding) so that we can mimick the rotation & grab
     // the sample from the mimicked rotation
     // This is the position of the terrain when transformed with the parent (scaffolding)
-    out.parentFragmentPosition = uniforms.parentTreeMatrix * position;
+    out.parentFragmentPosition = uniforms.parentTreeModelMatrix * position;
     out.toCamera = fragmentUniforms.camera_position - out.worldPosition.xyz;
 
     return out;
