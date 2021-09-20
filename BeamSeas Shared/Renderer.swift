@@ -92,7 +92,8 @@ final class Renderer: NSObject {
         
         skybox = Skybox(textureName: nil)
         
-        mapScaffolding = WorldMapScaffolding(extent: [50, 50, 50], segments: [50, 50])
+        let scaffoldingSize: Float = 1500
+        mapScaffolding = WorldMapScaffolding(extent: SIMD3<Float>(repeating: scaffoldingSize), segments: [50, 50])
         mapScaffolding.position = float3(0, -(mapScaffolding.size.x / 2), 0)
     
         terrain = Terrain()

@@ -85,7 +85,7 @@ final class MiniWorldMap: Node, Meshable, Texturable, DepthStencilStateBuilder, 
         
         texture = worldMapTexture(options: nil)
 
-        let rot: float4x4 = .identity()// float4x4(rotation: float3(Float(90).degreesToRadians, 0, 0))
+        let rot: float4x4 = float4x4(rotation: float3(Float(-90).degreesToRadians, 0, 0))
         let initialRotation = simd_quatf(rot)
         quaternion = initialRotation
         
