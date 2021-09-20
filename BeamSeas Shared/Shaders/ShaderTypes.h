@@ -88,6 +88,7 @@ typedef struct
     vector_float3 camera_position;
     uint tiling;
     vector_float4 scaffoldingPosition;
+    vector_float4 terrainPositionRelativeToParent;
     matrix_float4x4 inverseTerrainModelMatrix;
 } FragmentUniforms;
 

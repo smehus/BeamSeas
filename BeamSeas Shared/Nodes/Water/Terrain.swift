@@ -43,6 +43,7 @@ class Terrain: Node {
     var allPatches: [Patch] = []
     var waterNormalTexture: MTLTexture?
     var worldMapTexture: MTLTexture!
+    var scaffoldingPositon: SIMD3<Float> = [0, 0, 0]
 
     lazy var tessellationFactorsBuffer: MTLBuffer? = {
         let count = patchCount * Int(Terrain.edgeFactors + Terrain.insideFactors)
@@ -160,7 +161,7 @@ extension Terrain: Renderable {
         camera: Camera,
         player: Model
     ) {
-        
+        fragmentUniforms.terrainPositionRelativeToParent = float4(scaffoldingPositon, 1)
         uniforms.parentTreeModelMatrix = worldTransform
     }
 

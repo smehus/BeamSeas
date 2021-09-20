@@ -138,7 +138,7 @@ extension WorldMapScaffolding: Renderable, MapRotationHandler {
 //
 //        // CURRENT TASK - TRYING TO GET TEXTURE SAMPLING TO WORK
 //        // WHILE THE TERRAIN IS A CHILD TO SCAFFOLDING AND WILL ROTATE WITH THE PARENT COORDINATE SPACE
-//        fragmentUniforms.scaffoldingPosition = float4(position, 1)
+        fragmentUniforms.scaffoldingPosition = float4(position, 1)
 //
 //        print(position)
 //        print(modelMatrix.upperLeft * position)
