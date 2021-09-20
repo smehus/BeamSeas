@@ -44,6 +44,13 @@ class Terrain: Node {
     var waterNormalTexture: MTLTexture?
     var worldMapTexture: MTLTexture!
     var scaffoldingPositon: SIMD3<Float> = [0, 0, 0]
+    var scaffoldingModelMatrix: float4x4 {
+        let translationMatrix = float4x4(translation: scaffoldingPositon)
+        let rotationMatrix = float4x4(quaternion)
+        let scaleMatrix = float4x4(scaling: scale)
+
+        return translationMatrix * rotationMatrix * scaleMatrix
+    }
 
     lazy var tessellationFactorsBuffer: MTLBuffer? = {
         let count = patchCount * Int(Terrain.edgeFactors + Terrain.insideFactors)
@@ -162,7 +169,7 @@ extension Terrain: Renderable {
         player: Model
     ) {
         fragmentUniforms.terrainPositionRelativeToParent = float4(scaffoldingPositon, 1)
-        uniforms.parentTreeModelMatrix = worldTransform
+        uniforms.parentTreeModelMatrix = parent!.worldTransform * scaffoldingModelMatrix
     }
 
     // tesellate plane into a bunch of vertices
