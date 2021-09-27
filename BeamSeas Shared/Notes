@@ -24,3 +24,9 @@ Have the terrain plane be a child node to a large sphere - the map scaffolding
 then rotate the scaffolding?
 Same issue with vector to texturecube?
 no no no, i'd need a second scaffolding for the terrain plane in addition to the regular map scaffolding
+
+
+just add the damn boat as a child to the terrain for now.....
+Then have the damn camera follow the rotation of the boat as well - so its always pointing downwards towards the sampled terrain texture
+damn
+you know what i mean
