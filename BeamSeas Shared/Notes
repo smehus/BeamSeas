@@ -30,3 +30,4 @@ just add the damn boat as a child to the terrain for now.....
 Then have the damn camera follow the rotation of the boat as well - so its always pointing downwards towards the sampled terrain texture
 damn
 you know what i mean
+This is so I can determine what the damn problem is with rotating the terrain around the scaffolding and sometimes the tex coords get weird
