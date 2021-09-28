@@ -337,7 +337,7 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
 
     float3 specular = terrainDiffuseLighting(uniforms.normalMatrix * (normalValue * 2.0f - 1.0f), fragment_in.position.xyz, fragmentUniforms, lights, mixedColor.rgb);
 //    return float4(1, 1, 1, 1);
-    return float4(mapColor.rgb, 1.0);
+    return float4(float3(1.0, 0, 0), 1.0);
 //    return fragment_in.color;
 }
 

@@ -35,12 +35,12 @@ class Model: Node, DepthStencilStateBuilder {
 
     private let heightComputePipelineState: MTLComputePipelineState
     
-    override var modelMatrix: float4x4 {
-        let translationMatrix = float4x4(translation: position)
-        let scaleMatrix = float4x4(scaling: scale)
-
-        return translationMatrix * rotationMatrix * scaleMatrix
-    }
+//    override var modelMatrix: float4x4 {
+//        let translationMatrix = float4x4(translation: position)
+//        let scaleMatrix = float4x4(scaling: scale)
+//
+//        return translationMatrix * rotationMatrix * scaleMatrix
+//    }
 
     init(name: String, fragment: String) {
         guard let assetURL = Bundle.main.url(forResource: name, withExtension: "obj") else { fatalError("Model: \(name) not found")  }
@@ -206,7 +206,7 @@ extension Model: Renderable {
         renderEncoder.pushDebugGroup("Model")
 
         fragmentUniforms.tiling = tiling
-        uniforms.modelMatrix = modelMatrix
+        uniforms.modelMatrix = worldTransform
         uniforms.normalMatrix = modelMatrix.upperLeft
 
         renderEncoder.setDepthStencilState(Self.buildDepthStencilState())

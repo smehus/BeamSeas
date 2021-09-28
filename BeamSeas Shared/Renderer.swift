@@ -32,8 +32,8 @@ final class Renderer: NSObject {
         
         let camera = ThirdPersonCamera()
         camera.focus = terrain
-        camera.focusDistance = 10
-        camera.focusHeight = 100
+        camera.focusDistance = 1.0
+        camera.focusHeight = 11
         return camera
     }()
     
@@ -106,7 +106,7 @@ final class Renderer: NSObject {
         player = Model(name: "OldBoat", fragment: "fragment_pbr")
         player.scale = [0.5, 0.5, 0.5]
         models.append(player) 
-
+        terrain.add(child: player)
         models.append(fft)
         fragmentUniforms.light_count = UInt32(lighting.count)
         
