@@ -31,9 +31,9 @@ final class Renderer: NSObject {
  
         
         let camera = ThirdPersonCamera()
-        camera.focus = player
-        camera.focusDistance = 200
-        camera.focusHeight = 200
+        camera.focus = terrain
+        camera.focusDistance = 10
+        camera.focusHeight = 100
         return camera
     }()
     

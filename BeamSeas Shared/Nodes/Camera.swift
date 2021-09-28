@@ -104,6 +104,9 @@ class ArcballCamera: Camera {
     }
 }
 
+
+
+// My F'ed up one
 class ThirdPersonCamera: Camera {
 
     var focus: Node!
@@ -126,7 +129,7 @@ class ThirdPersonCamera: Camera {
         // Setting the center to 0, 0 ,0 prevents the camera from adjusting rotation.
         // This is good because if the camera moves with the player rotation
         // the world map will move around the screen
-        return float4x4(eye: position, center: float3(0, 0, 0)/*focus.position*/, up: [0, 1, 0])
+        return float4x4(eye: position, center: focus.position, up: [0, 1, 0])
 //        return float4x4(lookAtLHEye: position, target: focus.position, up: [0, 1, 0])
 
 
@@ -141,7 +144,7 @@ class ThirdPersonCamera: Camera {
 
     private func setRotatingCamera() {
         position = focus.position - focusDistance * focus.forwardVector
-        position.y = /*focus.position.y + (This will move camera up and down with player height)*/ focusHeight
+        position.y = focus.position.y +  focusHeight
         rotation.y = focus.rotation.y
     }
 }

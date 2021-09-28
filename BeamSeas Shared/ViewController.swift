@@ -43,6 +43,18 @@ extension ViewController: GameViewProtocol {
         keys.add(key: key)
         
         renderer.player.moveStates = keys
+        
+        switch key {
+        case .i:
+            (renderer.camera as! ThirdPersonCamera).focusDistance -= 1
+        case .p:
+            (renderer.camera as! ThirdPersonCamera).focusDistance += 1
+        case .j:
+            (renderer.camera as! ThirdPersonCamera).focusHeight -= 1
+        case .l:
+            (renderer.camera as! ThirdPersonCamera).focusHeight += 1
+        default: break
+        }
     }
 
     func keyUp(key: Key) {
@@ -70,6 +82,7 @@ extension Set where Element == Key {
         case .left:
             remove(.right)
             insert(.left)
+        default: break
         }
     }
 }
