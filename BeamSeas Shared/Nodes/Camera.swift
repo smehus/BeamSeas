@@ -39,7 +39,7 @@ class Camera: Node {
 
         // move camera to the right means everything else in world should move left
         // Should this be inversed??
-        return translateMatrix * rotateMatrix * scaleMatrix
+        return (translateMatrix * rotateMatrix * scaleMatrix).inverse
     }
 
     func zoom(delta: Float) { }
@@ -129,7 +129,7 @@ class ThirdPersonCamera: Camera {
         // Setting the center to 0, 0 ,0 prevents the camera from adjusting rotation.
         // This is good because if the camera moves with the player rotation
         // the world map will move around the screen
-        return float4x4(eye: position, center: focus.position, up: [0, 1, 0])
+        return float4x4(eye: position, center: focus.position, up: [0, 1, 0]) * focus.worldTransform
 //        return float4x4(lookAtLHEye: position, target: focus.position, up: [0, 1, 0])
 
 
