@@ -313,9 +313,6 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
     
     // ------------------ \\
     
-    mixedColor = mapColor;//mix(mixedColor, mapColor, 0.3);
-    
-    
     
     constexpr sampler sam(min_filter::linear, mag_filter::linear, mip_filter::nearest, address::repeat);
     float3 vGradJacobian = gradientMap.sample(sam, fragment_in.vGradNormalTex.xy).xyz;
@@ -336,8 +333,9 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
 
     float3 specular = terrainDiffuseLighting(uniforms.normalMatrix * (normalValue * 2.0f - 1.0f), fragment_in.position.xyz, fragmentUniforms, lights, mixedColor.rgb);
 //    return float4(1, 1, 1, 1);
-    return float4(float3(1.0, 0, 0), 1.0);
+//    return float4(float3(1.0, 0, 0), 1.0);
 //    return fragment_in.color;
+    return mixedColor;
 }
 
 

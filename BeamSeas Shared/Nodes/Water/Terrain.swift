@@ -43,6 +43,7 @@ class Terrain: Node {
     var allPatches: [Patch] = []
     var waterNormalTexture: MTLTexture?
     var worldMapTexture: MTLTexture!
+    var scaffoldingPosition: float3 = [0, 0, 0]
     lazy var tessellationFactorsBuffer: MTLBuffer? = {
         let count = patchCount * Int(Terrain.edgeFactors + Terrain.insideFactors)
         let size = count * MemoryLayout<Float>.size / 2
@@ -56,6 +57,8 @@ class Terrain: Node {
 //    private let heightMap: MTLTexture
 //    private let altHeightMap: MTLTexture
 
+        
+    
     override init() {
 
 //        heightMap = Self.loadTexture(imageName: Terrain.heightMapName, path: "jpg")
@@ -159,7 +162,18 @@ extension Terrain: Renderable {
         camera: Camera,
         player: Model
     ) {
-        uniforms.parentTreeModelMatrix = parent!.worldTransform * modelMatrix
+        // Use scaffolding position
+        // Also why am i doing this here? idk
+        
+        let texCoordModelMatrix: float4x4 = {
+            let translationMatrix = float4x4(translation: scaffoldingPosition)
+            let rotationMatrix = float4x4(quaternion)
+            let scaleMatrix = float4x4(scaling: scale)
+
+            return translationMatrix * rotationMatrix * scaleMatrix
+        }()
+        
+        uniforms.parentTreeModelMatrix = parent!.worldTransform * texCoordModelMatrix
     }
 
     // tesellate plane into a bunch of vertices
