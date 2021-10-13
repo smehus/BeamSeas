@@ -143,8 +143,10 @@ class ThirdPersonCamera: Camera {
     }
 
     private func setRotatingCamera() {
-        position = focus.position - focusDistance * focus.forwardVector
-        position.y = focus.position.y +  focusHeight
-        rotation.y = focus.rotation.y
+        let focusPosition = focus.worldTransform.columns.3.xyz
+        position = focusPosition - focusDistance * focus.forwardVector
+        position.y = focusPosition.y +  focusHeight
+        rotation.y = focusPosition.y
+
     }
 }
