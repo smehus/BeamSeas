@@ -90,8 +90,14 @@ class Node {
         }
     }
     var scale: float3 = [1, 1, 1]
-    
     var quaternion = simd_quatf()
+    var parent: Node?
+    var children: [Node] = []
+    
+    var boundingBox = MDLAxisAlignedBoundingBox()
+    var size: SIMD3<Float> {
+        return boundingBox.maxBounds - boundingBox.minBounds
+    }
 
     var modelMatrix: float4x4 {
         let translationMatrix = float4x4(translation: position)
@@ -101,11 +107,44 @@ class Node {
         return translationMatrix * rotationMatrix * scaleMatrix
     }
     
+    var worldTransform: float4x4 {
+        if let parent = parent {
+            return parent.worldTransform * modelMatrix
+        }
+        
+        return modelMatrix
+    }
+    
     var forwardVector: SIMD3<Float> {
+//        if let parent = parent {
+//            let parentTreeRot = parent.rotation * rotation
+//            return normalize([sin(parentTreeRot.y), 0, cos(parentTreeRot.y)])
+//        }
+        
         return normalize([sin(rotation.y), 0, cos(rotation.y)])
     }
     
     var rightVector: SIMD3<Float> {
         return [forwardVector.z, forwardVector.y, -forwardVector.x]
+    }
+}
+
+extension Node {
+    final func add(child: Node) {
+        children.append(child)
+        child.parent = self
+    }
+    
+    final func remove(child: Node) {
+        child.children.forEach { grandChild in
+            grandChild.parent = self
+            children.append(grandChild)
+        }
+        
+        child.children = []
+        if let index = children.firstIndex(where: { $0 === child }) {
+            children.remove(at: index)
+            child.parent = nil
+        }
     }
 }

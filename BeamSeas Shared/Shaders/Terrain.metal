@@ -23,6 +23,7 @@ struct TerrainVertexOut {
     float3 normal;
     float4 worldPosition;
     float3 toCamera;
+    float4 parentFragmentPosition;
 };
 
 float calc_distance(float3 pointA,
@@ -95,6 +96,7 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
                         u);
 
     float2 interpolated = mix(top, bottom, v);
+    // Actual position
     float4 position = float4(interpolated.x, 0.0, interpolated.y, 1.0);
 
 
@@ -141,6 +143,9 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
 
     float adjustedHeight = heightDisplacement.y;
 //    adjustedHeight = 1 - adjustedHeight;
+    // Changing the modelMatrix here shouldn't have any affect on the texture coordinatores.... but it does....?
+    // Using scaffolding positon makes no sense here since its the position of the vertex ( or the calculated position of abstract vertext )
+    // Using scaffolding position just sets the same position for all fragments
     out.position = uniforms.projectionMatrix * uniforms.viewMatrix * uniforms.modelMatrix * position;
     float4 finalColor = float4(heightDisplacement.x);
 
@@ -156,6 +161,13 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
     out.color = finalColor;
     
     out.worldPosition = uniforms.modelMatrix * position;
+    // Map the position coordinates to the terrains parent (the scaffolding) so that we can mimick the rotation & grab
+    // the sample from the mimicked rotation
+    // This is the position of the terrain when transformed with the parent (scaffolding)
+    
+    // I don't think theres any reason for positon relative to parent... have to use position because its calculated
+    // I WONDER IF I NEED TO USE THE MODELMATRIX / POSITION OF THE TERRAIN?
+    out.parentFragmentPosition = uniforms.parentTreeModelMatrix * position;
     out.toCamera = fragmentUniforms.camera_position - out.worldPosition.xyz;
 
     return out;
@@ -222,33 +234,42 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
     float2 refractionCoords = float2(x, y);
 
     
+    /// Maybe this shit is fuckingit up.....
+    
+    
     // Multiplier determines ripple size
-    float timer = uniforms.deltaTime * 0.007;
-    float2 rippleUV = fragment_in.uv * 0.5;
-    float waveStrength = 0.1;
-    float2 rippleX = float2(rippleUV.x/* + timer*/, rippleUV.y) + timer;
-    float2 rippleY = float2(rippleUV.x - timer, rippleUV.y);
+//    float timer = uniforms.deltaTime * 0.007;
+//    float2 rippleUV = fragment_in.uv * 0.5;
+//    float waveStrength = 0.1;
+//    float2 rippleX = float2(rippleUV.x/* + timer*/, rippleUV.y) + timer;
+//    float2 rippleY = float2(rippleUV.x - timer, rippleUV.y);
+//
+//    float4 rippleSampleX = waterRippleTexture.sample(mainSampler, rippleX);
+//    float4 rippleSampleY = waterRippleTexture.sample(mainSampler, rippleY);
+//    float2 normalizedRippleX = rippleSampleX.rg * 2.0 - 1.0;
+//    float2 normalizedRippleY = rippleSampleY.rg * 2.0 - 1.0;
+//
+//    float2 ripple = (normalizedRippleX + normalizedRippleY) * waveStrength;
+//
+//    reflectionCoords += ripple;
+//    refractionCoords += ripple;
+//
+//    reflectionCoords = clamp(reflectionCoords, 0.001, 0.999);
+//    refractionCoords = clamp(refractionCoords, 0.001, 0.999);
+//
+////    float4 mixedColor = reflectionTexture.sample(reflectionSampler, reflectionCoords);
+////    float4 mixedColor = refractionTexture.sample(mainSampler, refractionCoords);
+//    float3 viewVector = normalize(fragment_in.toCamera);
+//    float mixRatio = dot(viewVector, float3(0.0, 1.0, 0.0));
+//    float4 mixedColor = mix(reflectionTexture.sample(mainSampler, reflectionCoords),
+//                            refractionTexture.sample(mainSampler, refractionCoords),
+//                            mixRatio);
+//
     
-    float4 rippleSampleX = waterRippleTexture.sample(mainSampler, rippleX);
-    float4 rippleSampleY = waterRippleTexture.sample(mainSampler, rippleY);
-    float2 normalizedRippleX = rippleSampleX.rg * 2.0 - 1.0;
-    float2 normalizedRippleY = rippleSampleY.rg * 2.0 - 1.0;
     
-    float2 ripple = (normalizedRippleX + normalizedRippleY) * waveStrength;
     
-    reflectionCoords += ripple;
-    refractionCoords += ripple;
     
-    reflectionCoords = clamp(reflectionCoords, 0.001, 0.999);
-    refractionCoords = clamp(refractionCoords, 0.001, 0.999);
-    
-//    float4 mixedColor = reflectionTexture.sample(reflectionSampler, reflectionCoords);
-//    float4 mixedColor = refractionTexture.sample(mainSampler, refractionCoords);
-    float3 viewVector = normalize(fragment_in.toCamera);
-    float mixRatio = dot(viewVector, float3(0.0, 1.0, 0.0));
-    float4 mixedColor = mix(reflectionTexture.sample(mainSampler, reflectionCoords),
-                            refractionTexture.sample(mainSampler, refractionCoords),
-                            mixRatio);
+// ---------- UNCOMMENT ------\\
     
     // Mix map texture here yooooo
     // Get the world position yooo
@@ -257,14 +278,41 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
     // Not adding any rotation to the uv coordinates
     // Scaffolding map rotates the object but not the texture coords
     
-    float4 positionMapSpace = fragmentUniforms.scaffoldingModelMatrix * fragment_in.worldPosition * fragmentUniforms.inverseTerrainModelMatrix;
-    float4 scaffoldVector = fragmentUniforms.scaffoldingPosition;
+//    float4 positionMapSpace = fragmentUniforms.scaffoldingModelMatrix * fragment_in.worldPosition * fragmentUniforms.inverseTerrainModelMatrix;
+//    float4 scaffoldVector = fragmentUniforms.scaffoldingPosition;
+//
+//    // Need translate the two coordinate spaces
+//    // Cause if we use world space, the vector coordinates will always be the same as we don't move the player, we move the FFT
+//    float3 inversedVector = normalize(positionMapSpace - scaffoldVector).xyz;
+//    inversedVector = -inversedVector;
+//    float4 mapColor = worldMapTexture.sample(mainSampler, inversedVector);
+//
+//
     
+    float4 positionMapSpace = fragment_in.parentFragmentPosition;// position relative to parent coord space
+    float4 scaffoldVector = fragmentUniforms.scaffoldingPosition;
+
     // Need translate the two coordinate spaces
     // Cause if we use world space, the vector coordinates will always be the same as we don't move the player, we move the FFT
     float3 inversedVector = normalize(positionMapSpace - scaffoldVector).xyz;
-    inversedVector = -inversedVector;
+//    inversedVector = -inversedVector;
     float4 mapColor = worldMapTexture.sample(mainSampler, inversedVector);
+    
+    float4 mixedColor = mapColor;//mix(mixedColor, mapColor, 0.3);
+//
+    
+    // ------------------ \\
+    // Start fresh
+    
+    // Do i need to find the vector between scaffolding position & the fragment_in parentFrag Pos
+//    float4 textureCoord = fragment_in.parentFragmentPosition * fragmentUniforms.inverseTerrainModelMatrix;
+//    float4 normalizedTexCoord = normalize(textureCoord);
+//    normalizedTexCoord = -normalizedTexCoord;
+//    float4 mapColor = worldMapTexture.sample(mainSampler, normalizedTexCoord.xyz);
+    
+    
+    // ------------------ \\
+    
     mixedColor = mapColor;//mix(mixedColor, mapColor, 0.3);
     
     
@@ -288,7 +336,7 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
 
     float3 specular = terrainDiffuseLighting(uniforms.normalMatrix * (normalValue * 2.0f - 1.0f), fragment_in.position.xyz, fragmentUniforms, lights, mixedColor.rgb);
 //    return float4(1, 1, 1, 1);
-    return float4(specular, 1.0);
+    return float4(float3(1.0, 0, 0), 1.0);
 //    return fragment_in.color;
 }
 

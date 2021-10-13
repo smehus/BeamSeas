@@ -31,9 +31,13 @@ final class Renderer: NSObject {
  
         
         let camera = ThirdPersonCamera()
-        camera.focus = player
-        camera.focusDistance = 150
-        camera.focusHeight = 100
+        camera.focus = terrain
+        camera.focusDistance = 100
+        camera.focusHeight = 200
+        
+//        let camera = Camera()
+//        camera.position.y = 200
+//        camera.rotation.x = Float(90).degreesToRadians
         return camera
     }()
     
@@ -92,18 +96,21 @@ final class Renderer: NSObject {
         
         skybox = Skybox(textureName: nil)
         
-        mapScaffolding = WorldMapScaffolding(extent: [1500, 1500, 1500], segments: [50, 50])
-        mapScaffolding.position = float3(0, -1500, 0)
-        models.append(mapScaffolding)
-
+        let scaffoldingSize: Float = 500
+        mapScaffolding = WorldMapScaffolding(extent: SIMD3<Float>(repeating: scaffoldingSize), segments: [50, 50])
+        mapScaffolding.position = float3(0, -(mapScaffolding.size.x / 2), 0)
+    
         terrain = Terrain()
+        terrain.position = [0, ((mapScaffolding.size.x / 2) + 10), 0]
         models.append(terrain)
+        mapScaffolding.add(child: terrain)
+        
+        models.append(mapScaffolding)
 
         player = Model(name: "OldBoat", fragment: "fragment_pbr")
         player.scale = [0.5, 0.5, 0.5]
-//        player.rotation = [0, Float(90).degreesToRadians, 0]
-        models.append(player)
-
+        models.append(player) 
+        terrain.add(child: player)
         models.append(fft)
         fragmentUniforms.light_count = UInt32(lighting.count)
         

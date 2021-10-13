@@ -65,6 +65,8 @@ typedef struct
     matrix_float4x4 viewMatrix;
     matrix_float4x4 modelMatrix;
     matrix_float3x3 normalMatrix;
+    matrix_float4x4 parentTreeModelMatrix; // Used when you want to do some logic with the positons mapped to parent coordinates. But also want to render
+    // the object in a different coord space.
     float deltaTime;
     vector_float3 playerMovement;
     vector_float4 clipPlane;
@@ -87,8 +89,6 @@ typedef struct
     vector_float3 camera_position;
     uint tiling;
     vector_float4 scaffoldingPosition;
-    matrix_float4x4 scaffoldingModelMatrix;
-    matrix_float4x4 inverseTerrainModelMatrix;
 } FragmentUniforms;
 
 typedef enum {

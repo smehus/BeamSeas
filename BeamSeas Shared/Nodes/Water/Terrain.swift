@@ -18,7 +18,7 @@ class Terrain: Node {
     static var primarySlopeMap: MTLTexture!
     static var secondarySlopeMap: MTLTexture!
 
-    static let terrainSize: Float = 300
+    static let terrainSize: Float = 100
     
     static var terrainParams = TerrainParams(
         size: [Terrain.terrainSize, Terrain.terrainSize],
@@ -43,7 +43,6 @@ class Terrain: Node {
     var allPatches: [Patch] = []
     var waterNormalTexture: MTLTexture?
     var worldMapTexture: MTLTexture!
-
     lazy var tessellationFactorsBuffer: MTLBuffer? = {
         let count = patchCount * Int(Terrain.edgeFactors + Terrain.insideFactors)
         let size = count * MemoryLayout<Float>.size / 2
@@ -147,7 +146,7 @@ class Terrain: Node {
 
         super.init()
         
-        worldMapTexture = worldMapTexture()
+        worldMapTexture = worldMapTexture(options: nil)
     }
 }
 
@@ -160,7 +159,7 @@ extension Terrain: Renderable {
         camera: Camera,
         player: Model
     ) {
-        
+        uniforms.parentTreeModelMatrix = parent!.worldTransform * modelMatrix
     }
 
     // tesellate plane into a bunch of vertices
@@ -221,12 +220,11 @@ extension Terrain: Renderable {
         uniforms: inout Uniforms,
         fragmentUniforms: inout FragmentUniforms
     ) {
-        
-//        return
         renderEncoder.pushDebugGroup("Terrain Vertex")
-        uniforms.modelMatrix = modelMatrix
-        uniforms.normalMatrix = modelMatrix.upperLeft
-        fragmentUniforms.inverseTerrainModelMatrix = modelMatrix.inverse
+        // Using model matrix instead of worldTransform because the parent is the scaffolding and we only want to mimick the rotation in order to get the correct texture cube vector
+        uniforms.modelMatrix = worldTransform
+        uniforms.normalMatrix = float3x3(normalFrom4x4: modelMatrix)
+//        fragmentUniforms.inverseTerrainModelMatrix = modelMatrix.inverse
 
         renderEncoder.setTriangleFillMode(.fill)
         renderEncoder.setRenderPipelineState(renderPipelineState)

@@ -64,30 +64,31 @@ extension Texturable {
         return texture
     }
     
-    func loadCubeMap(names: [String]) -> MTLTexture? {
+    func loadCubeMap(names: [String], options: [MTKTextureLoader.Option : Any]? = [.origin: MTKTextureLoader.Origin.bottomLeft]) -> MTLTexture? {
+        guard let mdlTexture = MDLTexture(cubeWithImagesNamed: names) else { fatalError("Failed to find cube skybox textures") }
+        
         var texture: MTLTexture?
         let textureLoader = MTKTextureLoader(device: Renderer.device)
-        if let mdlTexture = MDLTexture(cubeWithImagesNamed: names) {
-            do {
-                texture = try textureLoader.newTexture(texture: mdlTexture,
-                                                       options: [.origin: MTKTextureLoader.Origin.bottomLeft])
-            } catch {
-                print("no texture created")
-            }
-        } else {
-            fatalError("Failed to find cube skybox textures")
+        
+        do {
+            texture = try textureLoader.newTexture(texture: mdlTexture,
+                                                   options: options)
+        } catch {
+            print("no texture created")
         }
+    
         return texture
     }
 }
 
 extension Texturable {
-    func worldMapTexture() -> MTLTexture? {
-        return loadSkyboxTexture(names: ["posx.jpg",
-                                         "negx.jpg",
-                                         "posy.jpg",
-                                         "negy.jpg",
-                                         "posz.jpg",
-                                         "negz.jpg"])
+    func worldMapTexture(options: [MTKTextureLoader.Option : Any]? = [.origin: MTKTextureLoader.Origin.bottomLeft]) -> MTLTexture? {
+        return loadCubeMap(names: ["posx.jpg",
+                                   "negx.jpg",
+                                   "posy.jpg",
+                                   "negy.jpg",
+                                   "posz.jpg",
+                                   "negz.jpg"],
+                           options: options)
     }
 }
