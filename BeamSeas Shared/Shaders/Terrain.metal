@@ -161,13 +161,14 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
     out.color = finalColor;
     
     out.worldPosition = uniforms.modelMatrix * position;
-    // Map the position coordinates to the terrains parent (the scaffolding) so that we can mimick the rotation & grab
-    // the sample from the mimicked rotation
-    // This is the position of the terrain when transformed with the parent (scaffolding)
+
+    // Imaginary world position if the terrain was a child of the scaffolding.
+    // World position to create texture coordinates
     
-    // I don't think theres any reason for positon relative to parent... have to use position because its calculated
-    // I WONDER IF I NEED TO USE THE MODELMATRIX / POSITION OF THE TERRAIN?
-    out.parentFragmentPosition = uniforms.parentTreeModelMatrix * position;
+                                // Imaginary position               // fragment position
+                                // scaffolding * terrain
+//    out.parentFragmentPosition = uniforms.parentTreeModelMatrix * position; // This should still work? because position will be relative to identiy
+    // ^^^ forget about this for now
     out.toCamera = fragmentUniforms.camera_position - out.worldPosition.xyz;
 
     return out;
@@ -270,48 +271,17 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
     
     
 // ---------- UNCOMMENT ------\\
-    
-    // Mix map texture here yooooo
-    // Get the world position yooo
-    // Is it not rotation becuase..
-    // Always going from the scaffoling position to the same world position.
-    // Not adding any rotation to the uv coordinates
-    // Scaffolding map rotates the object but not the texture coords
-    
-//    float4 positionMapSpace = fragmentUniforms.scaffoldingModelMatrix * fragment_in.worldPosition * fragmentUniforms.inverseTerrainModelMatrix;
-//    float4 scaffoldVector = fragmentUniforms.scaffoldingPosition;
+        
+//    float4 imaginaryWorldPosition = fragment_in.parentFragmentPosition;
+//    float4 scaffoldingPosition = fragmentUniforms.scaffoldingPosition;
 //
-//    // Need translate the two coordinate spaces
-//    // Cause if we use world space, the vector coordinates will always be the same as we don't move the player, we move the FFT
-//    float3 inversedVector = normalize(positionMapSpace - scaffoldVector).xyz;
-//    inversedVector = -inversedVector;
-//    float4 mapColor = worldMapTexture.sample(mainSampler, inversedVector);
+//    float3 terrainPosToScaffoldPos = normalize(imaginaryWorldPosition - scaffoldingPosition).xyz;
+//    float4 mapColor = worldMapTexture.sample(mainSampler, terrainPosToScaffoldPos);
 //
-//
-    
-    float4 positionMapSpace = fragment_in.parentFragmentPosition;// position relative to parent coord space
-    float4 scaffoldVector = fragmentUniforms.scaffoldingPosition;
+//    float4 mixedColor = mapColor;//mix(mixedColor, mapColor, 0.3);
 
-    // Need translate the two coordinate spaces
-    // Cause if we use world space, the vector coordinates will always be the same as we don't move the player, we move the FFT
-    float3 inversedVector = normalize(positionMapSpace - scaffoldVector).xyz;
-//    inversedVector = -inversedVector;
-    float4 mapColor = worldMapTexture.sample(mainSampler, inversedVector);
-    
-    float4 mixedColor = mapColor;//mix(mixedColor, mapColor, 0.3);
-//
-    
-    // ------------------ \\
-    // Start fresh
-    
-    // Do i need to find the vector between scaffolding position & the fragment_in parentFrag Pos
-//    float4 textureCoord = fragment_in.parentFragmentPosition * fragmentUniforms.inverseTerrainModelMatrix;
-//    float4 normalizedTexCoord = normalize(textureCoord);
-//    normalizedTexCoord = -normalizedTexCoord;
-//    float4 mapColor = worldMapTexture.sample(mainSampler, normalizedTexCoord.xyz);
-    
-    
-    // ------------------ \\
+    float3 terrainToScaffold = normalize(fragment_in.worldPosition - fragmentUniforms.scaffoldingPosition).xyz;
+    float4 mixedColor = worldMapTexture.sample(mainSampler, terrainToScaffold);
     
     
     constexpr sampler sam(min_filter::linear, mag_filter::linear, mip_filter::nearest, address::repeat);
