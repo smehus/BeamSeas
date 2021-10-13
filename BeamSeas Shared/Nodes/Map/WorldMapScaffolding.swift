@@ -43,18 +43,18 @@ final class WorldMapScaffolding: Node, Texturable {
     private var degRot: Float = 0
     private let samplerState: MTLSamplerState?
     
-    private lazy var mapCamera: Camera = {
-//        let camera = Camera()
-//        camera.near = 0.0001
-//        camera.far = 1000
-  
-        let camera = ThirdPersonCamera()
-        camera.far = 2000
-        camera.focus = self
-        camera.focusDistance = 150
-        camera.focusHeight = 100
-        return camera
-    }()
+//    private lazy var mapCamera: Camera = {
+////        let camera = Camera()
+////        camera.near = 0.0001
+////        camera.far = 1000
+//
+//        let camera = ThirdPersonCamera()
+//        camera.far = 2000
+//        camera.focus = self
+//        camera.focusDistance = 150
+//        camera.focusHeight = 100
+//        return camera
+//    }()
     
     init(extent: vector_float3, segments: vector_uint2) {
         let allocator = MTKMeshBufferAllocator(device: Renderer.device)
@@ -112,7 +112,7 @@ final class WorldMapScaffolding: Node, Texturable {
 
 extension WorldMapScaffolding: AspectRatioUpdateable {
     func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {
-        mapCamera.aspect = Float(size.width) / Float(size.height)
+//        mapCamera.aspect = Float(size.width) / Float(size.height)
     }
 }
 

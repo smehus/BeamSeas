@@ -14,6 +14,11 @@ enum Key: String {
     case backwards = "s"
     case left = "a"
     case right = "d"
+    case i = "i"
+    case p = "p"
+    case j = "j"
+    case l = "l"
+    
     
     var moveState: ModelMoveState {
         switch self {
@@ -21,6 +26,7 @@ enum Key: String {
         case .backwards: return .backwards
         case .left: return .rotateLeft
         case .right: return .rotateRight
+        default: return .stopped
         }
     }
 }
@@ -36,6 +42,7 @@ class GameView: MTKView, GameViewParent {
     }
 
     override func keyDown(with event: NSEvent) {
+        print("*** Key \(event)")
         guard let key = Key(rawValue: event.charactersIgnoringModifiers!) else { return }
         
         inputDelegate?.keyDown(key: key)

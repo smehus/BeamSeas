@@ -116,6 +116,11 @@ class Node {
     }
     
     var forwardVector: SIMD3<Float> {
+//        if let parent = parent {
+//            let parentTreeRot = parent.rotation * rotation
+//            return normalize([sin(parentTreeRot.y), 0, cos(parentTreeRot.y)])
+//        }
+        
         return normalize([sin(rotation.y), 0, cos(rotation.y)])
     }
     
