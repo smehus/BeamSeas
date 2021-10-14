@@ -130,13 +130,14 @@ class ThirdPersonCamera: Camera {
         
         // get the vector from the terrain to the scaffolding in global world space
         let terrainToScaffolding = focus.worldTransform.columns.3.xyz - focus.parent!.position
-        let inversedTransform = terrainToScaffolding / 5
+        let inversedTransform = terrainToScaffolding / 3
         // Global position of terrain and adding the inversed 'terrain to scaffolding' vector, or a fraction of the vector
         // This should always push the camera out from the terrains position
         //...
         //....
         //.....
-        // It's either slightly broken or working perfectly. Not sure yet. 
+        // It's either slightly broken or working perfectly. Not sure yet.
+        // Either way, find a way to flip the camera so we're boating forward
         position = focus.worldTransform.columns.3.xyz + inversedTransform
         
 //        let x: Float = focus.worldTransform.columns.3.x * focus.forwardVector.x
@@ -147,7 +148,7 @@ class ThirdPersonCamera: Camera {
         // This is good because if the camera moves with the player rotation
         // the world map will move around the screen
 //        let worldRot = focus.parent!.rotation * focus.rotation
-        let fwrdVector: SIMD3<Float> = [0, 1, 0]//normalize([sin(worldRot.y), 0, cos(worldRot.y)])
+        let fwrdVector: SIMD3<Float> =  [0, 1, 0]//normalize([sin(worldRot.y), 0, cos(worldRot.y)])
         // ^ all this doesn't work.... just use [0, 1, 0] \\
         
         
