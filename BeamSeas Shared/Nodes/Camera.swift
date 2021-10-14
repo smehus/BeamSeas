@@ -6,7 +6,7 @@
 //  Copyright © 2020 Scott Mehus. All rights reserved.
 //
 
-import Foundation
+import MetalKit
 
 class Camera: Node {
 
@@ -127,14 +127,32 @@ class ThirdPersonCamera: Camera {
     override var viewMatrix: float4x4 {
 //        setRotatingCamera()
 //        setNonRotatingCamera()
-        let x: Float = focus.worldTransform.columns.3.x + 100
-        let y: Float = focus.worldTransform.columns.3.y + 100
-        let z: Float = focus.worldTransform.columns.3.z + 100
-        position = float3(x, y, z)
+        
+        // get the vector from the terrain to the scaffolding in global world space
+        let terrainToScaffolding = focus.worldTransform.columns.3.xyz - focus.parent!.position
+        let inversedTransform = terrainToScaffolding / 5
+        // Global position of terrain and adding the inversed 'terrain to scaffolding' vector, or a fraction of the vector
+        // This should always push the camera out from the terrains position
+        //...
+        //....
+        //.....
+        // It's either slightly broken or working perfectly. Not sure yet. 
+        position = focus.worldTransform.columns.3.xyz + inversedTransform
+        
+//        let x: Float = focus.worldTransform.columns.3.x * focus.forwardVector.x
+//        let y: Float = focus.worldTransform.columns.3.y * focus.forwardVector.y
+//        let z: Float = focus.worldTransform.columns.3.z * focus.forwardVector.z
+//        position = float3(x, y, z)
         // Setting the center to 0, 0 ,0 prevents the camera from adjusting rotation.
         // This is good because if the camera moves with the player rotation
         // the world map will move around the screen
-        return float4x4(eye: position, center: focus.worldTransform.columns.3.xyz, up: [0, 1, 0])
+//        let worldRot = focus.parent!.rotation * focus.rotation
+        let fwrdVector: SIMD3<Float> = [0, 1, 0]//normalize([sin(worldRot.y), 0, cos(worldRot.y)])
+        // ^ all this doesn't work.... just use [0, 1, 0] \\
+        
+        
+        
+        return float4x4(eye: position, center: focus.worldTransform.columns.3.xyz, up: fwrdVector)
 //        return float4x4(lookAtLHEye: position, target: focus.position, up: [0, 1, 0])
 
 

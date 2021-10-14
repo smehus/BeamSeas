@@ -129,7 +129,7 @@ extension Model: Renderable {
 
         let (tangent0, tangent1, normalMapValue) = getRotationFromNormal()
         
-        renderer.playerRotation = (position, tangent0, tangent1, normalMapValue)
+        renderer.playerRotation = (worldTransform.columns.3.xyz, tangent0, tangent1, normalMapValue)
         
         var rotMat = float4x4.identity()
         rotMat.columns.0.x = tangent0.x
