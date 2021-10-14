@@ -125,11 +125,16 @@ class ThirdPersonCamera: Camera {
     }
 
     override var viewMatrix: float4x4 {
-        setRotatingCamera()
+//        setRotatingCamera()
+//        setNonRotatingCamera()
+        let x: Float = focus.worldTransform.columns.3.x + 100
+        let y: Float = focus.worldTransform.columns.3.y + 100
+        let z: Float = focus.worldTransform.columns.3.z + 100
+        position = float3(x, y, z)
         // Setting the center to 0, 0 ,0 prevents the camera from adjusting rotation.
         // This is good because if the camera moves with the player rotation
         // the world map will move around the screen
-        return float4x4(eye: position, center: focus.position, up: [0, 1, 0]) * focus.worldTransform
+        return float4x4(eye: position, center: focus.worldTransform.columns.3.xyz, up: [0, 1, 0])
 //        return float4x4(lookAtLHEye: position, target: focus.position, up: [0, 1, 0])
 
 
@@ -137,8 +142,10 @@ class ThirdPersonCamera: Camera {
 //        return super.viewMatrix
     }
 
+    // Use the world transform position data
     private func setNonRotatingCamera() {
-        position = float3(focus.position.x, focus.position.y - focusDistance, focus.position.z - focusDistance)
+        let worldPos = focus.worldTransform.columns.3.xyz
+        position = float3(worldPos.x, worldPos.y - focusDistance, worldPos.z - focusDistance)
         position.y = 3
     }
 
