@@ -137,8 +137,8 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
     float3 horizontalDisplacement = heightDisplacement * 2 - 1;
 
     position.y = height.x;
-//    position.x += (horizontalDisplacement.y);
-//    position.z += (horizontalDisplacement.z);
+    position.x += (horizontalDisplacement.y);
+    position.z += (horizontalDisplacement.z);
     
 
     float adjustedHeight = heightDisplacement.y;
@@ -239,33 +239,33 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
     
     
     // Multiplier determines ripple size
-//    float timer = uniforms.deltaTime * 0.007;
-//    float2 rippleUV = fragment_in.uv * 0.5;
-//    float waveStrength = 0.1;
-//    float2 rippleX = float2(rippleUV.x/* + timer*/, rippleUV.y) + timer;
-//    float2 rippleY = float2(rippleUV.x - timer, rippleUV.y);
-//
-//    float4 rippleSampleX = waterRippleTexture.sample(mainSampler, rippleX);
-//    float4 rippleSampleY = waterRippleTexture.sample(mainSampler, rippleY);
-//    float2 normalizedRippleX = rippleSampleX.rg * 2.0 - 1.0;
-//    float2 normalizedRippleY = rippleSampleY.rg * 2.0 - 1.0;
-//
-//    float2 ripple = (normalizedRippleX + normalizedRippleY) * waveStrength;
-//
-//    reflectionCoords += ripple;
-//    refractionCoords += ripple;
-//
-//    reflectionCoords = clamp(reflectionCoords, 0.001, 0.999);
-//    refractionCoords = clamp(refractionCoords, 0.001, 0.999);
-//
-////    float4 mixedColor = reflectionTexture.sample(reflectionSampler, reflectionCoords);
-////    float4 mixedColor = refractionTexture.sample(mainSampler, refractionCoords);
-//    float3 viewVector = normalize(fragment_in.toCamera);
-//    float mixRatio = dot(viewVector, float3(0.0, 1.0, 0.0));
-//    float4 mixedColor = mix(reflectionTexture.sample(mainSampler, reflectionCoords),
-//                            refractionTexture.sample(mainSampler, refractionCoords),
-//                            mixRatio);
-//
+    float timer = uniforms.deltaTime * 0.007;
+    float2 rippleUV = fragment_in.uv * 0.5;
+    float waveStrength = 0.1;
+    float2 rippleX = float2(rippleUV.x/* + timer*/, rippleUV.y) + timer;
+    float2 rippleY = float2(rippleUV.x - timer, rippleUV.y);
+
+    float4 rippleSampleX = waterRippleTexture.sample(mainSampler, rippleX);
+    float4 rippleSampleY = waterRippleTexture.sample(mainSampler, rippleY);
+    float2 normalizedRippleX = rippleSampleX.rg * 2.0 - 1.0;
+    float2 normalizedRippleY = rippleSampleY.rg * 2.0 - 1.0;
+
+    float2 ripple = (normalizedRippleX + normalizedRippleY) * waveStrength;
+
+    reflectionCoords += ripple;
+    refractionCoords += ripple;
+
+    reflectionCoords = clamp(reflectionCoords, 0.001, 0.999);
+    refractionCoords = clamp(refractionCoords, 0.001, 0.999);
+
+//    float4 mixedColor = reflectionTexture.sample(reflectionSampler, reflectionCoords);
+//    float4 mixedColor = refractionTexture.sample(mainSampler, refractionCoords);
+    float3 viewVector = normalize(fragment_in.toCamera);
+    float mixRatio = dot(viewVector, float3(0.0, 1.0, 0.0));
+    float4 mixedColor = mix(reflectionTexture.sample(mainSampler, reflectionCoords),
+                            refractionTexture.sample(mainSampler, refractionCoords),
+                            mixRatio);
+
     
     
     
@@ -281,8 +281,8 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
 //    float4 mixedColor = mapColor;//mix(mixedColor, mapColor, 0.3);
 
     float3 terrainToScaffold = normalize(fragment_in.parentFragmentPosition - fragmentUniforms.scaffoldingPosition).xyz;
-    float4 mixedColor = worldMapTexture.sample(mainSampler, terrainToScaffold);
-    
+    float4 scaffoldMapColor = worldMapTexture.sample(mainSampler, terrainToScaffold);
+    mixedColor = mix(mixedColor, scaffoldMapColor, 0.3);
     
     constexpr sampler sam(min_filter::linear, mag_filter::linear, mip_filter::nearest, address::repeat);
     float3 vGradJacobian = gradientMap.sample(sam, fragment_in.vGradNormalTex.xy).xyz;
@@ -305,7 +305,7 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
 //    return float4(1, 1, 1, 1);
 //    return float4(float3(1.0, 0, 0), 1.0);
 //    return fragment_in.color;
-    return mixedColor;
+    return float4(specular, 1.0);
 }
 
 
