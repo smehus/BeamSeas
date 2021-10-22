@@ -167,7 +167,7 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
     
                                 // Imaginary position               // fragment position
                                 // scaffolding * terrain
-//    out.parentFragmentPosition = uniforms.parentTreeModelMatrix * position; // This should still work? because position will be relative to identiy
+    out.parentFragmentPosition = uniforms.parentTreeModelMatrix * position; // This should still work? because position will be relative to identiy
     // ^^^ forget about this for now
     out.toCamera = fragmentUniforms.camera_position - out.worldPosition.xyz;
 
@@ -280,7 +280,7 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
 //
 //    float4 mixedColor = mapColor;//mix(mixedColor, mapColor, 0.3);
 
-    float3 terrainToScaffold = normalize(fragment_in.worldPosition - fragmentUniforms.scaffoldingPosition).xyz;
+    float3 terrainToScaffold = normalize(fragment_in.parentFragmentPosition - fragmentUniforms.scaffoldingPosition).xyz;
     float4 mixedColor = worldMapTexture.sample(mainSampler, terrainToScaffold);
     
     

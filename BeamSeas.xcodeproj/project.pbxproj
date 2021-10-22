@@ -23,8 +23,8 @@
 		020FD8C624D4577200B77CF2 /* Common.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020FD8C424D4577200B77CF2 /* Common.swift */; };
 		0217E77324D5C3130082D199 /* gaussian_noise_5.png in Resources */ = {isa = PBXBuildFile; fileRef = 0217E77224D5C3130082D199 /* gaussian_noise_5.png */; };
 		0217E77424D5C3130082D199 /* gaussian_noise_5.png in Resources */ = {isa = PBXBuildFile; fileRef = 0217E77224D5C3130082D199 /* gaussian_noise_5.png */; };
-		022174F2268A09B200F9BCC9 /* WorldMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 022174F1268A09B200F9BCC9 /* WorldMap.swift */; };
-		022174F3268A09B200F9BCC9 /* WorldMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 022174F1268A09B200F9BCC9 /* WorldMap.swift */; };
+		022174F2268A09B200F9BCC9 /* MiniWorldMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 022174F1268A09B200F9BCC9 /* MiniWorldMap.swift */; };
+		022174F3268A09B200F9BCC9 /* MiniWorldMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 022174F1268A09B200F9BCC9 /* MiniWorldMap.swift */; };
 		022174F5268A11F600F9BCC9 /* WorldMap.metal in Sources */ = {isa = PBXBuildFile; fileRef = 022174F4268A11F600F9BCC9 /* WorldMap.metal */; };
 		022174F6268A11F600F9BCC9 /* WorldMap.metal in Sources */ = {isa = PBXBuildFile; fileRef = 022174F4268A11F600F9BCC9 /* WorldMap.metal */; };
 		0224BEC42515557100ABE59B /* NormalDistributionBridge.mm in Sources */ = {isa = PBXBuildFile; fileRef = 0224BEC22515557100ABE59B /* NormalDistributionBridge.mm */; };
@@ -180,7 +180,7 @@
 		020FD8C124D4575A00B77CF2 /* Distributions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Distributions.swift; sourceTree = "<group>"; };
 		020FD8C424D4577200B77CF2 /* Common.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Common.swift; sourceTree = "<group>"; };
 		0217E77224D5C3130082D199 /* gaussian_noise_5.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = gaussian_noise_5.png; sourceTree = "<group>"; };
-		022174F1268A09B200F9BCC9 /* WorldMap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorldMap.swift; sourceTree = "<group>"; };
+		022174F1268A09B200F9BCC9 /* MiniWorldMap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MiniWorldMap.swift; sourceTree = "<group>"; };
 		022174F4268A11F600F9BCC9 /* WorldMap.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = WorldMap.metal; sourceTree = "<group>"; };
 		0224BEC22515557100ABE59B /* NormalDistributionBridge.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = NormalDistributionBridge.mm; sourceTree = "<group>"; };
 		0224BEC32515557100ABE59B /* NormalDistributionBridge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NormalDistributionBridge.h; sourceTree = "<group>"; };
@@ -300,7 +300,7 @@
 		022174F0268A099B00F9BCC9 /* Map */ = {
 			isa = PBXGroup;
 			children = (
-				022174F1268A09B200F9BCC9 /* WorldMap.swift */,
+				022174F1268A09B200F9BCC9 /* MiniWorldMap.swift */,
 				028BCAC726E6BA3100FDE2FD /* WorldMapScaffolding.swift */,
 			);
 			path = Map;
@@ -753,7 +753,7 @@
 				02491AC924D21B170091395A /* BasicFFT.swift in Sources */,
 				02419D7F249851C700BCB203 /* Math.swift in Sources */,
 				0276CF17256196540016910A /* ComputeHeight.metal in Sources */,
-				022174F2268A09B200F9BCC9 /* WorldMap.swift in Sources */,
+				022174F2268A09B200F9BCC9 /* MiniWorldMap.swift in Sources */,
 				022174F5268A11F600F9BCC9 /* WorldMap.metal in Sources */,
 				020F9868249A7C5900DB4850 /* Extensions.swift in Sources */,
 				020FD8C524D4577200B77CF2 /* Common.swift in Sources */,
@@ -795,7 +795,7 @@
 				02491ACA24D21B170091395A /* BasicFFT.swift in Sources */,
 				02419D80249851C700BCB203 /* Math.swift in Sources */,
 				0276CF18256196540016910A /* ComputeHeight.metal in Sources */,
-				022174F3268A09B200F9BCC9 /* WorldMap.swift in Sources */,
+				022174F3268A09B200F9BCC9 /* MiniWorldMap.swift in Sources */,
 				022174F6268A11F600F9BCC9 /* WorldMap.metal in Sources */,
 				020F9869249A7C5900DB4850 /* Extensions.swift in Sources */,
 				020FD8C624D4577200B77CF2 /* Common.swift in Sources */,
