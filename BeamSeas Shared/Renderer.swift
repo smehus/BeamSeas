@@ -101,8 +101,8 @@ final class Renderer: NSObject {
         mapScaffolding.position = float3(0, (-(mapScaffolding.size.x / 2) - 30), 0)
     
         terrain = Terrain()
-//        terrain.scaffoldingPosition = [0, ((mapScaffolding.size.x / 2) + 10), 0]
-        terrain.position = [0, ((mapScaffolding.size.x / 2) + 10), 0]
+        terrain.scaffoldingPosition = [0, ((mapScaffolding.size.x / 2) + 10), 0]
+//        terrain.position = [0, ((mapScaffolding.size.x / 2) + 10), 0]
         models.append(terrain)
         mapScaffolding.add(child: terrain)
         
@@ -110,7 +110,7 @@ final class Renderer: NSObject {
 
         player = Model(name: "OldBoat", fragment: "fragment_pbr")
         player.scale = [0.5, 0.5, 0.5]
-        models.append(player) 
+        models.append(player)
         terrain.add(child: player)
         models.append(fft)
         fragmentUniforms.light_count = UInt32(lighting.count)

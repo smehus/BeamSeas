@@ -205,8 +205,9 @@ extension Model: Renderable {
     func draw(renderEncoder: MTLRenderCommandEncoder, uniforms: inout Uniforms, fragmentUniforms: inout FragmentUniforms) {
         renderEncoder.pushDebugGroup("Model")
 
+        return
         fragmentUniforms.tiling = tiling
-        uniforms.modelMatrix = worldTransform
+        uniforms.modelMatrix = modelMatrix
         uniforms.normalMatrix = worldTransform.upperLeft
 
         renderEncoder.setDepthStencilState(Self.buildDepthStencilState())
