@@ -176,8 +176,8 @@ extension WorldMapScaffolding: Renderable, MapRotationHandler {
             switch state {
             case .forward: result.x += delta
             case .backwards: result.x -= delta
-            case .left: result.y += delta
-            case .right: result.y -= delta
+            case .left: result.y -= delta
+            case .right: result.y += delta
             default: break
             }
         }
