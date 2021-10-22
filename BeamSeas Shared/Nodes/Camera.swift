@@ -107,7 +107,7 @@ class ArcballCamera: Camera {
 
 
 // My F'ed up one
-class ThirdPersonCamera: Camera {
+class ThirdPersonScaffoldingCamera: Camera {
 
     var focus: Node!
     var focusDistance: Float = 3
@@ -176,3 +176,62 @@ class ThirdPersonCamera: Camera {
 
     }
 }
+
+
+//class ThirdPersonCamera: Camera {
+//
+//    var focus: Node!
+//    var focusDistance: Float = 3
+//    var focusHeight: Float = 3
+//
+//    private var focusPosition: SIMD3<Float> {
+//        return focus.worldTransform.columns.3.xyz
+//    }
+//    // the rotation is is all 0's because its never actually set
+//
+//    override init() {
+//        super.init()
+//    }
+//
+//    init(focus: Node) {
+//        self.focus = focus
+//        super.init()
+//    }
+//
+//    override var viewMatrix: float4x4 {
+////        setRotatingCamera()
+//        setNonRotatingCamera()
+//        // Setting the center to 0, 0 ,0 prevents the camera from adjusting rotation.
+//        // This is good because if the camera moves with the player rotation
+//        // the world map will move around the screen
+//        return float4x4(eye: position, center: focusPosition, up: [0, 1, 0])
+////        return float4x4(lookAtLHEye: position, target: focus.position, up: [0, 1, 0])
+//
+//
+////        setNonRotatingCamera()
+////        return super.viewMatrix
+//    }
+//
+//    private func setNonRotatingCamera() {
+//        position = float3(focusPosition.x, focusPosition.y + focusDistance, focusPosition.z + focusDistance)
+////        position.y = 3
+//    }
+//
+//    private func setRotatingCamera() {
+//        position = focusPosition - focusDistance * focus.forwardVector
+//        position.y = focusPosition.y +  focusHeight
+//        rotation.y = focus.rotation.y
+//    }
+//}
+//class ThirdPersonCamera: Camera {
+//  var focus: Node!
+//  var focusDistance: Float = 3
+//  var focusHeight: Float = 1.2
+//  
+//  override var viewMatrix: float4x4 {
+//    position = focus.position - focusDistance * focus.forwardVector
+//    position.y = focusHeight
+//    rotation.y = focus.rotation.y
+//    return super.viewMatrix
+//  }
+//}

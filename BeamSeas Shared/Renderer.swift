@@ -31,13 +31,13 @@ final class Renderer: NSObject {
  
         
 //        let camera = ThirdPersonCamera()
-//        camera.focus = terrain
+//        camera.focus = player
 //        camera.focusDistance = 100
-//        camera.focusHeight = 200
+//        camera.focusHeight = 50
 //
         let camera = Camera()
-        camera.position.y = 300
-        camera.rotation.x = Float(90).degreesToRadians
+        camera.position = [player.position.x, player.position.y + 100, player.position.z - 200]
+//        camera.rotation.x = Float(90).degreesToRadians
         return camera
     }()
     
