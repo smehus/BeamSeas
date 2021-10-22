@@ -30,14 +30,14 @@ final class Renderer: NSObject {
 //        camera.rotation.y = Float(-60).degreesToRadians
  
         
-        let camera = ThirdPersonCamera()
-        camera.focus = terrain
-        camera.focusDistance = 100
-        camera.focusHeight = 200
+//        let camera = ThirdPersonCamera()
+//        camera.focus = terrain
+//        camera.focusDistance = 100
+//        camera.focusHeight = 200
 //
-//        let camera = Camera()
-//        camera.position.y = 200
-//        camera.rotation.x = Float(90).degreesToRadians
+        let camera = Camera()
+        camera.position.y = 300
+        camera.rotation.x = Float(90).degreesToRadians
         return camera
     }()
     

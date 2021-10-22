@@ -143,34 +143,47 @@ extension WorldMapScaffolding: Renderable, MapRotationHandler {
 //        print(position)
 //        print(modelMatrix.upperLeft * position)
         
-        if player.moveStates.contains(.forward) {
+//        if player.moveStates.contains(.forward) {
             
-            print("""
-                colume0: \(player.modelMatrix.columns.0.xyz)
-                colume1: \(player.modelMatrix.columns.1.xyz)
-                colume2: \(player.modelMatrix.columns.2.xyz)
-                
-                worldMatrix1: \(player.worldTransform.inverse.columns.0.xyz)
-                worldMatrix2: \(player.worldTransform.inverse.columns.1.xyz)
-                worldMatrix3: \(player.worldTransform.inverse.columns.2.xyz)
-                
-                rotationVec: \(player.forwardVector)
-                
-                
-                ============================================
-                """)
+//            print("""
+//                colume0: \(player.modelMatrix.columns.0.xyz)
+//                colume1: \(player.modelMatrix.columns.1.xyz)
+//                colume2: \(player.modelMatrix.columns.2.xyz)
+//                
+//                worldMatrix1: \(player.worldTransform.inverse.columns.0.xyz)
+//                worldMatrix2: \(player.worldTransform.inverse.columns.1.xyz)
+//                worldMatrix3: \(player.worldTransform.inverse.columns.2.xyz)
+//                
+//                rotationVec: \(player.forwardVector)
+//                
+//                
+//                ============================================
+//                """)
             
 //            let forwardVector = player.worldTransform.inverse.columns.2.xyz * 0.003
 //            let rotMat = float4x4(rotation: float3(forwardVector.z, forwardVector.y, forwardVector.x))
 //            let quat = simd_quatf(rotMat)
 //            quaternion *= quat
             
-            var deg = rotation.z.radiansToDegrees
-            deg += 0.2
-            rotation.z = deg.degreesToRadians
-            quaternion = simd_quatf(float4x4(rotation: rotation))
+//            var deg = rotation.z.radiansToDegrees
+//            deg += 0.2
+//            rotation.z = deg.degreesToRadians
+//            quaternion = simd_quatf(float4x4(rotation: rotation))
+//        }
+        
+        let delta: Float = 0.003
+        let updatedRotation: float3 = player.moveStates.reduce(into: [0, 0, 0]) { result, state in
+            switch state {
+            case .forward: result.x += delta
+            case .backwards: result.x -= delta
+            case .left: result.y += delta
+            case .right: result.y -= delta
+            default: break
+            }
         }
         
+        let rotMat = float4x4(rotation: updatedRotation)
+        quaternion = quaternion * simd_quatf(rotMat)
     }
     
     func draw(renderEncoder: MTLRenderCommandEncoder, uniforms: inout Uniforms, fragmentUniforms: inout FragmentUniforms) {
@@ -187,7 +200,7 @@ extension WorldMapScaffolding: Renderable, MapRotationHandler {
 //        mapUniforms.viewMatrix = mapCamera.viewMatrix
 //        mapUniforms.projectionMatrix = mapCamera.projectionMatrix
         
-        uniforms.modelMatrix = float4x4(translation: position) * .identity() * float4x4(scaling: scale)//worldTransform
+        uniforms.modelMatrix = worldTransform//float4x4(translation: position) * .identity() * float4x4(scaling: scale)
   
 //        uniforms.modelMatrix = modelMatrix
         renderEncoder.setRenderPipelineState(pipelineState)
