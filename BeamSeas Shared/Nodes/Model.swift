@@ -119,10 +119,10 @@ extension Model: Renderable {
 //            }
 //        }
         
-        let heightValue = heightBuffer.contents().bindMemory(to: Float.self, capacity: 1).pointee
+//        let heightValue = heightBuffer.contents().bindMemory(to: Float.self, capacity: 1).pointee
         assert(meshes.count == 1)
 //        let size = meshes.first!.mdlMesh.boundingBox.maxBounds - meshes.first!.mdlMesh.boundingBox.minBounds
-        position.y = heightValue// - (size.y * 0.3)
+//        position.y = heightValue// - (size.y * 0.3)
 
         // TODO: - Transfer all this over to gpu
 
@@ -142,10 +142,10 @@ extension Model: Renderable {
         rotMat.columns.2.z = tangent1.z
         
         let normalQuat = simd_quatf(rotMat)
-        let slerp = simd_slerp(quaternion, normalQuat, 1.0)
+//        let slerp = simd_slerp(quaternion, normalQuat, 1.0)
 //        rotationMatrix = rotMat//float4x4(slerp)
   
-        quaternion = slerp//normalQuat
+        quaternion = normalQuat
         renderer.playerRotation = (worldTransform.columns.3.xyz, tangent0, tangent1, normalMapValue)
     }
     
