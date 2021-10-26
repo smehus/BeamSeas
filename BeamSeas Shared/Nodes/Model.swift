@@ -122,7 +122,7 @@ extension Model: Renderable {
         let heightValue = heightBuffer.contents().bindMemory(to: Float.self, capacity: 1).pointee
         assert(meshes.count == 1)
 //        let size = meshes.first!.mdlMesh.boundingBox.maxBounds - meshes.first!.mdlMesh.boundingBox.minBounds
-//        position.y = heightValue// - (size.y * 0.3)
+        position.y = heightValue// - (size.y * 0.3)
 
         // TODO: - Transfer all this over to gpu
 
@@ -145,7 +145,7 @@ extension Model: Renderable {
         let slerp = simd_slerp(quaternion, normalQuat, 1.0)
 //        rotationMatrix = rotMat//float4x4(slerp)
   
-        quaternion = normalQuat
+        quaternion = slerp//normalQuat
         renderer.playerRotation = (worldTransform.columns.3.xyz, tangent0, tangent1, normalMapValue)
     }
     
