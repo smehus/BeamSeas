@@ -145,7 +145,7 @@ extension Model: Renderable {
         let slerp = simd_slerp(quaternion, normalQuat, 1.0)
 //        rotationMatrix = rotMat//float4x4(slerp)
   
-//        quaternion = normalQuat
+        quaternion = normalQuat
         renderer.playerRotation = (worldTransform.columns.3.xyz, tangent0, tangent1, normalMapValue)
     }
     
@@ -206,7 +206,7 @@ extension Model: Renderable {
         renderEncoder.pushDebugGroup("Model")
 
         fragmentUniforms.tiling = tiling
-        uniforms.modelMatrix = parent!.modelMatrix * modelMatrix
+        uniforms.modelMatrix = worldTransform
         uniforms.normalMatrix = worldTransform.upperLeft
 
         renderEncoder.setDepthStencilState(Self.buildDepthStencilState())
