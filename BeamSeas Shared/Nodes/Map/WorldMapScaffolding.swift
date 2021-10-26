@@ -171,20 +171,22 @@ extension WorldMapScaffolding: Renderable, MapRotationHandler {
 //            quaternion = simd_quatf(float4x4(rotation: rotation))
 //        }
         
-        let delta: Float = 0.003
-        let rotDelta: float3 = player.moveStates.reduce(into: [0, 0, 0]) { result, state in
-            switch state {
-            case .forward: result.x += delta
-            case .backwards: result.x -= delta
-            case .left: result.y -= delta
-            case .right: result.y += delta
-            default: break
-            }
-        }
         
-        scaffoldRotation += rotDelta
-        let rotMat = float4x4(rotation: rotDelta)
-        quaternion = quaternion * simd_quatf(rotMat)
+        
+//        let delta: Float = 0.003
+//        let rotDelta: float3 = player.moveStates.reduce(into: [0, 0, 0]) { result, state in
+//            switch state {
+//            case .forward: result.x += delta
+//            case .backwards: result.x -= delta
+//            case .left: result.y -= delta
+//            case .right: result.y += delta
+//            default: break
+//            }
+//        }
+//
+//        scaffoldRotation += rotDelta
+//        let rotMat = float4x4(rotation: rotDelta)
+//        quaternion = quaternion * simd_quatf(rotMat)
     }
     
     func draw(renderEncoder: MTLRenderCommandEncoder, uniforms: inout Uniforms, fragmentUniforms: inout FragmentUniforms) {
