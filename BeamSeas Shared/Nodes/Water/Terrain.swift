@@ -244,7 +244,12 @@ extension Terrain: Renderable {
     ) {
         renderEncoder.pushDebugGroup("Terrain Vertex")
         // Using model matrix instead of worldTransform because the parent is the scaffolding and we only want to mimick the rotation in order to get the correct texture cube vector
-        uniforms.modelMatrix = modelMatrix
+        
+        let updatedRot: float3 = [0, (parent as! WorldMapScaffolding).scaffoldRotation.y, 0]
+        let rotMat = float4x4(rotation: updatedRot)
+        let quat = simd_quatf(rotMat)
+        
+        uniforms.modelMatrix = float4x4(translation: position) * float4x4(quat) * float4x4(scaling: scale)
         uniforms.normalMatrix = float3x3(normalFrom4x4: modelMatrix)
 //        fragmentUniforms.inverseTerrainModelMatrix = modelMatrix.inverse
 

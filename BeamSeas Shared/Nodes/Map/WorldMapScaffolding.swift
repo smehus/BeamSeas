@@ -34,7 +34,7 @@ import MetalKit
 
 /// Used to help create the vector for sampling world map texture cube
 final class WorldMapScaffolding: Node, Texturable {
-    
+    var scaffoldRotation: float3 = [0, 0, 0]
     private let mesh: MDLMesh
     private let model: MTKMesh
     private let pipelineState: MTLRenderPipelineState
@@ -172,7 +172,7 @@ extension WorldMapScaffolding: Renderable, MapRotationHandler {
 //        }
         
         let delta: Float = 0.003
-        let updatedRotation: float3 = player.moveStates.reduce(into: [0, 0, 0]) { result, state in
+        let rotDelta: float3 = player.moveStates.reduce(into: [0, 0, 0]) { result, state in
             switch state {
             case .forward: result.x += delta
             case .backwards: result.x -= delta
@@ -182,7 +182,8 @@ extension WorldMapScaffolding: Renderable, MapRotationHandler {
             }
         }
         
-        let rotMat = float4x4(rotation: updatedRotation)
+        scaffoldRotation += rotDelta
+        let rotMat = float4x4(rotation: rotDelta)
         quaternion = quaternion * simd_quatf(rotMat)
     }
     

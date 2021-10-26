@@ -120,6 +120,9 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
 //    xy = 1 - xy;
 //    xy.x = fmod(xy.x + (uniforms.deltaTime), 1);
 
+    // DONT DELETE \\
+    // USE THE ROTATION OF PARENT SOME HOW TO MAKE THE WATER ROTATE? NOT ROTATE?
+    // TO MAKE IT LOOK LIKE TURNING THE PLAYER IS ACTUALLY TURNING THE PLAYER ON THE WATER.
 //    xy *= terrainParams.size;
 //    float3 heightDisplacement = mix(heightMap.sample(sample, xy + 0.5).xyz, heightMap.sample(sample, xy + 1.0).xyz, 0.5);
     float3 heightDisplacement = heightMap.sample(sample, xy).xyz;
