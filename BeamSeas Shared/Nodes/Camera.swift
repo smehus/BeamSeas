@@ -231,7 +231,7 @@ class ThirdPersonScaffoldingCamera: Camera {
 //  override var viewMatrix: float4x4 {
 //    position = focus.position - focusDistance * focus.forwardVector
 //    position.y = focusHeight
-//    rotation.y = focus.rotation.y
+//    rotation.y = focus.rotation.y 
 //    return super.viewMatrix
 //  }
 //}

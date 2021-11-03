@@ -139,9 +139,9 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
     // are relevant....
     float3 horizontalDisplacement = heightDisplacement * 2 - 1;
 
-    position.y = height.x;
-    position.x += (horizontalDisplacement.y);
-    position.z += (horizontalDisplacement.z);
+//    position.y = height.x;
+//    position.x += (horizontalDisplacement.y);
+//    position.z += (horizontalDisplacement.z);
     
 
     float adjustedHeight = heightDisplacement.y;
@@ -306,7 +306,7 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
 
     float3 specular = terrainDiffuseLighting(uniforms.normalMatrix * (normalValue * 2.0f - 1.0f), fragment_in.position.xyz, fragmentUniforms, lights, mixedColor.rgb);
 //    return float4(1, 1, 1, 1);
-//    return float4(float3(1.0, 0, 0), 1.0);
+//    return float4(float3(1.0, 0, 0), 1.0); // lol this is stupid of me
 //    return fragment_in.color;
     return float4(specular, 1.0);
 }

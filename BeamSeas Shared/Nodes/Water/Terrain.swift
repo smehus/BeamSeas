@@ -18,7 +18,7 @@ class Terrain: Node {
     static var primarySlopeMap: MTLTexture!
     static var secondarySlopeMap: MTLTexture!
 
-    static let terrainSize: Float = 300
+    static let terrainSize: Float = 75
     
     static var terrainParams = TerrainParams(
         size: [Terrain.terrainSize, Terrain.terrainSize],
@@ -250,8 +250,8 @@ extension Terrain: Renderable {
 //        let renderRotation = float4x4(rotation: parentYRotation)
 //        let renderRotQuat = simd_quatf(renderRotation)
 
-        uniforms.modelMatrix = modelMatrix//float4x4(translation: position) * float4x4(renderRotQuat) * float4x4(scaling: scale)
-        uniforms.normalMatrix = float3x3(normalFrom4x4: modelMatrix)
+        uniforms.modelMatrix = worldTransform//float4x4(translation: position) * float4x4(renderRotQuat) * float4x4(scaling: scale)
+        uniforms.normalMatrix = float3x3(normalFrom4x4: worldTransform)
 //        fragmentUniforms.inverseTerrainModelMatrix = modelMatrix.inverse
 
         renderEncoder.setTriangleFillMode(.fill)

@@ -190,7 +190,6 @@ extension WorldMapScaffolding: Renderable, MapRotationHandler {
     }
     
     func draw(renderEncoder: MTLRenderCommandEncoder, uniforms: inout Uniforms, fragmentUniforms: inout FragmentUniforms) {
-        return
         defer {
             renderEncoder.popDebugGroup()
         }
