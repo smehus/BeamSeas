@@ -103,24 +103,24 @@ extension Model: Renderable {
         camera: Camera,
         player: Model
     ) {
-//        for state in moveStates {
-//            switch state {
-//                case .right:
-//                    var rotDeg = rotation.y.radiansToDegrees
-//                    rotDeg += 0.3
-//
-//                    rotation.y = rotDeg.degreesToRadians
-//                case .left:
-//                    var rotDeg = rotation.y.radiansToDegrees
-//                    rotDeg -= 0.3
-//
-//                    rotation.y = rotDeg.degreesToRadians
-//                default: break
-//            }
-//        }
+        for state in moveStates {
+            switch state {
+                case .right:
+                    var rotDeg = rotation.y.radiansToDegrees
+                    rotDeg += 0.3
+
+                    position.y += rotDeg.degreesToRadians
+                case .left:
+                    var rotDeg = rotation.y.radiansToDegrees
+                    rotDeg -= 0.3
+
+                    position.y += rotDeg.degreesToRadians
+                default: break
+            }
+        }
         
-        let heightValue = heightBuffer.contents().bindMemory(to: Float.self, capacity: 1).pointee
-        assert(meshes.count == 1)
+//        let heightValue = heightBuffer.contents().bindMemory(to: Float.self, capacity: 1).pointee
+//        assert(meshes.count == 1)
 //        let size = meshes.first!.mdlMesh.boundingBox.maxBounds - meshes.first!.mdlMesh.boundingBox.minBounds
 //        position.y = heightValue// - (size.y * 0.3)
 
@@ -128,24 +128,25 @@ extension Model: Renderable {
 
         let (tangent0, tangent1, normalMapValue) = getRotationFromNormal(uniforms: uniforms)
         
-        var rotMat = float4x4(rotation: rotation)
+        var rotMat = float4x4(rotation: position)
         rotMat.columns.0.x = tangent0.x
         rotMat.columns.0.y = tangent0.y
         rotMat.columns.0.z = tangent0.z
-        
+
         rotMat.columns.1.x = normalMapValue.x
         rotMat.columns.1.y = normalMapValue.y
         rotMat.columns.1.z = normalMapValue.z
-        
+
         rotMat.columns.2.x = tangent1.x
         rotMat.columns.2.y = tangent1.y
         rotMat.columns.2.z = tangent1.z
         
-        let normalQuat = simd_quatf(rotMat)
-        let slerp = simd_slerp(quaternion, normalQuat, 1.0)
+//        let normalQuat = simd_quatf(rotMat)
+//        let slerp = simd_slerp(quaternion, normalQuat, 1.0)
 //        rotationMatrix = rotMat//float4x4(slerp)
   
 //        quaternion = normalQuat
+        print(worldTransform)
         renderer.playerRotation = (worldTransform.columns.3.xyz, tangent0, tangent1, normalMapValue)
     }
     
