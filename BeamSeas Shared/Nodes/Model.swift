@@ -18,7 +18,7 @@ enum ModelMoveState {
     case rotateRight
 }
 
-class Model: Node, DepthStencilStateBuilder {
+class Model: Node, DepthStencilStateBuilder, RendererContianer {
 
     static var vertexDescriptor: MDLVertexDescriptor = .defaultVertexDescriptor
     
@@ -150,6 +150,8 @@ extension Model: Renderable {
 //        rotationMatrix = rotMat//float4x4(slerp)
         
         
+//        let modelRotation = float4x4(rotation: rotation)
+//        quaternion = simd_quatf(modelRotation * rotMat)
     }
     
     func getRotationFromNormal() -> (tangent0: float3, tangent1: float3, normalMap: float3)  {

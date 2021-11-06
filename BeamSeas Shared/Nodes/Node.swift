@@ -80,6 +80,10 @@ extension Meshable {
     }
 }
 
+protocol RendererContianer {
+    var renderer: Renderer! { get set }
+}
+
 class Node {
     var name = "untitled"
     var position: float3 = [0, 0, 0]

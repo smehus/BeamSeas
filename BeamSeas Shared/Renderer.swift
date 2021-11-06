@@ -13,6 +13,8 @@ import MetalKit
 import simd
 
 
+
+
 final class Renderer: NSObject {
 
     static var device: MTLDevice!
@@ -169,7 +171,10 @@ extension Renderer: MTKViewDelegate {
         
         // MARK: - UPDATE MODELS
         for model in models {
-            (model as? Model)?.renderer = self
+            if var container = model as? RendererContianer {
+                container.renderer = self
+            }
+        
             model.update(
                 deltaTime: delta,
                 uniforms: &uniforms,
@@ -342,13 +347,14 @@ extension Renderer: MTKViewDelegate {
         uniforms.viewMatrix = camera.viewMatrix
 
         // MARK: - DEBUG NORMALS
-        let tangent0 = float3(playerRotation.1.x.radiansToDegrees, playerRotation.1.y.radiansToDegrees, playerRotation.1.z.radiansToDegrees)
-        let tangent1 = float3(playerRotation.2.x.radiansToDegrees, playerRotation.2.y.radiansToDegrees, playerRotation.2.z.radiansToDegrees)
-        let normalMap = float3(playerRotation.3.x.radiansToDegrees, playerRotation.3.y.radiansToDegrees, playerRotation.3.z.radiansToDegrees)
+//        var playerRotation: (position: float3, tangent0: float3, tangent1: float3, normalMap: float3)!
+        let tangent0 = float3(playerRotation.tangent0.x.radiansToDegrees, playerRotation.tangent0.y.radiansToDegrees, playerRotation.tangent0.z.radiansToDegrees)
+        let tangent1 = float3(playerRotation.tangent1.x.radiansToDegrees, playerRotation.tangent1.y.radiansToDegrees, playerRotation.tangent1.z.radiansToDegrees)
+        let normalMap = float3(playerRotation.normalMap.x.radiansToDegrees, playerRotation.normalMap.y.radiansToDegrees, playerRotation.normalMap.z.radiansToDegrees)
         
-        drawSpotLight(renderEncoder: renderEncoder, position: playerRotation.0, direction: tangent0, color: float3(1, 0, 0))
-        drawSpotLight(renderEncoder: renderEncoder, position: playerRotation.0, direction: tangent1, color: float3(0, 1, 0))
-        drawSpotLight(renderEncoder: renderEncoder, position: playerRotation.0, direction: normalMap, color: float3(1, 0, 1))
+        drawSpotLight(renderEncoder: renderEncoder, position: playerRotation.position, direction: tangent0, color: float3(1, 0, 0)) // Red
+        drawSpotLight(renderEncoder: renderEncoder, position: playerRotation.position, direction: tangent1, color: float3(0, 1, 0)) // Green forwardVec
+        drawSpotLight(renderEncoder: renderEncoder, position: playerRotation.position, direction: normalMap, color: float3(1, 0, 1)) // Blue
 
 //        drawDirectionalLight(renderEncoder: renderEncoder, direction: direction, color: float3(1, 0, 0), count: 5)
 //        debugLights(renderEncoder: renderEncoder, lightType: Spotlight)
