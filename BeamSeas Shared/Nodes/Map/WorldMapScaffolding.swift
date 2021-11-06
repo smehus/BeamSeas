@@ -187,6 +187,21 @@ extension WorldMapScaffolding: Renderable, MapRotationHandler {
 //        scaffoldRotation += rotDelta
 //        let rotMat = float4x4(rotation: rotDelta)
 //        quaternion = quaternion * simd_quatf(rotMat)
+        
+        
+        // If keys are pressed:
+        // Use player forward vector to determine rotation
+        
+        if player.moveStates.contains(.forward) {
+            let fwrdVec = player.forwardVector * 0.003
+            let rotMat = float4x4(rotation: fwrdVec)
+            let quat = simd_quatf(rotMat)
+            
+            // rotate by delta amount
+            
+            quaternion = quaternion * quat
+            // Boom. done.
+        }
     }
     
     func draw(renderEncoder: MTLRenderCommandEncoder, uniforms: inout Uniforms, fragmentUniforms: inout FragmentUniforms) {

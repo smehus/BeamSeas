@@ -30,14 +30,14 @@ final class Renderer: NSObject {
 //        camera.rotation.y = Float(-60).degreesToRadians
  
         
-//        let camera = ThirdPersonScaffoldingCamera()
-//        camera.focus = player
+        let camera = ThirdPersonScaffoldingCamera()
+        camera.focus = player
 //        camera.focusDistance = 100
 //        camera.focusHeight = 50
 //
-        let camera = Camera()
-        camera.position = [player.position.x, player.position.y + 150, player.position.z - 100]
-        camera.rotation.x = Float(40).degreesToRadians
+//        let camera = Camera()
+//        camera.position = [player.position.x, player.position.y + 150, player.position.z - 100]
+//        camera.rotation.x = Float(40).degreesToRadians
         return camera
     }()
     

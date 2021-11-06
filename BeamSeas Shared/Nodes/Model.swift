@@ -37,8 +37,8 @@ class Model: Node, DepthStencilStateBuilder {
     override var modelMatrix: float4x4 {
         let translationMatrix = float4x4(translation: position)
         let scaleMatrix = float4x4(scaling: scale)
-
-        return translationMatrix * rotationMatrix * scaleMatrix
+        let mdlMatrix = translationMatrix * rotationMatrix * scaleMatrix
+        return mdlMatrix
     }
 
     init(name: String, fragment: String) {

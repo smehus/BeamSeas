@@ -138,7 +138,7 @@ class ThirdPersonScaffoldingCamera: Camera {
         //.....
         // It's either slightly broken or working perfectly. Not sure yet.
         // Either way, find a way to flip the camera so we're boating forward
-        position = focus.worldTransform.columns.3.xyz + inversedTransform
+        position = focus.modelMatrix.columns.3.xyz + inversedTransform
         
 //        let x: Float = focus.worldTransform.columns.3.x * focus.forwardVector.x
 //        let y: Float = focus.worldTransform.columns.3.y * focus.forwardVector.y
@@ -151,9 +151,9 @@ class ThirdPersonScaffoldingCamera: Camera {
         let fwrdVector: SIMD3<Float> =  [0, 1, 0]//normalize([sin(worldRot.y), 0, cos(worldRot.y)])
         // ^ all this doesn't work.... just use [0, 1, 0] \\
         
+//        position = float3(0, 300, 0)
         
-        
-        return float4x4(eye: position, center: focus.worldTransform.columns.3.xyz, up: fwrdVector)
+        return float4x4(eye: position, center: focus.modelMatrix.columns.3.xyz, up: fwrdVector)
 //        return float4x4(lookAtLHEye: position, target: focus.position, up: [0, 1, 0])
 
 
