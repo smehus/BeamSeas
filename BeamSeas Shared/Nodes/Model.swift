@@ -29,17 +29,18 @@ class Model: Node, DepthStencilStateBuilder {
     let samplerState: MTLSamplerState?
     var heightBuffer: MTLBuffer
     var normalBuffer: MTLBuffer
-    var rotationMatrix: float4x4 = .identity()
+    
     var moveStates: Set<Key> = []
+    var rotationMatrix: float4x4 = .identity()
 
     private let heightComputePipelineState: MTLComputePipelineState
     
-    override var modelMatrix: float4x4 {
-        let translationMatrix = float4x4(translation: position)
-        let scaleMatrix = float4x4(scaling: scale)
-
-        return translationMatrix * rotationMatrix * scaleMatrix
-    }
+//    override var modelMatrix: float4x4 {
+//        let translationMatrix = float4x4(translation: position)
+//        let scaleMatrix = float4x4(scaling: scale)
+//
+//        return translationMatrix * rotationMatrix * scaleMatrix
+//    }
 
     init(name: String, fragment: String) {
         guard let assetURL = Bundle.main.url(forResource: name, withExtension: "obj") else { fatalError("Model: \(name) not found")  }
@@ -103,30 +104,32 @@ extension Model: Renderable {
         camera: Camera,
         player: Model
     ) {
-//        for state in moveStates {
-//            switch state {
-//                case .right:
-//                    var rotDeg = rotation.y.radiansToDegrees
-//                    rotDeg += 0.3
-//
-//                    rotation.y = rotDeg.degreesToRadians
-//                case .left:
-//                    var rotDeg = rotation.y.radiansToDegrees
-//                    rotDeg -= 0.3
-//
-//                    rotation.y = rotDeg.degreesToRadians
-//                default: break
-//            }
-//        }
+        for state in moveStates {
+            switch state {
+                case .right:
+                    var rotDeg = rotation.y.radiansToDegrees
+                    rotDeg += 0.3
+                    
+                    rotation.y = rotDeg.degreesToRadians
+                case .left:
+                    var rotDeg = rotation.y.radiansToDegrees
+                    rotDeg -= 0.3
+                    
+                    rotation.y = rotDeg.degreesToRadians
+                default: break
+            }
+        }
         
         let heightValue = heightBuffer.contents().bindMemory(to: Float.self, capacity: 1).pointee
         assert(meshes.count == 1)
 //        let size = meshes.first!.mdlMesh.boundingBox.maxBounds - meshes.first!.mdlMesh.boundingBox.minBounds
-//        position.y = heightValue// - (size.y * 0.3)
+        position.y = heightValue// - (size.y * 0.3)
 
         // TODO: - Transfer all this over to gpu
 
-        let (tangent0, tangent1, normalMapValue) = getRotationFromNormal(uniforms: uniforms)
+        let (tangent0, tangent1, normalMapValue) = getRotationFromNormal()
+        
+        renderer.playerRotation = (worldTransform.columns.3.xyz, tangent0, tangent1, normalMapValue)
         
         var rotMat = float4x4.identity()
         rotMat.columns.0.x = tangent0.x
@@ -141,14 +144,14 @@ extension Model: Renderable {
         rotMat.columns.2.y = tangent1.y
         rotMat.columns.2.z = tangent1.z
         
-        let normalQuat = simd_quatf(rotMat)
+//        let normalQuat = simd_quatf(rotMat)
 //        let slerp = simd_slerp(quaternion, normalQuat, 1.0)
-//        rotationMatrix = rotMat//float4x4(normalQuat)
+        rotationMatrix = rotMat//float4x4(slerp)
   
-        renderer.playerRotation = (worldTransform.columns.3.xyz, tangent0, tangent1, normalMapValue)
+        
     }
     
-    func getRotationFromNormal(uniforms: Uniforms) -> (tangent0: float3, tangent1: float3, normalMap: float3)  {
+    func getRotationFromNormal() -> (tangent0: float3, tangent1: float3, normalMap: float3)  {
         var normalMapValue = normalBuffer.contents().bindMemory(to: SIMD3<Float>.self, capacity: 1).pointee
 
         // transform normal values from between 0 - 1 to -1 - 1
@@ -160,8 +163,6 @@ extension Model: Renderable {
         
   
         // need to add the right angle somehow?
-//        let fwrdVec = worldTransform.inverse.columns.2.xyz
-        
         let crossVec = normalize(-forwardVector)
     
 //        if abs(normalMapValue.x) <= abs(normalMapValue.y) {
@@ -205,7 +206,7 @@ extension Model: Renderable {
         renderEncoder.pushDebugGroup("Model")
 
         fragmentUniforms.tiling = tiling
-        uniforms.modelMatrix = modelMatrix
+        uniforms.modelMatrix = worldTransform
         uniforms.normalMatrix = modelMatrix.upperLeft
 
         renderEncoder.setDepthStencilState(Self.buildDepthStencilState())

@@ -240,7 +240,6 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
     
     /// Maybe this shit is fuckingit up.....
     
-    
     // Multiplier determines ripple size
     float timer = uniforms.deltaTime * 0.007;
     float2 rippleUV = fragment_in.uv * 0.5;
@@ -285,6 +284,7 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
 
     float3 terrainToScaffold = normalize(fragment_in.parentFragmentPosition - fragmentUniforms.scaffoldingPosition).xyz;
     float4 scaffoldMapColor = worldMapTexture.sample(mainSampler, terrainToScaffold);
+    return scaffoldMapColor;
     mixedColor = mix(mixedColor, scaffoldMapColor, 0.3);
     
     constexpr sampler sam(min_filter::linear, mag_filter::linear, mip_filter::nearest, address::repeat);
