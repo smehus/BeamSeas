@@ -130,7 +130,7 @@ class ThirdPersonCamera: Camera {
         
         // get the vector from the terrain to the scaffolding in global world space
         let terrainToScaffolding = focus.worldTransform.columns.3.xyz - focus.parent!.position
-        let inversedTransform = terrainToScaffolding / 5
+        let inversedTransform = terrainToScaffolding / 3
         // Global position of terrain and adding the inversed 'terrain to scaffolding' vector, or a fraction of the vector
         // This should always push the camera out from the terrains position
         //...
