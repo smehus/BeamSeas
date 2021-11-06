@@ -31,6 +31,7 @@ class Model: Node, DepthStencilStateBuilder {
     var normalBuffer: MTLBuffer
     
     var moveStates: Set<Key> = []
+    var rotationMatrix: float4x4 = .identity()
 
     private let heightComputePipelineState: MTLComputePipelineState
     
@@ -108,49 +109,49 @@ extension Model: Renderable {
                 case .right:
                     var rotDeg = rotation.y.radiansToDegrees
                     rotDeg += 0.3
-
-                    position.y += rotDeg.degreesToRadians
+                    
+                    rotation.y = rotDeg.degreesToRadians
                 case .left:
                     var rotDeg = rotation.y.radiansToDegrees
                     rotDeg -= 0.3
-
-                    position.y += rotDeg.degreesToRadians
+                    
+                    rotation.y = rotDeg.degreesToRadians
                 default: break
             }
         }
         
-//        let heightValue = heightBuffer.contents().bindMemory(to: Float.self, capacity: 1).pointee
-//        assert(meshes.count == 1)
+        let heightValue = heightBuffer.contents().bindMemory(to: Float.self, capacity: 1).pointee
+        assert(meshes.count == 1)
 //        let size = meshes.first!.mdlMesh.boundingBox.maxBounds - meshes.first!.mdlMesh.boundingBox.minBounds
-//        position.y = heightValue// - (size.y * 0.3)
+        position.y = heightValue// - (size.y * 0.3)
 
         // TODO: - Transfer all this over to gpu
 
-        let (tangent0, tangent1, normalMapValue) = getRotationFromNormal(uniforms: uniforms)
+        let (tangent0, tangent1, normalMapValue) = getRotationFromNormal()
         
-        var rotMat = float4x4(rotation: position)
+        renderer.playerRotation = (worldTransform.columns.3.xyz, tangent0, tangent1, normalMapValue)
+        
+        var rotMat = float4x4.identity()
         rotMat.columns.0.x = tangent0.x
         rotMat.columns.0.y = tangent0.y
         rotMat.columns.0.z = tangent0.z
-
+        
         rotMat.columns.1.x = normalMapValue.x
         rotMat.columns.1.y = normalMapValue.y
         rotMat.columns.1.z = normalMapValue.z
-
+        
         rotMat.columns.2.x = tangent1.x
         rotMat.columns.2.y = tangent1.y
         rotMat.columns.2.z = tangent1.z
         
 //        let normalQuat = simd_quatf(rotMat)
 //        let slerp = simd_slerp(quaternion, normalQuat, 1.0)
-//        rotationMatrix = rotMat//float4x4(slerp)
+        rotationMatrix = rotMat//float4x4(slerp)
   
-//        quaternion = normalQuat
-        print(worldTransform)
-        renderer.playerRotation = (worldTransform.columns.3.xyz, tangent0, tangent1, normalMapValue)
+        
     }
     
-    func getRotationFromNormal(uniforms: Uniforms) -> (tangent0: float3, tangent1: float3, normalMap: float3)  {
+    func getRotationFromNormal() -> (tangent0: float3, tangent1: float3, normalMap: float3)  {
         var normalMapValue = normalBuffer.contents().bindMemory(to: SIMD3<Float>.self, capacity: 1).pointee
 
         // transform normal values from between 0 - 1 to -1 - 1
@@ -162,9 +163,7 @@ extension Model: Renderable {
         
   
         // need to add the right angle somehow?
-        let fwrdVec = worldTransform.inverse.columns.2.xyz
-        
-        let crossVec = normalize(-fwrdVec)
+        let crossVec = normalize(-forwardVector)
     
 //        if abs(normalMapValue.x) <= abs(normalMapValue.y) {
 //            crossVec.x = 1
@@ -208,7 +207,7 @@ extension Model: Renderable {
 
         fragmentUniforms.tiling = tiling
         uniforms.modelMatrix = worldTransform
-        uniforms.normalMatrix = worldTransform.upperLeft
+        uniforms.normalMatrix = modelMatrix.upperLeft
 
         renderEncoder.setDepthStencilState(Self.buildDepthStencilState())
         renderEncoder.setFragmentSamplerState(samplerState, index: 0)

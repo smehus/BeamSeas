@@ -144,31 +144,10 @@ extension WorldMapScaffolding: Renderable, MapRotationHandler {
 //        print(modelMatrix.upperLeft * position)
         
         if player.moveStates.contains(.forward) {
-            
-            print("""
-                colume0: \(player.modelMatrix.columns.0.xyz)
-                colume1: \(player.modelMatrix.columns.1.xyz)
-                colume2: \(player.modelMatrix.columns.2.xyz)
-                
-                worldMatrix1: \(player.worldTransform.inverse.columns.0.xyz)
-                worldMatrix2: \(player.worldTransform.inverse.columns.1.xyz)
-                worldMatrix3: \(player.worldTransform.inverse.columns.2.xyz)
-                
-                rotationVec: \(player.forwardVector)
-                
-                
-                ============================================
-                """)
-            
-//            let forwardVector = player.worldTransform.inverse.columns.2.xyz * 0.003
-//            let rotMat = float4x4(rotation: float3(forwardVector.z, forwardVector.y, forwardVector.x))
-//            let quat = simd_quatf(rotMat)
-//            quaternion *= quat
-            
-            var deg = rotation.z.radiansToDegrees
-            deg += 0.2
-            rotation.z = deg.degreesToRadians
-            quaternion = simd_quatf(float4x4(rotation: rotation))
+            let forwardVector = player.forwardVector * -0.003
+            let rotMat = float4x4(rotation: float3(-forwardVector.z, forwardVector.y, forwardVector.x))
+            let quat = simd_quatf(rotMat)
+            quaternion = quat * quaternion
         }
         
     }

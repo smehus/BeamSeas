@@ -173,7 +173,7 @@ extension Terrain: Renderable {
 //            return translationMatrix * rotationMatrix * scaleMatrix
 //        }()
 //
-
+//        uniforms.parentTreeModelMatrix = parent!.worldTransform * texCoordModelMatrix
     }
 
     // tesellate plane into a bunch of vertices

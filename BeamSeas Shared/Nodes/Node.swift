@@ -121,7 +121,7 @@ class Node {
 //            return normalize([sin(parentTreeRot.y), 0, cos(parentTreeRot.y)])
 //        }
         
-        return worldTransform.columns.2.xyz//normalize([sin(rotation.y), 0, cos(rotation.y)])
+        return normalize([sin(rotation.y), 0, cos(rotation.y)])
     }
     
     var rightVector: SIMD3<Float> {
