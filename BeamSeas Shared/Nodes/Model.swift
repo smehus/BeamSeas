@@ -146,8 +146,9 @@ extension Model: Renderable {
         
 //        let normalQuat = simd_quatf(rotMat)
 //        let slerp = simd_slerp(quaternion, normalQuat, 1.0)
-        rotationMatrix = rotMat//float4x4(slerp)
-  
+        // gotta do somethignw ith this yo - this is the tipsy turvy funsy bitz
+//        rotationMatrix = rotMat//float4x4(slerp)
+        
         
     }
     
