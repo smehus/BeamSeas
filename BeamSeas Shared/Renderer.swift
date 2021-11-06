@@ -30,14 +30,14 @@ final class Renderer: NSObject {
 //        camera.rotation.y = Float(-60).degreesToRadians
  
         
-        let camera = ThirdPersonScaffoldingCamera()
-        camera.focus = player
-//        camera.focusDistance = 100
-//        camera.focusHeight = 50
+        let camera = ThirdPersonCamera()
+        camera.focus = terrain
+        camera.focusDistance = 100
+        camera.focusHeight = 200
 //
 //        let camera = Camera()
-//        camera.position = [player.position.x, player.position.y + 150, player.position.z - 100]
-//        camera.rotation.x = Float(40).degreesToRadians
+//        camera.position.y = 200
+//        camera.rotation.x = Float(90).degreesToRadians
         return camera
     }()
     
@@ -102,7 +102,7 @@ final class Renderer: NSObject {
     
         terrain = Terrain()
         terrain.scaffoldingPosition = [0, ((mapScaffolding.size.x / 2) + 10), 0]
-        terrain.position = [0, ((mapScaffolding.size.x / 2) + 10), 0]
+        terrain.position            = [0, ((mapScaffolding.size.x / 2) + 10), 0]
         models.append(terrain)
         mapScaffolding.add(child: terrain)
         
@@ -110,7 +110,7 @@ final class Renderer: NSObject {
 
         player = Model(name: "OldBoat", fragment: "fragment_pbr")
         player.scale = [0.5, 0.5, 0.5]
-        models.append(player)
+        models.append(player) 
         terrain.add(child: player)
         models.append(fft)
         fragmentUniforms.light_count = UInt32(lighting.count)

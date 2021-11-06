@@ -34,7 +34,7 @@ import MetalKit
 
 /// Used to help create the vector for sampling world map texture cube
 final class WorldMapScaffolding: Node, Texturable {
-    var scaffoldRotation: float3 = [0, 0, 0]
+    
     private let mesh: MDLMesh
     private let model: MTKMesh
     private let pipelineState: MTLRenderPipelineState
@@ -143,68 +143,38 @@ extension WorldMapScaffolding: Renderable, MapRotationHandler {
 //        print(position)
 //        print(modelMatrix.upperLeft * position)
         
-//        if player.moveStates.contains(.forward) {
+        if player.moveStates.contains(.forward) {
             
-//            print("""
-//                colume0: \(player.modelMatrix.columns.0.xyz)
-//                colume1: \(player.modelMatrix.columns.1.xyz)
-//                colume2: \(player.modelMatrix.columns.2.xyz)
-//                
-//                worldMatrix1: \(player.worldTransform.inverse.columns.0.xyz)
-//                worldMatrix2: \(player.worldTransform.inverse.columns.1.xyz)
-//                worldMatrix3: \(player.worldTransform.inverse.columns.2.xyz)
-//                
-//                rotationVec: \(player.forwardVector)
-//                
-//                
-//                ============================================
-//                """)
+            print("""
+                colume0: \(player.modelMatrix.columns.0.xyz)
+                colume1: \(player.modelMatrix.columns.1.xyz)
+                colume2: \(player.modelMatrix.columns.2.xyz)
+                
+                worldMatrix1: \(player.worldTransform.inverse.columns.0.xyz)
+                worldMatrix2: \(player.worldTransform.inverse.columns.1.xyz)
+                worldMatrix3: \(player.worldTransform.inverse.columns.2.xyz)
+                
+                rotationVec: \(player.forwardVector)
+                
+                
+                ============================================
+                """)
             
 //            let forwardVector = player.worldTransform.inverse.columns.2.xyz * 0.003
 //            let rotMat = float4x4(rotation: float3(forwardVector.z, forwardVector.y, forwardVector.x))
 //            let quat = simd_quatf(rotMat)
 //            quaternion *= quat
             
-//            var deg = rotation.z.radiansToDegrees
-//            deg += 0.2
-//            rotation.z = deg.degreesToRadians
-//            quaternion = simd_quatf(float4x4(rotation: rotation))
-//        }
-        
-        
-        
-//        let delta: Float = 0.003
-//        let rotDelta: float3 = player.moveStates.reduce(into: [0, 0, 0]) { result, state in
-//            switch state {
-//            case .forward: result.x += delta
-//            case .backwards: result.x -= delta
-//            case .left: result.y -= delta
-//            case .right: result.y += delta
-//            default: break
-//            }
-//        }
-//
-//        scaffoldRotation += rotDelta
-//        let rotMat = float4x4(rotation: rotDelta)
-//        quaternion = quaternion * simd_quatf(rotMat)
-        
-        
-        // If keys are pressed:
-        // Use player forward vector to determine rotation
-        
-        if player.moveStates.contains(.forward) {
-            let fwrdVec = player.forwardVector * 0.003
-            let rotMat = float4x4(rotation: fwrdVec)
-            let quat = simd_quatf(rotMat)
-            
-            // rotate by delta amount
-            
-            quaternion = quaternion * quat
-            // Boom. done.
+            var deg = rotation.z.radiansToDegrees
+            deg += 0.2
+            rotation.z = deg.degreesToRadians
+            quaternion = simd_quatf(float4x4(rotation: rotation))
         }
+        
     }
     
     func draw(renderEncoder: MTLRenderCommandEncoder, uniforms: inout Uniforms, fragmentUniforms: inout FragmentUniforms) {
+//        return
         defer {
             renderEncoder.popDebugGroup()
         }
@@ -217,7 +187,7 @@ extension WorldMapScaffolding: Renderable, MapRotationHandler {
 //        mapUniforms.viewMatrix = mapCamera.viewMatrix
 //        mapUniforms.projectionMatrix = mapCamera.projectionMatrix
         
-        uniforms.modelMatrix = worldTransform//float4x4(translation: position) * .identity() * float4x4(scaling: scale)
+        uniforms.modelMatrix = float4x4(translation: position) * .identity() * float4x4(scaling: scale)//worldTransform
   
 //        uniforms.modelMatrix = modelMatrix
         renderEncoder.setRenderPipelineState(pipelineState)
