@@ -158,6 +158,9 @@ extension WorldMapScaffolding: Renderable, MapRotationHandler {
                    ==================================================================
                    """)
             
+            
+            // worldForwardVector apperas to be correct
+            // The other three are all the same. the vectors in local spaceg
             let rotMat = float4x4(rotation: float3(-forwardVector.z, forwardVector.y, forwardVector.x))
             let quat = simd_quatf(rotMat)
             quaternion = quat * quaternion
