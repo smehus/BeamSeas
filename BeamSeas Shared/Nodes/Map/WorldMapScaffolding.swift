@@ -142,12 +142,22 @@ extension WorldMapScaffolding: Renderable, MapRotationHandler {
 //        // WHILE THE TERRAIN IS A CHILD TO SCAFFOLDING AND WILL ROTATE WITH THE PARENT COORDINATE SPACE
         fragmentUniforms.scaffoldingPosition = float4(position, 1)
 //
-//        print(position)
-//        print(modelMatrix.upperLeft * position)
-        
         if player.moveStates.contains(.forward) {
-            let forwardVector = player.modelMatrix.columns.2.xyz * -0.003
-//            let forwardVector = renderer.playerRotation.tangent1 * -0.003
+            
+            let forwardVector = player.forwardVector * -0.003
+            let normalMapTangent = renderer.playerRotation.tangent1 * -0.003
+            let modelForwardVector = normalize(player.modelMatrix.inverse.columns.2.xyz) * -0.003
+            let worldForwardVector = normalize(player.worldTransform.inverse.columns.2.xyz) * -0.003
+            
+            print("""
+                   ==================================================================
+                   forwardVector:       \(player.forwardVector) // Normalized
+                   normalMapTangent:    \(renderer.playerRotation.tangent1) // normalized
+                   modelForwardVector:  \(normalize(player.modelMatrix.inverse.columns.2.xyz))
+                   worldForwardVector:  \(normalize(player.worldTransform.inverse.columns.2.xyz))
+                   ==================================================================
+                   """)
+            
             let rotMat = float4x4(rotation: float3(-forwardVector.z, forwardVector.y, forwardVector.x))
             let quat = simd_quatf(rotMat)
             quaternion = quat * quaternion

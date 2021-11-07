@@ -48,7 +48,6 @@ extension ViewController {
 
     @objc func handlePan(gesture: UIPanGestureRecognizer) {
         
-        print(gesture.translation(in: view))
         let translation = gesture.translation(in: gesture.view)
         let delta = float2(Float(translation.x),
                            Float(-translation.y))

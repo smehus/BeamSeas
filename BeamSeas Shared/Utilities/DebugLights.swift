@@ -126,6 +126,12 @@ extension Renderer {
         var vertices: [float3] = []
         vertices.append(position)
         vertices.append(float3(position.x + direction.x, position.y + direction.y, position.z + direction.z))
+//        print("""
+//              🧩🧩🧩🧩🧩
+//              position:     \(vertices[0])
+//              endPosition:  \(vertices[1])
+//              🧩🧩🧩🧩🧩
+//              """)
         let buffer = Renderer.device.makeBuffer(bytes: &vertices,
                                                 length: MemoryLayout<float3>.stride * vertices.count,
                                                 options: [])

@@ -42,7 +42,6 @@ class GameView: MTKView, GameViewParent {
     }
 
     override func keyDown(with event: NSEvent) {
-        print("*** Key \(event)")
         guard let key = Key(rawValue: event.charactersIgnoringModifiers!) else { return }
         
         inputDelegate?.keyDown(key: key)

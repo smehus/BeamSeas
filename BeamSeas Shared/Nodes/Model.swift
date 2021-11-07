@@ -131,18 +131,18 @@ extension Model: Renderable {
         
         renderer.playerRotation = (worldTransform.columns.3.xyz, tangent0, tangent1, normalMapValue)
         
-        var rotMat = float4x4.identity()
-        rotMat.columns.0.x = tangent0.x
-        rotMat.columns.0.y = tangent0.y
-        rotMat.columns.0.z = tangent0.z
+        var rotMat = float4x4(parent!.quaternion) * float4x4(quaternion)
+        rotMat.columns.0.x += tangent0.x
+        rotMat.columns.0.y += tangent0.y
+        rotMat.columns.0.z += tangent0.z
         
-        rotMat.columns.1.x = normalMapValue.x
-        rotMat.columns.1.y = normalMapValue.y
-        rotMat.columns.1.z = normalMapValue.z
+        rotMat.columns.1.x += normalMapValue.x
+        rotMat.columns.1.y += normalMapValue.y
+        rotMat.columns.1.z += normalMapValue.z
         
-        rotMat.columns.2.x = tangent1.x
-        rotMat.columns.2.y = tangent1.y
-        rotMat.columns.2.z = tangent1.z
+        rotMat.columns.2.x += tangent1.x
+        rotMat.columns.2.y += tangent1.y
+        rotMat.columns.2.z += tangent1.z
         
 //        let normalQuat = simd_quatf(rotMat)
 //        let slerp = simd_slerp(quaternion, normalQuat, 1.0)
@@ -162,11 +162,11 @@ extension Model: Renderable {
         normalMapValue.y = normalMapValue.y * 2 - 1
         normalMapValue.z = normalMapValue.z * 2 - 1
         normalMapValue = normalize(normalMapValue)
-        
+
         
   
         // need to add the right angle somehow?
-        let crossVec = normalize(-forwardVector)
+        let crossVec = normalize(-modelMatrix.inverse.columns.2.xyz)
     
 //        if abs(normalMapValue.x) <= abs(normalMapValue.y) {
 //            crossVec.x = 1
@@ -179,10 +179,14 @@ extension Model: Renderable {
 //        }
         
         // google "normal to rotation matrix"
-        let tangent0 = normalize(cross(normalMapValue, crossVec)) // x
-        let tangent1 = normalize(cross(normalMapValue, tangent0)) // z
+        var tangent0 = cross(normalMapValue, crossVec) // x
+        if simd_dot(tangent0, tangent0) < 0.001 {
+            tangent0 = cross(normalMapValue, float3(0, 1, 0))
+        }
         
-        return (tangent0, tangent1, normalMapValue)
+        let tangent1 = cross(normalMapValue, tangent0) // z
+        
+        return (normalize(tangent0), normalize(tangent1), normalMapValue)
     }
 
     func computeHeight(computeEncoder: MTLComputeCommandEncoder,
