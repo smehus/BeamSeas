@@ -142,28 +142,60 @@ extension WorldMapScaffolding: Renderable, MapRotationHandler {
 //        // WHILE THE TERRAIN IS A CHILD TO SCAFFOLDING AND WILL ROTATE WITH THE PARENT COORDINATE SPACE
         fragmentUniforms.scaffoldingPosition = float4(position, 1)
 //
+        
+        
+        guard renderer.playerRotation != nil else { return }
+        
+        let fwrdVec: float3 = {
+            var value = player.forwardVector
+            value.x = round(value.x * 1000) / 1000
+            value.y = round(value.y * 1000) / 1000
+            value.z = round(value.z * 1000) / 1000
+            return value
+        }()
+        
+        let normalMapTangent: float3 = {
+            var value = renderer.playerRotation.tangent1
+            value.x = round(value.x * 1000) / 1000
+            value.y = round(value.y * 1000) / 1000
+            value.z = round(value.z * 1000) / 1000
+            return value
+        }()
+        
+        let modelForwardVector: float3 = {
+            var value = normalize(player.modelMatrix.inverse.columns.2.xyz)
+            value.x = -value.x
+            value.x = round(value.x * 1000) / 1000
+            value.y = round(value.y * 1000) / 1000
+            value.z = round(value.z * 1000) / 1000
+            return value
+        }()
+        
+        let worldForwardVector: float3 = {
+            var value = normalize(player.worldTransform.inverse.columns.2.xyz)
+            value.x = -value.x
+            value.x = round(value.x * 1000) / 1000
+            value.y = round(value.y * 1000) / 1000
+            value.z = round(value.z * 1000) / 1000
+            return value
+        }()
+        
+        print("""
+               ==================================================================
+               forwardVector:       \(fwrdVec)
+               normalMapTangent:    \(normalMapTangent)
+               modelForwardVector:  \(modelForwardVector)
+               worldForwardVector:  \(worldForwardVector)
+               ==================================================================
+               """)
+        
         if player.moveStates.contains(.forward) {
-            
-            let forwardVector = player.forwardVector * -0.003
-            let normalMapTangent = renderer.playerRotation.tangent1 * -0.003
-            let modelForwardVector = normalize(player.modelMatrix.inverse.columns.2.xyz) * -0.003
-            let worldForwardVector = normalize(player.worldTransform.inverse.columns.2.xyz) * -0.003
-            
-            print("""
-                   ==================================================================
-                   forwardVector:       \(player.forwardVector) // Normalized
-                   normalMapTangent:    \(renderer.playerRotation.tangent1) // normalized
-                   modelForwardVector:  \(normalize(player.modelMatrix.inverse.columns.2.xyz))
-                   worldForwardVector:  \(normalize(player.worldTransform.inverse.columns.2.xyz))
-                   ==================================================================
-                   """)
-            
-            
             // worldForwardVector apperas to be correct
             // The other three are all the same. the vectors in local spaceg
-            let rotMat = float4x4(rotation: float3(-forwardVector.z, forwardVector.y, forwardVector.x))
+            let vec = modelForwardVector * -0.003
+            let rotMat = float4x4(rotation: vec)
             let quat = simd_quatf(rotMat)
-            quaternion = quat * quaternion
+            quaternion = quaternion * quat
         }
         
     }

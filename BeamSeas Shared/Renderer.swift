@@ -32,14 +32,14 @@ final class Renderer: NSObject {
 //        camera.rotation.y = Float(-60).degreesToRadians
  
         
-        let camera = ThirdPersonCamera()
-        camera.focus = terrain
-        camera.focusDistance = 100
-        camera.focusHeight = 200
+//        let camera = ThirdPersonCamera()
+//        camera.focus = terrain
+//        camera.focusDistance = 100
+//        camera.focusHeight = 200
 //
-//        let camera = Camera()
-//        camera.position.y = 200
-//        camera.rotation.x = Float(90).degreesToRadians
+        let camera = Camera()
+        camera.position.y = 200
+        camera.rotation.x = Float(90).degreesToRadians
         return camera
     }()
     
@@ -352,9 +352,9 @@ extension Renderer: MTKViewDelegate {
         let tangent1 = float3(playerRotation.tangent1.x.radiansToDegrees, playerRotation.tangent1.y.radiansToDegrees, playerRotation.tangent1.z.radiansToDegrees)
         let normalMap = float3(playerRotation.normalMap.x.radiansToDegrees, playerRotation.normalMap.y.radiansToDegrees, playerRotation.normalMap.z.radiansToDegrees)
         
-        drawSpotLight(renderEncoder: renderEncoder, position: playerRotation.position, direction: tangent0, color: float3(1, 0, 0)) // Red
+//        drawSpotLight(renderEncoder: renderEncoder, position: playerRotation.position, direction: tangent0, color: float3(1, 0, 0)) // Red
         drawSpotLight(renderEncoder: renderEncoder, position: playerRotation.position, direction: tangent1, color: float3(0, 1, 0)) // Green forwardVec
-        drawSpotLight(renderEncoder: renderEncoder, position: playerRotation.position, direction: normalMap, color: float3(1, 0, 1)) // Blue
+//        drawSpotLight(renderEncoder: renderEncoder, position: playerRotation.position, direction: normalMap, color: float3(1, 0, 1)) // Blue
 
 //        drawDirectionalLight(renderEncoder: renderEncoder, direction: direction, color: float3(1, 0, 0), count: 5)
 //        debugLights(renderEncoder: renderEncoder, lightType: Spotlight)
