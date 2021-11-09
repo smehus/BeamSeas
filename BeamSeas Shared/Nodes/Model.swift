@@ -210,7 +210,8 @@ extension Model: Renderable {
         renderEncoder.pushDebugGroup("Model")
 
         fragmentUniforms.tiling = tiling
-        uniforms.modelMatrix = worldTransform
+
+        uniforms.modelMatrix = modelMatrix
         uniforms.normalMatrix = modelMatrix.upperLeft
 
         renderEncoder.setDepthStencilState(Self.buildDepthStencilState())
