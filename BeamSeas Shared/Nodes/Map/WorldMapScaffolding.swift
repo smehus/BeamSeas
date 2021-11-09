@@ -192,12 +192,19 @@ extension WorldMapScaffolding: Renderable, MapRotationHandler {
         if player.moveStates.contains(.forward) {
             // worldForwardVector apperas to be correct
             // The other three are all the same. the vectors in local spaceg
-            let vec = modelForwardVector * -0.003
-            let rotMat = float4x4(rotation: vec)
-            let quat = simd_quatf(rotMat)
-            quaternion = quaternion * quat
+//            let vec = modelForwardVector * -0.003
+//            let rotMat = float4x4(rotation: vec)
+//            let quat = simd_quatf(rotMat)
+//            quaternion = quaternion * quat
+            
+//            let direction = float3(1, 0, 0) * 0.003
+//            let rotMat = float4x4(rotation: direction)
+//            let quat = simd_quatf(rotMat)
+//            quaternion = quaternion * quat
+            
+            let playerRotation = matrix4x4_rotation(radians: 0.003, axis: float3(player.forwardVector.z, player.forwardVector.y, player.forwardVector.x))
+            quaternion = quaternion * simd_quatf(playerRotation)
         }
-        
     }
     
     func draw(renderEncoder: MTLRenderCommandEncoder, uniforms: inout Uniforms, fragmentUniforms: inout FragmentUniforms) {
@@ -214,7 +221,7 @@ extension WorldMapScaffolding: Renderable, MapRotationHandler {
 //        mapUniforms.viewMatrix = mapCamera.viewMatrix
 //        mapUniforms.projectionMatrix = mapCamera.projectionMatrix
         
-        uniforms.modelMatrix = float4x4(translation: position) * .identity() * float4x4(scaling: scale)//worldTransform
+        uniforms.modelMatrix = worldTransform// float4x4(translation: position) * .identity() * float4x4(scaling: scale)
   
 //        uniforms.modelMatrix = modelMatrix
         renderEncoder.setRenderPipelineState(pipelineState)

@@ -125,7 +125,8 @@ extension Renderer {
     func drawSpotLight(renderEncoder: MTLRenderCommandEncoder, position: float3, direction: float3, color: float3) {
         var vertices: [float3] = []
         vertices.append(position)
-        vertices.append(float3(position.x + direction.x, position.y + direction.y, position.z + direction.z))
+        let newDirection = direction * 5
+        vertices.append(float3(position.x + newDirection.x, position.y + newDirection.y, position.z + newDirection.z))
 //        print("""
 //              🧩🧩🧩🧩🧩
 //              position:     \(vertices[0])

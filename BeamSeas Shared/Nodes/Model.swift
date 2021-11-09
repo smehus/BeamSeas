@@ -180,11 +180,7 @@ extension Model: Renderable {
 //        }
         
         // google "normal to rotation matrix"
-        var tangent0 = cross(normalMapValue, crossVec) // x
-        if simd_dot(tangent0, tangent0) < 0.001 {
-            tangent0 = cross(normalMapValue, float3(0, 1, 0))
-        }
-        
+        let tangent0 = cross(normalMapValue, crossVec) // x
         let tangent1 = cross(normalMapValue, tangent0) // z
         
         return (normalize(tangent0), normalize(tangent1), normalMapValue)
