@@ -38,8 +38,9 @@ final class Renderer: NSObject {
         camera.focusHeight = 200
 //
 //        let camera = Camera()
-//        camera.position.y = 200
-//        camera.rotation.x = Float(90).degreesToRadians
+//        camera.position.z = -300
+//        camera.position.y = 100
+//        camera.rotation.x = Float(45).degreesToRadians
         return camera
     }()
     

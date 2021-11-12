@@ -126,7 +126,7 @@ final class WorldMapScaffolding: Node, Texturable, RendererContianer {
         let initialRotation = simd_quatf(rot)
         quaternion = initialRotation
         
-//        let rot: float4x4 = float4x4(rotation: float3(Float(-90).degreesToRadians, 0, 0))
+//        let rot: float4x4 = float4x4(rotation: float3(0, Float(38).degreesToRadians, Float(78).degreesToRadians))
 //        let initialRotation = simd_quatf(rot)
 //        quaternion = initialRotation
     }
@@ -236,17 +236,24 @@ extension WorldMapScaffolding: Renderable, MapRotationHandler {
 //
         
         
-        let rotDiff = player.rotation.y - degRot
+        let rotDiff = degRot - player.rotation.y
         var newRot = float3(0, rotDiff, 0)
-        if player.moveStates.contains(.forward) {
-            newRot.x = 0.005
-        } else if player.moveStates.contains(.backwards) {
-            newRot.x = -0.005
-        }
+//        if player.moveStates.contains(.forward) {
+//            newRot.x = 0.005
+//        } else if player.moveStates.contains(.backwards) {
+//            newRot.x = -0.005
+//        }
+//
         
+        // Rotate the world scaffolding so that we can
+        // use quaternions to object space rotation
+        // the scaffolding to match the player
         let rotMat = float4x4(rotation: -newRot)
         let newRotQuat = simd_quatf(rotMat)
-        quaternion = newRotQuat * quaternion
+        
+        let inverseQuat = simd_quatf(float4x4(rotation: float3(0, -rotDiff, 0)))
+        quaternion = newRotQuat * quaternion * newRotQuat.inverse
+        
 
         degRot = player.rotation.y
     }
