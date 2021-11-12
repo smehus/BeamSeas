@@ -6,26 +6,50 @@
 //  Copyright © 2021 Scott Mehus. All rights reserved.
 //
 
-extension MapRotationHandler {
+//extension MapRotationHandler {
+//    func getRotation(player: Model, degRot: Float) -> float3 {
+//        // maybe i need to use the player forwardVector to figure out the forwards backwards vectors / rotation for scaffolding
+//
+//        // One solution (maybe) is to have the terrain not move at all except with the scaffolding.
+//        // Don't rotate the scaffolding unless the player moves and only rotate / move forward by the forward vector?
+//
+//        // Another solution is to scrap the scaffolding and figure out a way to sample just the texture? Or maybe say screw it to the world map and just use a 2d texture?
+//
+//        // Another solution - just rotate the scaffolding & do an offscreen draw of the scaffolding to a color texture from the point of view of top down.
+//        // So the camera would be above the scaffolding & terrain pointing downards. Then sample that texture for the color & height of the terrain?
+//
+//        let rotDiff = player.rotation.y - degRot
+//        var newRot = float3(0, rotDiff, 0)
+//        if player.moveStates.contains(.forward) {
+//            newRot.x = -0.005
+//        } else if player.moveStates.contains(.backwards) {
+//            newRot.x = 0.005
+//        }
+//
+//        return newRot
+//    }
+//}
+
+extension MapRotationHandler where Self: WorldMapScaffolding {
     func getRotation(player: Model, degRot: Float) -> float3 {
-        // maybe i need to use the player forwardVector to figure out the forwards backwards vectors / rotation for scaffolding
-        
-        // One solution (maybe) is to have the terrain not move at all except with the scaffolding.
-        // Don't rotate the scaffolding unless the player moves and only rotate / move forward by the forward vector?
-        
-        // Another solution is to scrap the scaffolding and figure out a way to sample just the texture? Or maybe say screw it to the world map and just use a 2d texture?
-        
-        // Another solution - just rotate the scaffolding & do an offscreen draw of the scaffolding to a color texture from the point of view of top down.
-        // So the camera would be above the scaffolding & terrain pointing downards. Then sample that texture for the color & height of the terrain?
-        
+        // We're using the difference here
+        // And then multiplying it below...
         let rotDiff = player.rotation.y - degRot
         var newRot = float3(0, rotDiff, 0)
         if player.moveStates.contains(.forward) {
-            newRot.x = -0.005
-        } else if player.moveStates.contains(.backwards) {
             newRot.x = 0.005
+        } else if player.moveStates.contains(.backwards) {
+            newRot.x = -0.005
         }
+
         
+//        return player.forwardVector - forwardVector
+//        var newRot = float3(0, rotDiff, 0)
+//        if player.moveStates.contains(.forward) {
+//            newRot.x = 0.005
+//        } else if player.moveStates.contains(.backwards) {
+//            newRot.x = -0.005
+//        }
         return newRot
     }
 }
@@ -101,6 +125,10 @@ final class WorldMapScaffolding: Node, Texturable, RendererContianer {
         let rot: float4x4 = .identity()
         let initialRotation = simd_quatf(rot)
         quaternion = initialRotation
+        
+//        let rot: float4x4 = float4x4(rotation: float3(Float(-90).degreesToRadians, 0, 0))
+//        let initialRotation = simd_quatf(rot)
+//        quaternion = initialRotation
     }
     
     private lazy var depthStencilState: MTLDepthStencilState = {
@@ -148,48 +176,29 @@ extension WorldMapScaffolding: Renderable, MapRotationHandler {
         
         let fwrdVec: float3 = {
             var value = player.forwardVector
-            value.x = round(value.x * 1000) / 1000
-            value.y = round(value.y * 1000) / 1000
-            value.z = round(value.z * 1000) / 1000
+            value.x = -value.x
             return value
         }()
         
         let normalMapTangent: float3 = {
             var value = renderer.playerRotation.tangent1
-            value.x = round(value.x * 1000) / 1000
-            value.y = round(value.y * 1000) / 1000
-            value.z = round(value.z * 1000) / 1000
+            value.x = -value.x
             return value
         }()
         
         let modelForwardVector: float3 = {
             var value = normalize(player.modelMatrix.inverse.columns.2.xyz)
-            value.x = -value.x
-            value.x = round(value.x * 1000) / 1000
-            value.y = round(value.y * 1000) / 1000
-            value.z = round(value.z * 1000) / 1000
+//            value.x = -value.x
             return value
         }()
         
         let worldForwardVector: float3 = {
             var value = normalize(player.worldTransform.inverse.columns.2.xyz)
-            value.x = -value.x
-            value.x = round(value.x * 1000) / 1000
-            value.y = round(value.y * 1000) / 1000
-            value.z = round(value.z * 1000) / 1000
+//            value.x = -value.x
             return value
         }()
         
-        print("""
-               ==================================================================
-               forwardVector:       \(fwrdVec)
-               normalMapTangent:    \(normalMapTangent)
-               modelForwardVector:  \(modelForwardVector)
-               worldForwardVector:  \(worldForwardVector)
-               ==================================================================
-               """)
-        
-        if player.moveStates.contains(.forward) {
+//        if player.moveStates.contains(.forward) {
             // worldForwardVector apperas to be correct
             // The other three are all the same. the vectors in local spaceg
 //            let vec = modelForwardVector * -0.003
@@ -202,9 +211,44 @@ extension WorldMapScaffolding: Renderable, MapRotationHandler {
 //            let quat = simd_quatf(rotMat)
 //            quaternion = quaternion * quat
             
-            let playerRotation = matrix4x4_rotation(radians: 0.003, axis: float3(player.forwardVector.z, player.forwardVector.y, player.forwardVector.x))
-            quaternion = quaternion * simd_quatf(playerRotation)
+
+
+            
+            
+//            let revertParentRotation = quaternion.inverse * player.quaternion
+//            let revertParentPosition = worldTransform.inverse * player.worldTransform
+//            let revertParentMat = revertParentPosition * float4x4(revertParentRotation)
+//
+//            let vector = revertParentMat.columns.2.xyz
+//            let playerRotation = matrix4x4_rotation(radians: 0.003, axis: -vector/*float3(vector.z, vector.x, vector.y)*/)
+//            quaternion *= simd_quatf(playerRotation)
+//            // get forward now?
+//
+//            print("""
+//                   ==================================================================
+//                   forwardVector:       \((fwrdVec * 1000) / 1000)
+//                   normalMapTangent:    \((normalMapTangent * 1000) / 1000)
+//                   modelForwardVector:  \((modelForwardVector * 1000) / 1000)
+//                   worldForwardVector:  \((worldForwardVector * 1000) / 1000)
+//                   inverseRotation:     \((revertParentMat.columns.2.xyz * 1000) / 1000)
+//                   ==================================================================
+//                   """)
+//
+        
+        
+        let rotDiff = player.rotation.y - degRot
+        var newRot = float3(0, rotDiff, 0)
+        if player.moveStates.contains(.forward) {
+            newRot.x = 0.005
+        } else if player.moveStates.contains(.backwards) {
+            newRot.x = -0.005
         }
+        
+        let rotMat = float4x4(rotation: newRot)
+        let newRotQuat = simd_quatf(rotMat)
+        quaternion = newRotQuat * quaternion
+
+        degRot = player.rotation.y
     }
     
     func draw(renderEncoder: MTLRenderCommandEncoder, uniforms: inout Uniforms, fragmentUniforms: inout FragmentUniforms) {
