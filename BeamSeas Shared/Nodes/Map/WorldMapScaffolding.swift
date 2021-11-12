@@ -244,7 +244,7 @@ extension WorldMapScaffolding: Renderable, MapRotationHandler {
             newRot.x = -0.005
         }
         
-        let rotMat = float4x4(rotation: newRot)
+        let rotMat = float4x4(rotation: -newRot)
         let newRotQuat = simd_quatf(rotMat)
         quaternion = newRotQuat * quaternion
 
