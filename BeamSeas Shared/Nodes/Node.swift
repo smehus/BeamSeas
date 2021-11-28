@@ -9,6 +9,8 @@
 import MetalKit
 
 protocol Renderable {
+    
+    func didUpdate(keys: Set<Key>)
 
     func update(
         deltaTime: Float,
@@ -44,6 +46,9 @@ protocol Renderable {
 }
 
 extension Renderable {
+    
+    func didUpdate(keys: Set<Key>) { }
+    
     func compute(
         computeEncoder: MTLComputeCommandEncoder,
         uniforms: inout Uniforms,

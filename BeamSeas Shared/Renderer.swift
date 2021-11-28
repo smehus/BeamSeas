@@ -32,15 +32,15 @@ final class Renderer: NSObject {
 //        camera.rotation.y = Float(-60).degreesToRadians
  
         
-        let camera = ThirdPersonCamera()
-        camera.focus = player
-        camera.focusDistance = 100
-        camera.focusHeight = 200
-//
-//        let camera = Camera()
-//        camera.position.z = -300
-//        camera.position.y = 100
-//        camera.rotation.x = Float(45).degreesToRadians
+//        let camera = ThirdPersonCamera()
+//        camera.focus = player
+//        camera.focusDistance = 100
+//        camera.focusHeight = 200
+
+        let camera = Camera()
+        camera.position.z = -300
+        camera.position.y = 100
+        camera.rotation.x = Float(45).degreesToRadians
         return camera
     }()
     
@@ -364,5 +364,17 @@ extension Renderer: MTKViewDelegate {
             commandBuffer.present(drawable)
         }
         commandBuffer.commit()
+    }
+}
+
+
+extension Renderer {
+    func didUpdate(keys: Set<Key>) {
+        // Use the renderable method below - just doing this for now
+        player.moveStates = keys
+        
+        for renderable in models {
+            renderable.didUpdate(keys: keys)
+        }
     }
 }

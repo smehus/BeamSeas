@@ -67,6 +67,7 @@ final class WorldMapScaffolding: Node, Texturable, RendererContianer {
     private var texture: MTLTexture!
     private var mapUniforms = Uniforms()
     private var degRot: Float = 0
+    private var moveRot: Float = 0
     private let samplerState: MTLSamplerState?
     
 //    private lazy var mapCamera: Camera = {
@@ -148,6 +149,23 @@ extension WorldMapScaffolding: AspectRatioUpdateable {
 
 extension WorldMapScaffolding: Renderable, MapRotationHandler {
     
+    
+    func didUpdate(keys: Set<Key>) {
+        let delta = Float(5).degreesToRadians
+        keys.forEach {
+            switch $0 {
+            case .b:
+                quaternion = float3(0, delta, 0).simd * quaternion
+            case .n:
+                quaternion = float3(-delta, 0, 0).simd * quaternion
+            case .h:
+                quaternion = float3(delta, 0, 0).simd * quaternion
+            case .m:
+                quaternion = float3(0, -delta, 0).simd * quaternion
+            default: break
+            }
+        }
+    }
     
     func update(
         deltaTime: Float,
@@ -236,26 +254,27 @@ extension WorldMapScaffolding: Renderable, MapRotationHandler {
 //
         
         
-        let rotDiff = degRot - player.rotation.y
-        var newRot = float3(0, rotDiff, 0)
+        
+//        let alignTransform = float3(0, degRot - player.rotation.y, 0)
+//        var movementTransform: float3 = [moveRot, 0, 0]
+//        
 //        if player.moveStates.contains(.forward) {
-//            newRot.x = 0.005
+//            movementTransform.x = 0.005
 //        } else if player.moveStates.contains(.backwards) {
-//            newRot.x = -0.005
+//            movementTransform.x = -0.005
 //        }
+//        
+//        let localRotation =
+//                            movementTransform.rotationMatrix *
+//                            alignTransform.rotationMatrix *
+//                            float3(0, degRot, 0).rotationMatrix
+//        
+//        quaternion = simd_quatf(localRotation)
+////        quaternion = alignTransform.simd.inverse * movementTransform.simd * alignTransform.simd
 //
-        
-        // Rotate the world scaffolding so that we can
-        // use quaternions to object space rotation
-        // the scaffolding to match the player
-        let rotMat = float4x4(rotation: -newRot)
-        let newRotQuat = simd_quatf(rotMat)
-        
-        let inverseQuat = simd_quatf(float4x4(rotation: float3(0, -rotDiff, 0)))
-        quaternion = newRotQuat * quaternion * newRotQuat.inverse
-        
-
-        degRot = player.rotation.y
+//    
+//        degRot = player.rotation.y
+//        moveRot += movementTransform.x
     }
     
     func draw(renderEncoder: MTLRenderCommandEncoder, uniforms: inout Uniforms, fragmentUniforms: inout FragmentUniforms) {
@@ -305,5 +324,21 @@ extension WorldMapScaffolding: Renderable, MapRotationHandler {
             indexBuffer: mesh.indexBuffer.buffer,
             indexBufferOffset: mesh.indexBuffer.offset
         )
+    }
+}
+
+extension float3 {
+    var simd: simd_quatf {
+        simd_quatf(float4x4(rotation: self))
+    }
+    
+    var rotationMatrix: float4x4 {
+        float4x4(rotation: self)
+    }
+}
+
+extension float4x4 {
+    var simd: simd_quatf {
+        simd_quatf(self)
     }
 }
