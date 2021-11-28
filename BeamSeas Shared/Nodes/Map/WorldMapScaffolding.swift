@@ -151,17 +151,17 @@ extension WorldMapScaffolding: Renderable, MapRotationHandler {
     
     
     func didUpdate(keys: Set<Key>) {
-        let delta = Float(5).degreesToRadians
+        let delta = Float(5).degreesToRadians * 10
         keys.forEach {
             switch $0 {
             case .b:
-                quaternion = float3(0, delta, 0).simd * quaternion
-            case .n:
-                quaternion = float3(-delta, 0, 0).simd * quaternion
+                quaternion = float3(0, -delta, 0).simd * float3(-delta, 0, 0).simd * float3(0, delta, 0).simd * quaternion
+//            case .n:
+//                quaternion = float3(-delta, 0, 0).simd * quaternion
             case .h:
                 quaternion = float3(delta, 0, 0).simd * quaternion
-            case .m:
-                quaternion = float3(0, -delta, 0).simd * quaternion
+//            case .m:
+//                quaternion =  * quaternion
             default: break
             }
         }
