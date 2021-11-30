@@ -43,6 +43,8 @@ extension ViewController: GameViewProtocol {
         keys.add(key: key)
         renderer.didUpdate(keys: keys)
         
+        
+        // Debug shit
         switch key {
             
             // Camera \\
@@ -65,8 +67,7 @@ extension ViewController: GameViewProtocol {
 
     func keyUp(key: Key) {
         keys.remove(key)
-
-        renderer.player.moveStates = keys
+        renderer.didUpdate(keys: keys)
     }
 }
 

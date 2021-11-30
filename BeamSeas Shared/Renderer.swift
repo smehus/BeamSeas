@@ -370,9 +370,6 @@ extension Renderer: MTKViewDelegate {
 
 extension Renderer {
     func didUpdate(keys: Set<Key>) {
-        // Use the renderable method below - just doing this for now
-        player.moveStates = keys
-        
         for renderable in models {
             renderable.didUpdate(keys: keys)
         }

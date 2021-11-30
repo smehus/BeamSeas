@@ -96,6 +96,10 @@ class Model: Node, DepthStencilStateBuilder, RendererContianer {
 }
 
 extension Model: Renderable {
+    
+    func didUpdate(keys: Set<Key>) {
+        moveStates = keys
+    }
 
     func update(
         deltaTime: Float,
