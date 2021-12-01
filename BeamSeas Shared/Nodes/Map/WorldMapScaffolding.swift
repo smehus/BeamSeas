@@ -140,13 +140,13 @@ extension WorldMapScaffolding: Renderable, MapRotationHandler {
         
         userActionStates.forEach {
             switch $0 {
-            case .forward, .backwards:
+            case .forward:
                 quaternion = float3(0, align, 0).simd * float3(Float(-1).degreesToRadians, 0, 0).simd * float3(0, -align, 0).simd * quaternion
+            case .backwards:
+                quaternion = float3(0, align, 0).simd * float3(Float(1).degreesToRadians, 0, 0).simd * float3(0, -align, 0).simd * quaternion
             default: break
             }
         }
-        
-        
     }
     
     func draw(renderEncoder: MTLRenderCommandEncoder, uniforms: inout Uniforms, fragmentUniforms: inout FragmentUniforms) {

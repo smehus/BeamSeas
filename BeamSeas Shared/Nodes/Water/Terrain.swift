@@ -250,7 +250,7 @@ extension Terrain: Renderable {
 //        let renderRotation = float4x4(rotation: parentYRotation)
 //        let renderRotQuat = simd_quatf(renderRotation)
 
-        uniforms.modelMatrix = worldTransform//float4x4(translation: position) * float4x4(renderRotQuat) * float4x4(scaling: scale)
+        uniforms.modelMatrix = modelMatrix//worldTransform//float4x4(translation: position) * float4x4(renderRotQuat) * float4x4(scaling: scale)
         uniforms.normalMatrix = float3x3(normalFrom4x4: worldTransform)
 //        fragmentUniforms.inverseTerrainModelMatrix = modelMatrix.inverse
 

@@ -284,7 +284,7 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
 
     float3 terrainToScaffold = normalize(fragment_in.parentFragmentPosition - fragmentUniforms.scaffoldingPosition).xyz;
     float4 scaffoldMapColor = worldMapTexture.sample(mainSampler, terrainToScaffold);
-    return scaffoldMapColor;
+//    return scaffoldMapColor; // This is the current color yo
     mixedColor = mix(mixedColor, scaffoldMapColor, 0.3);
     
     constexpr sampler sam(min_filter::linear, mag_filter::linear, mip_filter::nearest, address::repeat);
@@ -302,13 +302,13 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
 //    normal = normalize(normal);
 
 //  Need to double check creation of gradient map
-    float color_mod = 1.0  * smoothstep(1.3, 1.8, turbulence);
-
-    float3 specular = terrainDiffuseLighting(uniforms.normalMatrix * (normalValue * 2.0f - 1.0f), fragment_in.position.xyz, fragmentUniforms, lights, mixedColor.rgb);
+//    float color_mod = 1.0  * smoothstep(1.3, 1.8, turbulence);
+//
+//    float3 specular = terrainDiffuseLighting(uniforms.normalMatrix * (normalValue * 2.0f - 1.0f), fragment_in.position.xyz, fragmentUniforms, lights, mixedColor.rgb);
 //    return float4(1, 1, 1, 1);
-//    return float4(float3(1.0, 0, 0), 1.0); // lol this is stupid of me
+    return float4(1, 0, 0, 1);
 //    return fragment_in.color;
-    return float4(specular, 1.0);
+//    return float4(specular, 1.0);
 }
 
 
