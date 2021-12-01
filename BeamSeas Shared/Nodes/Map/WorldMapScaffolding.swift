@@ -105,23 +105,23 @@ extension WorldMapScaffolding: Renderable, MapRotationHandler {
         
         // 1.57
 //        let align = Float(90).degreesToRadians
-        let align = Float(player.rotation.y - degRot)
-        print(align)
-        keys.forEach {
-            switch $0 {
-            case .b:
-                quaternion = float3(0, align, 0).simd * quaternion
-            case .n:
-                quaternion = float3(Float(-10).degreesToRadians, 0, 0).simd * quaternion
-            case .h:
-                quaternion = float3(Float(10).degreesToRadians, 0, 0).simd * quaternion
-            case .m:
-                quaternion = float3(0, align, 0).simd * quaternion * float3(Float(-10).degreesToRadians, 0, 0).simd * float3(0, -align, 0).simd * quaternion
-                
-                degRot = player.rotation.y
-            default: break
-            }
-        }
+//        let align = Float(player.rotation.y - degRot)
+//        print(align)
+//        keys.forEach {
+//            switch $0 {
+//            case .b:
+//                quaternion = float3(0, align, 0).simd * quaternion
+//            case .n:
+//                quaternion = float3(Float(-10).degreesToRadians, 0, 0).simd * quaternion
+//            case .h:
+//                quaternion = float3(Float(10).degreesToRadians, 0, 0).simd * quaternion
+//            case .m:
+//                quaternion = float3(0, align, 0).simd * quaternion * float3(Float(-10).degreesToRadians, 0, 0).simd * float3(0, -align, 0).simd * quaternion
+//
+//                degRot = player.rotation.y
+//            default: break
+//            }
+//        }
 
     }
 
@@ -135,28 +135,27 @@ extension WorldMapScaffolding: Renderable, MapRotationHandler {
         self.player = player
         fragmentUniforms.scaffoldingPosition = float4(position, 1)
 
-//        let delta = Float(5).degreesToRadians * 10
-//        let align = float3(0, player.rotation.y - degRot, 0)
-//        let delta = Float(player.rotation.y - degRot)
-//        var move = float3(0, 0, 0)
-//        if !userActionStates.isEmpty { userActionStates.forEach { print("*** states \($0.rawValue)") } }
-//        userActionStates.forEach {
-//            switch $0 {
-//            case .forward:
-//                move = float3(Float(5).degreesToRadians, 0, 0)
-//
-//                if shouldDo { // Getting closer but this doesn't work like above
-//                    shouldDo = false
-////                    quaternion = align.rotationMatrix.inverse.simd * move.simd * align.simd * quaternion
-//                    quaternion = float3(0, -delta, 0).simd * move.simd * float3(0, delta, 0).simd * quaternion
-//                }
-//            case .backwards:
-//                break
-//            default: break
-//            }
-//        }
-//
-//        degRot = player.rotation.y
+        let align = Float(player.rotation.y - degRot)
+        print(align)
+        userActionStates.forEach {
+            switch $0 {
+//            case .b:
+//                quaternion = float3(0, align, 0).simd * quaternion
+//            case .n:
+//                quaternion = float3(Float(-10).degreesToRadians, 0, 0).simd * quaternion
+//            case .h:
+//                quaternion = float3(Float(10).degreesToRadians, 0, 0).simd * quaternion
+            case .m:
+                if shouldDo {
+                    quaternion = float3(0, align, 0).simd * quaternion * float3(Float(-10).degreesToRadians, 0, 0).simd * float3(0, -align, 0).simd * quaternion
+                    
+                    degRot = player.rotation.y
+                    shouldDo = false
+                }
+
+            default: break
+            }
+        }
     }
     
     func draw(renderEncoder: MTLRenderCommandEncoder, uniforms: inout Uniforms, fragmentUniforms: inout FragmentUniforms) {
