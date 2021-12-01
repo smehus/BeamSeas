@@ -135,27 +135,18 @@ extension WorldMapScaffolding: Renderable, MapRotationHandler {
         self.player = player
         fragmentUniforms.scaffoldingPosition = float4(position, 1)
 
-        let align = Float(player.rotation.y - degRot)
+        let align = Float(player.rotation.y)
         print(align)
+        
         userActionStates.forEach {
             switch $0 {
-//            case .b:
-//                quaternion = float3(0, align, 0).simd * quaternion
-//            case .n:
-//                quaternion = float3(Float(-10).degreesToRadians, 0, 0).simd * quaternion
-//            case .h:
-//                quaternion = float3(Float(10).degreesToRadians, 0, 0).simd * quaternion
-            case .m:
-                if shouldDo {
-                    quaternion = float3(0, align, 0).simd * quaternion * float3(Float(-10).degreesToRadians, 0, 0).simd * float3(0, -align, 0).simd * quaternion
-                    
-                    degRot = player.rotation.y
-                    shouldDo = false
-                }
-
+            case .forward, .backwards:
+                quaternion = float3(0, align, 0).simd * float3(Float(-1).degreesToRadians, 0, 0).simd * float3(0, -align, 0).simd * quaternion
             default: break
             }
         }
+        
+        
     }
     
     func draw(renderEncoder: MTLRenderCommandEncoder, uniforms: inout Uniforms, fragmentUniforms: inout FragmentUniforms) {
