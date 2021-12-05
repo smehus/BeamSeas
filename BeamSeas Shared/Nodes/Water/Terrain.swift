@@ -256,7 +256,7 @@ extension Terrain: Renderable {
 
         // I need two fo these? To keep track of movement for scaffolding rendering rotaion
         // And the texture sampling rotation
-        uniforms.modelMatrix = modelMatrix//float4x4(translation: position) * float4x4(renderRotQuat) * float4x4(scaling: scale)
+        uniforms.modelMatrix = worldTransform//float4x4(translation: position) * float4x4(renderRotQuat) * float4x4(scaling: scale)
         uniforms.normalMatrix = float3x3(normalFrom4x4: worldTransform)
 //        fragmentUniforms.inverseTerrainModelMatrix = modelMatrix.inverse
 

@@ -32,15 +32,14 @@ final class Renderer: NSObject {
 //        camera.rotation.y = Float(-60).degreesToRadians
  
         
-        let camera = ThirdPersonCamera()
-        camera.focus = player
-        camera.focusDistance = 1
-        camera.focusHeight = 200
+//        let camera = ThirdPersonCamera(focus: terrain, scaffolding: mapScaffolding)
+//        camera.focusDistance = 1
+//        camera.focusHeight = 200
 
-//        let camera = Camera()
-//        camera.position.z = -100
-//        camera.position.y = 200
-//        camera.rotation.x = Float(45).degreesToRadians
+        let camera = Camera()
+        camera.position.z = -100
+        camera.position.y = 200
+        camera.rotation.x = Float(45).degreesToRadians
         return camera
     }()
     
@@ -105,7 +104,7 @@ final class Renderer: NSObject {
     
         terrain = Terrain()
         terrain.scaffoldingPosition = [0, ((mapScaffolding.size.x / 2)), 0]
-        terrain.position = [0, 20, 0]
+        terrain.position = [0, ((mapScaffolding.size.x / 2)), 0]//[0, 20, 0]
         models.append(terrain)
         mapScaffolding.add(child: terrain)
         

@@ -125,18 +125,9 @@ class ThirdPersonScaffoldingCamera: Camera {
     }
 
     override var viewMatrix: float4x4 {
-//        setRotatingCamera()
-//        setNonRotatingCamera()
-        
-        // get the vector from the terrain to the scaffolding in global world space
         let terrainToScaffolding = focus.worldTransform.columns.3.xyz - focus.parent!.position
         let inversedTransform = terrainToScaffolding / 3
-        // Global position of terrain and adding the inversed 'terrain to scaffolding' vector, or a fraction of the vector
-        // This should always push the camera out from the terrains position
-        //...
-        //....
-        //.....
-        // It's either slightly broken or working perfectly. Not sure yet. 
+ 
         position = focus.worldTransform.columns.3.xyz + inversedTransform
         
 //        let x: Float = focus.worldTransform.columns.3.x * focus.forwardVector.x
@@ -148,69 +139,69 @@ class ThirdPersonScaffoldingCamera: Camera {
         // the world map will move around the screen
 //        let worldRot = focus.parent!.rotation * focus.rotation
         let fwrdVector: SIMD3<Float> = [0, 1, 0]//normalize([sin(worldRot.y), 0, cos(worldRot.y)])
-        // ^ all this doesn't work.... just use [0, 1, 0] \\
-        
-        
-        
         return float4x4(eye: position, center: focus.worldTransform.columns.3.xyz, up: fwrdVector)
-//        return float4x4(lookAtLHEye: position, target: focus.position, up: [0, 1, 0])
-
-
-//        setNonRotatingCamera()
-//        return super.viewMatrix
-    }
-
-    // Use the world transform position data
-    private func setNonRotatingCamera() {
-        let worldPos = focus.worldTransform.columns.3.xyz
-        position = float3(worldPos.x, worldPos.y - focusDistance, worldPos.z - focusDistance)
-        position.y = 3
-    }
-
-    private func setRotatingCamera() {
-        let focusPosition = focus.worldTransform.columns.3.xyz
-        position = focusPosition - focusDistance * focus.forwardVector
-        position.y = focusPosition.y +  focusHeight
-        rotation.y = focusPosition.y
-
     }
 }
 
 class ThirdPersonCamera: Camera {
 
-    var focus: Node!
     var focusDistance: Float = 3
     var focusHeight: Float = 3
+    
+    private let focus: Node
+    private let scaffolding: WorldMapScaffolding
 
     // the rotation is is all 0's because its never actually set
 
-    override init() {
-        super.init()
-    }
-
-    init(focus: Node) {
+    init(focus: Node, scaffolding: WorldMapScaffolding) {
         self.focus = focus
+        self.scaffolding = scaffolding
         super.init()
     }
 
     override var viewMatrix: float4x4 {
-        setRotatingCamera()
-//        return float4x4(lookAtLHEye: position, target: focus.position, up: [0, 1, 0])
-//        let noRotation = float4x4(translation: focus.position) * .identity() * float4x4(scaling: focus.scale)
-        return float4x4(eye: position, center: focus.modelMatrix.columns.3.xyz, up: [0, 1, 0])
-
-//        setNonRotatingCamera()
-//        return super.viewMatrix
-    }
-
-    private func setNonRotatingCamera() {
-        position = float3(focus.position.x, focus.position.y - focusDistance, focus.position.z - focusDistance)
-        position.y = 3
-    }
-
-    private func setRotatingCamera() {
-        position = focus.position - focusDistance * focus.forwardVector
-        position.y = focus.position.y + focusHeight
-        rotation.y = focus.rotation.y
+        
+        var focusPosition = focus.worldTransform.columns.3.xyz
+//        focusPosition += scaffolding.position - focusPosition
+        focusPosition.y += 200
+        return float4x4(eye: position, center: focusPosition, up: [0, 1, 0])
     }
 }
+//
+//class ThirdPersonCamera: Camera {
+//
+//    var focus: Node!
+//    var focusDistance: Float = 3
+//    var focusHeight: Float = 3
+//
+//    // the rotation is is all 0's because its never actually set
+//
+//    override init() {
+//        super.init()
+//    }
+//
+//    init(focus: Node) {
+//        self.focus = focus
+//        super.init()
+//    }
+//
+//    override var viewMatrix: float4x4 {
+//        setRotatingCamera()
+////        return float4x4(lookAtLHEye: position, target: focus.position, up: [0, 1, 0])
+////        let noRotation = float4x4(translation: focus.position) * .identity() * float4x4(scaling: focus.scale)
+//        return float4x4(eye: position, center: focus.modelMatrix.columns.3.xyz, up: [0, 1, 0])
+//
+////        setNonRotatingCamera()
+////        return super.viewMatrix
+//    }
+//
+//    private func setNonRotatingCamera() {
+//        position = float3(focus.position.x, focus.position.y - focusDistance, focus.position.z - focusDistance)
+//        position.y = 3
+//    }
+//
+//    private func setRotatingCamera() {
+//        position = focus.position - focusDistance * focus.forwardVector
+//        position.y = focus.position.y + focusHeight
+//        rotation.y = focus.rotation.y
+//    }

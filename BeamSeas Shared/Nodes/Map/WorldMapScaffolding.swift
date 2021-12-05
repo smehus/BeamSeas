@@ -130,6 +130,7 @@ extension WorldMapScaffolding: Renderable, MapRotationHandler {
         userActionStates.forEach {
             switch $0 {
             case .forward:
+                // Figure out why i need to do this !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                 quaternion          = float3(0, align, 0).simd * float3(Float(0.2).degreesToRadians,  0, 0).simd * float3(0, -align, 0).simd * quaternion
                 renderingQuaternion = float3(0, align, 0).simd * float3(Float(-0.2).degreesToRadians,  0, 0).simd * float3(0, -align, 0).simd * renderingQuaternion
 //            case .backwards:
@@ -154,7 +155,7 @@ extension WorldMapScaffolding: Renderable, MapRotationHandler {
         let rotation = float4x4(renderingQuaternion)
         let scale = float4x4(scaling: scale)
         
-        uniforms.modelMatrix = translation * rotation * scale
+        uniforms.modelMatrix = translation * .identity() * scale
   
 //        uniforms.modelMatrix = modelMatrix
         renderEncoder.setRenderPipelineState(pipelineState)
