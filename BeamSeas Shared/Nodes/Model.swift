@@ -133,7 +133,7 @@ extension Model: Renderable {
 
         let (tangent0, tangent1, normalMapValue) = getRotationFromNormal()
         
-        renderer.playerRotation = (modelMatrix.columns.3.xyz, tangent0, tangent1, normalMapValue)
+        renderer.playerRotation = (worldTransform.columns.3.xyz, tangent0, tangent1, normalMapValue)
 //        renderer.playerRotation = (worldTransform.columns.3.xyz, tangent0, normalize(worldTransform.columns.2.xyz), normalMapValue)
 //
 //        var rotMat = float4x4(parent!.quaternion) * float4x4(quaternion)
@@ -171,7 +171,8 @@ extension Model: Renderable {
         
   
         // need to add the right angle somehow?
-        let crossVec = normalize(-forwardVector)
+        let crossVec = normalize(-worldTransform.columns.2.xyz)
+//        let crossVec = normalize(-forwardVector)
     
 //        if abs(normalMapValue.x) <= abs(normalMapValue.y) {
 //            crossVec.x = 1

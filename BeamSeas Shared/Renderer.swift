@@ -113,7 +113,7 @@ final class Renderer: NSObject {
         player = Model(name: "OldBoat", fragment: "fragment_pbr")
         player.scale = [0.5, 0.5, 0.5]
         models.append(player) 
-//        terrain.add(child: player)
+        terrain.add(child: player)
         models.append(fft)
         fragmentUniforms.light_count = UInt32(lighting.count)
         

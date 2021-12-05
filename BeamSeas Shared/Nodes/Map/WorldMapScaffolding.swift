@@ -120,6 +120,9 @@ extension WorldMapScaffolding: Renderable, MapRotationHandler {
         self.player = player
         fragmentUniforms.scaffoldingPosition = float4(position, 1)
 
+        // Maybe don't align, but transform the player back to 0,0,0
+        // Don't mess with the rotation
+        // Get the forward vector of player onces translates - would need to create the world transform matrix to transform it all yo
         let align = Float(player.rotation.y)
         print(align)
         
@@ -130,12 +133,17 @@ extension WorldMapScaffolding: Renderable, MapRotationHandler {
         userActionStates.forEach {
             switch $0 {
             case .forward:
-                // Figure out why i need to do this !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                quaternion          = float3(0, align, 0).simd * float3(Float(0.2).degreesToRadians,  0, 0).simd * float3(0, -align, 0).simd * quaternion
-                renderingQuaternion = float3(0, align, 0).simd * float3(Float(-0.2).degreesToRadians,  0, 0).simd * float3(0, -align, 0).simd * renderingQuaternion
+  
+                let inverse = quaternion.inverse * quaternion
+                quaternion = inverse.inverse * float3(0, align, 0).simd * float3(Float(0.2).degreesToRadians,  0, 0).simd * float3(0, -align, 0).simd * inverse * quaternion
+                
+  //                quaternion          = float3(0, align, 0).simd * float3(Float(0.2).degreesToRadians,  0, 0).simd * float3(0, -align, 0).simd * quaternion
+//                renderingQuaternion = float3(0, align, 0).simd * float3(Float(-0.2).degreesToRadians,  0, 0).simd * float3(0, -align, 0).simd * renderingQuaternion
 //            case .backwards:
 //                quaternion          = float3(0, -align, 0).simd * float3(Float(-1).degreesToRadians, 0, 0).simd * float3(0, align, 0).simd * quaternion
 //                renderingQuaternion = float3(0, align, 0).simd * float3(Float(1).degreesToRadians,  0, 0).simd * float3(0, -align, 0).simd * renderingQuaternion
+            case .b:
+                quaternion = quaternion.inverse * quaternion
             default: break
             }
         }

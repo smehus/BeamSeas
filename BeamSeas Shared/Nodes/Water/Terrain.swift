@@ -245,7 +245,7 @@ extension Terrain: Renderable {
         
         // need to add to this rotation...
         let textureRotation = float4x4(quaternion)
-        let textureTranslation = float4x4(translation: scaffoldingPosition)
+        let textureTranslation = float4x4(translation: position)
         let textureScale = float4x4(scaling: scale) // identity
         let textureModelMatrix = textureTranslation * textureRotation * textureScale
         // Scaffolding * modified position
