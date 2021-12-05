@@ -152,7 +152,7 @@ class Terrain: Node {
 
         super.init()
         
-        worldMapTexture = worldMapTexture(options: nil)
+        worldMapTexture = worldMapTexture(options: [.origin: MTKTextureLoader.Origin.topLeft])
     }
 }
 
@@ -247,9 +247,9 @@ extension Terrain: Renderable {
         let textureRotation = float4x4(quaternion)
         let textureTranslation = float4x4(translation: scaffoldingPosition)
         let textureScale = float4x4(scaling: scale) // identity
-        let textureMdl = textureTranslation * textureRotation * textureScale
+        let textureModelMatrix = textureTranslation * textureRotation * textureScale
         // Scaffolding * modified position
-        uniforms.parentTreeModelMatrix = parent!.worldTransform * textureMdl
+        uniforms.parentTreeModelMatrix = parent!.worldTransform * textureModelMatrix
         
 //        let renderRotation = float4x4(rotation: parentYRotation)
 //        let renderRotQuat = simd_quatf(renderRotation)

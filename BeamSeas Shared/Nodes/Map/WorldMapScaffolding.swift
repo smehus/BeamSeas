@@ -84,7 +84,7 @@ final class WorldMapScaffolding: Node, Texturable, RendererContianer {
         super.init()
         
         boundingBox = mesh.boundingBox
-        texture = worldMapTexture(options: nil)
+        texture =  worldMapTexture(options: [.origin: MTKTextureLoader.Origin.topLeft])
         
         // If i don't set this here, it all gets fucked
         quaternion = simd_quatf(.identity())

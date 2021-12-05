@@ -168,10 +168,12 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
     // Imaginary world position if the terrain was a child of the scaffolding.
     // World position to create texture coordinates
     
-                                // Imaginary position               // fragment position
+                                /// Imaginary position               // fragment position
                                 // scaffolding * terrain
-    out.parentFragmentPosition = uniforms.parentTreeModelMatrix * position; // This should still work? because position will be relative to identiy
-    // ^^^ forget about this for now
+    
+    /// This is just the world position of terrain if terrain were a child of scaffolding
+    out.parentFragmentPosition = uniforms.parentTreeModelMatrix * position;
+    /// ^^^ forget about this for now
     out.toCamera = fragmentUniforms.camera_position - out.worldPosition.xyz;
 
     return out;
