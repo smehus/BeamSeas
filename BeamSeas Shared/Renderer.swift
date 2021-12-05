@@ -32,14 +32,15 @@ final class Renderer: NSObject {
 //        camera.rotation.y = Float(-60).degreesToRadians
  
         
-//        let camera = ThirdPersonCamera()
-//        camera.focus = terrain
+//        let camera = ThirdPersonScaffoldingCamera()
+//        camera.focus = player
 //        camera.focusDistance = 100
 //        camera.focusHeight = 200
-//
+
         let camera = Camera()
+        camera.position.z = -100
         camera.position.y = 200
-        camera.rotation.x = Float(90).degreesToRadians
+        camera.rotation.x = Float(45).degreesToRadians
         return camera
     }()
     
@@ -104,7 +105,7 @@ final class Renderer: NSObject {
     
         terrain = Terrain()
         terrain.scaffoldingPosition = [0, ((mapScaffolding.size.x / 2) + 10), 0]
-        terrain.position = [0, ((mapScaffolding.size.x / 2) + 10), 0]
+        terrain.position = [0, 0, 0]
         models.append(terrain)
         mapScaffolding.add(child: terrain)
         
@@ -363,5 +364,14 @@ extension Renderer: MTKViewDelegate {
             commandBuffer.present(drawable)
         }
         commandBuffer.commit()
+    }
+}
+
+
+extension Renderer {
+    func didUpdate(keys: Set<Key>) {
+        for renderable in models {
+            renderable.didUpdate(keys: keys)
+        }
     }
 }

@@ -18,6 +18,10 @@ enum Key: String {
     case p = "p"
     case j = "j"
     case l = "l"
+    case n = "n"
+    case m = "m"
+    case b = "b"
+    case h = "h"
     
     
     var moveState: ModelMoveState {

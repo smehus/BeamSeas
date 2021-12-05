@@ -107,7 +107,7 @@ class ArcballCamera: Camera {
 
 
 // My F'ed up one
-class ThirdPersonCamera: Camera {
+class ThirdPersonScaffoldingCamera: Camera {
 
     var focus: Node!
     var focusDistance: Float = 3
@@ -173,5 +173,44 @@ class ThirdPersonCamera: Camera {
         position.y = focusPosition.y +  focusHeight
         rotation.y = focusPosition.y
 
+    }
+}
+
+class ThirdPersonCamera: Camera {
+
+    var focus: Node!
+    var focusDistance: Float = 3
+    var focusHeight: Float = 3
+
+    // the rotation is is all 0's because its never actually set
+
+    override init() {
+        super.init()
+    }
+
+    init(focus: Node) {
+        self.focus = focus
+        super.init()
+    }
+
+    override var viewMatrix: float4x4 {
+        setRotatingCamera()
+//        return float4x4(lookAtLHEye: position, target: focus.position, up: [0, 1, 0])
+        let noRotation = float4x4(translation: focus.position) * .identity() * float4x4(scaling: focus.scale)
+        return float4x4(eye: position, center: focus.modelMatrix.columns.3.xyz, up: [0, 1, 0])
+
+//        setNonRotatingCamera()
+//        return super.viewMatrix
+    }
+
+    private func setNonRotatingCamera() {
+        position = float3(focus.position.x, focus.position.y - focusDistance, focus.position.z - focusDistance)
+        position.y = 3
+    }
+
+    private func setRotatingCamera() {
+        position = focus.position - focusDistance * focus.forwardVector
+        position.y = focus.position.y + focusHeight
+        rotation.y = focus.rotation.y
     }
 }

@@ -6,26 +6,17 @@
 //  Copyright © 2021 Scott Mehus. All rights reserved.
 //
 
-extension MapRotationHandler {
+extension MapRotationHandler where Self: WorldMapScaffolding {
     func getRotation(player: Model, degRot: Float) -> float3 {
-        // maybe i need to use the player forwardVector to figure out the forwards backwards vectors / rotation for scaffolding
-        
-        // One solution (maybe) is to have the terrain not move at all except with the scaffolding.
-        // Don't rotate the scaffolding unless the player moves and only rotate / move forward by the forward vector?
-        
-        // Another solution is to scrap the scaffolding and figure out a way to sample just the texture? Or maybe say screw it to the world map and just use a 2d texture?
-        
-        // Another solution - just rotate the scaffolding & do an offscreen draw of the scaffolding to a color texture from the point of view of top down.
-        // So the camera would be above the scaffolding & terrain pointing downards. Then sample that texture for the color & height of the terrain?
-        
+        // We're using the difference here
+        // And then multiplying it below...
         let rotDiff = player.rotation.y - degRot
         var newRot = float3(0, rotDiff, 0)
         if player.moveStates.contains(.forward) {
-            newRot.x = -0.005
-        } else if player.moveStates.contains(.backwards) {
             newRot.x = 0.005
+        } else if player.moveStates.contains(.backwards) {
+            newRot.x = -0.005
         }
-        
         return newRot
     }
 }
@@ -43,20 +34,12 @@ final class WorldMapScaffolding: Node, Texturable, RendererContianer {
     private var texture: MTLTexture!
     private var mapUniforms = Uniforms()
     private var degRot: Float = 0
+    private var moveRot: Float = 0
     private let samplerState: MTLSamplerState?
-    
-//    private lazy var mapCamera: Camera = {
-////        let camera = Camera()
-////        camera.near = 0.0001
-////        camera.far = 1000
-//
-//        let camera = ThirdPersonCamera()
-//        camera.far = 2000
-//        camera.focus = self
-//        camera.focusDistance = 150
-//        camera.focusHeight = 100
-//        return camera
-//    }()
+    private var userActionStates: Set<Key> = []
+    var shouldDo = true
+    var player: Model!
+    var renderingQuaternion: simd_quatf!
     
     init(extent: vector_float3, segments: vector_uint2) {
         let allocator = MTKMeshBufferAllocator(device: Renderer.device)
@@ -85,6 +68,11 @@ final class WorldMapScaffolding: Node, Texturable, RendererContianer {
             pipelineDescriptor.vertexFunction = Renderer.library.makeFunction(name: "worldMap_vertex")
             pipelineDescriptor.fragmentFunction = Renderer.library.makeFunction(name: "worldMap_fragment")
             pipelineDescriptor.vertexDescriptor = MTKMetalVertexDescriptorFromModelIO(mesh.vertexDescriptor)
+            let attachment = pipelineDescriptor.colorAttachments[0]!
+            attachment.isBlendingEnabled = true
+            attachment.rgbBlendOperation = .add
+            attachment.sourceRGBBlendFactor = .sourceAlpha
+            attachment.destinationRGBBlendFactor = .oneMinusSourceAlpha
             
             pipelineState = try Renderer.device.makeRenderPipelineState(descriptor: pipelineDescriptor)
             
@@ -98,9 +86,9 @@ final class WorldMapScaffolding: Node, Texturable, RendererContianer {
         boundingBox = mesh.boundingBox
         texture = worldMapTexture(options: nil)
         
-        let rot: float4x4 = .identity()
-        let initialRotation = simd_quatf(rot)
-        quaternion = initialRotation
+        // If i don't set this here, it all gets fucked
+        quaternion = simd_quatf(.identity())
+        renderingQuaternion = simd_quatf(.identity())
     }
     
     private lazy var depthStencilState: MTLDepthStencilState = {
@@ -113,14 +101,15 @@ final class WorldMapScaffolding: Node, Texturable, RendererContianer {
 
 
 extension WorldMapScaffolding: AspectRatioUpdateable {
-    func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {
-//        mapCamera.aspect = Float(size.width) / Float(size.height)
-    }
+    func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) { }
 }
 
 extension WorldMapScaffolding: Renderable, MapRotationHandler {
     
-    
+    func didUpdate(keys: Set<Key>) {
+        userActionStates = keys
+    }
+
     func update(
         deltaTime: Float,
         uniforms: inout Uniforms,
@@ -128,100 +117,44 @@ extension WorldMapScaffolding: Renderable, MapRotationHandler {
         camera: Camera,
         player: Model
     ) {
-        // The players rotation will always be on the y axis
-//        let rotMat = float4x4(rotation: getRotation(player: player, degRot: degRot))
-//        let newRotQuat = simd_quatf(rotMat)
-//        // Not rotating because the quat is zero?
-//        quaternion = newRotQuat * quaternion
-//
-//        degRot = player.rotation.y
-//
-////        fragmentUniforms.scaffoldingModelMatrix = worldTransform
-//
-//        // CURRENT TASK - TRYING TO GET TEXTURE SAMPLING TO WORK
-//        // WHILE THE TERRAIN IS A CHILD TO SCAFFOLDING AND WILL ROTATE WITH THE PARENT COORDINATE SPACE
+        self.player = player
         fragmentUniforms.scaffoldingPosition = float4(position, 1)
-//
+
+        let align = Float(player.rotation.y)
+        print(align)
         
         
-        guard renderer.playerRotation != nil else { return }
-        
-        let fwrdVec: float3 = {
-            var value = player.forwardVector
-            value.x = round(value.x * 1000) / 1000
-            value.y = round(value.y * 1000) / 1000
-            value.z = round(value.z * 1000) / 1000
-            return value
-        }()
-        
-        let normalMapTangent: float3 = {
-            var value = renderer.playerRotation.tangent1
-            value.x = round(value.x * 1000) / 1000
-            value.y = round(value.y * 1000) / 1000
-            value.z = round(value.z * 1000) / 1000
-            return value
-        }()
-        
-        let modelForwardVector: float3 = {
-            var value = normalize(player.modelMatrix.inverse.columns.2.xyz)
-            value.x = -value.x
-            value.x = round(value.x * 1000) / 1000
-            value.y = round(value.y * 1000) / 1000
-            value.z = round(value.z * 1000) / 1000
-            return value
-        }()
-        
-        let worldForwardVector: float3 = {
-            var value = normalize(player.worldTransform.inverse.columns.2.xyz)
-            value.x = -value.x
-            value.x = round(value.x * 1000) / 1000
-            value.y = round(value.y * 1000) / 1000
-            value.z = round(value.z * 1000) / 1000
-            return value
-        }()
-        
-        print("""
-               ==================================================================
-               forwardVector:       \(fwrdVec)
-               normalMapTangent:    \(normalMapTangent)
-               modelForwardVector:  \(modelForwardVector)
-               worldForwardVector:  \(worldForwardVector)
-               ==================================================================
-               """)
-        
-        if player.moveStates.contains(.forward) {
-            // worldForwardVector apperas to be correct
-            // The other three are all the same. the vectors in local spaceg
-//            let vec = modelForwardVector * -0.003
-//            let rotMat = float4x4(rotation: vec)
-//            let quat = simd_quatf(rotMat)
-//            quaternion = quaternion * quat
-            
-//            let direction = float3(1, 0, 0) * 0.003
-//            let rotMat = float4x4(rotation: direction)
-//            let quat = simd_quatf(rotMat)
-//            quaternion = quaternion * quat
-            
-            let playerRotation = matrix4x4_rotation(radians: 0.003, axis: float3(player.forwardVector.z, player.forwardVector.y, player.forwardVector.x))
-            quaternion = quaternion * simd_quatf(playerRotation)
+        // Do i need to reverse all rotations back so any rotation is coming
+        // from the exact same point?
+        // Because something gets fucked up form the texture and where we're rotating from
+        userActionStates.forEach {
+            switch $0 {
+            case .forward:
+                quaternion          = float3(0, align, 0).simd * float3(Float(-1).degreesToRadians,  0, 0).simd * float3(0, -align, 0).simd * quaternion
+//                renderingQuaternion = float3(0, align, 0).simd * float3(Float(-1).degreesToRadians, 0, 0).simd * float3(0, -align, 0).simd * renderingQuaternion
+//            case .backwards:
+//                quaternion          = float3(0, -align, 0).simd * float3(Float(-1).degreesToRadians, 0, 0).simd * float3(0, align, 0).simd * quaternion
+//                renderingQuaternion = float3(0, align, 0).simd * float3(Float(1).degreesToRadians,  0, 0).simd * float3(0, -align, 0).simd * renderingQuaternion
+            default: break
+            }
         }
     }
     
     func draw(renderEncoder: MTLRenderCommandEncoder, uniforms: inout Uniforms, fragmentUniforms: inout FragmentUniforms) {
-//        return
         defer {
             renderEncoder.popDebugGroup()
         }
         
         renderEncoder.pushDebugGroup("WorldMap Scaffolding")
 
-        // Using the same camera as scene will mess up the rotation for some reason.
-//        mapUniforms = uniforms
-//        mapUniforms.modelMatrix = worldTransform
-//        mapUniforms.viewMatrix = mapCamera.viewMatrix
-//        mapUniforms.projectionMatrix = mapCamera.projectionMatrix
+        // Need to use renderingQuaternion so the rotation can match
+        // the texture sampling rotation.
+        // This is onlyl for debug purposes
+        let translation = float4x4(translation: position)
+        let rotation = float4x4(quaternion)
+        let scale = float4x4(scaling: scale)
         
-        uniforms.modelMatrix = worldTransform// float4x4(translation: position) * .identity() * float4x4(scaling: scale)
+        uniforms.modelMatrix = translation * rotation * scale
   
 //        uniforms.modelMatrix = modelMatrix
         renderEncoder.setRenderPipelineState(pipelineState)
@@ -254,5 +187,21 @@ extension WorldMapScaffolding: Renderable, MapRotationHandler {
             indexBuffer: mesh.indexBuffer.buffer,
             indexBufferOffset: mesh.indexBuffer.offset
         )
+    }
+}
+
+extension float3 {
+    var simd: simd_quatf {
+        simd_quatf(float4x4(rotation: self))
+    }
+    
+    var rotationMatrix: float4x4 {
+        float4x4(rotation: self)
+    }
+}
+
+extension float4x4 {
+    var simd: simd_quatf {
+        simd_quatf(self)
     }
 }

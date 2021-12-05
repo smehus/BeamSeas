@@ -15,6 +15,8 @@ protocol MapRotationHandler {
 
 extension MapRotationHandler where Self: MiniWorldMap {
     func getRotation(player: Model, degRot: Float) -> float3 {
+        // We're using the difference here
+        // And then multiplying it below...
         let rotDiff = player.rotation.y - degRot
         var newRot = float3(0, 0, rotDiff)
         if player.moveStates.contains(.forward) {
