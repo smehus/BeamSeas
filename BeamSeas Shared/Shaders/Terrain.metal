@@ -284,7 +284,7 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
 
     float3 terrainToScaffold = normalize(fragment_in.parentFragmentPosition - fragmentUniforms.scaffoldingPosition).xyz;
     float4 scaffoldMapColor = worldMapTexture.sample(mainSampler, terrainToScaffold);
-//    return scaffoldMapColor;
+    return scaffoldMapColor;
     
     mixedColor = mix(mixedColor, scaffoldMapColor, 0.3);
     
@@ -307,7 +307,7 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
 //
 //    float3 specular = terrainDiffuseLighting(uniforms.normalMatrix * (normalValue * 2.0f - 1.0f), fragment_in.position.xyz, fragmentUniforms, lights, mixedColor.rgb);
 //    return float4(1, 1, 1, 1);
-    return float4(1, 0, 0, 1);
+//    return float4(1, 0, 0, 1);
 //    return fragment_in.color;
 //    return float4(specular, 1.0);
 }

@@ -68,6 +68,11 @@ final class WorldMapScaffolding: Node, Texturable, RendererContianer {
             pipelineDescriptor.vertexFunction = Renderer.library.makeFunction(name: "worldMap_vertex")
             pipelineDescriptor.fragmentFunction = Renderer.library.makeFunction(name: "worldMap_fragment")
             pipelineDescriptor.vertexDescriptor = MTKMetalVertexDescriptorFromModelIO(mesh.vertexDescriptor)
+            let attachment = pipelineDescriptor.colorAttachments[0]!
+            attachment.isBlendingEnabled = true
+            attachment.rgbBlendOperation = .add
+            attachment.sourceRGBBlendFactor = .sourceAlpha
+            attachment.destinationRGBBlendFactor = .oneMinusSourceAlpha
             
             pipelineState = try Renderer.device.makeRenderPipelineState(descriptor: pipelineDescriptor)
             
@@ -136,7 +141,6 @@ extension WorldMapScaffolding: Renderable, MapRotationHandler {
     }
     
     func draw(renderEncoder: MTLRenderCommandEncoder, uniforms: inout Uniforms, fragmentUniforms: inout FragmentUniforms) {
-        
         defer {
             renderEncoder.popDebugGroup()
         }
