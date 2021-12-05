@@ -56,7 +56,7 @@ class Terrain: Node {
     static var controlPointsBuffer: MTLBuffer!
 //    private let heightMap: MTLTexture
 //    private let altHeightMap: MTLTexture
-
+    private let samplerState: MTLSamplerState!
         
     
     override init() {
@@ -113,6 +113,9 @@ class Terrain: Node {
         computePipelineState = try! Renderer.device.makeComputePipelineState(function: kernelFunction)
         
         waterNormalTexture = Self.loadTexture(imageName: "normal-water-rotated.png")
+        
+        let samplerDescriptor = MTLSamplerDescriptor()
+        samplerState = Renderer.device.makeSamplerState(descriptor: samplerDescriptor)
 
 //        texDesc.width = altHeightMap.width
 //        texDesc.height = altHeightMap.height
@@ -337,7 +340,8 @@ extension Terrain: Renderable {
             index: TextureIndex.worldMap.rawValue
         )
 
-
+        renderEncoder.setFragmentSamplerState(samplerState, index: 0)
+        
 //        renderEncoder.setTriangleFillMode(.lines)
         renderEncoder.drawPatches(
             numberOfPatchControlPoints: 4,

@@ -130,8 +130,8 @@ extension WorldMapScaffolding: Renderable, MapRotationHandler {
         userActionStates.forEach {
             switch $0 {
             case .forward:
-                quaternion          = float3(0, align, 0).simd * float3(Float(-1).degreesToRadians,  0, 0).simd * float3(0, -align, 0).simd * quaternion
-//                renderingQuaternion = float3(0, align, 0).simd * float3(Float(-1).degreesToRadians, 0, 0).simd * float3(0, -align, 0).simd * renderingQuaternion
+                quaternion          = float3(0, align, 0).simd * float3(Float(0.2).degreesToRadians,  0, 0).simd * float3(0, -align, 0).simd * quaternion
+                renderingQuaternion = float3(0, align, 0).simd * float3(Float(-0.2).degreesToRadians,  0, 0).simd * float3(0, -align, 0).simd * renderingQuaternion
 //            case .backwards:
 //                quaternion          = float3(0, -align, 0).simd * float3(Float(-1).degreesToRadians, 0, 0).simd * float3(0, align, 0).simd * quaternion
 //                renderingQuaternion = float3(0, align, 0).simd * float3(Float(1).degreesToRadians,  0, 0).simd * float3(0, -align, 0).simd * renderingQuaternion
@@ -151,7 +151,7 @@ extension WorldMapScaffolding: Renderable, MapRotationHandler {
         // the texture sampling rotation.
         // This is onlyl for debug purposes
         let translation = float4x4(translation: position)
-        let rotation = float4x4(quaternion)
+        let rotation = float4x4(renderingQuaternion)
         let scale = float4x4(scaling: scale)
         
         uniforms.modelMatrix = translation * rotation * scale

@@ -226,7 +226,8 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
                                  texture2d<float> reflectionTexture [[ texture(TextureIndexReflection) ]],
                                  texture2d<float> refractionTexture [[ texture(TextureIndexRefraction) ]],
                                  texture2d<float> waterRippleTexture [[ texture(TextureIndexWaterRipple) ]],
-                                 texturecube<float> worldMapTexture [[ texture(TextureIndexWorldMap) ]])
+                                 texturecube<float> worldMapTexture [[ texture(TextureIndexWorldMap) ]],
+                                 sampler scaffoldingSampler [[ sampler(0) ]])
 {
     constexpr sampler mainSampler(filter::linear, address::repeat);
     float width = float(reflectionTexture.get_width() * 2.0);
@@ -281,9 +282,9 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
 //    float4 mapColor = worldMapTexture.sample(mainSampler, terrainPosToScaffoldPos);
 //
 //    float4 mixedColor = mapColor;//mix(mixedColor, mapColor, 0.3);
-
+    
     float3 terrainToScaffold = normalize(fragment_in.parentFragmentPosition - fragmentUniforms.scaffoldingPosition).xyz;
-    float4 scaffoldMapColor = worldMapTexture.sample(mainSampler, terrainToScaffold);
+    float4 scaffoldMapColor = worldMapTexture.sample(scaffoldingSampler, terrainToScaffold);
     return scaffoldMapColor;
     
     mixedColor = mix(mixedColor, scaffoldMapColor, 0.3);

@@ -32,15 +32,15 @@ final class Renderer: NSObject {
 //        camera.rotation.y = Float(-60).degreesToRadians
  
         
-//        let camera = ThirdPersonScaffoldingCamera()
-//        camera.focus = player
-//        camera.focusDistance = 100
-//        camera.focusHeight = 200
+        let camera = ThirdPersonCamera()
+        camera.focus = player
+        camera.focusDistance = 100
+        camera.focusHeight = 200
 
-        let camera = Camera()
-        camera.position.z = -100
-        camera.position.y = 200
-        camera.rotation.x = Float(45).degreesToRadians
+//        let camera = Camera()
+//        camera.position.z = -100
+//        camera.position.y = 200
+//        camera.rotation.x = Float(45).degreesToRadians
         return camera
     }()
     
@@ -101,10 +101,10 @@ final class Renderer: NSObject {
         
         let scaffoldingSize: Float = 500
         mapScaffolding = WorldMapScaffolding(extent: SIMD3<Float>(repeating: scaffoldingSize), segments: [50, 50])
-        mapScaffolding.position = float3(0, (-(mapScaffolding.size.x / 2) - 30), 0)
+        mapScaffolding.position = float3(0, (-(mapScaffolding.size.x / 2)), 0)
     
         terrain = Terrain()
-        terrain.scaffoldingPosition = [0, ((mapScaffolding.size.x / 2) + 10), 0]
+        terrain.scaffoldingPosition = [0, ((mapScaffolding.size.x / 2)), 0]
         terrain.position = [0, 0, 0]
         models.append(terrain)
         mapScaffolding.add(child: terrain)
@@ -114,7 +114,7 @@ final class Renderer: NSObject {
         player = Model(name: "OldBoat", fragment: "fragment_pbr")
         player.scale = [0.5, 0.5, 0.5]
         models.append(player) 
-        terrain.add(child: player)
+//        terrain.add(child: player)
         models.append(fft)
         fragmentUniforms.light_count = UInt32(lighting.count)
         

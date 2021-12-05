@@ -196,7 +196,7 @@ class ThirdPersonCamera: Camera {
     override var viewMatrix: float4x4 {
         setRotatingCamera()
 //        return float4x4(lookAtLHEye: position, target: focus.position, up: [0, 1, 0])
-        let noRotation = float4x4(translation: focus.position) * .identity() * float4x4(scaling: focus.scale)
+//        let noRotation = float4x4(translation: focus.position) * .identity() * float4x4(scaling: focus.scale)
         return float4x4(eye: position, center: focus.modelMatrix.columns.3.xyz, up: [0, 1, 0])
 
 //        setNonRotatingCamera()

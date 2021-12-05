@@ -215,8 +215,7 @@ extension Model: Renderable {
 
         fragmentUniforms.tiling = tiling
 
-        // Why no rotat?
-        uniforms.modelMatrix = float4x4(translation: position) * .identity() * float4x4(scaling: scale)
+        uniforms.modelMatrix = worldTransform//float4x4(translation: position) * .identity() * float4x4(scaling: scale)
         uniforms.normalMatrix = modelMatrix.upperLeft
 
         renderEncoder.setDepthStencilState(Self.buildDepthStencilState())
