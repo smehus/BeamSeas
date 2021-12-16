@@ -108,21 +108,21 @@ extension Model: Renderable {
         camera: Camera,
         player: Model
     ) {
-        for state in moveStates {
-            switch state {
-                case .right:
-                    var rotDeg = rotation.y.radiansToDegrees
-                    rotDeg += 0.3
-                    
-                    rotation.y = rotDeg.degreesToRadians
-                case .left:
-                    var rotDeg = rotation.y.radiansToDegrees
-                    rotDeg -= 0.3
-                    
-                    rotation.y = rotDeg.degreesToRadians
-                default: break
-            }
-        }
+//        for state in moveStates {
+//            switch state {
+//                case .right:
+//                    var rotDeg = rotation.y.radiansToDegrees
+//                    rotDeg += 0.3
+//                    
+//                    rotation.y = rotDeg.degreesToRadians
+//                case .left:
+//                    var rotDeg = rotation.y.radiansToDegrees
+//                    rotDeg -= 0.3
+//                    
+//                    rotation.y = rotDeg.degreesToRadians
+//                default: break
+//            }
+//        }
         
         let heightValue = heightBuffer.contents().bindMemory(to: Float.self, capacity: 1).pointee
         assert(meshes.count == 1)
@@ -216,7 +216,7 @@ extension Model: Renderable {
 
         fragmentUniforms.tiling = tiling
 
-        uniforms.modelMatrix = worldTransform//float4x4(translation: position) * .identity() * float4x4(scaling: scale)
+        uniforms.modelMatrix = parent!.modelMatrix * modelMatrix//float4x4(translation: position) * .identity() * float4x4(scaling: scale)
         uniforms.normalMatrix = modelMatrix.upperLeft
 
         renderEncoder.setDepthStencilState(Self.buildDepthStencilState())

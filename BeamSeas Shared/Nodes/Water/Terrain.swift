@@ -245,18 +245,14 @@ extension Terrain: Renderable {
         
         // need to add to this rotation...
         let textureRotation = float4x4(quaternion)
-        let textureTranslation = float4x4(translation: position)
+        let textureTranslation = float4x4(translation: scaffoldingPosition)
         let textureScale = float4x4(scaling: scale) // identity
         let textureModelMatrix = textureTranslation * textureRotation * textureScale
         // Scaffolding * modified position
-        uniforms.parentTreeModelMatrix = parent!.worldTransform * textureModelMatrix
+        uniforms.parentTreeModelMatrix = parent!.worldTransform.inverse * textureModelMatrix
         
-//        let renderRotation = float4x4(rotation: parentYRotation)
-//        let renderRotQuat = simd_quatf(renderRotation)
-
-        // I need two fo these? To keep track of movement for scaffolding rendering rotaion
-        // And the texture sampling rotation
-        uniforms.modelMatrix = worldTransform//float4x4(translation: position) * float4x4(renderRotQuat) * float4x4(scaling: scale)
+        
+        uniforms.modelMatrix = modelMatrix//float4x4(translation: position) * float4x4(renderRotQuat) * float4x4(scaling: scale)
         uniforms.normalMatrix = float3x3(normalFrom4x4: worldTransform)
 //        fragmentUniforms.inverseTerrainModelMatrix = modelMatrix.inverse
 
