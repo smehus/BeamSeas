@@ -131,9 +131,9 @@ extension WorldMapScaffolding: Renderable, MapRotationHandler {
         for state in player.moveStates {
             switch state {
                 case .right:
-                    currentRotation.y += 0.3
-                case .left:
                     currentRotation.y -= 0.3
+                case .left:
+                    currentRotation.y += 0.3
             case .forward:
                 currentRotation.x -= 0.3
                 default: break

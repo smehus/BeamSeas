@@ -104,7 +104,7 @@ final class Renderer: NSObject {
     
         terrain = Terrain()
         terrain.scaffoldingPosition = [0, ((mapScaffolding.size.x / 2)), 0]
-        terrain.position = [0, ((mapScaffolding.size.x / 2)), 0]//[0, 20, 0]
+        terrain.position = [0, 20, 0]//[0, ((mapScaffolding.size.x / 2)), 0]
         models.append(terrain)
         mapScaffolding.add(child: terrain)
         
