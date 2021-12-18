@@ -239,14 +239,13 @@ extension Terrain: Renderable {
         fragmentUniforms: inout FragmentUniforms
     ) {
         renderEncoder.pushDebugGroup("Terrain Vertex")
-        // Using model matrix instead of worldTransform because the parent is the scaffolding and we only want to mimick the rotation in order to get the correct texture cube vector
         
-//        let parentYRotation: float3 = [0, -(parent as! WorldMapScaffolding).scaffoldRotation.y, 0]
         
-        // need to add to this rotation...
-        let textureRotation = float4x4(quaternion)
+        // Set modelMatrix only for texture sampling.
+        // Inverse of the scaffoldings mdl
+        let textureRotation: float4x4 = .identity()//float4x4(quaternion)
         let textureTranslation = float4x4(translation: scaffoldingPosition)
-        let textureScale = float4x4(scaling: scale) // identity
+        let textureScale: float4x4 = .identity()//float4x4(scaling: scale)
         let textureModelMatrix = textureTranslation * textureRotation * textureScale
         // Scaffolding * modified position
         uniforms.parentTreeModelMatrix = parent!.worldTransform.inverse * textureModelMatrix
