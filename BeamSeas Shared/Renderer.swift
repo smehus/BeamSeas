@@ -47,8 +47,8 @@ final class Renderer: NSObject {
 //        instance.rotation.x = Float(90).degreesToRadians
         
         let instance = ClassicThirdPersonCamera(focus: player)
-        instance.focusDistance = 250
-        instance.focusHeight = terrain.scaffoldingPosition.y + 100
+        instance.focusDistance = 100
+        instance.focusHeight = terrain.scaffoldingPosition.y + 50
         return instance
     }()
     

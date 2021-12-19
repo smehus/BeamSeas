@@ -83,6 +83,7 @@ class Model: Node, DepthStencilStateBuilder, RendererContianer {
         super.init()
 
         self.name = name
+        rotation = [0, 0, 0]
     }
 
     private static func buildSamplerState() -> MTLSamplerState {
@@ -108,21 +109,21 @@ extension Model: Renderable {
         camera: Camera,
         player: Model
     ) {
-        for state in moveStates {
-            switch state {
-                case .right:
-                    var rotDeg = rotation.y.radiansToDegrees
-                    rotDeg += 0.3
-                    
-                    rotation.y = rotDeg.degreesToRadians
-                case .left:
-                    var rotDeg = rotation.y.radiansToDegrees
-                    rotDeg -= 0.3
-                    
-                    rotation.y = rotDeg.degreesToRadians
-                default: break
-            }
-        }
+        
+//        quaternion = float4x4.identity().quaternion
+        print("*** rotation \(rotation)")
+//        player.rotation.y = Float(0).degreesToRadians
+        
+        var updatedRotation = float3(0, 0, 0)
+//        for state in moveStates {
+//            switch state {
+//                case .right:
+//                    rotation.y += Float(0.3).degreesToRadians
+//                case .left:
+//                    rotation.y -= Float(0.3).radiansToDegrees
+//                default: break
+//            }
+//        }
         
         let heightValue = heightBuffer.contents().bindMemory(to: Float.self, capacity: 1).pointee
         assert(meshes.count == 1)
@@ -136,28 +137,26 @@ extension Model: Renderable {
         renderer.playerRotation = (worldTransform.columns.3.xyz, tangent0, tangent1, normalMapValue)
 //        renderer.playerRotation = (worldTransform.columns.3.xyz, tangent0, normalize(worldTransform.columns.2.xyz), normalMapValue)
 //
-        var rotMat = float4x4(quaternion)
-        rotMat.columns.0.x += tangent0.x
-        rotMat.columns.0.y += tangent0.y
-        rotMat.columns.0.z += tangent0.z
+        var normalMapRotation: float4x4 = .identity()//float4x4(quaternion)
+        normalMapRotation.columns.0.x += tangent0.x
+        normalMapRotation.columns.0.y += tangent0.y
+        normalMapRotation.columns.0.z += tangent0.z
 
-        rotMat.columns.1.x += normalMapValue.x
-        rotMat.columns.1.y += normalMapValue.y
-        rotMat.columns.1.z += normalMapValue.z
+        normalMapRotation.columns.1.x += normalMapValue.x
+        normalMapRotation.columns.1.y += normalMapValue.y
+        normalMapRotation.columns.1.z += normalMapValue.z
 
-        rotMat.columns.2.x += tangent1.x
-        rotMat.columns.2.y += tangent1.y
-        rotMat.columns.2.z += tangent1.z
-        
+        normalMapRotation.columns.2.x += tangent1.x
+        normalMapRotation.columns.2.y += tangent1.y
+        normalMapRotation.columns.2.z += tangent1.z
+    
 //        let normalQuat = simd_quatf(rotMat)
 //        let slerp = simd_slerp(quaternion, normalQuat, 1.0)
         // gotta do somethignw ith this yo - this is the tipsy turvy funsy bitz
 //        rotationMatrix = rotMat//float4x4(slerp)
         
         
-        // lol well this is wrong...
-        let modelRotation = float4x4(rotation: rotation)
-        quaternion = simd_quatf(modelRotation * rotMat)
+        quaternion = normalMapRotation.quaternion
     }
     
     func getRotationFromNormal() -> (tangent0: float3, tangent1: float3, normalMap: float3)  {
@@ -172,7 +171,7 @@ extension Model: Renderable {
         
   
 //         need to add the right angle somehow?
-        let crossVec = normalize(worldTransform.columns.2.xyz)
+        let crossVec = normalize(worldTransform.inverse.columns.2.xyz)
 //        let crossVec = normalize(forwardVector)
     
 //        if abs(normalMapValue.x) <= abs(normalMapValue.y) {

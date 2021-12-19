@@ -119,13 +119,6 @@ extension WorldMapScaffolding: Renderable, MapRotationHandler {
     ) {
         self.player = player
         fragmentUniforms.scaffoldingPosition = float4(position, 1)
-
-        // Maybe don't align, but transform the player back to 0,0,0
-        // Don't mess with the rotation
-        // Get the forward vector of player onces translates - would need to create the world transform matrix to transform it all yo
-        let align = Float(player.rotation.y)
-        print(align)
-        
         
         var currentRotation: float3 = [0, 0 , 0]
         for state in player.moveStates {
@@ -209,7 +202,7 @@ extension float3 {
 }
 
 extension float4x4 {
-    var simd: simd_quatf {
+    var quaternion: simd_quatf {
         simd_quatf(self)
     }
 }
