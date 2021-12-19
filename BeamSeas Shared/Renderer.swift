@@ -37,9 +37,8 @@ final class Renderer: NSObject {
 //        instance.focusHeight = 200
 
         let instance = Camera()
-        instance.position.z = -100
-        instance.position.y = 200
-        instance.rotation.x = Float(45).degreesToRadians
+        instance.position.y = 700
+        instance.rotation.x = Float(90).degreesToRadians
         return instance
     }()
     
@@ -100,15 +99,15 @@ final class Renderer: NSObject {
         
         let scaffoldingSize: Float = 500
         mapScaffolding = WorldMapScaffolding(extent: SIMD3<Float>(repeating: scaffoldingSize), segments: [50, 50])
-        mapScaffolding.position = float3(0, (-(mapScaffolding.size.x / 2)), 0)
     
         terrain = Terrain()
-        terrain.scaffoldingPosition = [0, ((mapScaffolding.size.x / 2)), 0]
-        terrain.position = [0, 20, 0]//[0, ((mapScaffolding.size.x / 2)), 0]
         models.append(terrain)
         mapScaffolding.add(child: terrain)
-        
         models.append(mapScaffolding)
+        
+        terrain.scaffoldingPosition = [0, (mapScaffolding.size.x / 2), 0] // UV
+//        mapScaffolding.position = float3(0, -(mapScaffolding.size.x / 2), 0)
+        terrain.position = [0, (mapScaffolding.size.x / 2) + 20, 0] // UV//[0, 20, 0] // Render position
 
         player = Model(name: "OldBoat", fragment: "fragment_pbr")
         player.scale = [0.5, 0.5, 0.5]

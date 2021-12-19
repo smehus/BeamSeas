@@ -248,7 +248,12 @@ extension Terrain: Renderable {
         let textureScale: float4x4 = .identity()//float4x4(scaling: scale)
         let textureModelMatrix = textureTranslation * textureRotation * textureScale
         // Scaffolding * modified position
-        uniforms.parentTreeModelMatrix = parent!.worldTransform.inverse * textureModelMatrix
+        
+        let parentTranslation: float4x4 = .identity()//float4x4(translation: parent!.position)
+        let parentRotation = float4x4(parent!.quaternion)
+        let parentScale: float4x4 = float4x4(scaling: parent!.scale)
+        let parentModelMatrix = parentTranslation * parentRotation * parentScale
+        uniforms.parentTreeModelMatrix = parentModelMatrix.inverse * textureModelMatrix
         
         
         uniforms.modelMatrix = modelMatrix//float4x4(translation: position) * float4x4(renderRotQuat) * float4x4(scaling: scale)
