@@ -127,21 +127,25 @@ extension WorldMapScaffolding: Renderable, MapRotationHandler {
         print(align)
         
         
-        var currentRotation = rotation.radiansToDegrees
+        var currentRotation: float3 = [0, 0 , 0]
         for state in player.moveStates {
             switch state {
-                case .right:
-                    currentRotation.y -= 0.3
-                case .left:
-                    currentRotation.y += 0.3
+//                case .right:
+//                    currentRotation.y -= 0.3
+//                case .left:
+//                    currentRotation.y += 0.3
             case .forward:
                 currentRotation.x -= 0.3
                 default: break
             }
         }
+//        quaternion = float3(0, align, 0).simd * float3(Float(-1).degreesToRadians, 0, 0).simd * float3(0, -align, 0).simd * quaternion
+        let rotationChange = currentRotation.degreesToRadians.quaternion
+//        quaternion = rotationChange * quaternion
         
-        let rotationChange = currentRotation.degreesToRadians.simd
-        quaternion = rotationChange * quaternion
+        let playerYRotation = float3(0, player.rotation.y, 0).quaternion
+        let playerYRotationInverse = float3(0, -player.rotation.y, 0).quaternion
+        quaternion = playerYRotation * rotationChange * playerYRotationInverse * quaternion
     }
     
     func draw(renderEncoder: MTLRenderCommandEncoder, uniforms: inout Uniforms, fragmentUniforms: inout FragmentUniforms) {
@@ -151,14 +155,7 @@ extension WorldMapScaffolding: Renderable, MapRotationHandler {
         
         renderEncoder.pushDebugGroup("WorldMap Scaffolding")
 
-        // Need to use renderingQuaternion so the rotation can match
-        // the texture sampling rotation.
-        // This is onlyl for debug purposes
-        let translation = float4x4(translation: position)
-        let rotation = float4x4(renderingQuaternion)
-        let scale = float4x4(scaling: scale)
-        
-        uniforms.modelMatrix = worldTransform//translation * .identity() * scale
+        uniforms.modelMatrix = worldTransform//position.rotationMatrix * .identity() * scale.rotationMatrix
   
 //        uniforms.modelMatrix = modelMatrix
         renderEncoder.setRenderPipelineState(pipelineState)
@@ -195,7 +192,7 @@ extension WorldMapScaffolding: Renderable, MapRotationHandler {
 }
 
 extension float3 {
-    var simd: simd_quatf {
+    var quaternion: simd_quatf {
         simd_quatf(float4x4(rotation: self))
     }
     
