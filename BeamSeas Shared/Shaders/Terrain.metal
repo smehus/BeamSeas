@@ -285,7 +285,9 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
 //
 //    float4 mixedColor = mapColor;//mix(mixedColor, mapColor, 0.3);
     
-    float3 terrainToScaffold = normalize(fragment_in.parentFragmentPosition - fragmentUniforms.scaffoldingPosition).xyz;
+                                        // terrain world position             // Scaffolding position (float3). Set in Renderer.
+    float4 directionToFragment = fragment_in.parentFragmentPosition - fragmentUniforms.scaffoldingPosition;
+    float3 terrainToScaffold = normalize(directionToFragment).xyz;
     float4 scaffoldMapColor = worldMapTexture.sample(scaffoldingSampler, terrainToScaffold);
     return scaffoldMapColor;
     

@@ -108,21 +108,21 @@ extension Model: Renderable {
         camera: Camera,
         player: Model
     ) {
-        for state in moveStates {
-            switch state {
-                case .right:
-                    var rotDeg = rotation.y.radiansToDegrees
-                    rotDeg += 0.3
-                    
-                    rotation.y = rotDeg.degreesToRadians
-                case .left:
-                    var rotDeg = rotation.y.radiansToDegrees
-                    rotDeg -= 0.3
-                    
-                    rotation.y = rotDeg.degreesToRadians
-                default: break
-            }
-        }
+//        for state in moveStates {
+//            switch state {
+//                case .right:
+//                    var rotDeg = rotation.y.radiansToDegrees
+//                    rotDeg += 0.3
+//                    
+//                    rotation.y = rotDeg.degreesToRadians
+//                case .left:
+//                    var rotDeg = rotation.y.radiansToDegrees
+//                    rotDeg -= 0.3
+//                    
+//                    rotation.y = rotDeg.degreesToRadians
+//                default: break
+//            }
+//        }
         
         let heightValue = heightBuffer.contents().bindMemory(to: Float.self, capacity: 1).pointee
         assert(meshes.count == 1)
@@ -133,7 +133,7 @@ extension Model: Renderable {
 
         let (tangent0, tangent1, normalMapValue) = getRotationFromNormal()
         
-        renderer.playerRotation = (modelMatrix.columns.3.xyz, tangent0, tangent1, normalMapValue)
+        renderer.playerRotation = (worldTransform.columns.3.xyz, tangent0, tangent1, normalMapValue)
 //        renderer.playerRotation = (worldTransform.columns.3.xyz, tangent0, normalize(worldTransform.columns.2.xyz), normalMapValue)
 //
 //        var rotMat = float4x4(parent!.quaternion) * float4x4(quaternion)
@@ -171,7 +171,8 @@ extension Model: Renderable {
         
   
         // need to add the right angle somehow?
-        let crossVec = normalize(-forwardVector)
+        let crossVec = normalize(-worldTransform.columns.2.xyz)
+//        let crossVec = normalize(-forwardVector)
     
 //        if abs(normalMapValue.x) <= abs(normalMapValue.y) {
 //            crossVec.x = 1
@@ -215,7 +216,7 @@ extension Model: Renderable {
 
         fragmentUniforms.tiling = tiling
 
-        uniforms.modelMatrix = worldTransform//float4x4(translation: position) * .identity() * float4x4(scaling: scale)
+        uniforms.modelMatrix = parent!.modelMatrix * modelMatrix//float4x4(translation: position) * .identity() * float4x4(scaling: scale)
         uniforms.normalMatrix = modelMatrix.upperLeft
 
         renderEncoder.setDepthStencilState(Self.buildDepthStencilState())

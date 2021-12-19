@@ -120,24 +120,28 @@ extension WorldMapScaffolding: Renderable, MapRotationHandler {
         self.player = player
         fragmentUniforms.scaffoldingPosition = float4(position, 1)
 
+        // Maybe don't align, but transform the player back to 0,0,0
+        // Don't mess with the rotation
+        // Get the forward vector of player onces translates - would need to create the world transform matrix to transform it all yo
         let align = Float(player.rotation.y)
         print(align)
         
         
-        // Do i need to reverse all rotations back so any rotation is coming
-        // from the exact same point?
-        // Because something gets fucked up form the texture and where we're rotating from
-        userActionStates.forEach {
-            switch $0 {
+        var currentRotation = rotation.radiansToDegrees
+        for state in player.moveStates {
+            switch state {
+                case .right:
+                    currentRotation.y -= 0.3
+                case .left:
+                    currentRotation.y += 0.3
             case .forward:
-                quaternion          = float3(0, align, 0).simd * float3(Float(0.2).degreesToRadians,  0, 0).simd * float3(0, -align, 0).simd * quaternion
-                renderingQuaternion = float3(0, align, 0).simd * float3(Float(-0.2).degreesToRadians,  0, 0).simd * float3(0, -align, 0).simd * renderingQuaternion
-//            case .backwards:
-//                quaternion          = float3(0, -align, 0).simd * float3(Float(-1).degreesToRadians, 0, 0).simd * float3(0, align, 0).simd * quaternion
-//                renderingQuaternion = float3(0, align, 0).simd * float3(Float(1).degreesToRadians,  0, 0).simd * float3(0, -align, 0).simd * renderingQuaternion
-            default: break
+                currentRotation.x -= 0.3
+                default: break
             }
         }
+        
+        let rotationChange = currentRotation.degreesToRadians.simd
+        quaternion = rotationChange * quaternion
     }
     
     func draw(renderEncoder: MTLRenderCommandEncoder, uniforms: inout Uniforms, fragmentUniforms: inout FragmentUniforms) {
@@ -154,7 +158,7 @@ extension WorldMapScaffolding: Renderable, MapRotationHandler {
         let rotation = float4x4(renderingQuaternion)
         let scale = float4x4(scaling: scale)
         
-        uniforms.modelMatrix = translation * rotation * scale
+        uniforms.modelMatrix = worldTransform//translation * .identity() * scale
   
 //        uniforms.modelMatrix = modelMatrix
         renderEncoder.setRenderPipelineState(pipelineState)
@@ -197,6 +201,14 @@ extension float3 {
     
     var rotationMatrix: float4x4 {
         float4x4(rotation: self)
+    }
+    
+    var radiansToDegrees: float3 {
+        float3(x.radiansToDegrees, y.radiansToDegrees, z.radiansToDegrees)
+    }
+    
+    var degreesToRadians: float3 {
+        float3(x.degreesToRadians, y.degreesToRadians, z.degreesToRadians)
     }
 }
 

@@ -239,23 +239,23 @@ extension Terrain: Renderable {
         fragmentUniforms: inout FragmentUniforms
     ) {
         renderEncoder.pushDebugGroup("Terrain Vertex")
-        // Using model matrix instead of worldTransform because the parent is the scaffolding and we only want to mimick the rotation in order to get the correct texture cube vector
         
-//        let parentYRotation: float3 = [0, -(parent as! WorldMapScaffolding).scaffoldRotation.y, 0]
         
-        // need to add to this rotation...
-        let textureRotation = float4x4(quaternion)
+        // Set modelMatrix only for texture sampling.
+        // Inverse of the scaffoldings mdl
+        let textureRotation: float4x4 = .identity()//float4x4(quaternion)
         let textureTranslation = float4x4(translation: scaffoldingPosition)
-        let textureScale = float4x4(scaling: scale) // identity
+        let textureScale: float4x4 = .identity()//float4x4(scaling: scale)
         let textureModelMatrix = textureTranslation * textureRotation * textureScale
         // Scaffolding * modified position
-        uniforms.parentTreeModelMatrix = parent!.worldTransform * textureModelMatrix
         
-//        let renderRotation = float4x4(rotation: parentYRotation)
-//        let renderRotQuat = simd_quatf(renderRotation)
-
-        // I need two fo these? To keep track of movement for scaffolding rendering rotaion
-        // And the texture sampling rotation
+        let parentTranslation: float4x4 = .identity()//float4x4(translation: parent!.position)
+        let parentRotation = float4x4(parent!.quaternion)
+        let parentScale: float4x4 = float4x4(scaling: parent!.scale)
+        let parentModelMatrix = parentTranslation * parentRotation * parentScale
+        uniforms.parentTreeModelMatrix = parentModelMatrix.inverse * textureModelMatrix
+        
+        
         uniforms.modelMatrix = modelMatrix//float4x4(translation: position) * float4x4(renderRotQuat) * float4x4(scaling: scale)
         uniforms.normalMatrix = float3x3(normalFrom4x4: worldTransform)
 //        fragmentUniforms.inverseTerrainModelMatrix = modelMatrix.inverse
