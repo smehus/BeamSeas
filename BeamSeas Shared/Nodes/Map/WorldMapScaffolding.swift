@@ -135,7 +135,7 @@ extension WorldMapScaffolding: Renderable, MapRotationHandler {
 //                case .left:
 //                    currentRotation.y += 0.3
             case .forward:
-                currentRotation.x -= 0.3
+                currentRotation.x -= 0.01
                 default: break
             }
         }
@@ -149,9 +149,8 @@ extension WorldMapScaffolding: Renderable, MapRotationHandler {
     }
     
     func draw(renderEncoder: MTLRenderCommandEncoder, uniforms: inout Uniforms, fragmentUniforms: inout FragmentUniforms) {
-        defer {
-            renderEncoder.popDebugGroup()
-        }
+        return
+        defer { renderEncoder.popDebugGroup() }
         
         renderEncoder.pushDebugGroup("WorldMap Scaffolding")
 
