@@ -141,17 +141,17 @@ extension Model: Renderable {
 //        renderer.playerRotation = (worldTransform.columns.3.xyz, tangent0, normalize(worldTransform.columns.2.xyz), normalMapValue)
 //
         var normalMapRotation: float4x4 = rotation.rotationMatrix
-//        normalMapRotation.columns.0.x += tangent0.x
-//        normalMapRotation.columns.0.y += tangent0.y
-//        normalMapRotation.columns.0.z += tangent0.z
-//
-//        normalMapRotation.columns.1.x += normalMapValue.x
-//        normalMapRotation.columns.1.y += normalMapValue.y
-//        normalMapRotation.columns.1.z += normalMapValue.z
-//
-//        normalMapRotation.columns.2.x += tangent1.x
-//        normalMapRotation.columns.2.y += tangent1.y
-//        normalMapRotation.columns.2.z += tangent1.z
+        normalMapRotation.columns.0.x += tangent0.x
+        normalMapRotation.columns.0.y += tangent0.y
+        normalMapRotation.columns.0.z += tangent0.z
+
+        normalMapRotation.columns.1.x += normalMapValue.x
+        normalMapRotation.columns.1.y += normalMapValue.y
+        normalMapRotation.columns.1.z += normalMapValue.z
+
+        normalMapRotation.columns.2.x += tangent1.x
+        normalMapRotation.columns.2.y += tangent1.y
+        normalMapRotation.columns.2.z += tangent1.z
     
         quaternion = normalMapRotation.quaternion
     }

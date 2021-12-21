@@ -238,6 +238,8 @@ extension Terrain: Renderable {
         uniforms: inout Uniforms,
         fragmentUniforms: inout FragmentUniforms
     ) {
+        return
+        defer { renderEncoder.popDebugGroup() }
         renderEncoder.pushDebugGroup("Terrain Vertex")
         
         
@@ -352,8 +354,6 @@ extension Terrain: Renderable {
             instanceCount: 1,
             baseInstance: 0
         )
-
-        renderEncoder.popDebugGroup()
     }
 }
 
