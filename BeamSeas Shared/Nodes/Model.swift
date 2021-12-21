@@ -35,7 +35,7 @@ class Model: Node, DepthStencilStateBuilder, RendererContianer {
     
     override var rotation: float3 {
         didSet {
-            print("*** getting local rotation")
+            // NO-OP
         }
     }
 
@@ -124,29 +124,34 @@ extension Model: Renderable {
             switch state {
                 case .right:
                     rotation.y += Float(0.3).degreesToRadians
-//                case .left:
-//                    updatedRotation.y = Float(0.3).degreesToRadians
+                case .left:
+                    rotation.y -= Float(0.3).degreesToRadians
                 default: break
             }
         }
 
         let (tangent0, tangent1, normalMapValue) = getRotationFromNormal()
         
-        renderer.playerRotation = (worldTransform.columns.3.xyz, tangent0, tangent1, normalMapValue)
+        let pos = parent!.position.translationMatrix * position.translationMatrix
+        let rot = rotation.rotationMatrix
+        let scale = float4x4(scaling: scale)
+        let worldTranslationLocalRotation = pos * rot * scale
+        
+        renderer.playerRotation = (worldTranslationLocalRotation.columns.3.xyz, tangent0, tangent1, normalMapValue)
 //        renderer.playerRotation = (worldTransform.columns.3.xyz, tangent0, normalize(worldTransform.columns.2.xyz), normalMapValue)
 //
         var normalMapRotation: float4x4 = rotation.rotationMatrix
-        normalMapRotation.columns.0.x += tangent0.x
-        normalMapRotation.columns.0.y += tangent0.y
-        normalMapRotation.columns.0.z += tangent0.z
-
-        normalMapRotation.columns.1.x += normalMapValue.x
-        normalMapRotation.columns.1.y += normalMapValue.y
-        normalMapRotation.columns.1.z += normalMapValue.z
-
-        normalMapRotation.columns.2.x += tangent1.x
-        normalMapRotation.columns.2.y += tangent1.y
-        normalMapRotation.columns.2.z += tangent1.z
+//        normalMapRotation.columns.0.x += tangent0.x
+//        normalMapRotation.columns.0.y += tangent0.y
+//        normalMapRotation.columns.0.z += tangent0.z
+//
+//        normalMapRotation.columns.1.x += normalMapValue.x
+//        normalMapRotation.columns.1.y += normalMapValue.y
+//        normalMapRotation.columns.1.z += normalMapValue.z
+//
+//        normalMapRotation.columns.2.x += tangent1.x
+//        normalMapRotation.columns.2.y += tangent1.y
+//        normalMapRotation.columns.2.z += tangent1.z
     
         quaternion = normalMapRotation.quaternion
     }
@@ -163,7 +168,7 @@ extension Model: Renderable {
         
   
 //         need to add the right angle somehow?
-        let crossVec = normalize(worldTransform.inverse.columns.2.xyz)
+        let crossVec = normalize(-forwardVector)
 //        let crossVec = normalize(forwardVector)
     
 //        if abs(normalMapValue.x) <= abs(normalMapValue.y) {

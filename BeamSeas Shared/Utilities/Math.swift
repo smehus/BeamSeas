@@ -288,3 +288,32 @@ func matrix_perspective_right_hand(fovyRadians fovy: Float, aspectRatio: Float, 
 func radians_from_degrees(_ degrees: Float) -> Float {
     return (degrees / 180) * .pi
 }
+
+
+extension float3 {
+    var quaternion: simd_quatf {
+        simd_quatf(float4x4(rotation: self))
+    }
+    
+    var rotationMatrix: float4x4 {
+        float4x4(rotation: self)
+    }
+    
+    var translationMatrix: float4x4 {
+        float4x4(translation: self)
+    }
+    
+    var radiansToDegrees: float3 {
+        float3(x.radiansToDegrees, y.radiansToDegrees, z.radiansToDegrees)
+    }
+    
+    var degreesToRadians: float3 {
+        float3(x.degreesToRadians, y.degreesToRadians, z.degreesToRadians)
+    }
+}
+
+extension float4x4 {
+    var quaternion: simd_quatf {
+        simd_quatf(self)
+    }
+}

@@ -182,27 +182,3 @@ extension WorldMapScaffolding: Renderable, MapRotationHandler {
         )
     }
 }
-
-extension float3 {
-    var quaternion: simd_quatf {
-        simd_quatf(float4x4(rotation: self))
-    }
-    
-    var rotationMatrix: float4x4 {
-        float4x4(rotation: self)
-    }
-    
-    var radiansToDegrees: float3 {
-        float3(x.radiansToDegrees, y.radiansToDegrees, z.radiansToDegrees)
-    }
-    
-    var degreesToRadians: float3 {
-        float3(x.degreesToRadians, y.degreesToRadians, z.degreesToRadians)
-    }
-}
-
-extension float4x4 {
-    var quaternion: simd_quatf {
-        simd_quatf(self)
-    }
-}
