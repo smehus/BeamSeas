@@ -25,11 +25,11 @@ final class Renderer: NSObject {
 
     lazy var camera: Camera = {
         
-//        let camera = ArcballCamera()
-//        camera.distance = 80
-//        camera.target = [0, 0, -80]
-//        camera.rotation.x = Float(-10).degreesToRadians
-//        camera.rotation.y = Float(-60).degreesToRadians
+        let instance = ArcballCamera()
+        instance.distance = 80
+        instance.target = terrain.position
+        instance.rotation.x = Float(-10).degreesToRadians
+        instance.rotation.y = Float(-60).degreesToRadians
  
         
 //        let instance = ThirdPersonCamera(focus: terrain, scaffolding: mapScaffolding)
@@ -46,9 +46,9 @@ final class Renderer: NSObject {
 //        instance.position.y = terrain.scaffoldingPosition.y + 100
 //        instance.rotation.x = Float(90).degreesToRadians
         
-        let instance = ClassicThirdPersonCamera(focus: player)
-        instance.focusDistance = 100
-        instance.focusHeight = terrain.scaffoldingPosition.y + 50
+//        let instance = ClassicThirdPersonCamera(focus: player)
+//        instance.focusDistance = 200
+//        instance.focusHeight = terrain.scaffoldingPosition.y + 50
         return instance
     }()
     
@@ -109,6 +109,7 @@ final class Renderer: NSObject {
         
         let scaffoldingSize: Float = 5000
         mapScaffolding = WorldMapScaffolding(extent: SIMD3<Float>(repeating: scaffoldingSize), segments: [50, 50])
+        mapScaffolding.position = [0, -(mapScaffolding.size.x / 2), 0]
     
         terrain = Terrain()
         models.append(terrain)
@@ -117,7 +118,7 @@ final class Renderer: NSObject {
         
         terrain.scaffoldingPosition = [0, (mapScaffolding.size.x / 2), 0] // UV
 //        mapScaffolding.position = float3(0, -(mapScaffolding.size.x / 2), 0)
-        terrain.position = [0, (mapScaffolding.size.x / 2) + 20, 0] // UV//[0, 20, 0] // Render position
+        terrain.position = [0, 0, 0]//[0, (mapScaffolding.size.x / 2) + 20, 0] // UV//[0, 20, 0] // Render position
 
         player = Model(name: "OldBoat", fragment: "fragment_pbr")
         player.scale = [0.5, 0.5, 0.5]
@@ -361,9 +362,9 @@ extension Renderer: MTKViewDelegate {
         let tangent1 = float3(playerRotation.tangent1.x.radiansToDegrees, playerRotation.tangent1.y.radiansToDegrees, playerRotation.tangent1.z.radiansToDegrees)
         let normalMap = float3(playerRotation.normalMap.x.radiansToDegrees, playerRotation.normalMap.y.radiansToDegrees, playerRotation.normalMap.z.radiansToDegrees)
         
-//        drawSpotLight(renderEncoder: renderEncoder, position: playerRotation.position, direction: tangent0, color: float3(1, 0, 0)) // Red
+        drawSpotLight(renderEncoder: renderEncoder, position: playerRotation.position, direction: tangent0, color: float3(1, 0, 0)) // Red
         drawSpotLight(renderEncoder: renderEncoder, position: playerRotation.position, direction: tangent1, color: float3(0, 1, 0)) // Green forwardVec
-//        drawSpotLight(renderEncoder: renderEncoder, position: playerRotation.position, direction: normalMap, color: float3(1, 0, 1)) // Blue
+        drawSpotLight(renderEncoder: renderEncoder, position: playerRotation.position, direction: normalMap, color: float3(1, 0, 1)) // Blue
 
 //        drawDirectionalLight(renderEncoder: renderEncoder, direction: direction, color: float3(1, 0, 0), count: 5)
 //        debugLights(renderEncoder: renderEncoder, lightType: Spotlight)
