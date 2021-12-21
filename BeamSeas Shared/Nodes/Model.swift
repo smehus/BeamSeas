@@ -32,6 +32,12 @@ class Model: Node, DepthStencilStateBuilder, RendererContianer {
     
     var moveStates: Set<Key> = []
     var rotationMatrix: float4x4 = .identity()
+    
+    override var rotation: float3 {
+        didSet {
+            print("*** getting local rotation")
+        }
+    }
 
     private let heightComputePipelineState: MTLComputePipelineState
     
@@ -83,7 +89,6 @@ class Model: Node, DepthStencilStateBuilder, RendererContianer {
         super.init()
 
         self.name = name
-        rotation = [0, 0, 0]
     }
 
     private static func buildSamplerState() -> MTLSamplerState {
@@ -110,34 +115,27 @@ extension Model: Renderable {
         player: Model
     ) {
         
-//        quaternion = float4x4.identity().quaternion
-        print("*** rotation \(rotation)")
-//        player.rotation.y = Float(0).degreesToRadians
-        
-        var updatedRotation = float3(0, 0, 0)
-//        for state in moveStates {
-//            switch state {
-//                case .right:
-//                    rotation.y += Float(0.3).degreesToRadians
-//                case .left:
-//                    rotation.y -= Float(0.3).radiansToDegrees
-//                default: break
-//            }
-//        }
-        
         let heightValue = heightBuffer.contents().bindMemory(to: Float.self, capacity: 1).pointee
         assert(meshes.count == 1)
 //        let size = meshes.first!.mdlMesh.boundingBox.maxBounds - meshes.first!.mdlMesh.boundingBox.minBounds
         position.y = heightValue// - (size.y * 0.3)
 
-        // TODO: - Transfer all this over to gpu
+        for state in moveStates {
+            switch state {
+                case .right:
+                    rotation.y += Float(0.3).degreesToRadians
+//                case .left:
+//                    updatedRotation.y = Float(0.3).degreesToRadians
+                default: break
+            }
+        }
 
         let (tangent0, tangent1, normalMapValue) = getRotationFromNormal()
         
         renderer.playerRotation = (worldTransform.columns.3.xyz, tangent0, tangent1, normalMapValue)
 //        renderer.playerRotation = (worldTransform.columns.3.xyz, tangent0, normalize(worldTransform.columns.2.xyz), normalMapValue)
 //
-        var normalMapRotation: float4x4 = .identity()//float4x4(quaternion)
+        var normalMapRotation: float4x4 = rotation.rotationMatrix
         normalMapRotation.columns.0.x += tangent0.x
         normalMapRotation.columns.0.y += tangent0.y
         normalMapRotation.columns.0.z += tangent0.z
@@ -150,12 +148,6 @@ extension Model: Renderable {
         normalMapRotation.columns.2.y += tangent1.y
         normalMapRotation.columns.2.z += tangent1.z
     
-//        let normalQuat = simd_quatf(rotMat)
-//        let slerp = simd_slerp(quaternion, normalQuat, 1.0)
-        // gotta do somethignw ith this yo - this is the tipsy turvy funsy bitz
-//        rotationMatrix = rotMat//float4x4(slerp)
-        
-        
         quaternion = normalMapRotation.quaternion
     }
     
