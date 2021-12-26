@@ -99,7 +99,7 @@ class Node {
         }
     }
     var scale: float3 = [1, 1, 1]
-    var quaternion = float4x4.identity().quaternion
+    var quaternion = simd_quatf()
     var parent: Node?
     var children: [Node] = []
     
