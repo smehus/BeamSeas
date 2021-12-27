@@ -266,7 +266,7 @@ extension Terrain: Renderable {
         
         
         uniforms.modelMatrix = float4x4(translation: position) * .identity() * float4x4(scaling: scale)
-        uniforms.normalMatrix = float3x3(normalFrom4x4: worldTransform)
+        uniforms.normalMatrix = float3x3(normalFrom4x4: uniforms.modelMatrix)
 //        fragmentUniforms.inverseTerrainModelMatrix = model Matrix.inverse
 
         renderEncoder.setTriangleFillMode(.fill)

@@ -36,3 +36,7 @@ This is so I can determine what the damn problem is with rotating the terrain ar
 Feature:
 Tap on mini map to bring up the scaffolding for faster movement through the world
 Have the terrain & mini map animate switching places so a miniature sized terrain shows up in the top right.
+
+
+terrain lighting screwed up - goes black at some points - is because its using the rotating(with parent) matrix
+normals. So at some poitn that terrain is facing away from the sun yo
