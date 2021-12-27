@@ -202,7 +202,7 @@ extension Model: Renderable {
         renderer.playerRotation = (worldTranslationLocalRotation.columns.3.xyz, tangent0, tangent1, normalMapValue)
 //        renderer.playerRotation = (worldTransform.columns.3.xyz, tangent0, normalize(worldTransform.columns.2.xyz), normalMapValue)
 //
-        var normalMapRotation: float4x4 = .identity()
+        var normalMapRotation: float4x4 = rotation.rotationMatrix
         normalMapRotation.columns.0.x = tangent0.x
         normalMapRotation.columns.0.y = tangent0.y
         normalMapRotation.columns.0.z = tangent0.z

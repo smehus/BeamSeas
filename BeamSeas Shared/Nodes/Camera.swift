@@ -160,12 +160,8 @@ class ThirdPersonCamera: Camera {
     }
 
     override var viewMatrix: float4x4 {
-        
-        let terrainToScaffolding = focus.worldTransform.columns.3.xyz - focus.parent!.position
-        let inversedTransform = terrainToScaffolding / 3
- 
-        position = focus.worldTransform.columns.3.xyz + inversedTransform
-        
+        position = focus.position - focusDistance * focus.forwardVector
+        position.y = focusHeight
         
         return float4x4(eye: position, center: focus.worldTransform.columns.3.xyz, up: [0, 1, 0])
     }
