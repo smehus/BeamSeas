@@ -43,7 +43,7 @@ class Terrain: Node {
     var allPatches: [Patch] = []
     var waterNormalTexture: MTLTexture?
     var worldMapTexture: MTLTexture!
-    var scaffoldingPosition: float3 = [0, 0, 0]
+//    var scaffoldingPosition: float3 = [0, 0, 0]
     lazy var tessellationFactorsBuffer: MTLBuffer? = {
         let count = patchCount * Int(Terrain.edgeFactors + Terrain.insideFactors)
         let size = count * MemoryLayout<Float>.size / 2
@@ -253,7 +253,7 @@ extension Terrain: Renderable {
         // Set modelMatrix only for texture sampling.
         // Inverse of the scaffoldings mdl
         let textureRotation: float4x4 = .identity()//float4x4(quaternion)
-        let textureTranslation = scaffoldingPosition.translationMatrix
+        let textureTranslation = position.translationMatrix
         let textureScale: float4x4 = .identity()//float4x4(scaling: scale)
         let textureModelMatrix = textureTranslation * textureRotation * textureScale
         // Scaffolding * modified position
@@ -265,7 +265,7 @@ extension Terrain: Renderable {
         uniforms.parentTreeModelMatrix = parentModelMatrix.inverse * textureModelMatrix
         
         
-        uniforms.modelMatrix = float4x4(translation: scaffoldingPosition) * .identity() * float4x4(scaling: scale)
+        uniforms.modelMatrix = float4x4(translation: position) * .identity() * float4x4(scaling: scale)
         uniforms.normalMatrix = float3x3(normalFrom4x4: worldTransform)
 //        fragmentUniforms.inverseTerrainModelMatrix = model Matrix.inverse
 

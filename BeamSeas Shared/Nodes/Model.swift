@@ -215,7 +215,12 @@ extension Model: Renderable {
 
         fragmentUniforms.tiling = tiling
 
-        uniforms.modelMatrix = modelMatrix//float4x4(translation: position) * .identity() * float4x4(scaling: scale)
+        let parentTranslation = parent!.position.translationMatrix
+        let parentRotation: float4x4 = .identity()
+        let parentScale: float4x4 = .identity()
+        
+//        uniforms.modelMatrix = worldTransform//float4x4(translation: position) * .identity() * float4x4(scaling: scale)
+        uniforms.modelMatrix = (parentTranslation * parentRotation * parentScale) * modelMatrix
         uniforms.normalMatrix = modelMatrix.upperLeft
 
         renderEncoder.setDepthStencilState(Self.buildDepthStencilState())
