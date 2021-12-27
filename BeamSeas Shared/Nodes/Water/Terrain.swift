@@ -265,7 +265,7 @@ extension Terrain: Renderable {
         uniforms.parentTreeModelMatrix = parentModelMatrix.inverse * textureModelMatrix
         
         
-        uniforms.modelMatrix = parentModelMatrix.inverse * textureModelMatrix//float4x4(translation: position) * float4x4(renderRotQuat) * float4x4(scaling: scale)
+        uniforms.modelMatrix = float4x4(translation: scaffoldingPosition) * .identity() * float4x4(scaling: scale)
         uniforms.normalMatrix = float3x3(normalFrom4x4: worldTransform)
 //        fragmentUniforms.inverseTerrainModelMatrix = model Matrix.inverse
 

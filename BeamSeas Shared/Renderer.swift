@@ -32,14 +32,14 @@ final class Renderer: NSObject {
 //        instance.rotation.y = Float(-60).degreesToRadians
  
                 
-//        let instance = BaseThirdPersonCamera(focus: player)
-//        instance.focusDistance = 150
-//        instance.focusHeight = 100
+        let instance = BaseThirdPersonCamera(focus: player)
+        instance.focusDistance = 150
+        instance.focusHeight = (mapScaffolding.size.x / 2) + 100
 
-        let instance = Camera()
-        instance.position.z = -1000
-        instance.position.y = 100
-        instance.rotation.x = Float(0).degreesToRadians
+//        let instance = Camera()
+//        instance.position.z = -1000
+//        instance.position.y = 100
+//        instance.rotation.x = Float(0).degreesToRadians
 
 //        let instance = TopDownFollowRotationCamera()
 //        instance.node = player
@@ -109,7 +109,7 @@ final class Renderer: NSObject {
         
         let scaffoldingSize: Float = 300
         mapScaffolding = WorldMapScaffolding(extent: SIMD3<Float>(repeating: scaffoldingSize), segments: [50, 50])
-        mapScaffolding.position = [0, -(mapScaffolding.size.x / 2), 0]
+//        mapScaffolding.position = [0, -(mapScaffolding.size.x / 2), 0]
     
         terrain = Terrain()
         terrain.scaffoldingPosition = [0, (mapScaffolding.size.x / 2), 0] // UV
@@ -132,28 +132,28 @@ final class Renderer: NSObject {
         
         
         // Debug Nodes \\
-        
-        var material = Material()
-        material.baseColor = float3(1, 0, 0)
-        let topShape = BasicShape(shape: .sphere(extent: [30, 30, 30],
-                                                 segments: [10, 10],
-                                                 inwardNormals: false,
-                                                 geometryType: .triangles,
-                                                 material: material))
-        topShape.position = [0, (mapScaffolding.size.x / 2), 0]
-        mapScaffolding.add(child: topShape)
-        models.append(topShape)
-        
-        material.baseColor = float3(0, 0, 1)
-        let bottomShape = BasicShape(shape: .sphere(extent: [30, 30, 30],
-                                                 segments: [10, 10],
-                                                 inwardNormals: false,
-                                                 geometryType: .triangles,
-                                                 material: material))
-        bottomShape.position = [0, -(mapScaffolding.size.x / 2), 0]
-        mapScaffolding.add(child: bottomShape)
-        models.append(bottomShape)
-        
+//        
+//        var material = Material()
+//        material.baseColor = float3(1, 0, 0)
+//        let topShape = BasicShape(shape: .sphere(extent: [30, 30, 30],
+//                                                 segments: [10, 10],
+//                                                 inwardNormals: false,
+//                                                 geometryType: .triangles,
+//                                                 material: material))
+//        topShape.position = [0, (mapScaffolding.size.x / 2), 0]
+//        mapScaffolding.add(child: topShape)
+//        models.append(topShape)
+//        
+//        material.baseColor = float3(0, 0, 1)
+//        let bottomShape = BasicShape(shape: .sphere(extent: [30, 30, 30],
+//                                                 segments: [10, 10],
+//                                                 inwardNormals: false,
+//                                                 geometryType: .triangles,
+//                                                 material: material))
+//        bottomShape.position = [0, -(mapScaffolding.size.x / 2), 0]
+//        mapScaffolding.add(child: bottomShape)
+//        models.append(bottomShape)
+//        
         
         // Debug Nodes \\
 
