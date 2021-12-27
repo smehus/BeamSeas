@@ -32,14 +32,14 @@ final class Renderer: NSObject {
 //        instance.rotation.y = Float(-60).degreesToRadians
  
                 
-        let instance = BaseThirdPersonCamera(focus: player)
-        instance.focusDistance = 150
-        instance.focusHeight = 100
+//        let instance = BaseThirdPersonCamera(focus: player)
+//        instance.focusDistance = 150
+//        instance.focusHeight = 100
 
-//        let instance = Camera()
-////        instance.position.z = -100
-//        instance.position.y = terrain.scaffoldingPosition.y + 100
-//        instance.rotation.x = Float(90).degreesToRadians
+        let instance = Camera()
+//        instance.position.z = -100
+        instance.position.y = 500
+        instance.rotation.x = Float(90).degreesToRadians
 
 //        let instance = TopDownFollowRotationCamera()
 //        instance.node = player
@@ -112,13 +112,14 @@ final class Renderer: NSObject {
         mapScaffolding.position = [0, -(mapScaffolding.size.x / 2), 0]
     
         terrain = Terrain()
+        terrain.position.y = 50
         models.append(terrain)
         mapScaffolding.add(child: terrain)
         models.append(mapScaffolding)
         
         terrain.scaffoldingPosition = [0, (mapScaffolding.size.x / 2), 0] // UV
 //        mapScaffolding.position = float3(0, -(mapScaffolding.size.x / 2), 0)
-        terrain.position = [0, 0, 0]//[0, (mapScaffolding.size.x / 2) + 20, 0] // UV//[0, 20, 0] // Render position
+//        terrain.position = [0, 0, 0]//[0, (mapScaffolding.size.x / 2) + 20, 0] // UV//[0, 20, 0] // Render position
 
         player = Model(name: "OldBoat", fragment: "fragment_pbr")
         player.scale = [0.5, 0.5, 0.5]
@@ -190,6 +191,7 @@ extension Renderer: MTKViewDelegate {
                 uniforms: &uniforms,
                 fragmentUniforms: &fragmentUniforms,
                 camera: camera,
+                scaffolding: mapScaffolding,
                 player: player
             )
         }

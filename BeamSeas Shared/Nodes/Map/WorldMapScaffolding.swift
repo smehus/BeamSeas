@@ -93,7 +93,7 @@ final class WorldMapScaffolding: Node, Texturable, RendererContianer {
     
     private lazy var depthStencilState: MTLDepthStencilState = {
         let descriptor = MTLDepthStencilDescriptor()
-        descriptor.depthCompareFunction = .lessEqual
+        descriptor.depthCompareFunction = .less
         descriptor.isDepthWriteEnabled = true
         return Renderer.device.makeDepthStencilState(descriptor: descriptor)!
     }()
@@ -115,6 +115,7 @@ extension WorldMapScaffolding: Renderable, MapRotationHandler {
         uniforms: inout Uniforms,
         fragmentUniforms: inout FragmentUniforms,
         camera: Camera,
+        scaffolding: WorldMapScaffolding,
         player: Model
     ) {
         self.player = player
@@ -128,7 +129,7 @@ extension WorldMapScaffolding: Renderable, MapRotationHandler {
 //                case .left:
 //                    currentRotation.y += 0.3
             case .forward:
-                currentRotation.x -= 0.01
+                currentRotation.x -= 0.1
                 default: break
             }
         }
@@ -142,7 +143,7 @@ extension WorldMapScaffolding: Renderable, MapRotationHandler {
     }
     
     func draw(renderEncoder: MTLRenderCommandEncoder, uniforms: inout Uniforms, fragmentUniforms: inout FragmentUniforms) {
-        return
+//        return
         defer { renderEncoder.popDebugGroup() }
         
         renderEncoder.pushDebugGroup("WorldMap Scaffolding")

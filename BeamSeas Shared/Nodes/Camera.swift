@@ -17,7 +17,7 @@ class Camera: Node {
 
     var aspect: Float = 1
     var near: Float = 0.001
-    var far: Float = 1000
+    var far: Float = 5000
 
 //    var projectionMatrix: float4x4 {
 //        return float4x4(perspectiveProjectionFov: fovRadians, aspectRatio: aspect, nearZ: near, farZ: far)
@@ -48,8 +48,8 @@ class Camera: Node {
 
 class ArcballCamera: Camera {
 
-    var minDistance: Float = 0.5
-    var maxDistance: Float = 10
+    var minDistance: Float = 0.001
+    var maxDistance: Float = 1000
     var target: float3 = [0, 0, 0] {
         didSet {
             _viewMatrix = updateViewMatrix()
@@ -191,6 +191,7 @@ class BaseThirdPersonCamera: Camera {
     var focus: Node!
     var focusDistance: Float = 3
     var focusHeight: Float = 3
+    var shouldRotate = true
 
     // the rotation is is all 0's because its never actually set
 
@@ -204,7 +205,7 @@ class BaseThirdPersonCamera: Camera {
     }
 
     override var viewMatrix: float4x4 {
-        setRotatingCamera()
+        shouldRotate ? setRotatingCamera() : setNonRotatingCamera()
         return float4x4(eye: position, center: focus.position, up: [0, 1, 0])
 //        return float4x4(lookAtLHEye: position, target: focus.position, up: [0, 1, 0])
 
@@ -214,8 +215,8 @@ class BaseThirdPersonCamera: Camera {
     }
 
     private func setNonRotatingCamera() {
-        position = float3(focus.position.x, focus.position.y - focusDistance, focus.position.z - focusDistance)
-        position.y = 3
+//        position = float3(focus.position.x, focus.position.y - focusDistance, focus.position.z - focusDistance)
+//        position.y = 3
     }
 
     private func setRotatingCamera() {

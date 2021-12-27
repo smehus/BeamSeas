@@ -109,74 +109,13 @@ extension Model: Renderable {
     func didUpdate(keys: Set<Key>) {
         moveStates = keys
     }
-    
-//    extension Model: Renderable {
-//
-//        func update(with deltaTime: Float) {
-//
-//            switch moveState {
-//            case .rotateRight:
-//                var rotDeg = rotation.y.radiansToDegrees
-//                rotDeg += 0.3
-//
-//                rotation.y = rotDeg.degreesToRadians
-//            case .rotateLeft:
-//                var rotDeg = rotation.y.radiansToDegrees
-//                rotDeg -= 0.3
-//
-//                rotation.y = rotDeg.degreesToRadians
-//            default: break
-//            }
-//
-//            let heightValue = heightBuffer.contents().bindMemory(to: Float.self, capacity: 1).pointee
-//            assert(meshes.count == 1)
-//            let size = meshes.first!.mdlMesh.boundingBox.maxBounds - meshes.first!.mdlMesh.boundingBox.minBounds
-//            position.y = heightValue //+ (size.y * 0.3)
-//
-//
-//            let (tangent0, tangent1, normalMapValue) = getRotationFromNormal()
-//
-//            renderer.playerRotation = (position, tangent0, tangent1, normalMapValue)
-//
-//            var rotMat = float4x4.identity()
-//            rotMat.columns.0.x = tangent0.x
-//            rotMat.columns.0.y = tangent0.y
-//            rotMat.columns.0.z = tangent0.z
-//
-//            rotMat.columns.1.x = normalMapValue.x
-//            rotMat.columns.1.y = normalMapValue.y
-//            rotMat.columns.1.z = normalMapValue.z
-//
-//            rotMat.columns.2.x = tangent1.x
-//            rotMat.columns.2.y = tangent1.y
-//            rotMat.columns.2.z = tangent1.z
-//
-//            rotationMatrix = rotMat//float4x4(slerp)
-//
-//
-//        }
-//
-//        func getRotationFromNormal() -> (tangent0: float3, tangent1: float3, normalMap: float3)  {
-//            var normalMapValue = normalBuffer.contents().bindMemory(to: SIMD3<Float>.self, capacity: 1).pointee
-//
-//            normalMapValue.x = normalMapValue.x * 2 - 1
-//            normalMapValue.y = normalMapValue.y * 2 - 1
-//            normalMapValue.z = normalMapValue.z * 2 - 1
-//            normalMapValue = normalize(normalMapValue)
-//
-//
-//            var crossVec = normalize(-forwardVector)
-//            var tangent0 = normalize(cross(normalMapValue, crossVec)) // x
-//            let tangent1 = normalize(cross(normalMapValue, tangent0)) // z
-//
-//            return (tangent0, tangent1, normalMapValue)
-//        }
 
     func update(
         deltaTime: Float,
         uniforms: inout Uniforms,
         fragmentUniforms: inout FragmentUniforms,
         camera: Camera,
+        scaffolding: WorldMapScaffolding,
         player: Model
     ) {
         

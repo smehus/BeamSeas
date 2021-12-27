@@ -49,6 +49,13 @@ class Terrain: Node {
         let size = count * MemoryLayout<Float>.size / 2
         return Renderer.device.makeBuffer(length: size, options: .storageModePrivate)
     }()
+    
+    private lazy var depthStencilState: MTLDepthStencilState = {
+        let descriptor = MTLDepthStencilDescriptor()
+        descriptor.depthCompareFunction = .less
+        descriptor.isDepthWriteEnabled = true
+        return Renderer.device.makeDepthStencilState(descriptor: descriptor)!
+    }()
 
     private let renderPipelineState: MTLRenderPipelineState
     private let computePipelineState: MTLComputePipelineState
@@ -163,6 +170,7 @@ extension Terrain: Renderable {
         uniforms: inout Uniforms,
         fragmentUniforms: inout FragmentUniforms,
         camera: Camera,
+        scaffolding: WorldMapScaffolding,
         player: Model
     ) {
         // Use scaffolding position
@@ -262,6 +270,7 @@ extension Terrain: Renderable {
 //        fragmentUniforms.inverseTerrainModelMatrix = modelMatrix.inverse
 
         renderEncoder.setTriangleFillMode(.fill)
+        renderEncoder.setDepthStencilState(depthStencilState)
         renderEncoder.setRenderPipelineState(renderPipelineState)
         renderEncoder.setVertexBytes(
             &uniforms,

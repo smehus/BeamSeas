@@ -17,6 +17,7 @@ protocol Renderable {
         uniforms: inout Uniforms,
         fragmentUniforms: inout FragmentUniforms,
         camera: Camera,
+        scaffolding: WorldMapScaffolding,
         player: Model
     )
 

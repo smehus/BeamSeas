@@ -39,10 +39,15 @@ final class MiniWorldMap: Node, Meshable, Texturable, DepthStencilStateBuilder, 
     private let samplerState: MTLSamplerState?
     private var degRot: Float = 0
     private lazy var mapCamera: Camera = {
-        let camera = Camera()
-        camera.near = 0.0001
-        camera.far = 500
-        
+//        let camera = Camera()
+//        camera.near = 0.0001
+//        camera.far = 500
+//        camera.rotation.x = Float(-45).degreesToRadians
+  
+        let camera = BaseThirdPersonCamera(focus: self)
+//        camera.focusDistance = 70
+        camera.position.y = 30
+        camera.shouldRotate = false
         return camera
     }()
     
@@ -87,9 +92,10 @@ final class MiniWorldMap: Node, Meshable, Texturable, DepthStencilStateBuilder, 
         
         texture = worldMapTexture(options: nil)
 
-        let rot: float4x4 = float4x4(rotation: float3(Float(-90).degreesToRadians, 0, 0))
-        let initialRotation = simd_quatf(rot)
-        quaternion = initialRotation
+        // Rotate the camera dawg
+//        let rot: float4x4 = float4x4(rotation: float3(Float(-45).degreesToRadians, 0, 0))
+//        let initialRotation = simd_quatf(rot)
+//        quaternion = initialRotation
         
     }
 }
@@ -107,14 +113,20 @@ extension MiniWorldMap: Renderable, MoveStateNavigatable {
         uniforms: inout Uniforms,
         fragmentUniforms: inout FragmentUniforms,
         camera: Camera,
+        scaffolding: WorldMapScaffolding,
         player: Model
     ) {
         // The players rotation will always be on the y axis
-        let rotMat = float4x4(rotation: getRotation(player: player, degRot: degRot))
-        let newRotQuat = simd_quatf(rotMat)
-        quaternion = newRotQuat * quaternion
+//        let rotMat = float4x4(rotation: getRotation(player: player, degRot: degRot))
+//        let newRotQuat = simd_quatf(rotMat)
+//        quaternion = newRotQuat * quaternion
+//
+//        degRot = player.rotation.y
 
-        degRot = player.rotation.y
+        // Well I can't just mimick scaffolding becuase that doesn't rotate the same way :(
+        // Here we go
+//        let playerYRotationInverse = float3(0, -player.rotation.y, 0).quaternion
+//        quaternion = playerYRotationInverse * scaffolding.quaternion
     }
     
 
