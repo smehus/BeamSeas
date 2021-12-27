@@ -38,7 +38,7 @@ final class Renderer: NSObject {
 
         let instance = Camera()
         instance.position.z = -1000
-        instance.position.y = -300
+        instance.position.y = 100
         instance.rotation.x = Float(0).degreesToRadians
 
 //        let instance = TopDownFollowRotationCamera()
@@ -110,7 +110,28 @@ final class Renderer: NSObject {
         let scaffoldingSize: Float = 300
         mapScaffolding = WorldMapScaffolding(extent: SIMD3<Float>(repeating: scaffoldingSize), segments: [50, 50])
         mapScaffolding.position = [0, -(mapScaffolding.size.x / 2), 0]
+    
+        terrain = Terrain()
+        terrain.scaffoldingPosition = [0, (mapScaffolding.size.x / 2), 0] // UV
+        terrain.position = [0, 0, 0]
+        mapScaffolding.add(child: terrain)
+        models.append(terrain)
+        models.append(mapScaffolding)
         
+        player = Model(name: "OldBoat", fragment: "fragment_pbr")
+        player.scale = [0.5, 0.5, 0.5]
+        terrain.add(child: player)
+        models.append(player)
+        
+        models.append(fft)
+        fragmentUniforms.light_count = UInt32(lighting.count)
+        
+        let worldMap = MiniWorldMap(vertexName: "worldMap_vertex", fragmentName: "worldMap_fragment")
+        worldMap.position = float3(0, 0, 30)
+        models.append(worldMap)
+        
+        
+        // Debug Nodes \\
         
         var material = Material()
         material.baseColor = float3(1, 0, 0)
@@ -122,11 +143,6 @@ final class Renderer: NSObject {
         topShape.position = [0, (mapScaffolding.size.x / 2), 0]
         mapScaffolding.add(child: topShape)
         models.append(topShape)
-    
-        terrain = Terrain()
-        models.append(terrain)
-        mapScaffolding.add(child: terrain)
-        models.append(mapScaffolding)
         
         material.baseColor = float3(0, 0, 1)
         let bottomShape = BasicShape(shape: .sphere(extent: [30, 30, 30],
@@ -138,22 +154,8 @@ final class Renderer: NSObject {
         mapScaffolding.add(child: bottomShape)
         models.append(bottomShape)
         
-        terrain.scaffoldingPosition = [0, (mapScaffolding.size.x / 2), 0] // UV
-//        mapScaffolding.position = float3(0, -(mapScaffolding.size.x / 2), 0)
-//        terrain.position = [0, 0, 0]//[0, (mapScaffolding.size.x / 2) + 20, 0] // UV//[0, 20, 0] // Render position
-
-        player = Model(name: "OldBoat", fragment: "fragment_pbr")
-        player.scale = [0.5, 0.5, 0.5]
-        models.append(player) 
-        terrain.add(child: player)
-        models.append(fft)
-        fragmentUniforms.light_count = UInt32(lighting.count)
         
-        let worldMap = MiniWorldMap(vertexName: "worldMap_vertex", fragmentName: "worldMap_fragment")
-        worldMap.position = float3(0, 0, 30)
-        models.append(worldMap)
-
-
+        // Debug Nodes \\
 
         mtkView(metalView, drawableSizeWillChange: metalView.bounds.size)
     }
