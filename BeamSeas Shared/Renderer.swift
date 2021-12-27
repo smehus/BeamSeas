@@ -32,13 +32,13 @@ final class Renderer: NSObject {
 //        instance.rotation.y = Float(-60).degreesToRadians
  
                 
-//        let instance = BaseThirdPersonCamera(focus: player)
-//        instance.focusDistance = 300
-//        instance.focusHeight = (mapScaffolding.size.x / 2) + 100
+        let instance = BaseThirdPersonCamera(focus: terrain)
+        instance.position.y = (mapScaffolding.size.x / 2) + 300
+        instance.position.z = -200
 
-        let instance = Camera()
-        instance.position.y = (mapScaffolding.size.x / 2) + 100
-        instance.rotation.x = Float(90).degreesToRadians
+//        let instance = Camera()
+//        instance.position.y = (mapScaffolding.size.x / 2) + 100
+//        instance.rotation.x = Float(90).degreesToRadians
 
 //        let instance = TopDownFollowRotationCamera()
 //        instance.node = player
@@ -106,7 +106,7 @@ final class Renderer: NSObject {
         
         skybox = Skybox(textureName: nil)
         
-        let scaffoldingSize: Float = 300
+        let scaffoldingSize: Float = 5000
         mapScaffolding = WorldMapScaffolding(extent: SIMD3<Float>(repeating: scaffoldingSize), segments: [50, 50])
 //        mapScaffolding.position = [0, -(mapScaffolding.size.x / 2), 0]
     
