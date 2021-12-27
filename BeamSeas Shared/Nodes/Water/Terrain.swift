@@ -18,7 +18,7 @@ class Terrain: Node {
     static var primarySlopeMap: MTLTexture!
     static var secondarySlopeMap: MTLTexture!
 
-    static let terrainSize: Float = 400
+    static let terrainSize: Float = 75
     
     static var terrainParams = TerrainParams(
         size: [Terrain.terrainSize, Terrain.terrainSize],
@@ -258,16 +258,16 @@ extension Terrain: Renderable {
         let textureModelMatrix = textureTranslation * textureRotation * textureScale
         // Scaffolding * modified position
         
-        let parentTranslation: float4x4 = .identity()//float4x4(translation: parent!.position)
+        let parentTranslation: float4x4 = float4x4(translation: parent!.position)
         let parentRotation = float4x4(parent!.quaternion)
         let parentScale: float4x4 = float4x4(scaling: parent!.scale)
         let parentModelMatrix = parentTranslation * parentRotation * parentScale
         uniforms.parentTreeModelMatrix = parentModelMatrix.inverse * textureModelMatrix
         
         
-        uniforms.modelMatrix = modelMatrix//float4x4(translation: position) * float4x4(renderRotQuat) * float4x4(scaling: scale)
+        uniforms.modelMatrix = parentModelMatrix.inverse * textureModelMatrix//float4x4(translation: position) * float4x4(renderRotQuat) * float4x4(scaling: scale)
         uniforms.normalMatrix = float3x3(normalFrom4x4: worldTransform)
-//        fragmentUniforms.inverseTerrainModelMatrix = modelMatrix.inverse
+//        fragmentUniforms.inverseTerrainModelMatrix = model Matrix.inverse
 
         renderEncoder.setTriangleFillMode(.fill)
         renderEncoder.setDepthStencilState(depthStencilState)

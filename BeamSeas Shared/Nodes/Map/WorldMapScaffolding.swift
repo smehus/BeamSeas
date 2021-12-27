@@ -40,6 +40,7 @@ final class WorldMapScaffolding: Node, Texturable, RendererContianer {
     var shouldDo = true
     var player: Model!
     var renderingQuaternion: simd_quatf!
+    let debugBoundingBox: DebugBoundingBox
     
     init(extent: vector_float3, segments: vector_uint2) {
         let allocator = MTKMeshBufferAllocator(device: Renderer.device)
@@ -81,6 +82,7 @@ final class WorldMapScaffolding: Node, Texturable, RendererContianer {
         let samplerDescriptor = MTLSamplerDescriptor()
         samplerState = Renderer.device.makeSamplerState(descriptor: samplerDescriptor)
         
+        debugBoundingBox = DebugBoundingBox(boundingBox: mesh.boundingBox)
         super.init()
         
         boundingBox = mesh.boundingBox
@@ -129,7 +131,7 @@ extension WorldMapScaffolding: Renderable, MapRotationHandler {
 //                case .left:
 //                    currentRotation.y += 0.3
             case .forward:
-                currentRotation.x -= 0.1
+                currentRotation.x -= 0.5
                 default: break
             }
         }
@@ -181,5 +183,7 @@ extension WorldMapScaffolding: Renderable, MapRotationHandler {
             indexBuffer: mesh.indexBuffer.buffer,
             indexBufferOffset: mesh.indexBuffer.offset
         )
+        
+        debugBoundingBox.render(renderEncoder: renderEncoder, uniforms: uniforms)
     }
 }
