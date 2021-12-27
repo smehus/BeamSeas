@@ -41,12 +41,12 @@ class Model: Node, DepthStencilStateBuilder, RendererContianer {
 
     private let heightComputePipelineState: MTLComputePipelineState
     
-//    override var modelMatrix: float4x4 {
-//        let translationMatrix = float4x4(translation: position)
-//        let scaleMatrix = float4x4(scaling: scale)
-//
-//        return translationMatrix * rotationMatrix * scaleMatrix
-//    }
+    override var modelMatrix: float4x4 {
+        let translationMatrix = float4x4(translation: position)
+        let scaleMatrix = float4x4(scaling: scale)
+
+        return translationMatrix * rotationMatrix * scaleMatrix
+    }
 
     init(name: String, fragment: String) {
         guard let assetURL = Bundle.main.url(forResource: name, withExtension: "obj") else { fatalError("Model: \(name) not found")  }
@@ -202,20 +202,21 @@ extension Model: Renderable {
         renderer.playerRotation = (worldTranslationLocalRotation.columns.3.xyz, tangent0, tangent1, normalMapValue)
 //        renderer.playerRotation = (worldTransform.columns.3.xyz, tangent0, normalize(worldTransform.columns.2.xyz), normalMapValue)
 //
-        var normalMapRotation: float4x4 = rotation.rotationMatrix
-        normalMapRotation.columns.0.x += tangent0.x
-        normalMapRotation.columns.0.y += tangent0.y
-        normalMapRotation.columns.0.z += tangent0.z
+        var normalMapRotation: float4x4 = .identity()
+        normalMapRotation.columns.0.x = tangent0.x
+        normalMapRotation.columns.0.y = tangent0.y
+        normalMapRotation.columns.0.z = tangent0.z
 
-        normalMapRotation.columns.1.x += normalMapValue.x
-        normalMapRotation.columns.1.y += normalMapValue.y
-        normalMapRotation.columns.1.z += normalMapValue.z
+        normalMapRotation.columns.1.x = normalMapValue.x
+        normalMapRotation.columns.1.y = normalMapValue.y
+        normalMapRotation.columns.1.z = normalMapValue.z
 
-        normalMapRotation.columns.2.x += tangent1.x
-        normalMapRotation.columns.2.y += tangent1.y
-        normalMapRotation.columns.2.z += tangent1.z
+        normalMapRotation.columns.2.x = tangent1.x
+        normalMapRotation.columns.2.y = tangent1.y
+        normalMapRotation.columns.2.z = tangent1.z
     
-        quaternion = normalMapRotation.quaternion
+        // TODO: - Not going to handle y rotation right now.
+        rotationMatrix = normalMapRotation
     }
     
     func getRotationFromNormal() -> (tangent0: float3, tangent1: float3, normalMap: float3)  {
@@ -272,7 +273,7 @@ extension Model: Renderable {
 
         fragmentUniforms.tiling = tiling
 
-        uniforms.modelMatrix = parent!.modelMatrix * modelMatrix//float4x4(translation: position) * .identity() * float4x4(scaling: scale)
+        uniforms.modelMatrix = modelMatrix//float4x4(translation: position) * .identity() * float4x4(scaling: scale)
         uniforms.normalMatrix = modelMatrix.upperLeft
 
         renderEncoder.setDepthStencilState(Self.buildDepthStencilState())
