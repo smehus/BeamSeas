@@ -289,7 +289,6 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
     float4 directionToFragment = fragment_in.parentFragmentPosition - fragmentUniforms.scaffoldingPosition;
     float3 terrainToScaffold = normalize(directionToFragment).xyz;
     float4 scaffoldMapColor = worldMapTexture.sample(scaffoldingSampler, terrainToScaffold);
-    return scaffoldMapColor;
     mixedColor = mix(mixedColor, scaffoldMapColor, 0.3);
     
     constexpr sampler sam(min_filter::linear, mag_filter::linear, mip_filter::nearest, address::repeat);

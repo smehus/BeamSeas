@@ -33,11 +33,14 @@ class Model: Node, DepthStencilStateBuilder, RendererContianer {
     var moveStates: Set<Key> = []
     var rotationMatrix: float4x4 = .identity()
     
-    override var rotation: float3 {
-        didSet {
-            // NO-OP
-        }
-    }
+    // This possibly broke the texture sampling??
+    // when rotating - the textures went all white one time....
+    // Could have just been antartica ...
+//    override var rotation: float3 {
+//        didSet {
+//            // NO-OP
+//        }
+//    }
 
     private let heightComputePipelineState: MTLComputePipelineState
     
