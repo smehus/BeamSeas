@@ -253,7 +253,7 @@ extension Terrain: Renderable {
         // Set modelMatrix only for texture sampling.
         // Inverse of the scaffoldings mdl
         let textureRotation: float4x4 = .identity()//float4x4(quaternion)
-        let textureTranslation = scaffoldingPosition.translationMatrix.inverse
+        let textureTranslation = scaffoldingPosition.translationMatrix
         let textureScale: float4x4 = .identity()//float4x4(scaling: scale)
         let textureModelMatrix = textureTranslation * textureRotation * textureScale
         // Scaffolding * modified position
