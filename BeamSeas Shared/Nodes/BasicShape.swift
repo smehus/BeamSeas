@@ -77,7 +77,10 @@ extension BasicShape: Renderable {
         
         renderEncoder.pushDebugGroup("BasicShape")
 
-        uniforms.modelMatrix = worldTransform//position.rotationMatrix * .identity() * scale.rotationMatrix
+//        uniforms.modelMatrix = worldTransform//position.rotationMatrix * .identity() * scale.rotationMatrix
+        
+        let parentMdl = parent!.position.translationMatrix * .identity() * float4x4(scaling: parent!.scale)
+        uniforms.modelMatrix = parentMdl * modelMatrix
 
         renderEncoder.setRenderPipelineState(pipelineState)
 

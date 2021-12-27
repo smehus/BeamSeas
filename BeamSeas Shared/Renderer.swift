@@ -38,7 +38,7 @@ final class Renderer: NSObject {
 
         let instance = Camera()
         instance.position.z = -1000
-        instance.position.y = 0
+        instance.position.y = -300
         instance.rotation.x = Float(0).degreesToRadians
 
 //        let instance = TopDownFollowRotationCamera()
@@ -119,12 +119,24 @@ final class Renderer: NSObject {
                                                  inwardNormals: false,
                                                  geometryType: .triangles,
                                                  material: material))
+        topShape.position = [0, (mapScaffolding.size.x / 2), 0]
+        mapScaffolding.add(child: topShape)
         models.append(topShape)
     
         terrain = Terrain()
         models.append(terrain)
         mapScaffolding.add(child: terrain)
         models.append(mapScaffolding)
+        
+        material.baseColor = float3(0, 0, 1)
+        let bottomShape = BasicShape(shape: .sphere(extent: [30, 30, 30],
+                                                 segments: [10, 10],
+                                                 inwardNormals: false,
+                                                 geometryType: .triangles,
+                                                 material: material))
+        bottomShape.position = [0, -(mapScaffolding.size.x / 2), 0]
+        mapScaffolding.add(child: bottomShape)
+        models.append(bottomShape)
         
         terrain.scaffoldingPosition = [0, (mapScaffolding.size.x / 2), 0] // UV
 //        mapScaffolding.position = float3(0, -(mapScaffolding.size.x / 2), 0)
