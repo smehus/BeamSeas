@@ -115,13 +115,15 @@ final class Renderer: NSObject {
         let scaffoldingSize: Float = 5000
         mapScaffolding = WorldMapScaffolding(extent: SIMD3<Float>(repeating: scaffoldingSize), segments: [50, 50])
 //        mapScaffolding.position = [0, -(mapScaffolding.size.x / 2), 0]
-    
+        models.append(mapScaffolding)
+        
+        
         terrain = Terrain()
 //        terrain.scaffoldingPosition = [0, (mapScaffolding.size.x / 2), 0] // UV
         terrain.position = [0, (mapScaffolding.size.x / 2), 0] // UV
         mapScaffolding.add(child: terrain)
         models.append(terrain)
-        models.append(mapScaffolding)
+        
         
         player = Model(name: "OldBoat", fragment: "fragment_pbr")
         player.scale = [0.5, 0.5, 0.5]

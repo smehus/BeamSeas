@@ -37,6 +37,7 @@ final class WorldMapScaffolding: Node, Texturable, RendererContianer {
     private var moveRot: Float = 0
     private let samplerState: MTLSamplerState?
     private var userActionStates: Set<Key> = []
+    private let worldMap: MTLTexture
     var shouldDo = true
     var player: Model!
     var renderingQuaternion: simd_quatf!
@@ -77,6 +78,8 @@ final class WorldMapScaffolding: Node, Texturable, RendererContianer {
             
             pipelineState = try Renderer.device.makeRenderPipelineState(descriptor: pipelineDescriptor)
             
+            worldMap = Self.createTextureCube()
+            
         } catch { fatalError(error.localizedDescription) }
         
         let samplerDescriptor = MTLSamplerDescriptor()
@@ -99,6 +102,37 @@ final class WorldMapScaffolding: Node, Texturable, RendererContianer {
         descriptor.isDepthWriteEnabled = true
         return Renderer.device.makeDepthStencilState(descriptor: descriptor)!
     }()
+    
+    private static func createTextureCube() -> MTLTexture {
+        let noiseSource = GKPerlinNoiseSource(frequency: 4,
+                                              octaveCount: 3,
+                                              persistence: 0.2,
+                                              lacunarity: 1,
+                                              seed: 0)
+
+        let noise = GKNoise(noiseSource)
+
+        let noiseMap = GKNoiseMap(noise, size: SIMD2<Double>(8,8),
+                                  origin: SIMD2<Double>(0,0),
+                                  sampleCount: SIMD2<Int32>(640,640),
+                                  seamless: false)
+
+        let noiseTexture = SKTexture(noiseMap: noiseMap)
+        let mdl = MDLTexture(
+            data: noiseTexture.cgImage().data!,
+            topLeftOrigin: true,
+            name: "com.beamseas.world_map",
+            dimensions: [128, 128],
+            rowStride: 1,
+            channelCount: 1,
+            channelEncoding: .uInt16,
+            isCube: false
+        )
+        
+        let textureLoader = MTKTextureLoader(device: Renderer.device)
+
+        return try! textureLoader.newTexture(texture: mdl, options: [.origin: MTKTextureLoader.Origin.bottomLeft])
+    }
 }
 
 
@@ -145,7 +179,6 @@ extension WorldMapScaffolding: Renderable, MapRotationHandler {
     }
     
     func draw(renderEncoder: MTLRenderCommandEncoder, uniforms: inout Uniforms, fragmentUniforms: inout FragmentUniforms) {
-        return
         defer { renderEncoder.popDebugGroup() }
         
         renderEncoder.pushDebugGroup("WorldMap Scaffolding")
@@ -173,6 +206,8 @@ extension WorldMapScaffolding: Renderable, MapRotationHandler {
             texture,
             index: TextureIndex.color.rawValue
         )
+        
+        renderEncoder.setFragmentTexture(worldMap, index: TextureIndex.worldMap.rawValue)
 
         renderEncoder.setFragmentSamplerState(samplerState, index: 0)
         
