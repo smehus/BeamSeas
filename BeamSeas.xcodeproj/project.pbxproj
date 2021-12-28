@@ -92,10 +92,6 @@
 		023A333D26ADD4FC008E220E /* MoveStateNavigatable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 023A333C26ADD4FC008E220E /* MoveStateNavigatable.swift */; };
 		023A333E26ADD4FC008E220E /* MoveStateNavigatable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 023A333C26ADD4FC008E220E /* MoveStateNavigatable.swift */; };
 		023ADEF324BB543200478C87 /* Notes in Resources */ = {isa = PBXBuildFile; fileRef = 023ADEF224BB543200478C87 /* Notes */; };
-		0240A114277A4821000780CD /* DebugBoundingBox.metal in Sources */ = {isa = PBXBuildFile; fileRef = 0240A112277A4821000780CD /* DebugBoundingBox.metal */; };
-		0240A115277A4821000780CD /* DebugBoundingBox.metal in Sources */ = {isa = PBXBuildFile; fileRef = 0240A112277A4821000780CD /* DebugBoundingBox.metal */; };
-		0240A116277A4821000780CD /* DebugBoundingBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0240A113277A4821000780CD /* DebugBoundingBox.swift */; };
-		0240A117277A4821000780CD /* DebugBoundingBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0240A113277A4821000780CD /* DebugBoundingBox.swift */; };
 		0240A119277A4C0C000780CD /* BasicShape.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0240A118277A4C0C000780CD /* BasicShape.swift */; };
 		0240A11A277A4C0C000780CD /* BasicShape.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0240A118277A4C0C000780CD /* BasicShape.swift */; };
 		0240A11C277A50E6000780CD /* BasicShape.metal in Sources */ = {isa = PBXBuildFile; fileRef = 0240A11B277A50E6000780CD /* BasicShape.metal */; };
@@ -787,13 +783,11 @@
 				029DE52325150DB900064C6B /* NormalDistribution.cpp in Sources */,
 				0240A119277A4C0C000780CD /* BasicShape.swift in Sources */,
 				023A333D26ADD4FC008E220E /* MoveStateNavigatable.swift in Sources */,
-				0240A114277A4821000780CD /* DebugBoundingBox.metal in Sources */,
 				02CF8F86267D3C7300FE244D /* RenderPass.swift in Sources */,
 				0236A745249D0A6C008F197E /* Texturable.swift in Sources */,
 				020F9856249A696300DB4850 /* Submesh.swift in Sources */,
 				02995360249A64FD0014228F /* Node.swift in Sources */,
 				028370F2249AFC84006E8AF3 /* DebugLights.swift in Sources */,
-				0240A116277A4821000780CD /* DebugBoundingBox.swift in Sources */,
 				020F9850249A688A00DB4850 /* Model.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -833,13 +827,11 @@
 				029DE52425150DB900064C6B /* NormalDistribution.cpp in Sources */,
 				0240A11A277A4C0C000780CD /* BasicShape.swift in Sources */,
 				023A333E26ADD4FC008E220E /* MoveStateNavigatable.swift in Sources */,
-				0240A115277A4821000780CD /* DebugBoundingBox.metal in Sources */,
 				02CF8F87267D3C7300FE244D /* RenderPass.swift in Sources */,
 				0236A746249D0A6C008F197E /* Texturable.swift in Sources */,
 				020F9857249A696300DB4850 /* Submesh.swift in Sources */,
 				02995361249A64FD0014228F /* Node.swift in Sources */,
 				028370F3249AFC84006E8AF3 /* DebugLights.swift in Sources */,
-				0240A117277A4821000780CD /* DebugBoundingBox.swift in Sources */,
 				020F9851249A688A00DB4850 /* Model.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

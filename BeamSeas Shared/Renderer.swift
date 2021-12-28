@@ -31,14 +31,20 @@ final class Renderer: NSObject {
 //        instance.rotation.x = Float(-10).degreesToRadians
 //        instance.rotation.y = Float(-60).degreesToRadians
  
-                
-        let instance = BaseThirdPersonCamera(focus: terrain)
-        instance.position.y = (mapScaffolding.size.x / 2) + 300
-        instance.position.z = -200
+//
+        let instance = BaseThirdPersonCamera(focus: player)
+        instance.focusDistance = 175
+        instance.focusHeight = 75
+        
+//        let instance = ThirdPersonCamera(focus: player, scaffolding: mapScaffolding)
+//        instance.focusDistance = 300
+//        instance.focusHeight = 50
 
 //        let instance = Camera()
-//        instance.position.y = (mapScaffolding.size.x / 2) + 100
+//        instance.position.y = (mapScaffolding.size.x / 2) + 400
 //        instance.rotation.x = Float(90).degreesToRadians
+        
+        
 
 //        let instance = TopDownFollowRotationCamera()
 //        instance.node = player
@@ -161,7 +167,7 @@ final class Renderer: NSObject {
 
     static func buildDepthStencilState() -> MTLDepthStencilState {
         let descriptor = MTLDepthStencilDescriptor()
-        descriptor.depthCompareFunction = .less
+        descriptor.depthCompareFunction = .lessEqual
         descriptor.isDepthWriteEnabled = true
 
         return Self.device.makeDepthStencilState(descriptor: descriptor)!

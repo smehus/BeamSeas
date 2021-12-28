@@ -39,21 +39,21 @@ final class MiniWorldMap: Node, Meshable, Texturable, DepthStencilStateBuilder, 
     private let samplerState: MTLSamplerState?
     private var degRot: Float = 0
     private lazy var mapCamera: Camera = {
-//        let camera = Camera()
-//        camera.near = 0.0001
-//        camera.far = 500
-//        camera.rotation.x = Float(-45).degreesToRadians
+        let camera = Camera()
+        camera.near = 0.0001
+        camera.far = 500
+        camera.rotation.x = Float(-45).degreesToRadians
   
-        let camera = BaseThirdPersonCamera(focus: self)
-//        camera.focusDistance = 70
-        camera.position.y = 30
-        camera.shouldRotate = false
+//        let camera = BaseThirdPersonCamera(focus: self)
+////        camera.focusDistance = 70
+//        camera.position.y = 30
+//        camera.shouldRotate = false
         return camera
     }()
     
     private lazy var depthStencilState: MTLDepthStencilState = {
         let descriptor = MTLDepthStencilDescriptor()
-        descriptor.depthCompareFunction = .less
+        descriptor.depthCompareFunction = .lessEqual
         descriptor.isDepthWriteEnabled = true
         return Renderer.device.makeDepthStencilState(descriptor: descriptor)!
     }()
@@ -126,7 +126,7 @@ extension MiniWorldMap: Renderable, MoveStateNavigatable {
         // Well I can't just mimick scaffolding becuase that doesn't rotate the same way :(
         // Here we go
 //        let playerYRotationInverse = float3(0, -player.rotation.y, 0).quaternion
-//        quaternion = playerYRotationInverse * scaffolding.quaternion
+        quaternion = scaffolding.quaternion
     }
     
 

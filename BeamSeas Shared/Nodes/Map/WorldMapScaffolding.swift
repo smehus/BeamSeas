@@ -40,7 +40,7 @@ final class WorldMapScaffolding: Node, Texturable, RendererContianer {
     var shouldDo = true
     var player: Model!
     var renderingQuaternion: simd_quatf!
-    let debugBoundingBox: DebugBoundingBox
+//    let debugBoundingBox: DebugBoundingBox
     
     init(extent: vector_float3, segments: vector_uint2) {
         let allocator = MTKMeshBufferAllocator(device: Renderer.device)
@@ -82,7 +82,7 @@ final class WorldMapScaffolding: Node, Texturable, RendererContianer {
         let samplerDescriptor = MTLSamplerDescriptor()
         samplerState = Renderer.device.makeSamplerState(descriptor: samplerDescriptor)
         
-        debugBoundingBox = DebugBoundingBox(boundingBox: mesh.boundingBox)
+//        debugBoundingBox = DebugBoundingBox(boundingBox: mesh.boundingBox)
         super.init()
         
         boundingBox = mesh.boundingBox
@@ -95,7 +95,7 @@ final class WorldMapScaffolding: Node, Texturable, RendererContianer {
     
     private lazy var depthStencilState: MTLDepthStencilState = {
         let descriptor = MTLDepthStencilDescriptor()
-        descriptor.depthCompareFunction = .less
+        descriptor.depthCompareFunction = .lessEqual
         descriptor.isDepthWriteEnabled = true
         return Renderer.device.makeDepthStencilState(descriptor: descriptor)!
     }()
@@ -184,6 +184,6 @@ extension WorldMapScaffolding: Renderable, MapRotationHandler {
             indexBufferOffset: mesh.indexBuffer.offset
         )
         
-        debugBoundingBox.render(renderEncoder: renderEncoder, uniforms: uniforms)
+//        debugBoundingBox.render(renderEncoder: renderEncoder, uniforms: uniforms)
     }
 }

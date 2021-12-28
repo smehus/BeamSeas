@@ -190,7 +190,7 @@ class BaseThirdPersonCamera: Camera {
 
     var focus: Node!
     var focusDistance: Float = 3
-//    var focusHeight: Float = 3
+    var focusHeight: Float = 3
     var shouldRotate = true
 
     // the rotation is is all 0's because its never actually set
@@ -206,7 +206,7 @@ class BaseThirdPersonCamera: Camera {
 
     override var viewMatrix: float4x4 {
         setRotatingCamera()
-        return float4x4(eye: position, center: focus.position, up: [0, 1, 0])
+        return float4x4(eye: position, center: focus.parent!.position, up: [0, 1, 0])
 //        return float4x4(lookAtLHEye: position, target: focus.position, up: [0, 1, 0])
 
 
@@ -220,8 +220,9 @@ class BaseThirdPersonCamera: Camera {
     }
 
     private func setRotatingCamera() {
-//        position = focus.position - focusDistance * focus.forwardVector
-//        position.y = focus.position.y + focusHeight
-//        rotation.y = focus.rotation.y
+        let playerPosition = focus.parent!.position
+        position = playerPosition - focusDistance * focus.forwardVector
+        position.y = playerPosition.y + focusHeight
+        rotation.y = focus.rotation.y
     }
 }

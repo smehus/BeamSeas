@@ -47,7 +47,7 @@ class Skybox: Node, Texturable, DepthStencilStateBuilder {
         }
         
         let stencilDescriptor = MTLDepthStencilDescriptor()
-        stencilDescriptor.depthCompareFunction = .less
+        stencilDescriptor.depthCompareFunction = .lessEqual
         stencilDescriptor.isDepthWriteEnabled = true
         depthStencilState = Renderer.device.makeDepthStencilState(descriptor: stencilDescriptor)
         
