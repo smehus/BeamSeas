@@ -40,3 +40,8 @@ Have the terrain & mini map animate switching places so a miniature sized terrai
 
 terrain lighting screwed up - goes black at some points - is because its using the rotating(with parent) matrix
 normals. So at some poitn that terrain is facing away from the sun yo
+
+
+different shader styles for each time of day. Morning evening night etc
+
+

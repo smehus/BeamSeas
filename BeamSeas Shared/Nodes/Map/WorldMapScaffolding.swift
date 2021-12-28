@@ -167,7 +167,7 @@ extension WorldMapScaffolding: Renderable {
 //                case .left:
 //                    currentRotation.y += 0.3
             case .forward:
-                currentRotation.x -= 0.5
+                currentRotation.x -= 0.01
                 default: break
             }
         }

@@ -122,6 +122,9 @@ class Terrain: Node {
         waterNormalTexture = Self.loadTexture(imageName: "normal-water-rotated.png")
         
         let samplerDescriptor = MTLSamplerDescriptor()
+        samplerDescriptor.minFilter = .linear
+        samplerDescriptor.magFilter = .linear
+        samplerDescriptor.mipFilter = .nearest
         samplerState = Renderer.device.makeSamplerState(descriptor: samplerDescriptor)
 
 //        texDesc.width = altHeightMap.width

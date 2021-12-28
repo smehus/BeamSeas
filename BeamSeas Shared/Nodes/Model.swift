@@ -127,9 +127,9 @@ extension Model: Renderable {
         for state in moveStates {
             switch state {
                 case .right:
-                    rotation.y += Float(0.3).degreesToRadians
+                    rotation.y += Float(1.2).degreesToRadians
                 case .left:
-                    rotation.y -= Float(0.3).degreesToRadians
+                    rotation.y -= Float(1.2).degreesToRadians
                 default: break
             }
         }

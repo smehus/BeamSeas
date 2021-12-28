@@ -24,6 +24,7 @@ struct TerrainVertexOut {
     float4 worldPosition;
     float3 toCamera;
     float4 parentFragmentPosition;
+    float4 landColor;
 };
 
 float calc_distance(float3 pointA,
@@ -143,12 +144,14 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
     float4 directionToFragment = (uniforms.parentTreeModelMatrix * position) - fragmentUniforms.scaffoldingPosition;
     float3 terrainToScaffold = normalize(directionToFragment).xyz;
     float4 scaffoldMapColor = worldMapTexture.sample(scaffoldingSampler, terrainToScaffold);
-    if (scaffoldMapColor.x < 0.5) {
+    if (scaffoldMapColor.x < 0.01) {
         position.y = 20.0;
+        out.landColor = float4(0, 1, 0, 1);
     } else {
+        out.landColor = float4(0, 0, 0, 1);
         position.y = height.x;
-        position.x += (horizontalDisplacement.y);
-        position.z += (horizontalDisplacement.z);
+//        position.x += (horizontalDisplacement.y);
+//        position.z += (horizontalDisplacement.z);
     }
     
     float adjustedHeight = heightDisplacement.y;
@@ -266,8 +269,8 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
 
     float2 ripple = (normalizedRippleX + normalizedRippleY) * waveStrength;
 
-    reflectionCoords += ripple;
-    refractionCoords += ripple;
+//    reflectionCoords += ripple;
+//    refractionCoords += ripple;
 
     reflectionCoords = clamp(reflectionCoords, 0.001, 0.999);
     refractionCoords = clamp(refractionCoords, 0.001, 0.999);
@@ -296,15 +299,19 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
     
                                 // terrain world position
                                 // rotating around scaffolding      // Scaffolding position (float3). Set in Renderer.
-    float4 directionToFragment = fragment_in.parentFragmentPosition - fragmentUniforms.scaffoldingPosition;
-    float3 terrainToScaffold = normalize(directionToFragment).xyz;
-    float4 scaffoldMapColor = worldMapTexture.sample(scaffoldingSampler, terrainToScaffold);
-    if (scaffoldMapColor.x < 0.5) {
-        // land
-        scaffoldMapColor = float4(0, 1, 0, 1);
+//    float4 directionToFragment = fragment_in.parentFragmentPosition - fragmentUniforms.scaffoldingPosition;
+//    float3 terrainToScaffold = normalize(directionToFragment).xyz;
+//    float4 scaffoldMapColor = worldMapTexture.sample(scaffoldingSampler, terrainToScaffold);
+//    if (scaffoldMapColor.x < 0.1) {
+//        // land
+//        scaffoldMapColor = float4(0, 1, 0, 1);
+//        mixedColor = mix(mixedColor, scaffoldMapColor, 0.3);
+//    }
+  
+    if (fragment_in.landColor.y == 1) {
+        mixedColor = fragment_in.landColor;
     }
     
-    mixedColor = mix(mixedColor, scaffoldMapColor, 0.3);
     
     constexpr sampler sam(min_filter::linear, mag_filter::linear, mip_filter::nearest, address::repeat);
     float3 vGradJacobian = gradientMap.sample(sam, fragment_in.vGradNormalTex.xy).xyz;
