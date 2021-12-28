@@ -23,7 +23,7 @@ final class WorldMapScaffolding: Node, Texturable, RendererContianer {
     private var moveRot: Float = 0
     private let samplerState: MTLSamplerState?
     private var userActionStates: Set<Key> = []
-    private let worldMap: MTLTexture
+//    private let worldMap: MTLTexture
     var shouldDo = true
     var player: Model!
     var renderingQuaternion: simd_quatf!
@@ -64,7 +64,8 @@ final class WorldMapScaffolding: Node, Texturable, RendererContianer {
             
             pipelineState = try Renderer.device.makeRenderPipelineState(descriptor: pipelineDescriptor)
             
-            worldMap = try Self.createTextureCube()
+//            worldMap = try Self.createTextureCube()
+            
             
         } catch { fatalError(error.localizedDescription) }
         
@@ -76,6 +77,8 @@ final class WorldMapScaffolding: Node, Texturable, RendererContianer {
         
         boundingBox = mesh.boundingBox
         texture =  worldMapTexture(options: [.origin: MTKTextureLoader.Origin.topLeft])
+        
+
         
         // If i don't set this here, it all gets fucked
         quaternion = simd_quatf(.identity())
@@ -89,35 +92,48 @@ final class WorldMapScaffolding: Node, Texturable, RendererContianer {
         return Renderer.device.makeDepthStencilState(descriptor: descriptor)!
     }()
     
+    
     private static func createTextureCube() throws -> MTLTexture {
-        let noiseSource = GKPerlinNoiseSource(frequency: 0.1,
-                                              octaveCount: 2,
-                                              persistence: 0.2,
-                                              lacunarity: 2.0,
-                                              seed: Int32(2))
+        let source = GKPerlinNoiseSource(frequency: 0.2,
+                                     octaveCount: 6,
+                                     persistence: 0.5,
+                                     lacunarity: 2.0,
+                                     seed: Int32(50))
 
-        let noise = GKNoise(noiseSource)
+        let noise = GKNoise(source)
+        noise.remapValues(toTerracesWithPeaks: [-1, 0.0, 1.0], terracesInverted: false)
 
-        let noiseMap = GKNoiseMap(noise, size: SIMD2<Double>(8,8),
-                                  origin: SIMD2<Double>(0,0),
-                                  sampleCount: SIMD2<Int32>(640,640),
-                                  seamless: false)
-
-        let noiseTexture = SKTexture(noiseMap: noiseMap)
-        let mdl = MDLTexture(
-            data: noiseTexture.cgImage().data!,
-            topLeftOrigin: true,
-            name: "com.beamseas.world_map",
-            dimensions: [128, 128],
-            rowStride: 1,
-            channelCount: 1,
-            channelEncoding: .uInt16,
-            isCube: false
+        let noiseMap = GKNoiseMap(
+            noise,
+            size: vector_double2(2, 2),
+            origin: vector_double2(0, 0),
+            sampleCount: vector_int2(500, 500),
+            seamless: true
         )
         
+        let noiseTexture = SKTexture(noiseMap: noiseMap)
+         
+        let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        let url = documentsDirectory.appendingPathComponent("world_map_texture.jpg")
+        try noiseTexture.cgImage().data!.write(to: url)
+        
+//        let mdl = MDLTexture(
+//            data: noiseTexture.cgImage().data!,
+//            topLeftOrigin: true,
+//            name: "com.beamseas.world_map",
+//            dimensions: [128, 128],
+//            rowStride: 1,
+//            channelCount: 1,
+//            channelEncoding: .uInt16,
+//            isCube: false
+//        )
+//
         let textureLoader = MTKTextureLoader(device: Renderer.device)
-
-        return try textureLoader.newTexture(texture: mdl, options: [.origin: MTKTextureLoader.Origin.bottomLeft])
+//
+//        return try textureLoader.newTexture(texture: mdl, options: [.origin: MTKTextureLoader.Origin.bottomLeft])
+        
+        let new = MDLTexture(named: "world_map_texture.jpg")!
+        return try textureLoader.newTexture(texture: new, options: [.origin: MTKTextureLoader.Origin.bottomLeft])
     }
 }
 
@@ -193,7 +209,7 @@ extension WorldMapScaffolding: Renderable {
             index: TextureIndex.color.rawValue
         )
         
-        renderEncoder.setFragmentTexture(worldMap, index: TextureIndex.worldMap.rawValue)
+//        renderEncoder.setFragmentTexture(worldMap, index: TextureIndex.worldMap.rawValue)
 
         renderEncoder.setFragmentSamplerState(samplerState, index: 0)
         

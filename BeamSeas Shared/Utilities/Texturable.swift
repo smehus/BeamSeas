@@ -68,6 +68,9 @@ extension Texturable {
         guard let mdlTexture = MDLTexture(cubeWithImagesNamed: names) else { fatalError("Failed to find cube skybox textures") }
         
         var texture: MTLTexture?
+        let descriptor = MTLTextureDescriptor()
+        descriptor.height = 128
+        descriptor.width = 128
         let textureLoader = MTKTextureLoader(device: Renderer.device)
         
         do {
@@ -83,12 +86,20 @@ extension Texturable {
 
 extension Texturable {
     func worldMapTexture(options: [MTKTextureLoader.Option : Any]? = [.origin: MTKTextureLoader.Origin.bottomLeft]) -> MTLTexture? {
-        return loadCubeMap(names: ["posx.jpg",
-                                   "negx.jpg",
-                                   "posy.jpg",
-                                   "negy.jpg",
-                                   "posz.jpg",
-                                   "negz.jpg"],
+//        return loadCubeMap(names: ["posx.jpg",
+//                                   "negx.jpg",
+//                                   "posy.jpg",
+//                                   "negy.jpg",
+//                                   "posz.jpg",
+//                                   "negz.jpg"],
+//                           options: options)
+        
+        return loadCubeMap(names: ["world_map_+x.png",
+                                   "world_map_-x.png",
+                                   "world_map_+y.png",
+                                   "world_map_-y.png",
+                                   "world_map_+z.png",
+                                   "world_map_-z.png"],
                            options: options)
     }
 }
