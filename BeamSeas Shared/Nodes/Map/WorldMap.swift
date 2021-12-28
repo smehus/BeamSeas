@@ -38,6 +38,7 @@ final class MiniWorldMap: Node, Meshable, Texturable, DepthStencilStateBuilder, 
     private var texture: MTLTexture?
     private let samplerState: MTLSamplerState?
     private var degRot: Float = 0
+    private let playerIndicator: BasicShape
     private lazy var mapCamera: Camera = {
         let camera = Camera()
         camera.near = 0.0001
@@ -89,9 +90,18 @@ final class MiniWorldMap: Node, Meshable, Texturable, DepthStencilStateBuilder, 
         let samplerDescriptor = MTLSamplerDescriptor()
         samplerState = Renderer.device.makeSamplerState(descriptor: samplerDescriptor)
         
+        var material = Material()
+        material.baseColor = float3(1, 0, 0)
+        playerIndicator = BasicShape(shape: .sphere(extent: [0.5, 0.5, 0.5],
+                                                 segments: [15, 15],
+                                                 inwardNormals: false,
+                                                 geometryType: .triangles,
+                                                 material: material))
+        playerIndicator.position = [0, 15, 0]
         super.init()
         
         texture = worldMapTexture(options: nil)
+        add(child: playerIndicator)
 
         // Rotate the camera dawg
 //        let rot: float4x4 = float4x4(rotation: float3(Float(-45).degreesToRadians, 0, 0))
@@ -145,10 +155,10 @@ extension MiniWorldMap: Renderable, MoveStateNavigatable {
         mapUniforms.modelMatrix = modelMatrix
         mapUniforms.viewMatrix = mapCamera.viewMatrix
         mapUniforms.projectionMatrix = mapCamera.projectionMatrix
-        
+
         renderEncoder.setRenderPipelineState(pipelineState)
         renderEncoder.setDepthStencilState(depthStencilState)
-        
+
         renderEncoder.setVertexBytes(
             &mapUniforms,
             length: MemoryLayout<Uniforms>.stride,
@@ -157,7 +167,7 @@ extension MiniWorldMap: Renderable, MoveStateNavigatable {
         
         let drawableWidth = Renderer.metalView.drawableSize.width.double / 4
         let drawableHeight = Renderer.metalView.drawableSize.height.double / 4
-        
+
         renderEncoder.setViewport(
             MTLViewport(originX: Renderer.metalView.drawableSize.width.double - drawableWidth,
                         originY: 0,
@@ -174,14 +184,14 @@ extension MiniWorldMap: Renderable, MoveStateNavigatable {
             offset: 0,
             index: BufferIndex.vertexBuffer.rawValue
         )
-        
+
         renderEncoder.setFragmentTexture(
             texture,
             index: TextureIndex.color.rawValue
         )
-        
+
         renderEncoder.setFragmentSamplerState(samplerState, index: 0)
-        
+
 //        renderEncoder.setTriangleFillMode(.lines)
         renderEncoder.drawIndexedPrimitives(
             type: .triangle,
@@ -190,6 +200,8 @@ extension MiniWorldMap: Renderable, MoveStateNavigatable {
             indexBuffer: mesh.indexBuffer.buffer,
             indexBufferOffset: mesh.indexBuffer.offset
         )
+        
+        playerIndicator.draw(renderEncoder: renderEncoder, uniforms: &mapUniforms, fragmentUniforms: &fragmentUniforms)
     }
 }
 
