@@ -349,8 +349,14 @@ extension Terrain: Renderable {
             worldMapTexture,
             index: TextureIndex.worldMap.rawValue
         )
+        
+        renderEncoder.setVertexTexture(
+            worldMapTexture,
+            index: TextureIndex.worldMap.rawValue
+        )
 
         renderEncoder.setFragmentSamplerState(samplerState, index: 0)
+        renderEncoder.setVertexSamplerState(samplerState, index: 0)
         
 //        renderEncoder.setTriangleFillMode(.lines)
         renderEncoder.drawPatches(

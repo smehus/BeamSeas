@@ -83,7 +83,9 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
                                        constant TerrainParams &terrainParams [[ buffer(BufferIndexTerrainParams) ]],
                                        uint patchID [[ patch_id ]],
                                        constant Uniforms &uniforms [[ buffer(BufferIndexUniforms) ]],
-                                       constant FragmentUniforms &fragmentUniforms [[ buffer(BufferIndexFragmentUniforms) ]])
+                                       constant FragmentUniforms &fragmentUniforms [[ buffer(BufferIndexFragmentUniforms) ]],
+                                       sampler scaffoldingSampler [[ sampler(0) ]],
+                                       texturecube<float> worldMapTexture [[ texture(TextureIndexWorldMap) ]])
 {
     TerrainVertexOut out;
     float u = patch_coord.x;
@@ -138,18 +140,23 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
     // Height displacement would only be between -1 & 1. So we need to modify it somehow to values that
     // are relevant....
     float3 horizontalDisplacement = heightDisplacement * 2 - 1;
-
-    position.y = height.x;
-    position.x += (horizontalDisplacement.y);
-    position.z += (horizontalDisplacement.z);
+    float4 directionToFragment = (uniforms.parentTreeModelMatrix * position) - fragmentUniforms.scaffoldingPosition;
+    float3 terrainToScaffold = normalize(directionToFragment).xyz;
+    float4 scaffoldMapColor = worldMapTexture.sample(scaffoldingSampler, terrainToScaffold);
+    if (scaffoldMapColor.x < 0.5) {
+        position.y = 20.0;
+    } else {
+        position.y = height.x;
+        position.x += (horizontalDisplacement.y);
+        position.z += (horizontalDisplacement.z);
+    }
     
-
     float adjustedHeight = heightDisplacement.y;
 //    adjustedHeight = 1 - adjustedHeight;
     // Changing the modelMatrix here shouldn't have any affect on the texture coordinatores.... but it does....?
     // Using scaffolding positon makes no sense here since its the position of the vertex ( or the calculated position of abstract vertext )
     // Using scaffolding position just sets the same position for all fragments
-    out.position = uniforms.projectionMatrix * uniforms.viewMatrix * uniforms.modelMatrix * position;
+    
     float4 finalColor = float4(heightDisplacement.x);
 
     // reference AAPLTerrainRenderer in DynamicTerrainWithArgumentBuffers exmaple: EvaluateTerrainAtLocation line 235 -> EvaluateTerrainAtLocation in AAPLTerrainRendererUtilities line: 91
@@ -176,6 +183,8 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
     /// ^^^ forget about this for now
     out.toCamera = fragmentUniforms.camera_position - out.worldPosition.xyz;
 
+    
+    out.position = uniforms.projectionMatrix * uniforms.viewMatrix * uniforms.modelMatrix * position;
     return out;
 }
 
@@ -290,6 +299,11 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
     float4 directionToFragment = fragment_in.parentFragmentPosition - fragmentUniforms.scaffoldingPosition;
     float3 terrainToScaffold = normalize(directionToFragment).xyz;
     float4 scaffoldMapColor = worldMapTexture.sample(scaffoldingSampler, terrainToScaffold);
+    if (scaffoldMapColor.x < 0.5) {
+        // land
+        scaffoldMapColor = float4(0, 1, 0, 1);
+    }
+    
     mixedColor = mix(mixedColor, scaffoldMapColor, 0.3);
     
     constexpr sampler sam(min_filter::linear, mag_filter::linear, mip_filter::nearest, address::repeat);
