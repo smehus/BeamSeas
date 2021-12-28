@@ -6,22 +6,8 @@
 //  Copyright © 2021 Scott Mehus. All rights reserved.
 //
 
-extension MapRotationHandler where Self: WorldMapScaffolding {
-    func getRotation(player: Model, degRot: Float) -> float3 {
-        // We're using the difference here
-        // And then multiplying it below...
-        let rotDiff = player.rotation.y - degRot
-        var newRot = float3(0, rotDiff, 0)
-        if player.moveStates.contains(.forward) {
-            newRot.x = 0.005
-        } else if player.moveStates.contains(.backwards) {
-            newRot.x = -0.005
-        }
-        return newRot
-    }
-}
-
 import MetalKit
+import GameplayKit
 
 /// Used to help create the vector for sampling world map texture cube
 final class WorldMapScaffolding: Node, Texturable, RendererContianer {
@@ -78,7 +64,7 @@ final class WorldMapScaffolding: Node, Texturable, RendererContianer {
             
             pipelineState = try Renderer.device.makeRenderPipelineState(descriptor: pipelineDescriptor)
             
-            worldMap = Self.createTextureCube()
+            worldMap = try Self.createTextureCube()
             
         } catch { fatalError(error.localizedDescription) }
         
@@ -103,12 +89,12 @@ final class WorldMapScaffolding: Node, Texturable, RendererContianer {
         return Renderer.device.makeDepthStencilState(descriptor: descriptor)!
     }()
     
-    private static func createTextureCube() -> MTLTexture {
-        let noiseSource = GKPerlinNoiseSource(frequency: 4,
-                                              octaveCount: 3,
+    private static func createTextureCube() throws -> MTLTexture {
+        let noiseSource = GKPerlinNoiseSource(frequency: 0.1,
+                                              octaveCount: 2,
                                               persistence: 0.2,
-                                              lacunarity: 1,
-                                              seed: 0)
+                                              lacunarity: 2.0,
+                                              seed: Int32(2))
 
         let noise = GKNoise(noiseSource)
 
@@ -131,7 +117,7 @@ final class WorldMapScaffolding: Node, Texturable, RendererContianer {
         
         let textureLoader = MTKTextureLoader(device: Renderer.device)
 
-        return try! textureLoader.newTexture(texture: mdl, options: [.origin: MTKTextureLoader.Origin.bottomLeft])
+        return try textureLoader.newTexture(texture: mdl, options: [.origin: MTKTextureLoader.Origin.bottomLeft])
     }
 }
 
@@ -140,7 +126,7 @@ extension WorldMapScaffolding: AspectRatioUpdateable {
     func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) { }
 }
 
-extension WorldMapScaffolding: Renderable, MapRotationHandler {
+extension WorldMapScaffolding: Renderable {
     
     func didUpdate(keys: Set<Key>) {
         userActionStates = keys
