@@ -132,7 +132,6 @@ final class Renderer: NSObject {
         fragmentUniforms.light_count = UInt32(lighting.count)
         
         let worldMap = MiniWorldMap(vertexName: "worldMap_vertex", fragmentName: "worldMap_fragment")
-        worldMap.position = float3(0, 0, 30)
         models.append(worldMap)
         
         

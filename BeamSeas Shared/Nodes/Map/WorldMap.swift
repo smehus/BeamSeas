@@ -41,8 +41,9 @@ final class MiniWorldMap: Node, Meshable, Texturable, DepthStencilStateBuilder, 
     private lazy var mapCamera: Camera = {
         let camera = Camera()
         camera.near = 0.0001
-        camera.far = 500
-        camera.rotation.x = Float(-45).degreesToRadians
+        camera.far = 300
+        camera.position.y = 30
+        camera.rotation.x = Float(90).degreesToRadians
   
 //        let camera = BaseThirdPersonCamera(focus: self)
 ////        camera.focusDistance = 70
