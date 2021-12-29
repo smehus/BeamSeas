@@ -124,7 +124,8 @@ class Terrain: Node {
         let samplerDescriptor = MTLSamplerDescriptor()
         samplerDescriptor.minFilter = .linear
         samplerDescriptor.magFilter = .linear
-        samplerDescriptor.mipFilter = .nearest
+        samplerDescriptor.mipFilter = .linear
+        
         samplerState = Renderer.device.makeSamplerState(descriptor: samplerDescriptor)
 
 //        texDesc.width = altHeightMap.width

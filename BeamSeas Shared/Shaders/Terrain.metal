@@ -269,8 +269,8 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
 
     float2 ripple = (normalizedRippleX + normalizedRippleY) * waveStrength;
 
-//    reflectionCoords += ripple;
-//    refractionCoords += ripple;
+    reflectionCoords += ripple;
+    refractionCoords += ripple;
 
     reflectionCoords = clamp(reflectionCoords, 0.001, 0.999);
     refractionCoords = clamp(refractionCoords, 0.001, 0.999);
@@ -289,13 +289,13 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
     
 // ---------- UNCOMMENT ------\\
         
-//    float4 imaginaryWorldPosition = fragment_in.parentFragmentPosition;
-//    float4 scaffoldingPosition = fragmentUniforms.scaffoldingPosition;
+    float4 imaginaryWorldPosition = fragment_in.parentFragmentPosition;
+    float4 scaffoldingPosition = fragmentUniforms.scaffoldingPosition;
+
+    float3 terrainPosToScaffoldPos = normalize(imaginaryWorldPosition - scaffoldingPosition).xyz;
+    float4 mapColor = worldMapTexture.sample(mainSampler, terrainPosToScaffoldPos);
 //
-//    float3 terrainPosToScaffoldPos = normalize(imaginaryWorldPosition - scaffoldingPosition).xyz;
-//    float4 mapColor = worldMapTexture.sample(mainSampler, terrainPosToScaffoldPos);
-//
-//    float4 mixedColor = mapColor;//mix(mixedColor, mapColor, 0.3);
+    mixedColor = mix(mixedColor, float4(0, mapColor.y, 0, 1), 0.3);
     
                                 // terrain world position
                                 // rotating around scaffolding      // Scaffolding position (float3). Set in Renderer.
@@ -308,9 +308,9 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
 //        mixedColor = mix(mixedColor, scaffoldMapColor, 0.3);
 //    }
   
-    if (fragment_in.landColor.y == 1) {
-        mixedColor = fragment_in.landColor;
-    }
+//    if (fragment_in.landColor.y == 1) {
+//        mixedColor = fragment_in.landColor;
+//    }
     
     
     constexpr sampler sam(min_filter::linear, mag_filter::linear, mip_filter::nearest, address::repeat);

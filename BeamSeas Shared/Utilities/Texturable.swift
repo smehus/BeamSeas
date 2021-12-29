@@ -68,14 +68,15 @@ extension Texturable {
         guard let mdlTexture = MDLTexture(cubeWithImagesNamed: names) else { fatalError("Failed to find cube skybox textures") }
         
         var texture: MTLTexture?
-        let descriptor = MTLTextureDescriptor()
-        descriptor.height = 128
-        descriptor.width = 128
+        let textureLoaderOptions: [MTKTextureLoader.Option: Any] = [.origin: MTKTextureLoader.Origin.bottomLeft,
+                                                                    .SRGB: false,
+                                                                    .generateMipmaps: NSNumber(booleanLiteral: true)]
+        
         let textureLoader = MTKTextureLoader(device: Renderer.device)
         
         do {
             texture = try textureLoader.newTexture(texture: mdlTexture,
-                                                   options: options)
+                                                   options: textureLoaderOptions)
         } catch {
             print("no texture created")
         }
