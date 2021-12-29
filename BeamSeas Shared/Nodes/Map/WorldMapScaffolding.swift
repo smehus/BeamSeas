@@ -23,6 +23,7 @@ final class WorldMapScaffolding: Node, Texturable, RendererContianer {
     private var moveRot: Float = 0
     private let samplerState: MTLSamplerState?
     private var userActionStates: Set<Key> = []
+    private var currentTime: Float = 0
 //    private let worldMap: MTLTexture
     var shouldDo = true
     var player: Model!

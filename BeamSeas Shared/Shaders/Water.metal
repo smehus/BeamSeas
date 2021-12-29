@@ -87,7 +87,7 @@ kernel void generate_distribution_map_values(constant GausUniforms &uniforms [[ 
     // and quantizing w such that wrapping uTime does not change the result.
     // See Tessendorf's paper for how to do it.
     // The sqrt(G * k_len) factor represents how fast ocean waves at different frequencies propagate.
-    float w = sqrt(G * k_len) * (mainUniforms.deltaTime);
+    float w = sqrt(G * k_len) * (mainUniforms.currentTime);
     float cw = cos(w);
     float sw = sin(w);
 
@@ -136,7 +136,7 @@ kernel void generate_displacement_map_values(constant GausUniforms &uniforms [[ 
     float k_len = length(k);
 
     float G = 9.81;
-    float w = sqrt(G * k_len) * (mainUniforms.deltaTime);
+    float w = sqrt(G * k_len) * (mainUniforms.currentTime);
 
     float cw = cos(w);
     float sw = sin(w);

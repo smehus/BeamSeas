@@ -256,7 +256,7 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
     /// Maybe this shit is fuckingit up.....
     
     // Multiplier determines ripple size
-    float timer = uniforms.deltaTime * 0.007;
+    float timer = uniforms.currentTime * 0.007;
     float2 rippleUV = fragment_in.uv * 0.5;
     float waveStrength = 0.1;
     float2 rippleX = float2(rippleUV.x/* + timer*/, rippleUV.y) + timer;

@@ -67,7 +67,7 @@ typedef struct
     matrix_float3x3 normalMatrix;
     matrix_float4x4 parentTreeModelMatrix; // Used when you want to do some logic with the positons mapped to parent coordinates. But also want to render
     // the object in a different coord space.
-    float deltaTime;
+    float currentTime;
     vector_float3 playerMovement;
     vector_float4 clipPlane;
 } Uniforms;

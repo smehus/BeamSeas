@@ -69,7 +69,7 @@ final class Renderer: NSObject {
     private(set) var models: [Renderable] = []
     private(set) var lighting = Lighting()
     private(set) var depthStencilState: MTLDepthStencilState
-    private(set) var delta: Float = 0
+    private(set) var lastUpdateTime: Float = 0
     private(set) var deltaFactor: DeltaFactor = .normal
     private(set) var firstRun = true
     private(set) var fft: BasicFFT
@@ -202,9 +202,9 @@ extension Renderer: MTKViewDelegate {
 
         var lights = lighting.lights
         let fps = Float(Float(1) / Float(view.preferredFramesPerSecond))
-        delta += (fps * 2)
+        lastUpdateTime += fps
         
-        uniforms.deltaTime = delta
+        uniforms.currentTime = lastUpdateTime
         uniforms.projectionMatrix = camera.projectionMatrix
         uniforms.viewMatrix = camera.viewMatrix
         fragmentUniforms.camera_position = camera.position
@@ -216,7 +216,7 @@ extension Renderer: MTKViewDelegate {
             }
         
             model.update(
-                deltaTime: delta,
+                deltaTime: lastUpdateTime,
                 uniforms: &uniforms,
                 fragmentUniforms: &fragmentUniforms,
                 camera: camera,
@@ -301,7 +301,7 @@ extension Renderer: MTKViewDelegate {
         fft.generateDistributions(computeEncoder: distributionEncoder, uniforms: uniforms)
         distributionEncoder.endEncoding()
 
-        fft.runfft(phase: delta)
+        fft.runfft(phase: lastUpdateTime)
 
         let mapEncoder = commandBuffer.makeComputeCommandEncoder()!
         fft.generateMaps(computeEncoder: mapEncoder, uniforms: &uniforms)
@@ -364,7 +364,7 @@ extension Renderer: MTKViewDelegate {
         renderEncoder.setFragmentTexture(refractionRenderPass.texture, index: TextureIndex.refraction.rawValue)
         
         for model in models {
-            uniforms.deltaTime = delta
+            uniforms.currentTime = lastUpdateTime
             uniforms.projectionMatrix = camera.projectionMatrix
             uniforms.viewMatrix = camera.viewMatrix
             fragmentUniforms.camera_position = camera.position
