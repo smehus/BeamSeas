@@ -9,27 +9,7 @@
 import Foundation
 import MetalKit
 
-protocol MapRotationHandler {
-    func getRotation(player: Model, degRot: Float) -> float3
-}
-
-extension MapRotationHandler where Self: MiniWorldMap {
-    func getRotation(player: Model, degRot: Float) -> float3 {
-        // We're using the difference here
-        // And then multiplying it below...
-        let rotDiff = player.rotation.y - degRot
-        var newRot = float3(0, 0, rotDiff)
-        if player.moveStates.contains(.forward) {
-            newRot.x = 0.005
-        } else if player.moveStates.contains(.backwards) {
-            newRot.x = -0.005
-        }
-        
-        return newRot
-    }
-}
-
-final class MiniWorldMap: Node, Meshable, Texturable, DepthStencilStateBuilder, MapRotationHandler {
+final class MiniWorldMap: Node, Meshable, Texturable, DepthStencilStateBuilder {
     
     private(set) var mesh: MDLMesh
     private let model: MTKMesh

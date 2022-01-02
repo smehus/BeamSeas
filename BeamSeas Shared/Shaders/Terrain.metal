@@ -47,30 +47,25 @@ kernel void tessellation_main(constant float *edge_factors [[ buffer(0) ]],
                               device MTLQuadTessellationFactorsHalf *factors [[ buffer(2) ]],
                               uint pid [[ thread_position_in_grid ]])
 {
-//    uint control_points_per_patch = 4;
-//    uint index = pid * control_points_per_patch;
+    uint index = pid * 4;
     float totalTessellation = 0;
-
     for (int i = 0; i < 4; i++) {
-        int pointAIndex = i;
-        int pointBIndex = i + 1;
-
-        if (pointAIndex == 3) {
-            pointBIndex = 0;
-        }
-
-        int edgeIndex = pointBIndex;
-        // Water seems buzzy if we use this right now
-//        float camera_distance = calc_distance(control_points[pointAIndex + index],
-//                                              control_points[pointBIndex + index],
-//                                              fragmentUniforms.camera_position.xyz,
-//                                              uniforms.modelMatrix);
-
-        float tessellation = terrainParams.maxTessellation;// max(4.0, terrainParams.maxTessellation / camera_distance);
-        factors[pid].edgeTessellationFactor[edgeIndex] = tessellation;
-        totalTessellation += tessellation;
+      int pointAIndex = i;
+      int pointBIndex = i + 1;
+      if (pointAIndex == 3) {
+        pointBIndex = 0;
+        
+      }
+      int edgeIndex = pointBIndex;
+//      float cameraDistance = calc_distance(control_points[pointAIndex + index],
+//                                           control_points[pointBIndex + index],
+//                                           camera_position.xyz,
+//                                           modelMatrix);
+        float tessellation = terrainParams.maxTessellation;//max(4.0, terrain.maxTessellation / cameraDistance);
+      factors[pid].edgeTessellationFactor[edgeIndex] = tessellation;
+      totalTessellation += tessellation;
     }
-
+    
     factors[pid].insideTessellationFactor[0] = totalTessellation * 0.25;
     factors[pid].insideTessellationFactor[1] = totalTessellation * 0.25;
 }

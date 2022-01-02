@@ -34,6 +34,6 @@ fragment half4 worldMap_fragment(const WorldMapVertexOut in [[ stage_in ]],
                                   sampler textureSampler [[ sampler(0) ]],
                                   texturecube<half> cubeMap [[ texture(TextureIndexColor) ]]) {
     half4 color = cubeMap.sample(textureSampler, in.textureCoordinates);
-    return mix(color, half4(0, 0, 0, 1), 0.5);
-//    return float4(1, 0, 0, 1);
+    return color;
+//    return half4(1, 0, 0, 1);
 }
