@@ -47,9 +47,8 @@ kernel void tessellation_main(constant float *edge_factors [[ buffer(0) ]],
                               device MTLQuadTessellationFactorsHalf *factors [[ buffer(2) ]],
                               uint pid [[ thread_position_in_grid ]])
 {
-    uint index = pid * 4;
     float totalTessellation = 0;
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < 4; i++) {   
       int pointAIndex = i;
       int pointBIndex = i + 1;
       if (pointAIndex == 3) {

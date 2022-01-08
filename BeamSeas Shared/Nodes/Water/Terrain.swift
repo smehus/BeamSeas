@@ -27,8 +27,8 @@ class Terrain: Node {
         numberOfPatches: UInt32(Terrain.patchNum * Terrain.patchNum)
     )
 
-    static let maxTessellation = 16
-    private static var patchNum = 8
+    static let maxTessellation = 8
+    private static var patchNum = 4
 
     let patches = (horizontal: Terrain.patchNum, vertical: Terrain.patchNum)
     var patchCount: Int {
@@ -95,13 +95,12 @@ class Terrain: Node {
         descriptor.fragmentFunction = Renderer.library.makeFunction(name: "fragment_terrain")
         descriptor.tessellationFactorStepFunction = .perPatch
         descriptor.maxTessellationFactor = Self.maxTessellation
-//        descriptor.tessellationPartitionMode = .fractionalEven
         descriptor.tessellationPartitionMode = .pow2
-        descriptor.isTessellationFactorScaleEnabled = false
-        descriptor.tessellationFactorFormat = .half
-        descriptor.tessellationControlPointIndexType = .none
-        descriptor.tessellationFactorStepFunction = .constant
-        descriptor.tessellationOutputWindingOrder = .clockwise
+//        descriptor.isTessellationFactorScaleEnabled = false
+//        descriptor.tessellationFactorFormat = .half
+//        descriptor.tessellationControlPointIndexType = .none
+//        descriptor.tessellationFactorStepFunction = .constant
+//        descriptor.tessellationOutputWindingOrder = .clockwise
         
 
         let vertexDescriptor = MTLVertexDescriptor()
