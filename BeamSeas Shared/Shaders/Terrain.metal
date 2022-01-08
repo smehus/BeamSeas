@@ -138,7 +138,7 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
     float4 directionToFragment = (uniforms.parentTreeModelMatrix * position) - fragmentUniforms.scaffoldingPosition;
     float3 terrainToScaffold = normalize(directionToFragment).xyz;
     float4 scaffoldMapColor = worldMapTexture.sample(scaffoldingSampler, terrainToScaffold);
-    if (scaffoldMapColor.x < 0.01) {
+    if (scaffoldMapColor.x > 0.01) {
         position.y = 20.0;
         out.landColor = float4(0, 1, 0, 1);
     } else {
