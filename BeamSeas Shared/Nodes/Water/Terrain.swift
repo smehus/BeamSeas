@@ -244,7 +244,7 @@ extension Terrain: Renderable {
         let width = computePipelineState.threadExecutionWidth
         computeEncoder.dispatchThreadgroups(
             MTLSizeMake(patchCount, 1, 1),
-            threadsPerThreadgroup: MTLSizeMake(width, 1, 1)
+            threadsPerThreadgroup: MTLSizeMake(1, 1, 1)
         )
     }
 

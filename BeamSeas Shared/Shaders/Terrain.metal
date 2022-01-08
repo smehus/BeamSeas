@@ -57,11 +57,11 @@ kernel void tessellation_main(constant float *edge_factors [[ buffer(0) ]],
         
       }
       int edgeIndex = pointBIndex;
-      float cameraDistance = calc_distance(control_points[pointAIndex + index],
-                                           control_points[pointBIndex + index],
-                                           fragmentUniforms.camera_position.xyz,
-                                           uniforms.modelMatrix);
-      float tessellation = max(4.0, terrainParams.maxTessellation / cameraDistance);
+//      float cameraDistance = calc_distance(control_points[pointAIndex + index],
+//                                           control_points[pointBIndex + index],
+//                                           fragmentUniforms.camera_position.xyz,
+//                                           uniforms.modelMatrix);
+        float tessellation = 4;//max(4.0, terrainParams.maxTessellation / cameraDistance);
       factors[pid].edgeTessellationFactor[edgeIndex] = tessellation;
       totalTessellation += tessellation;
     }
