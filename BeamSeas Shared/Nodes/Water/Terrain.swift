@@ -28,7 +28,7 @@ class Terrain: Node {
     )
 
     static let maxTessellation = 8
-    private static var patchNum = 4
+    private static var patchNum = 8
 
     let patches = (horizontal: Terrain.patchNum, vertical: Terrain.patchNum)
     var patchCount: Int {
@@ -236,8 +236,12 @@ extension Terrain: Renderable {
             length: MemoryLayout<TerrainParams>.stride,
             index: BufferIndex.terrainParams.rawValue
         )
+        
+//        let width = min(patchCount, tessellationPipelineState.threadExecutionWidth)
+//        computeEncoder.dispatchThreadgroups(MTLSizeMake(patchCount, 1, 1), threadsPerThreadgroup: MTLSizeMake(width, 1, 1))
+//        computeEncoder.endEncoding()
 
-        let width = min(patchCount, computePipelineState.threadExecutionWidth)
+        let width = computePipelineState.threadExecutionWidth
         computeEncoder.dispatchThreadgroups(
             MTLSizeMake(patchCount, 1, 1),
             threadsPerThreadgroup: MTLSizeMake(width, 1, 1)
