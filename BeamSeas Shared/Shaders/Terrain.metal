@@ -125,7 +125,7 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
     float3 heightDisplacement = heightMap.sample(sample, xy).xyz;
 
 //    float inverseColor = color.r;//1 - color.r;
-    float3 height = (heightDisplacement * 2 - 1) * terrainParams.height;
+    float3 ifftHeight = (heightDisplacement * 2 - 1) * terrainParams.height;
 
     // OHHHHH shit - displacment maps dispalce in the horizontal plane.....
     //Using only a straight heightmap, this is not easy to implement, however, we can have another "displacement" map which computes displacement in the horizontal plane as well. If we compute the inverse Fourier transform of the gradient of the heightmap, we can find a horizontal displacement vector which we will push vertices toward. This gives a great choppy look to the waves.
@@ -137,16 +137,19 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
     float3 horizontalDisplacement = heightDisplacement * 2 - 1;
     float4 directionToFragment = (uniforms.parentTreeModelMatrix * position) - fragmentUniforms.scaffoldingPosition;
     float3 terrainToScaffold = normalize(directionToFragment).xyz;
-    float4 scaffoldMapColor = worldMapTexture.sample(scaffoldingSampler, terrainToScaffold);
-    if (scaffoldMapColor.x > 0.01) {
-        position.y = 20.0;
-        out.landColor = float4(0, 1, 0, 1);
-    } else {
-        out.landColor = float4(0, 0, 0, 1);
-        position.y = height.x;
-//        position.x += (horizontalDisplacement.y);
-//        position.z += (horizontalDisplacement.z);
-    }
+    float4 scaffoldSample = worldMapTexture.sample(scaffoldingSampler, terrainToScaffold);
+    float4 invertedScaffoldColor = (1 - scaffoldSample);
+  
+    float scaffoldHeight = (invertedScaffoldColor.x * 2 - 1) * terrainParams.height;
+    float3 ifftPercentHeight = ifftHeight * scaffoldSample.r;
+    
+//    float shit = scaffoldHei
+    
+    
+    position.y = scaffoldHeight;
+    ////        position.x += (horizontalDisplacement.y);
+    ////        position.z += (horizontalDisplacement.z);
+    
     
     float adjustedHeight = heightDisplacement.y;
 //    adjustedHeight = 1 - adjustedHeight;
@@ -289,7 +292,7 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
     float3 terrainPosToScaffoldPos = normalize(imaginaryWorldPosition - scaffoldingPosition).xyz;
     float4 mapColor = worldMapTexture.sample(mainSampler, terrainPosToScaffoldPos);
 //
-    mixedColor = mix(mixedColor, float4(0, mapColor.y, 0, 1), 0.3);
+    mixedColor = mapColor.r;//mix(mixedColor, float4(0, mapColor.y, 0, 1), 0.3);
     
                                 // terrain world position
                                 // rotating around scaffolding      // Scaffolding position (float3). Set in Renderer.
@@ -328,7 +331,8 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
 //    return float4(1, 1, 1, 1);
 //    return float4(1, 0, 0, 1);
 //    return fragment_in.color;
-    return float4(specular, 1.0);
+    return mixedColor;
+//    return float4(specular, 1.0);
 }
 
 
