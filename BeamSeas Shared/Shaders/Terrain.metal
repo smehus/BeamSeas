@@ -146,7 +146,7 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
 //    float shit = scaffoldHei
     
     
-    position.y = scaffoldHeight;
+    position.y = scaffoldHeight; // Add a percentaged multiplied ifft height. So the higher the scaffold height, the less affect ifft height will have. 
     ////        position.x += (horizontalDisplacement.y);
     ////        position.z += (horizontalDisplacement.z);
     
