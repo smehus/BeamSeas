@@ -294,11 +294,13 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
                             refractionTexture.sample(mainSampler, refractionCoords),
                             mixRatio);
 
-    if (scaffoldHeight >= 0) {
-        mixedColor = mix(mixedColor, float4(0.2, 0.6, 0.2, 1), 0.3);
-    } else {
-        mixedColor = mix(mixedColor, float4(0.2, 0.2, 0.6, 1), 0.3);
-    }
+//    if (scaffoldHeight >= 0) {
+//        mixedColor = mix(mixedColor, float4(0.1, scaffoldSample.r, 0.1, 1), 0.3);
+//    } else {
+//        mixedColor = mix(mixedColor, float4(0.2, 0.2, 0.6, 1), 0.3);
+//    }
+    
+    mixedColor = mix(mixedColor, float4(0.1, scaffoldSample.r, 1 - scaffoldSample.r, 1), 0.3);
 
     constexpr sampler sam(min_filter::linear, mag_filter::linear, mip_filter::nearest, address::repeat);
     float3 vGradJacobian = gradientMap.sample(sam, fragment_in.vGradNormalTex.xy).xyz;
