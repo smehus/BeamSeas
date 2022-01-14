@@ -61,7 +61,7 @@ kernel void tessellation_main(constant float *edge_factors [[ buffer(0) ]],
 //                                           control_points[pointBIndex + index],
 //                                           fragmentUniforms.camera_position.xyz,
 //                                           uniforms.modelMatrix);
-        float tessellation = 4;//max(4.0, terrainParams.maxTessellation / cameraDistance);
+        float tessellation = terrainParams.maxTessellation;//max(4.0, terrainParams.maxTessellation / cameraDistance);
       factors[pid].edgeTessellationFactor[edgeIndex] = tessellation;
       totalTessellation += tessellation;
     }
@@ -147,8 +147,10 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
     // So that we an transition between ifftHeight & scaffoldHeight seamlessly
     if (scaffoldHeight >= 0) {
         position.y = scaffoldHeight;
+        out.landColor = float4(0.2, 0.8, 0.2, 1.0);
     } else {
         position.y = ifftPercentHeight.r;
+        out.landColor = float4(0.2, 0.2, 0.6, 1.0);
     }
 
      // Add a percentaged multiplied ifft height. So the higher the scaffold height, the less affect ifft height will have.
@@ -253,6 +255,12 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
     float z = fragment_in.position.z / height;
     float2 reflectionCoords = float2(x, 1 - y);
     float2 refractionCoords = float2(x, y);
+    
+    float4 directionToFragment = fragment_in.parentFragmentPosition - fragmentUniforms.scaffoldingPosition;
+    float3 terrainToScaffold = normalize(directionToFragment).xyz;
+    float4 scaffoldSample = worldMapTexture.sample(scaffoldingSampler, terrainToScaffold);
+    float4 invertedScaffoldColor = (1 - scaffoldSample);
+    float scaffoldHeight = (invertedScaffoldColor.x * 2 - 1) * terrainParams.height;
 
     
     /// Maybe this shit is fuckingit up.....
@@ -269,10 +277,11 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
     float2 normalizedRippleX = rippleSampleX.rg * 2.0 - 1.0;
     float2 normalizedRippleY = rippleSampleY.rg * 2.0 - 1.0;
 
-    float2 ripple = (normalizedRippleX + normalizedRippleY) * waveStrength;
-
-    reflectionCoords += ripple;
-    refractionCoords += ripple;
+    if (scaffoldHeight <= 0) {
+        float2 ripple = (normalizedRippleX + normalizedRippleY) * waveStrength;
+        reflectionCoords += ripple;
+        refractionCoords += ripple;
+    }
 
     reflectionCoords = clamp(reflectionCoords, 0.001, 0.999);
     refractionCoords = clamp(refractionCoords, 0.001, 0.999);
@@ -285,36 +294,12 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
                             refractionTexture.sample(mainSampler, refractionCoords),
                             mixRatio);
 
-    
-    
-    
-    
-// ---------- UNCOMMENT ------\\
-        
-    float4 imaginaryWorldPosition = fragment_in.parentFragmentPosition;
-    float4 scaffoldingPosition = fragmentUniforms.scaffoldingPosition;
+    if (scaffoldHeight >= 0) {
+        mixedColor = mix(mixedColor, float4(0.2, 0.6, 0.2, 1), 0.3);
+    } else {
+        mixedColor = mix(mixedColor, float4(0.2, 0.2, 0.6, 1), 0.3);
+    }
 
-    float3 terrainPosToScaffoldPos = normalize(imaginaryWorldPosition - scaffoldingPosition).xyz;
-    float4 mapColor = worldMapTexture.sample(mainSampler, terrainPosToScaffoldPos);
-//
-    mixedColor = mapColor.r;//mix(mixedColor, float4(0, mapColor.y, 0, 1), 0.3);
-    
-                                // terrain world position
-                                // rotating around scaffolding      // Scaffolding position (float3). Set in Renderer.
-//    float4 directionToFragment = fragment_in.parentFragmentPosition - fragmentUniforms.scaffoldingPosition;
-//    float3 terrainToScaffold = normalize(directionToFragment).xyz;
-//    float4 scaffoldMapColor = worldMapTexture.sample(scaffoldingSampler, terrainToScaffold);
-//    if (scaffoldMapColor.x < 0.1) {
-//        // land
-//        scaffoldMapColor = float4(0, 1, 0, 1);
-//        mixedColor = mix(mixedColor, scaffoldMapColor, 0.3);
-//    }
-  
-//    if (fragment_in.landColor.y == 1) {
-//        mixedColor = fragment_in.landColor;
-//    }
-    
-    
     constexpr sampler sam(min_filter::linear, mag_filter::linear, mip_filter::nearest, address::repeat);
     float3 vGradJacobian = gradientMap.sample(sam, fragment_in.vGradNormalTex.xy).xyz;
     float2 noise_gradient = 0.3 * normalMap.sample(sam, fragment_in.vGradNormalTex.zw).xy;
@@ -336,8 +321,8 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
 //    return float4(1, 1, 1, 1);
 //    return float4(1, 0, 0, 1);
 //    return fragment_in.color;
-    return mixedColor;
-//    return float4(specular, 1.0);
+//    return mixedColor;
+    return float4(specular, 1.0);
 }
 
 

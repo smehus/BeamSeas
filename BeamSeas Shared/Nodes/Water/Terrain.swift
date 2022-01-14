@@ -22,7 +22,7 @@ class Terrain: Node {
     
     static var terrainParams = TerrainParams(
         size: [Terrain.terrainSize, Terrain.terrainSize],
-        height: 50,
+        height: 75,
         maxTessellation: UInt32(Terrain.maxTessellation),
         numberOfPatches: UInt32(Terrain.patchNum * Terrain.patchNum)
     )
@@ -36,7 +36,7 @@ class Terrain: Node {
     }
     
     static let edgeFactors: Float = 8
-    static let insideFactors: Float = 4
+    static let insideFactors: Float = 8
 
     var edgeFactors: [Float] = [Terrain.edgeFactors]
     var insideFactors: [Float] = [Terrain.insideFactors]
@@ -365,7 +365,7 @@ extension Terrain: Renderable {
         renderEncoder.setFragmentSamplerState(samplerState, index: 0)
         renderEncoder.setVertexSamplerState(samplerState, index: 0)
         
-        renderEncoder.setTriangleFillMode(.lines)
+//        renderEncoder.setTriangleFillMode(.lines)
         renderEncoder.drawPatches(
             numberOfPatchControlPoints: 4,
             patchStart: 0,
