@@ -145,7 +145,7 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
     
     // PercentiFFTHeight needs to be based on how close scaffoldHeight is to 0.
     // So that we an transition between ifftHeight & scaffoldHeight seamlessly
-    if (scaffoldSample.r <= 0.1) {
+    if (scaffoldHeight >= 0) {
         position.y = scaffoldHeight;
     } else {
         position.y = ifftPercentHeight.r;
