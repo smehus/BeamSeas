@@ -143,10 +143,15 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
     float scaffoldHeight = (invertedScaffoldColor.x * 2 - 1) * terrainParams.height;
     float3 ifftPercentHeight = ifftHeight * scaffoldSample.r;
     
-//    float shit = scaffoldHei
-    
-    
-    position.y = scaffoldHeight; // Add a percentaged multiplied ifft height. So the higher the scaffold height, the less affect ifft height will have. 
+    // PercentiFFTHeight needs to be based on how close scaffoldHeight is to 0.
+    // So that we an transition between ifftHeight & scaffoldHeight seamlessly
+    if (scaffoldSample.r <= 0.1) {
+        position.y = scaffoldHeight;
+    } else {
+        position.y = ifftPercentHeight.r;
+    }
+
+     // Add a percentaged multiplied ifft height. So the higher the scaffold height, the less affect ifft height will have.
     ////        position.x += (horizontalDisplacement.y);
     ////        position.z += (horizontalDisplacement.z);
     
