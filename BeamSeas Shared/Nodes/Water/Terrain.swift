@@ -346,6 +346,11 @@ extension Terrain: Renderable {
             length: MemoryLayout<Uniforms>.stride,
             index: BufferIndex.uniforms.rawValue
         )
+        
+        renderEncoder.setFragmentTexture(
+            BasicFFT.heightDisplacementMap,
+            index: TextureIndex.height.rawValue
+        )
 
         renderEncoder.setFragmentTexture(
             BasicFFT.gradientMap,

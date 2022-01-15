@@ -73,7 +73,7 @@ kernel void tessellation_main(constant float *edge_factors [[ buffer(0) ]],
 [[ patch(quad, 4) ]]
 vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control_points [[ stage_in ]],
                                        float2 patch_coord [[ position_in_patch ]],
-                                       texture2d<float> gradientMap [[ texture(TextureIndexHeight) ]],
+                                       texture2d<float> heightMap [[ texture(TextureIndexHeight) ]],
                                        texture2d<float> normalMap [[ texture(TextureIndexNormal) ]],
                                        constant TerrainParams &terrainParams [[ buffer(BufferIndexTerrainParams) ]],
                                        uint patchID [[ patch_id ]],
@@ -122,7 +122,7 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
     // TO MAKE IT LOOK LIKE TURNING THE PLAYER IS ACTUALLY TURNING THE PLAYER ON THE WATER.
 //    xy *= terrainParams.size;
 //    float3 heightDisplacement = mix(heightMap.sample(sample, xy + 0.5).xyz, heightMap.sample(sample, xy + 1.0).xyz, 0.5);
-    float3 heightDisplacement = gradientMap.sample(sample, xy).xyz;
+    float3 heightDisplacement = heightMap.sample(sample, xy).xyz;
 
 //    float inverseColor = color.r;//1 - color.r;
     float3 ifftHeight = (heightDisplacement * 2 - 1) * terrainParams.height;
@@ -249,6 +249,7 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
                                  constant Uniforms &uniforms [[ buffer(BufferIndexUniforms) ]],
                                  constant TerrainParams &terrainParams [[ buffer(BufferIndexTerrainParams) ]],
                                  constant FragmentUniforms &fragmentUniforms [[ buffer(BufferIndexFragmentUniforms) ]],
+                                 texture2d<float> heightMap [[ texture(TextureIndexHeight) ]],
                                  texture2d<float> gradientMap [[ texture(TextureIndexGradient) ]],
                                  texture2d<float> normalMap [[ texture(TextureIndexNormal) ]],
                                  texture2d<float> reflectionTexture [[ texture(TextureIndexReflection) ]],
@@ -285,10 +286,19 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
     float2 normalizedRippleX = rippleSampleX.rg * 2.0 - 1.0;
     float2 normalizedRippleY = rippleSampleY.rg * 2.0 - 1.0;
 
-    if (fragment_in.worldPosition.y <= terrainParams.scaffoldingSize) {
+    float3 heightDisplacement = heightMap.sample(mainSampler, refractionCoords).xyz;
+    float3 ifftHeight = (heightDisplacement * 2 - 1) * terrainParams.height;
+    float3 ifftPercentHeight = ifftHeight * scaffoldSample.r;
+    
+    float4 landWater = float4(0.4, 0.0, 0.2, 1.0);
+    // Do this before clamping yo
+    // I think i need to do a worldPosition comparision though.
+    // Cause it gets all squirrely when I compare height maps
+    if (scaffoldHeight < ifftPercentHeight.x) {
         float2 ripple = (normalizedRippleX + normalizedRippleY) * waveStrength;
         reflectionCoords += ripple;
         refractionCoords += ripple;
+        landWater = float4(0.8, 0.4, 0.6, 1.0);
     }
 
     reflectionCoords = clamp(reflectionCoords, 0.001, 0.999);
@@ -308,7 +318,7 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
 //        mixedColor = mix(mixedColor, float4(0.2, 0.2, 0.6, 1), 0.3);
 //    }
     
-    float4 landWater = (fragment_in.worldPosition.y > terrainParams.scaffoldingSize) ? float4(0.4, 0.0, 0.2, 1.0) : float4(0.8, 0.4, 0.6, 1.0);
+    
     mixedColor = mix(mixedColor, landWater, 0.6);
     
 //    mixedColor = fragment_in.landColor;
