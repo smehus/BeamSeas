@@ -79,8 +79,13 @@ extension BasicShape: Renderable {
 
 //        uniforms.modelMatrix = worldTransform//position.rotationMatrix * .identity() * scale.rotationMatrix
         
-        let parentMdl = parent!.position.translationMatrix * .identity() * float4x4(scaling: parent!.scale)
-        uniforms.modelMatrix = parentMdl * modelMatrix
+        // This is fucking stupid
+        if let parent = parent {
+            let parentMdl = parent.position.translationMatrix * .identity() * float4x4(scaling: parent.scale)
+            uniforms.modelMatrix = parentMdl * modelMatrix
+        } else {
+            uniforms.modelMatrix = modelMatrix
+        }
 
         renderEncoder.setRenderPipelineState(pipelineState)
 

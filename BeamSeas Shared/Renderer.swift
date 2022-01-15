@@ -124,6 +124,14 @@ final class Renderer: NSObject {
         mapScaffolding.add(child: terrain)
         models.append(terrain)
         
+        var material = Material()
+        material.baseColor = float3(1, 0, 0)
+        let shape = BasicShape(shape: .sphere(extent: [3, 10, 3],
+                                                 segments: [5, 5],
+                                                 inwardNormals: false,
+                                                 geometryType: .triangles,
+                                                 material: material))
+        models.append(shape)
         
         player = Model(name: "OldBoat", fragment: "fragment_pbr")
         player.scale = [0.5, 0.5, 0.5]

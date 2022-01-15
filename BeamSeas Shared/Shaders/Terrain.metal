@@ -73,7 +73,7 @@ kernel void tessellation_main(constant float *edge_factors [[ buffer(0) ]],
 [[ patch(quad, 4) ]]
 vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control_points [[ stage_in ]],
                                        float2 patch_coord [[ position_in_patch ]],
-                                       texture2d<float> heightMap [[ texture(0) ]],
+                                       texture2d<float> gradientMap [[ texture(0) ]],
                                        texture2d<float> normalMap [[ texture(1) ]],
                                        constant TerrainParams &terrainParams [[ buffer(BufferIndexTerrainParams) ]],
                                        uint patchID [[ patch_id ]],
@@ -122,7 +122,7 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
     // TO MAKE IT LOOK LIKE TURNING THE PLAYER IS ACTUALLY TURNING THE PLAYER ON THE WATER.
 //    xy *= terrainParams.size;
 //    float3 heightDisplacement = mix(heightMap.sample(sample, xy + 0.5).xyz, heightMap.sample(sample, xy + 1.0).xyz, 0.5);
-    float3 heightDisplacement = heightMap.sample(sample, xy).xyz;
+    float3 heightDisplacement = gradientMap.sample(sample, xy).xyz;
 
 //    float inverseColor = color.r;//1 - color.r;
     float3 ifftHeight = (heightDisplacement * 2 - 1) * terrainParams.height;
@@ -141,16 +141,24 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
     float4 invertedScaffoldColor = (1 - scaffoldSample);
   
     float scaffoldHeight = (invertedScaffoldColor.x * 2 - 1) * terrainParams.height;
+    // This will gradually chillout the ifft height as the scaffold land masses height gets closer to 0
     float3 ifftPercentHeight = ifftHeight * scaffoldSample.r;
     
     // PercentiFFTHeight needs to be based on how close scaffoldHeight is to 0.
     // So that we an transition between ifftHeight & scaffoldHeight seamlessly
+    
+    
     if (scaffoldHeight >= 0) {
         position.y = scaffoldHeight;
         out.landColor = float4(0.2, 0.8, 0.2, 1.0);
     } else {
-        position.y = ifftPercentHeight.r;
-        out.landColor = float4(0.2, 0.2, 0.6, 1.0);
+        if (ifftPercentHeight.r < scaffoldHeight) {
+            position.y = scaffoldHeight;
+            out.landColor = float4(0.2, 0.8, 0.2, 1.0);
+        } else {
+            position.y = ifftPercentHeight.r;
+            out.landColor = float4(0.2, 0.2, 0.6, 1.0);
+        }
     }
 
      // Add a percentaged multiplied ifft height. So the higher the scaffold height, the less affect ifft height will have.
@@ -261,8 +269,6 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
     float4 scaffoldSample = worldMapTexture.sample(scaffoldingSampler, terrainToScaffold);
     float4 invertedScaffoldColor = (1 - scaffoldSample);
     float scaffoldHeight = (invertedScaffoldColor.x * 2 - 1) * terrainParams.height;
-
-    
     /// Maybe this shit is fuckingit up.....
     
     // Multiplier determines ripple size
@@ -277,7 +283,7 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
     float2 normalizedRippleX = rippleSampleX.rg * 2.0 - 1.0;
     float2 normalizedRippleY = rippleSampleY.rg * 2.0 - 1.0;
 
-    if (scaffoldHeight <= 0) {
+    if (fragment_in.position.y <= 0) {
         float2 ripple = (normalizedRippleX + normalizedRippleY) * waveStrength;
         reflectionCoords += ripple;
         refractionCoords += ripple;
