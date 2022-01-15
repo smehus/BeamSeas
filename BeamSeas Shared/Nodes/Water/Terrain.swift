@@ -24,7 +24,8 @@ class Terrain: Node {
         size: [Terrain.terrainSize, Terrain.terrainSize],
         height: 75,
         maxTessellation: UInt32(Terrain.maxTessellation),
-        numberOfPatches: UInt32(Terrain.patchNum * Terrain.patchNum)
+        numberOfPatches: UInt32(Terrain.patchNum * Terrain.patchNum),
+        scaffoldingSize: Renderer.scaffoldingSize
     )
 
     static let maxTessellation = 16
@@ -365,7 +366,7 @@ extension Terrain: Renderable {
         renderEncoder.setFragmentSamplerState(samplerState, index: 0)
         renderEncoder.setVertexSamplerState(samplerState, index: 0)
         // Myabe try using a different patch type like square or something
-        renderEncoder.setTriangleFillMode(.lines)
+//        renderEncoder.setTriangleFillMode(.lines)
         renderEncoder.drawPatches(
             numberOfPatchControlPoints: 4,
             patchStart: 0,

@@ -148,18 +148,20 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
     // So that we an transition between ifftHeight & scaffoldHeight seamlessly
     
     
-    if (scaffoldHeight >= 0) {
-        position.y = scaffoldHeight;
-        out.landColor = float4(0.2, 0.8, 0.2, 1.0);
-    } else {
-        if (ifftPercentHeight.r < scaffoldHeight) {
-            position.y = scaffoldHeight;
-            out.landColor = float4(0.2, 0.8, 0.2, 1.0);
-        } else {
-            position.y = ifftPercentHeight.r;
-            out.landColor = float4(0.2, 0.2, 0.6, 1.0);
-        }
-    }
+    position.y = max(scaffoldHeight, ifftPercentHeight.r);
+    
+//    if (scaffoldHeight >= 0) {
+//        position.y = scaffoldHeight;
+//        out.landColor = float4(0.2, 0.8, 0.2, 1.0);
+//    } else {
+//        if (ifftPercentHeight.r < scaffoldHeight) {
+//            position.y = scaffoldHeight;
+//            out.landColor = float4(0.2, 0.8, 0.2, 1.0);
+//        } else {
+//            position.y = ifftPercentHeight.r;
+//            out.landColor = float4(0.2, 0.2, 0.6, 1.0);
+//        }
+//    }
 
      // Add a percentaged multiplied ifft height. So the higher the scaffold height, the less affect ifft height will have.
     ////        position.x += (horizontalDisplacement.y);
@@ -283,7 +285,7 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
     float2 normalizedRippleX = rippleSampleX.rg * 2.0 - 1.0;
     float2 normalizedRippleY = rippleSampleY.rg * 2.0 - 1.0;
 
-    if (fragment_in.position.y <= 0) {
+    if (fragment_in.worldPosition.y <= terrainParams.scaffoldingSize) {
         float2 ripple = (normalizedRippleX + normalizedRippleY) * waveStrength;
         reflectionCoords += ripple;
         refractionCoords += ripple;
@@ -306,7 +308,10 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
 //        mixedColor = mix(mixedColor, float4(0.2, 0.2, 0.6, 1), 0.3);
 //    }
     
-    mixedColor = mix(mixedColor, float4(0.1, scaffoldSample.r, 1 - scaffoldSample.r, 1), 0.3);
+    float4 landWater = (fragment_in.worldPosition.y > terrainParams.scaffoldingSize) ? float4(0.4, 0.0, 0.2, 1.0) : float4(0.8, 0.4, 0.6, 1.0);
+    mixedColor = mix(mixedColor, landWater, 0.6);
+    
+//    mixedColor = fragment_in.landColor;
 
     constexpr sampler sam(min_filter::linear, mag_filter::linear, mip_filter::nearest, address::repeat);
     float3 vGradJacobian = gradientMap.sample(sam, fragment_in.vGradNormalTex.xy).xyz;

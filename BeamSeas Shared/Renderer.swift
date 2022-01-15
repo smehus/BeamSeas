@@ -79,6 +79,7 @@ final class Renderer: NSObject {
     private(set) var mapScaffolding: WorldMapScaffolding!
     private(set) var reflectionRenderPass: RenderPass
     private(set) var refractionRenderPass: RenderPass
+    static let scaffoldingSize: Float = 5000
 
     enum DeltaFactor: Float {
         case normal = 0.01
@@ -112,8 +113,8 @@ final class Renderer: NSObject {
         
         skybox = Skybox(textureName: nil)
         
-        let scaffoldingSize: Float = 5000
-        mapScaffolding = WorldMapScaffolding(extent: SIMD3<Float>(repeating: scaffoldingSize), segments: [50, 50])
+        
+        mapScaffolding = WorldMapScaffolding(extent: SIMD3<Float>(repeating: Renderer.scaffoldingSize), segments: [50, 50])
 //        mapScaffolding.position = [0, -(mapScaffolding.size.x / 2), 0]
         models.append(mapScaffolding)
         
