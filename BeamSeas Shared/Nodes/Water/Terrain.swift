@@ -297,11 +297,22 @@ extension Terrain: Renderable {
             offset: 0,
             index: 0
         )
+        
+        renderEncoder.setVertexTexture(
+            worldMapTexture,
+            index: TextureIndex.worldMap.rawValue
+        )
 
         // TODO: - Need to implement argument buffers & resource heaps
         renderEncoder.setVertexTexture(
             BasicFFT.heightDisplacementMap,
-            index: 0
+            index: TextureIndex.height.rawValue
+        )
+        
+        
+        renderEncoder.setVertexTexture(
+            BasicFFT.normalMapTexture,
+            index: TextureIndex.normal.rawValue
         )
 
         renderEncoder.setVertexBytes(
@@ -336,16 +347,14 @@ extension Terrain: Renderable {
             index: BufferIndex.uniforms.rawValue
         )
 
-        renderEncoder.setVertexTexture(BasicFFT.normalMapTexture, index: 1)
-
         renderEncoder.setFragmentTexture(
             BasicFFT.gradientMap,
-            index: 0
+            index: TextureIndex.gradient.rawValue
         )
 
         renderEncoder.setFragmentTexture(
             BasicFFT.normalMapTexture,
-            index: 2
+            index: TextureIndex.normal.rawValue
         )
 
         renderEncoder.setFragmentTexture(
@@ -354,11 +363,6 @@ extension Terrain: Renderable {
         )
         
         renderEncoder.setFragmentTexture(
-            worldMapTexture,
-            index: TextureIndex.worldMap.rawValue
-        )
-        
-        renderEncoder.setVertexTexture(
             worldMapTexture,
             index: TextureIndex.worldMap.rawValue
         )
