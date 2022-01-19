@@ -149,6 +149,8 @@
 		029DE52425150DB900064C6B /* NormalDistribution.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 029DE52125150DB900064C6B /* NormalDistribution.cpp */; };
 		02A5A1EB27988AE500679F4F /* CelShader.metal in Sources */ = {isa = PBXBuildFile; fileRef = 02A5A1EA27988AE500679F4F /* CelShader.metal */; };
 		02A5A1EC27988AE500679F4F /* CelShader.metal in Sources */ = {isa = PBXBuildFile; fileRef = 02A5A1EA27988AE500679F4F /* CelShader.metal */; };
+		02A5A1EF27989DB900679F4F /* sand.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 02A5A1EE27989DB900679F4F /* sand.jpg */; };
+		02A5A1F027989DB900679F4F /* sand.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 02A5A1EE27989DB900679F4F /* sand.jpg */; };
 		02A6CB4924D3728000FBE595 /* Water.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02491ABB24D128100091395A /* Water.swift */; };
 		02A6CB4A24D3728100FBE595 /* Water.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02491ABB24D128100091395A /* Water.swift */; };
 		02A98653267A3296003C68FC /* Skybox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02A98652267A3296003C68FC /* Skybox.swift */; };
@@ -286,6 +288,7 @@
 		029DE52125150DB900064C6B /* NormalDistribution.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = NormalDistribution.cpp; sourceTree = "<group>"; };
 		029DE52225150DB900064C6B /* NormalDistribution.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = NormalDistribution.hpp; sourceTree = "<group>"; };
 		02A5A1EA27988AE500679F4F /* CelShader.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = CelShader.metal; sourceTree = "<group>"; };
+		02A5A1EE27989DB900679F4F /* sand.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = sand.jpg; sourceTree = "<group>"; };
 		02A98652267A3296003C68FC /* Skybox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Skybox.swift; sourceTree = "<group>"; };
 		02A98655267A3F9C003C68FC /* Skybox.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Skybox.metal; sourceTree = "<group>"; };
 		02CF8F85267D3C7300FE244D /* RenderPass.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RenderPass.swift; sourceTree = "<group>"; };
@@ -526,6 +529,7 @@
 		0299533A249925FF0014228F /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				02A5A1ED27989D9E00679F4F /* LandTextures */,
 				025022D226822A090019DD30 /* normal-water-rotated.png */,
 				02CF8FC92680DFAB00FE244D /* CubeMaps */,
 				02CF8F88267E5EC500FE244D /* normal-water.png */,
@@ -587,6 +591,14 @@
 				0240A118277A4C0C000780CD /* BasicShape.swift */,
 			);
 			path = Nodes;
+			sourceTree = "<group>";
+		};
+		02A5A1ED27989D9E00679F4F /* LandTextures */ = {
+			isa = PBXGroup;
+			children = (
+				02A5A1EE27989DB900679F4F /* sand.jpg */,
+			);
+			path = LandTextures;
 			sourceTree = "<group>";
 		};
 		02CF8FC92680DFAB00FE244D /* CubeMaps */ = {
@@ -769,6 +781,7 @@
 				028AE9CF2793057C004D29F9 /* world_map_-x.png in Resources */,
 				0236A76C249D8ED6008F197E /* cottage2.obj in Resources */,
 				023A333726ADB81D008E220E /* posz.jpg in Resources */,
+				02A5A1EF27989DB900679F4F /* sand.jpg in Resources */,
 				028AE9C52793057C004D29F9 /* world_map_+z.png in Resources */,
 				0231B80724CE87CB00C794B8 /* simuwater2.jpg in Resources */,
 				02E9FFD32593C1F500DD228D /* row_boat.mtl in Resources */,
@@ -785,6 +798,7 @@
 				02CF8FE52680DFAB00FE244D /* TropicalSunnyDay_ny.jpg in Resources */,
 				0236A76D249D8ED6008F197E /* cottage2.obj in Resources */,
 				0236A74E249D182B008F197E /* lowpoly-house.obj in Resources */,
+				02A5A1F027989DB900679F4F /* sand.jpg in Resources */,
 				02E9FFD22593C1F500DD228D /* row_boat.obj in Resources */,
 				022B51F124B22D2200FC5C81 /* Heightmap_Mountain.png in Resources */,
 				0231B80324CE877800C794B8 /* simuwater.jpg in Resources */,
