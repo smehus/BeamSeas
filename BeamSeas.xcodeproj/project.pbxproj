@@ -151,6 +151,8 @@
 		02A5A1EC27988AE500679F4F /* CelShader.metal in Sources */ = {isa = PBXBuildFile; fileRef = 02A5A1EA27988AE500679F4F /* CelShader.metal */; };
 		02A5A1EF27989DB900679F4F /* sand.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 02A5A1EE27989DB900679F4F /* sand.jpg */; };
 		02A5A1F027989DB900679F4F /* sand.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 02A5A1EE27989DB900679F4F /* sand.jpg */; };
+		02A5A1F227989E0C00679F4F /* water.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 02A5A1F127989E0C00679F4F /* water.jpg */; };
+		02A5A1F327989E0C00679F4F /* water.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 02A5A1F127989E0C00679F4F /* water.jpg */; };
 		02A6CB4924D3728000FBE595 /* Water.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02491ABB24D128100091395A /* Water.swift */; };
 		02A6CB4A24D3728100FBE595 /* Water.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02491ABB24D128100091395A /* Water.swift */; };
 		02A98653267A3296003C68FC /* Skybox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02A98652267A3296003C68FC /* Skybox.swift */; };
@@ -289,6 +291,7 @@
 		029DE52225150DB900064C6B /* NormalDistribution.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = NormalDistribution.hpp; sourceTree = "<group>"; };
 		02A5A1EA27988AE500679F4F /* CelShader.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = CelShader.metal; sourceTree = "<group>"; };
 		02A5A1EE27989DB900679F4F /* sand.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = sand.jpg; sourceTree = "<group>"; };
+		02A5A1F127989E0C00679F4F /* water.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = water.jpg; sourceTree = "<group>"; };
 		02A98652267A3296003C68FC /* Skybox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Skybox.swift; sourceTree = "<group>"; };
 		02A98655267A3F9C003C68FC /* Skybox.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Skybox.metal; sourceTree = "<group>"; };
 		02CF8F85267D3C7300FE244D /* RenderPass.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RenderPass.swift; sourceTree = "<group>"; };
@@ -596,6 +599,7 @@
 		02A5A1ED27989D9E00679F4F /* LandTextures */ = {
 			isa = PBXGroup;
 			children = (
+				02A5A1F127989E0C00679F4F /* water.jpg */,
 				02A5A1EE27989DB900679F4F /* sand.jpg */,
 			);
 			path = LandTextures;
@@ -751,6 +755,7 @@
 				023A333126ADB81D008E220E /* negy.jpg in Resources */,
 				02CF8FEC2680DFAB00FE244D /* TropicalSunnyDay_py.jpg in Resources */,
 				022B51F024B22D2200FC5C81 /* Heightmap_Mountain.png in Resources */,
+				02A5A1F227989E0C00679F4F /* water.jpg in Resources */,
 				022B51EA24B22D2200FC5C81 /* Heightmap_Plateau.png in Resources */,
 				026A999D24B56A2A0002D4EA /* Ship.usdz in Resources */,
 				0236A772249D8ED6008F197E /* cube.mtl in Resources */,
@@ -818,6 +823,7 @@
 				026A999E24B56A2A0002D4EA /* Ship.usdz in Resources */,
 				02E9FFC5258E7EBF00DD228D /* boattex.jpg in Resources */,
 				0236A75A249D2192008F197E /* ground.png in Resources */,
+				02A5A1F327989E0C00679F4F /* water.jpg in Resources */,
 				0236A74C249D182B008F197E /* lowpoly-house-color.png in Resources */,
 				022B51ED24B22D2200FC5C81 /* Heightmap_Billow.png in Resources */,
 				02E9FFD42593C1F500DD228D /* row_boat.mtl in Resources */,
