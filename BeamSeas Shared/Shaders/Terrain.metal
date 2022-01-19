@@ -148,7 +148,7 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
     // So that we an transition between ifftHeight & scaffoldHeight seamlessly
     
     
-    position.y = max(scaffoldHeight, ifftPercentHeight.r);
+    position.y = scaffoldHeight;//max(scaffoldHeight, ifftPercentHeight.r);
     
 //    if (scaffoldHeight >= 0) {
 //        position.y = scaffoldHeight;
@@ -268,11 +268,13 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
     float2 refractionCoords = float2(x, y);
     
     float4 directionToFragment = fragment_in.parentFragmentPosition - fragmentUniforms.scaffoldingPosition;
-    float3 terrainToScaffold = normalize(directionToFragment).xyz;
-    float4 scaffoldSample = worldMapTexture.sample(scaffoldingSampler, terrainToScaffold);
+    float4 terrainToScaffold = normalize(directionToFragment);
+    float4 scaffoldSample = worldMapTexture.sample(scaffoldingSampler, terrainToScaffold.xyz);
+    // so that white is 0 and black is one
     float4 invertedScaffoldColor = (1 - scaffoldSample);
-    float scaffoldHeight = (invertedScaffoldColor.x * 2 - 1) * terrainParams.height;
-    /// Maybe this shit is fuckingit up.....
+    // transform to -1 to 1 * constant variable
+    float4 scaffoldHeight = (invertedScaffoldColor * 2 - 1) * terrainParams.height;
+    
     
     // Multiplier determines ripple size
     float timer = uniforms.currentTime * 0.007;
@@ -286,15 +288,29 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
     float2 normalizedRippleX = rippleSampleX.rg * 2.0 - 1.0;
     float2 normalizedRippleY = rippleSampleY.rg * 2.0 - 1.0;
 
-    float3 heightDisplacement = heightMap.sample(mainSampler, refractionCoords).xyz;
-    float3 ifftHeight = (heightDisplacement * 2 - 1) * terrainParams.height;
-    float3 ifftPercentHeight = ifftHeight * scaffoldSample.r;
+    // Is the problem that scaffold is a world map so i'm using 3d coords
+    // And this is a 2d texture so i'm using refractionCoords
+    // Maybe i can just take this from vertex shader - since this should map to position.y.
+    // so maybe check position.y & scaffold height.// But then it will just be the scaffold height from vertex so idk.
+    
+    // TEST - ONLY USE SCAFFOLD HEIGHT IN THE VERTEX.
+    // THAN GRAB THE SCAFFOLD WORLD HEIGHT HERE & CHECK TO MAKE SURE THEY ARE KINDA THE SAME.
+    // THAN DO THE SAME THING WITH THE POSITION.Y & THE WORLDIFFTHEIGHT DAWGGGGGGG
+    // THAN NEED TO JUST DECIDE? IDK - FIGURE IT OUT FROM THERE DIPSHIT
+    float4 heightDisplacement = heightMap.sample(mainSampler, refractionCoords);
+    float4 ifftHeight = (heightDisplacement * 2 - 1) * terrainParams.height;
+    float4 ifftPercentHeight = ifftHeight * scaffoldSample.r;
     
     float4 landWater = float4(0.4, 0.0, 0.2, 1.0);
     // Do this before clamping yo
     // I think i need to do a worldPosition comparision though.
     // Cause it gets all squirrely when I compare height maps
-    if (scaffoldHeight < ifftPercentHeight.x) {
+    float4 scaffoldPosition = fragmentUniforms.scaffoldingPosition;
+    scaffoldPosition.y += scaffoldHeight.r;
+    float4 scaffoldWorldPositions = uniforms.modelMatrix * scaffoldPosition;
+    
+    if (fragment_in.worldPosition.y < scaffoldWorldPositions.y) {
+        
         float2 ripple = (normalizedRippleX + normalizedRippleY) * waveStrength;
         reflectionCoords += ripple;
         refractionCoords += ripple;
