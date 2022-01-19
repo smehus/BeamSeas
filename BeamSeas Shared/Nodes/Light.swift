@@ -48,7 +48,7 @@ struct Lighting {
     let count: UInt32
 
     init() {
-        lights = [fillLight, ambientLight, sunlight]
+        lights = [sunlight]
         count = UInt32(lights.count)
     }
 

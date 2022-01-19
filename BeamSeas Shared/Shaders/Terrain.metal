@@ -25,7 +25,17 @@ struct TerrainVertexOut {
     float3 toCamera;
     float4 parentFragmentPosition;
     float4 landColor;
+    float3 normal_cameraSpace;
+    float3 eye_direction_cameraspace;
 };
+
+constant float4 materialAmbientColor = {0.18, 0.18, 0.18, 1.0};
+constant float4 materialDiffuseColor = {0.4, 0.4, 0.4, 1.0};
+constant float4 materialSpecularColor = {1.0, 1.0, 1.0, 1.0};
+constant float  materialShine = 50.0;
+constant float d1 = 0.1;
+constant float d2 = 0.6;
+constant float d3 = 1.0;
 
 float calc_distance(float3 pointA,
                     float3 pointB,
@@ -184,6 +194,9 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
     float3 normal = uniforms.normalMatrix * normalValue;
 
     out.normal = normal;
+    out.normal_cameraSpace = (normalize(uniforms.modelMatrix * float4(normal, 0.0))).xyz;
+    float3 vertex_position_cameraspace = ( uniforms.viewMatrix * uniforms.modelMatrix * position ).xyz;
+    out.eye_direction_cameraspace = float3(0,0,0) - vertex_position_cameraspace;
 //    finalColor += float4(0.1, 0.6, 0.988, 1);
     out.color = finalColor;
     
@@ -363,7 +376,83 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
 //    return float4(1, 0, 0, 1);
 //    return fragment_in.color;
 //    return mixedColor;
-    return float4(specular, 1.0);
+    
+    
+    // cell shade here yooo
+    // Use mixed color first
+    float4 ambient_color = mixedColor;
+    float3 n = normalize(fragment_in.normal_cameraSpace);
+    
+//    for (uint i = 0; i < fragmentUniforms.light_count; i++) {
+        Light light = lights[0];
+        
+        float3 light_position_cameraspace = ( uniforms.modelMatrix * float4(light.position, 1)).xyz;
+        float3 light_direction_cameraspace = light_position_cameraspace + normalize(light.position); // This is probably wrong yo
+        float3 l = normalize(light_direction_cameraspace);
+        float n_dot_l = dot(n, l);
+        
+        float diffuse_factor = saturate(n_dot_l);
+        float epsilon = fwidth(diffuse_factor);
+        // If it is on the border of the first two colors, smooth it
+        if ( (diffuse_factor > d1 - epsilon) && (diffuse_factor < d1 + epsilon) )
+        {
+            diffuse_factor = mix(d1, d2, smoothstep(d1-epsilon, d1+epsilon, diffuse_factor));
+        }
+        // If it is on the border of the second two colors, smooth it
+        else if ( (diffuse_factor > d2 - epsilon) && (diffuse_factor < d2 + epsilon) )
+        {
+            diffuse_factor = mix(d2, d3, smoothstep(d2-epsilon, d2+epsilon, diffuse_factor));
+        }
+        // If it is the darkest color
+        else if (diffuse_factor < d1)
+        {
+            diffuse_factor = 0.0;
+        }
+        // If is is the mid-range color
+        else if (diffuse_factor < d2)
+        {
+            diffuse_factor = d2;
+        }
+        // It is the brightest color
+        else
+        {
+            diffuse_factor = d3;
+        }
+        
+        float4 diffuse_color = float4(light.color, 1.0) * diffuse_factor * materialDiffuseColor;
+        
+        // Calculate the specular color. This is done in a similar fashion to how the diffuse color
+        // is calculated. We see if the angle between the viewer and the reflected light is small. If
+        // is it, we color it the specular color. If it is on the border of the specular highlight
+        // (i.e. it is within an epsilon value we define as the derivative of the specular factor),
+        // we linearly interpolate between the two colors to create a more natural looking, smooth
+        // transition.
+        float3 e = normalize(fragment_in.eye_direction_cameraspace);
+        float3 r = -l + 2.0f * n_dot_l * n;
+        float e_dot_r =  saturate( dot(e, r) );
+        
+        float specular_factor = pow(e_dot_r, materialShine);
+        epsilon = fwidth(specular_factor);
+        
+        // If it is on the edge of the specular highlight
+        if ( (specular_factor > 0.5f - epsilon) && (specular_factor < 0.5f + epsilon) )
+        {
+            specular_factor = smoothstep(0.5f - epsilon, 0.5f + epsilon, specular_factor);
+        }
+        // It is either in or out of the highlight
+        else
+        {
+            specular_factor = step(0.5f, specular_factor);
+        }
+        
+        float4 specular_color = materialSpecularColor * float4(light.color, 1.0) * specular_factor;
+        
+        return float4(ambient_color + diffuse_color + specular_color);
+        
+//    }
+    
+    
+//    return float4(specular, 1.0);
 }
 
 
