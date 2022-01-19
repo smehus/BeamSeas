@@ -148,7 +148,7 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
     // So that we an transition between ifftHeight & scaffoldHeight seamlessly
     
     
-    position.y = scaffoldHeight;//max(scaffoldHeight, ifftPercentHeight.r);
+    position.y = max(scaffoldHeight, ifftPercentHeight.r);
     
 //    if (scaffoldHeight >= 0) {
 //        position.y = scaffoldHeight;
@@ -308,8 +308,10 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
     float4 scaffoldPosition = fragmentUniforms.scaffoldingPosition;
     scaffoldPosition.y += scaffoldHeight.r;
     float4 scaffoldWorldPositions = uniforms.modelMatrix * scaffoldPosition;
+    float diff = abs(scaffoldWorldPositions.y - fragment_in.worldPosition.y);
     
-    if (fragment_in.worldPosition.y < scaffoldWorldPositions.y) {
+    // Do a more relaxed check yo. like.....chill out dawg
+    if (diff > 1.0) {
         
         float2 ripple = (normalizedRippleX + normalizedRippleY) * waveStrength;
         reflectionCoords += ripple;
