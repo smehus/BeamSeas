@@ -44,6 +44,7 @@ class Terrain: Node {
     var allPatches: [Patch] = []
     var waterNormalTexture: MTLTexture?
     var worldMapTexture: MTLTexture!
+    var landTexture: MTLTexture!
 //    var scaffoldingPosition: float3 = [0, 0, 0]
     lazy var tessellationFactorsBuffer: MTLBuffer? = {
         let count = patchCount * Int(Terrain.edgeFactors + Terrain.insideFactors)
@@ -127,6 +128,8 @@ class Terrain: Node {
         samplerDescriptor.mipFilter = .linear
         
         samplerState = Renderer.device.makeSamplerState(descriptor: samplerDescriptor)
+        
+        landTexture = Self.loadTexture(imageName: "sand", path: "jpg")
 
 //        texDesc.width = altHeightMap.width
 //        texDesc.height = altHeightMap.height
@@ -371,6 +374,11 @@ extension Terrain: Renderable {
             worldMapTexture,
             index: TextureIndex.worldMap.rawValue
         )
+        
+        renderEncoder.setFragmentTexture(
+            landTexture,
+            index: TextureIndex.scaffoldLand.rawValue
+            )
 
         renderEncoder.setFragmentSamplerState(samplerState, index: 0)
         renderEncoder.setVertexSamplerState(samplerState, index: 0)

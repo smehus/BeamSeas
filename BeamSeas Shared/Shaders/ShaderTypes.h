@@ -59,6 +59,7 @@ typedef NS_ENUM(NSInteger, TextureIndex)
     TextureIndexWorldMap        = 8,
     TextureIndexHeight          = 9,
     TextureIndexGradient        = 10,
+    TextureIndexScaffoldLand    = 11
 };
 
 typedef struct

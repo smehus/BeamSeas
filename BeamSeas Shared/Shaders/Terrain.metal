@@ -261,6 +261,7 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
                                  texture2d<float> refractionTexture [[ texture(TextureIndexRefraction) ]],
                                  texture2d<float> waterRippleTexture [[ texture(TextureIndexWaterRipple) ]],
                                  texturecube<float> worldMapTexture [[ texture(TextureIndexWorldMap) ]],
+                                 texture2d<float> landTexture [[ texture(TextureIndexScaffoldLand) ]],
                                  sampler scaffoldingSampler [[ sampler(0) ]])
 {
     constexpr sampler mainSampler(filter::linear, address::repeat);
@@ -306,7 +307,7 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
     float4 ifftHeight = (heightDisplacement * 2 - 1) * terrainParams.height;
     float4 ifftPercentHeight = ifftHeight * scaffoldSample.r;
     
-    float4 landWater = float4(0.4, 0.0, 0.2, 1.0);
+    float4 landWater = landTexture.sample(mainSampler, refractionCoords);
     // Do this before clamping yo
     // I think i need to do a worldPosition comparision though.
     // Cause it gets all squirrely when I compare height maps
