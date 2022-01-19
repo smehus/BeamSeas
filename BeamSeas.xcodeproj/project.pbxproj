@@ -147,6 +147,8 @@
 		02995361249A64FD0014228F /* Node.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0299535F249A64FD0014228F /* Node.swift */; };
 		029DE52325150DB900064C6B /* NormalDistribution.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 029DE52125150DB900064C6B /* NormalDistribution.cpp */; };
 		029DE52425150DB900064C6B /* NormalDistribution.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 029DE52125150DB900064C6B /* NormalDistribution.cpp */; };
+		02A5A1EB27988AE500679F4F /* CelShader.metal in Sources */ = {isa = PBXBuildFile; fileRef = 02A5A1EA27988AE500679F4F /* CelShader.metal */; };
+		02A5A1EC27988AE500679F4F /* CelShader.metal in Sources */ = {isa = PBXBuildFile; fileRef = 02A5A1EA27988AE500679F4F /* CelShader.metal */; };
 		02A6CB4924D3728000FBE595 /* Water.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02491ABB24D128100091395A /* Water.swift */; };
 		02A6CB4A24D3728100FBE595 /* Water.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02491ABB24D128100091395A /* Water.swift */; };
 		02A98653267A3296003C68FC /* Skybox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02A98652267A3296003C68FC /* Skybox.swift */; };
@@ -283,6 +285,7 @@
 		0299535F249A64FD0014228F /* Node.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Node.swift; sourceTree = "<group>"; };
 		029DE52125150DB900064C6B /* NormalDistribution.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = NormalDistribution.cpp; sourceTree = "<group>"; };
 		029DE52225150DB900064C6B /* NormalDistribution.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = NormalDistribution.hpp; sourceTree = "<group>"; };
+		02A5A1EA27988AE500679F4F /* CelShader.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = CelShader.metal; sourceTree = "<group>"; };
 		02A98652267A3296003C68FC /* Skybox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Skybox.swift; sourceTree = "<group>"; };
 		02A98655267A3F9C003C68FC /* Skybox.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Skybox.metal; sourceTree = "<group>"; };
 		02CF8F85267D3C7300FE244D /* RenderPass.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RenderPass.swift; sourceTree = "<group>"; };
@@ -456,6 +459,7 @@
 				02A98655267A3F9C003C68FC /* Skybox.metal */,
 				022174F4268A11F600F9BCC9 /* WorldMap.metal */,
 				0240A11B277A50E6000780CD /* BasicShape.metal */,
+				02A5A1EA27988AE500679F4F /* CelShader.metal */,
 			);
 			path = Shaders;
 			sourceTree = "<group>";
@@ -852,6 +856,7 @@
 				02A98653267A3296003C68FC /* Skybox.swift in Sources */,
 				020F9865249A757C00DB4850 /* ViewController.swift in Sources */,
 				02419D56249850C100BCB203 /* AppDelegate.swift in Sources */,
+				02A5A1EB27988AE500679F4F /* CelShader.metal in Sources */,
 				028BCAC826E6BA3100FDE2FD /* WorldMapScaffolding.swift in Sources */,
 				020FD8C224D4575A00B77CF2 /* Distributions.swift in Sources */,
 				028370F4249AFC84006E8AF3 /* DebugLights.metal in Sources */,
@@ -896,6 +901,7 @@
 				02A98654267A3296003C68FC /* Skybox.swift in Sources */,
 				020F9866249A757C00DB4850 /* ViewController.swift in Sources */,
 				02419D67249850C100BCB203 /* AppDelegate.swift in Sources */,
+				02A5A1EC27988AE500679F4F /* CelShader.metal in Sources */,
 				028BCAC926E6BA3100FDE2FD /* WorldMapScaffolding.swift in Sources */,
 				020FD8C324D4575A00B77CF2 /* Distributions.swift in Sources */,
 				028370F5249AFC84006E8AF3 /* DebugLights.metal in Sources */,
