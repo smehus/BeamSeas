@@ -24,8 +24,7 @@ class Terrain: Node {
         size: [Terrain.terrainSize, Terrain.terrainSize],
         height: 75,
         maxTessellation: UInt32(Terrain.maxTessellation),
-        numberOfPatches: UInt32(Terrain.patchNum * Terrain.patchNum),
-        scaffoldingSize: Renderer.scaffoldingSize
+        numberOfPatches: UInt32(Terrain.patchNum * Terrain.patchNum)
     )
 
     static let maxTessellation = 16
