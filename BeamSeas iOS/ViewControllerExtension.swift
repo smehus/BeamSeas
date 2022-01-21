@@ -37,13 +37,12 @@ extension ViewController {
         let pinch = UIPinchGestureRecognizer(target: self,
                                              action: #selector(handlePinch(gesture:)))
         view.addGestureRecognizer(pinch)
-        
-        let hold = UILongPressGestureRecognizer(target: self, action: #selector(handleLongPress(gesture:)))
-        view.addGestureRecognizer(hold)
     }
     
-    @objc func handleLongPress(gesture: UILongPressGestureRecognizer) {
-        renderer!.player.moveState = .forward
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        if let location = touches.first?.location(in: view) {
+            renderer.handleLocationInteraction(location: location)
+        }
     }
 
     @objc func handlePan(gesture: UIPanGestureRecognizer) {

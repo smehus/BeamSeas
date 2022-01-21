@@ -42,27 +42,6 @@ extension ViewController: GameViewProtocol {
         
         keys.add(key: key)
         renderer.didUpdate(keys: keys)
-        
-        
-        // Debug shit
-        switch key {
-            
-            // Camera \\
-        case .i:
-//            (renderer.camera as! ThirdPersonCamera).focusDistance -= 1
-            renderer.camera.rotation.x = Float(Float(renderer.camera.rotation.x).radiansToDegrees - 2).degreesToRadians
-        case .p:
-//            (renderer.camera as! ThirdPersonCamera).focusDistance += 1
-            renderer.camera.rotation.x = Float(Float(renderer.camera.rotation.x).radiansToDegrees + 2).degreesToRadians
-        case .j:
-//            (renderer.camera as! ThirdPersonCamera).focusHeight -= 1
-            renderer.camera.position.y -= 2
-        break
-        case .l:
-//            (renderer.camera as! ThirdPersonCamera).focusHeight += 1
-            renderer.camera.position.y += 2
-        default: break
-        }
     }
 
     func keyUp(key: Key) {

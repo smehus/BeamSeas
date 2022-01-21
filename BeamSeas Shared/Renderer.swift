@@ -191,6 +191,38 @@ protocol AspectRatioUpdateable {
     func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize)
 }
 
+extension Renderer {
+    func handleLocationInteraction(location: CGPoint) {
+        let viewport = Self.metalView.bounds // Assume viewport matches window; if not, apply additional inverse viewport xform
+         let width = Float(viewport.size.width)
+         let height = Float(viewport.size.height)
+//         let aspectRatio = width / height
+        
+        let clipX = (2 * Float(location.x)) / width - 1
+        let clipY = 1 - (2 * Float(location.y)) / height
+        let clipCoords = float4(clipX, clipY, 0, 1)
+        
+        let projectionMatrix = camera.projectionMatrix
+        let inverseProjectionMatrix = projectionMatrix.inverse
+        
+        var eyeRayDir = inverseProjectionMatrix * clipCoords
+        eyeRayDir.z = -1
+        eyeRayDir.w = 0
+        
+        let viewMatrix = camera.worldTransform.inverse
+        let inverseViewMatrix = viewMatrix.inverse
+        
+        var worldRayDir = (inverseViewMatrix * eyeRayDir).xyz
+        worldRayDir = normalize(worldRayDir)
+        
+        let eyeRayOrigin = float4(x: 0, y: 0, z: 0, w: 1)
+        let worldRayOrigin = (inverseViewMatrix * eyeRayOrigin).xyz
+        
+        print("*** world ray \(worldRayOrigin)")
+        print("*** dir: \(worldRayDir)")
+    }
+}
+
 extension Renderer: MTKViewDelegate {
     func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {
         camera.aspect = Float(size.width) / Float(size.height)
