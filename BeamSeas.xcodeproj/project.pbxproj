@@ -119,6 +119,18 @@
 		024B76D0249A8D290030B123 /* Light.swift in Sources */ = {isa = PBXBuildFile; fileRef = 024B76CE249A8D290030B123 /* Light.swift */; };
 		025022D326822A090019DD30 /* normal-water-rotated.png in Resources */ = {isa = PBXBuildFile; fileRef = 025022D226822A090019DD30 /* normal-water-rotated.png */; };
 		025022D426822A090019DD30 /* normal-water-rotated.png in Resources */ = {isa = PBXBuildFile; fileRef = 025022D226822A090019DD30 /* normal-water-rotated.png */; };
+		025D3718279AA609000C8B46 /* star_sky_+z.png in Resources */ = {isa = PBXBuildFile; fileRef = 025D3712279AA609000C8B46 /* star_sky_+z.png */; };
+		025D3719279AA609000C8B46 /* star_sky_+z.png in Resources */ = {isa = PBXBuildFile; fileRef = 025D3712279AA609000C8B46 /* star_sky_+z.png */; };
+		025D371A279AA609000C8B46 /* star_sky_-x.png in Resources */ = {isa = PBXBuildFile; fileRef = 025D3713279AA609000C8B46 /* star_sky_-x.png */; };
+		025D371B279AA609000C8B46 /* star_sky_-x.png in Resources */ = {isa = PBXBuildFile; fileRef = 025D3713279AA609000C8B46 /* star_sky_-x.png */; };
+		025D371C279AA609000C8B46 /* star_sky_-z.png in Resources */ = {isa = PBXBuildFile; fileRef = 025D3714279AA609000C8B46 /* star_sky_-z.png */; };
+		025D371D279AA609000C8B46 /* star_sky_-z.png in Resources */ = {isa = PBXBuildFile; fileRef = 025D3714279AA609000C8B46 /* star_sky_-z.png */; };
+		025D371E279AA609000C8B46 /* star_sky_-y.png in Resources */ = {isa = PBXBuildFile; fileRef = 025D3715279AA609000C8B46 /* star_sky_-y.png */; };
+		025D371F279AA609000C8B46 /* star_sky_-y.png in Resources */ = {isa = PBXBuildFile; fileRef = 025D3715279AA609000C8B46 /* star_sky_-y.png */; };
+		025D3720279AA609000C8B46 /* star_sky_+y.png in Resources */ = {isa = PBXBuildFile; fileRef = 025D3716279AA609000C8B46 /* star_sky_+y.png */; };
+		025D3721279AA609000C8B46 /* star_sky_+y.png in Resources */ = {isa = PBXBuildFile; fileRef = 025D3716279AA609000C8B46 /* star_sky_+y.png */; };
+		025D3722279AA609000C8B46 /* star_sky_+x.png in Resources */ = {isa = PBXBuildFile; fileRef = 025D3717279AA609000C8B46 /* star_sky_+x.png */; };
+		025D3723279AA609000C8B46 /* star_sky_+x.png in Resources */ = {isa = PBXBuildFile; fileRef = 025D3717279AA609000C8B46 /* star_sky_+x.png */; };
 		026A999D24B56A2A0002D4EA /* Ship.usdz in Resources */ = {isa = PBXBuildFile; fileRef = 026A999C24B56A2A0002D4EA /* Ship.usdz */; };
 		026A999E24B56A2A0002D4EA /* Ship.usdz in Resources */ = {isa = PBXBuildFile; fileRef = 026A999C24B56A2A0002D4EA /* Ship.usdz */; };
 		0270494D279A7E4500A34289 /* world_map_-z.png in Resources */ = {isa = PBXBuildFile; fileRef = 024BD8DF277B8FDC0026D28C /* world_map_-z.png */; };
@@ -268,6 +280,12 @@
 		024BD8E3277B8FDC0026D28C /* world_map_+x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "world_map_+x.png"; sourceTree = "<group>"; };
 		024BD8E4277B8FDC0026D28C /* world_map_+z.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "world_map_+z.png"; sourceTree = "<group>"; };
 		025022D226822A090019DD30 /* normal-water-rotated.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "normal-water-rotated.png"; sourceTree = "<group>"; };
+		025D3712279AA609000C8B46 /* star_sky_+z.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "star_sky_+z.png"; sourceTree = "<group>"; };
+		025D3713279AA609000C8B46 /* star_sky_-x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "star_sky_-x.png"; sourceTree = "<group>"; };
+		025D3714279AA609000C8B46 /* star_sky_-z.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "star_sky_-z.png"; sourceTree = "<group>"; };
+		025D3715279AA609000C8B46 /* star_sky_-y.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "star_sky_-y.png"; sourceTree = "<group>"; };
+		025D3716279AA609000C8B46 /* star_sky_+y.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "star_sky_+y.png"; sourceTree = "<group>"; };
+		025D3717279AA609000C8B46 /* star_sky_+x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "star_sky_+x.png"; sourceTree = "<group>"; };
 		026A999C24B56A2A0002D4EA /* Ship.usdz */ = {isa = PBXFileReference; lastKnownFileType = file.usdz; path = Ship.usdz; sourceTree = SOURCE_ROOT; };
 		0276CF16256196540016910A /* ComputeHeight.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = ComputeHeight.metal; sourceTree = "<group>"; };
 		028370F0249AFC83006E8AF3 /* DebugLights.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DebugLights.swift; sourceTree = "<group>"; };
@@ -494,6 +512,19 @@
 			path = Noise/world_map_1;
 			sourceTree = "<group>";
 		};
+		025D3711279AA5FC000C8B46 /* StarSky */ = {
+			isa = PBXGroup;
+			children = (
+				025D3713279AA609000C8B46 /* star_sky_-x.png */,
+				025D3715279AA609000C8B46 /* star_sky_-y.png */,
+				025D3714279AA609000C8B46 /* star_sky_-z.png */,
+				025D3717279AA609000C8B46 /* star_sky_+x.png */,
+				025D3716279AA609000C8B46 /* star_sky_+y.png */,
+				025D3712279AA609000C8B46 /* star_sky_+z.png */,
+			);
+			path = StarSky;
+			sourceTree = "<group>";
+		};
 		026A999B24B56A0F0002D4EA /* Ship */ = {
 			isa = PBXGroup;
 			children = (
@@ -608,6 +639,7 @@
 		02CF8FC92680DFAB00FE244D /* CubeMaps */ = {
 			isa = PBXGroup;
 			children = (
+				025D3711279AA5FC000C8B46 /* StarSky */,
 				028AE9BE27930568004D29F9 /* world_map_3 */,
 				028AE99F27928270004D29F9 /* world_map_2 */,
 				024BD8DE277B8FDC0026D28C /* world_map_1 */,
@@ -742,6 +774,7 @@
 				0236A757249D2192008F197E /* plane.mtl in Resources */,
 				022B51EC24B22D2200FC5C81 /* Heightmap_Billow.png in Resources */,
 				0236A74B249D182B008F197E /* lowpoly-house-color.png in Resources */,
+				025D371A279AA609000C8B46 /* star_sky_-x.png in Resources */,
 				022B51E424B1772300FC5C81 /* mountain.png in Resources */,
 				023A333326ADB81D008E220E /* posy.jpg in Resources */,
 				02CF8FE62680DFAB00FE244D /* TropicalSunnyDay_nx.jpg in Resources */,
@@ -756,8 +789,11 @@
 				022B51F024B22D2200FC5C81 /* Heightmap_Mountain.png in Resources */,
 				02A5A1F227989E0C00679F4F /* water.jpg in Resources */,
 				022B51EA24B22D2200FC5C81 /* Heightmap_Plateau.png in Resources */,
+				025D3722279AA609000C8B46 /* star_sky_+x.png in Resources */,
 				026A999D24B56A2A0002D4EA /* Ship.usdz in Resources */,
 				0236A772249D8ED6008F197E /* cube.mtl in Resources */,
+				025D3718279AA609000C8B46 /* star_sky_+z.png in Resources */,
+				025D371C279AA609000C8B46 /* star_sky_-z.png in Resources */,
 				0231B80224CE877800C794B8 /* simuwater.jpg in Resources */,
 				023A333526ADB81D008E220E /* posx.jpg in Resources */,
 				0236A770249D8ED6008F197E /* cube.obj in Resources */,
@@ -770,6 +806,7 @@
 				02CF8F89267E5EC500FE244D /* normal-water.png in Resources */,
 				0236A76A249D8ED6008F197E /* cottage1.obj in Resources */,
 				02CF8FEA2680DFAB00FE244D /* TropicalSunnyDay_pz.jpg in Resources */,
+				025D371E279AA609000C8B46 /* star_sky_-y.png in Resources */,
 				0217E77324D5C3130082D199 /* gaussian_noise_5.png in Resources */,
 				0231B80424CE877800C794B8 /* SimulatingWaterImage.jpg in Resources */,
 				023A332F26ADB81D008E220E /* negx.jpg in Resources */,
@@ -789,6 +826,7 @@
 				023A333726ADB81D008E220E /* posz.jpg in Resources */,
 				02A5A1EF27989DB900679F4F /* sand.jpg in Resources */,
 				0231B80724CE87CB00C794B8 /* simuwater2.jpg in Resources */,
+				025D3720279AA609000C8B46 /* star_sky_+y.png in Resources */,
 				02E9FFD32593C1F500DD228D /* row_boat.mtl in Resources */,
 				02419D5E249850C100BCB203 /* LaunchScreen.storyboard in Resources */,
 			);
@@ -799,6 +837,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				0231B80824CE87CB00C794B8 /* simuwater2.jpg in Resources */,
+				025D3721279AA609000C8B46 /* star_sky_+y.png in Resources */,
 				02704957279A7E4600A34289 /* world_map_-y.png in Resources */,
 				0231B80524CE877800C794B8 /* SimulatingWaterImage.jpg in Resources */,
 				02CF8FE52680DFAB00FE244D /* TropicalSunnyDay_ny.jpg in Resources */,
@@ -813,10 +852,12 @@
 				02E9FFC9258E7EBF00DD228D /* boattexnm.jpg in Resources */,
 				02419D6C249850C100BCB203 /* Main.storyboard in Resources */,
 				02CF8FE72680DFAB00FE244D /* TropicalSunnyDay_nx.jpg in Resources */,
+				025D3723279AA609000C8B46 /* star_sky_+x.png in Resources */,
 				02704953279A7E4600A34289 /* world_map_-z.png in Resources */,
 				0236A771249D8ED6008F197E /* cube.obj in Resources */,
 				02E9FFC7258E7EBF00DD228D /* OldBoat.obj in Resources */,
 				02E9FFC3258E7EBF00DD228D /* OldBoat.mtl in Resources */,
+				025D371B279AA609000C8B46 /* star_sky_-x.png in Resources */,
 				0236A775249D8ED6008F197E /* cottage2.mtl in Resources */,
 				022B51EF24B22D2200FC5C81 /* Heightmap_Rocky.png in Resources */,
 				02CF8FEF2680DFAB00FE244D /* TropicalSunnyDay_px.jpg in Resources */,
@@ -824,10 +865,12 @@
 				02E9FFC5258E7EBF00DD228D /* boattex.jpg in Resources */,
 				0236A75A249D2192008F197E /* ground.png in Resources */,
 				02A5A1F327989E0C00679F4F /* water.jpg in Resources */,
+				025D371F279AA609000C8B46 /* star_sky_-y.png in Resources */,
 				0236A74C249D182B008F197E /* lowpoly-house-color.png in Resources */,
 				022B51ED24B22D2200FC5C81 /* Heightmap_Billow.png in Resources */,
 				02E9FFD42593C1F500DD228D /* row_boat.mtl in Resources */,
 				0236A773249D8ED6008F197E /* cube.mtl in Resources */,
+				025D3719279AA609000C8B46 /* star_sky_+z.png in Resources */,
 				0236A750249D182B008F197E /* lowpoly-house.mtl in Resources */,
 				02CF8FEB2680DFAB00FE244D /* TropicalSunnyDay_pz.jpg in Resources */,
 				023A333626ADB81D008E220E /* posx.jpg in Resources */,
@@ -844,6 +887,7 @@
 				0236A760249D5DFD008F197E /* Textures.xcassets in Resources */,
 				023A332E26ADB81D008E220E /* negz.jpg in Resources */,
 				02CF8F8A267E5EC500FE244D /* normal-water.png in Resources */,
+				025D371D279AA609000C8B46 /* star_sky_-z.png in Resources */,
 				02704958279A7E4600A34289 /* world_map_-x.png in Resources */,
 				02419D73249850C100BCB203 /* ShaderTypes.h in Resources */,
 				025022D426822A090019DD30 /* normal-water-rotated.png in Resources */,

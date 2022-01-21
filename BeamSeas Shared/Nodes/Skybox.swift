@@ -14,9 +14,9 @@ class Skybox: Node, Texturable, DepthStencilStateBuilder {
     
     struct SkySettings {
         var turbidity: Float = 0.28
-        var sunElevation: Float = 0.1
-        var upperAtmosphereScattering: Float = 0.6
-        var groundAlbedo: Float = 0.8
+        var sunElevation: Float = 0.6
+        var upperAtmosphereScattering: Float = 0.1
+        var groundAlbedo: Float = 0.6
     }
     var skySettings = SkySettings()
     let mesh: MTKMesh
@@ -109,11 +109,12 @@ extension Skybox: Renderable {
         
         renderEncoder.setRenderPipelineState(pipelineState)
         renderEncoder.setDepthStencilState(depthStencilState)
-        
+
         renderEncoder.setVertexBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: BufferIndex.uniforms.rawValue)
         renderEncoder.setVertexBuffer(mesh.vertexBuffers[0].buffer, offset: 0, index: 0)
         renderEncoder.setVertexBytes(&viewProjectionMatrix, length: MemoryLayout<float4x4>.stride, index: 1)
         renderEncoder.setFragmentTexture(texture, index: TextureIndex.skybox.rawValue)
+        renderEncoder.setFragmentBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: BufferIndex.uniforms.rawValue)
         
         let submesh = mesh.submeshes[0]
         renderEncoder.drawIndexedPrimitives(type: .triangle,

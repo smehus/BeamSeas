@@ -39,8 +39,14 @@ vertex SkyboxVertexOut vertexSkybox(const SkyboxVertexIn in [[stage_in]],
 }
 
 fragment half4 fragmentSkybox(SkyboxFragmentIn in [[stage_in]],
+                              constant Uniforms &uniforms [[ buffer(BufferIndexUniforms) ]],
                               texturecube<half> cubeTexture [[ texture(TextureIndexSkybox) ]]) {
     constexpr sampler default_sampler(filter::linear);
     half4 color = cubeTexture.sample(default_sampler, in.uv.xyz);
+    
+    if (color.r < 0.1) {
+        color.r = sin(uniforms.currentTime);
+    }
+    
     return color;
 }

@@ -44,12 +44,12 @@ extension Texturable {
         return texture
     }
     
-    func loadSkyboxTexture(names: [String] = ["TropicalSunnyDay_px.jpg",
-                                              "TropicalSunnyDay_nx.jpg",
-                                              "TropicalSunnyDay_py.jpg",
-                                              "TropicalSunnyDay_ny.jpg",
-                                              "TropicalSunnyDay_pz.jpg",
-                                              "TropicalSunnyDay_nz.jpg"]) -> MTLTexture? {
+    func loadSkyboxTexture(names: [String] = ["star_sky_+x.png",
+                                              "star_sky_-x.png",
+                                              "star_sky_+y.png",
+                                              "star_sky_-y.png",
+                                              "star_sky_+z.png",
+                                              "star_sky_-z.png"]) -> MTLTexture? {
         var texture: MTLTexture?
         let textureLoader = MTKTextureLoader(device: Renderer.device)
         if let mdlTexture = MDLTexture(cubeWithImagesNamed: names) {

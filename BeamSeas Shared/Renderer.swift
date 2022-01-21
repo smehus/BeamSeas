@@ -25,15 +25,19 @@ final class Renderer: NSObject {
 
     lazy var camera: Camera = {
         
+//        let instance = Camera()
+//        instance.position = [0, 5100, -100]
+//        instance.rotation.x = Float(30).degreesToRadians
+        
 //        let instance = ArcballCamera()
 //        instance.distance = 80
 //        instance.target = terrain.position
 //        instance.rotation.x = Float(-10).degreesToRadians
 //        instance.rotation.y = Float(-60).degreesToRadians
  
-//
+
         let instance = BaseThirdPersonCamera(focus: player)
-        instance.focusDistance = 100
+        instance.focusDistance = 150
         instance.focusHeight = 75
         
 //        let instance = ThirdPersonCamera(focus: player, scaffolding: mapScaffolding)
@@ -112,8 +116,7 @@ final class Renderer: NSObject {
         metalView.delegate = self
         
         skybox = Skybox(textureName: nil)
-        
-        
+
         mapScaffolding = WorldMapScaffolding(extent: SIMD3<Float>(repeating: Renderer.scaffoldingSize), segments: [50, 50])
 //        mapScaffolding.position = [0, -(mapScaffolding.size.x / 2), 0]
         models.append(mapScaffolding)
@@ -409,7 +412,7 @@ extension Renderer: MTKViewDelegate {
         drawSpotLight(renderEncoder: renderEncoder, position: playerRotation.position, direction: normalMap, color: float3(1, 0, 1)) // Blue
 
 //        drawDirectionalLight(renderEncoder: renderEncoder, direction: direction, color: float3(1, 0, 0), count: 5)
-//        debugLights(renderEncoder: renderEncoder, lightType: Spotlight)
+//        debugLights(renderEncoder: renderEncoder, lightType: Sunlight)
         renderEncoder.endEncoding()
         if let drawable = view.currentDrawable {
             commandBuffer.present(drawable)

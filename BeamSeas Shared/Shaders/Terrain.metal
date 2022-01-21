@@ -361,7 +361,7 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
         float3 lightDirection = normalize(light.position - fragment_in.worldPosition.xyz);
         float attenuation = 1.0 / (light.attenuation.x + light.attenuation.y * d + light.attenuation.z * d * d);
         float diffuseIntensity = saturate(dot(lightDirection, normalDirection));
-        float3 color = lightDirection;
+        float3 color = normalize(lightDirection * d);
         landWater = float4(light.color * color * diffuseIntensity, 1.0);
 //        landWater *= attenuation;
     }
@@ -373,11 +373,11 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
 //    float4 mixedColor = refractionTexture.sample(mainSampler, refractionCoords);
     float3 viewVector = normalize(fragment_in.toCamera);
     float mixRatio = dot(viewVector, float3(0.0, 1.0, 0.0));
-     mixedColor = mix(reflectionTexture.sample(mainSampler, reflectionCoords),
-                            refractionTexture.sample(mainSampler, refractionCoords),
-                            mixRatio);
+    mixedColor = mix(reflectionTexture.sample(mainSampler, reflectionCoords),
+                     refractionTexture.sample(mainSampler, refractionCoords),
+                     0.7);
     
-    mixedColor = mix(mixedColor, landWater, 0.6);
+    mixedColor = mix(mixedColor, landWater, 0.8);
     
     float jacobian = vGradJacobian.z;
     float turbulence = max(2.0 - jacobian + dot(abs(noise_gradient.xy), float2(1.2)), 0.0);
