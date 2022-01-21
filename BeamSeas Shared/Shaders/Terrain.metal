@@ -265,7 +265,7 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
                                  sampler scaffoldingSampler [[ sampler(0) ]])
 {
     constexpr sampler mainSampler(filter::linear, address::repeat);
-    constexpr sampler textureSampler(filter::linear);
+    constexpr sampler textureSampler(filter::linear, address::repeat);
     float width = float(reflectionTexture.get_width() * 2.0);
     float height = float(reflectionTexture.get_height() * 2.0);
     float x = fragment_in.position.x / width;
@@ -308,8 +308,11 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
     float4 ifftHeight = (heightDisplacement * 2 - 1) * terrainParams.height;
     float4 ifftPercentHeight = ifftHeight * scaffoldSample.r;
     
-    float2 uv = float2(fragment_in.worldPosition.x / terrainParams.size.x, fragment_in.worldPosition.y / terrainParams.size.y);
-    float4 landWater = landTexture.sample(textureSampler, fragment_in.uv);
+    
+    // This needs to be stationary....so when the user moves - don't move this uv?
+    // Or when the boat moves forward, the texture for the sand shouldn't also move forward
+    float2 uv = (fragment_in.uv - -1) / (1 - -1);
+    float4 landWater = landTexture.sample(textureSampler, uv);
     // Do this before clamping yo
     // I think i need to do a worldPosition comparision though.
     // Cause it gets all squirrely when I compare height maps
@@ -319,12 +322,18 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
     float diff = abs(scaffoldWorldPositions.y - fragment_in.worldPosition.y);
     
     // Do a more relaxed check yo. like.....chill out dawg
-    if (diff > 1.0) {
+    if (fragment_in.worldPosition.y > scaffoldWorldPositions.y) {
+//    if (diff > 1.0) {
         
         float2 ripple = (normalizedRippleX + normalizedRippleY) * waveStrength;
         reflectionCoords += ripple;
         refractionCoords += ripple;
-        landWater = float4(0.8, 0.4, 0.6, 1.0);
+        landWater = float4(0.8, 0.1, 0.2, 1.0);
+    } else if (fragment_in.worldPosition.y > ifftPercentHeight.y) {
+        float2 ripple = (normalizedRippleX + normalizedRippleY) * waveStrength;
+        reflectionCoords += ripple;
+        refractionCoords += ripple;
+        landWater = float4(0.2, 0.4, 0.6, 1.0);
     }
 
     reflectionCoords = clamp(reflectionCoords, 0.001, 0.999);
