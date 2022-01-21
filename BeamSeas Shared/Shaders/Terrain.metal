@@ -253,7 +253,7 @@ float4 sepiaShader(float4 color) {
 
     float y = dot(float3(0.299, 0.587, 0.114), color.rgb);
 //    float4 sepia = float4(0.191, -0.054, -0.221, 0.0);
-    float4 sepia = float4(-0.05, -0.05, 0, 0.0);
+    float4 sepia = float4(-0.2, -0.4, 0.4, 0.0);
     float4 output = sepia + y;
     output.z = color.z;
 

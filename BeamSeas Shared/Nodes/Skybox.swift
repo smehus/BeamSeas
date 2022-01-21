@@ -14,9 +14,9 @@ class Skybox: Node, Texturable, DepthStencilStateBuilder {
     
     struct SkySettings {
         var turbidity: Float = 0.28
-        var sunElevation: Float = 0.5
-        var upperAtmosphereScattering: Float = 0.1
-        var groundAlbedo: Float = 4
+        var sunElevation: Float = 0.1
+        var upperAtmosphereScattering: Float = 0.6
+        var groundAlbedo: Float = 0.8
     }
     var skySettings = SkySettings()
     let mesh: MTKMesh
@@ -53,11 +53,11 @@ class Skybox: Node, Texturable, DepthStencilStateBuilder {
         
         super.init()
   
-        texture = loadSkyboxTexture()
+//        texture = loadSkyboxTexture()
 //        if let _ = textureName {
 //            // Custome texture if available
 //        } else {
-//            texture = loadGeneratedSkyboxTexture(dimensions: [256, 256])
+            texture = loadGeneratedSkyboxTexture(dimensions: [256, 256])
 //        }
     }
     

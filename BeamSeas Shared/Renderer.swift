@@ -393,7 +393,7 @@ extension Renderer: MTKViewDelegate {
         }
         
         renderEncoder.setDepthStencilState(depthStencilState)
-//        skybox.draw(renderEncoder: renderEncoder, uniforms: &uniforms, fragmentUniforms: &fragmentUniforms)
+        skybox.draw(renderEncoder: renderEncoder, uniforms: &uniforms, fragmentUniforms: &fragmentUniforms)
         
         uniforms.projectionMatrix = camera.projectionMatrix
         uniforms.viewMatrix = camera.viewMatrix
