@@ -249,6 +249,18 @@ float3 terrainDiffuseLighting(float3 normal,
     return diffuseColor;
 }
 
+float4 sepiaShader(float4 color) {
+
+    float y = dot(float3(0.299, 0.587, 0.114), color.rgb);
+//    float4 sepia = float4(0.191, -0.054, -0.221, 0.0);
+    float4 sepia = float4(-0.05, -0.05, 0, 0.0);
+    float4 output = sepia + y;
+    output.z = color.z;
+
+    output = mix(output, color, 0.4);
+    return output;
+}
+
 fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
                                  constant Light *lights [[ buffer(BufferIndexLights) ]],
                                  constant Uniforms &uniforms [[ buffer(BufferIndexUniforms) ]],
@@ -294,6 +306,11 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
     float4 rippleSampleY = waterRippleTexture.sample(mainSampler, rippleY);
     float2 normalizedRippleX = rippleSampleX.rg * 2.0 - 1.0;
     float2 normalizedRippleY = rippleSampleY.rg * 2.0 - 1.0;
+    
+    constexpr sampler sam(min_filter::linear, mag_filter::linear, mip_filter::nearest, address::repeat);
+    float3 vGradJacobian = gradientMap.sample(sam, fragment_in.vGradNormalTex.xy).xyz;
+    float2 noise_gradient = 0.3 * normalMap.sample(sam, fragment_in.vGradNormalTex.zw).xy;
+    float3 normalValue = normalMap.sample(mainSampler, fragment_in.uv).xzy;
 
     // Is the problem that scaffold is a world map so i'm using 3d coords
     // And this is a 2d texture so i'm using refractionCoords
@@ -312,7 +329,7 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
     // This needs to be stationary....so when the user moves - don't move this uv?
     // Or when the boat moves forward, the texture for the sand shouldn't also move forward
     float2 uv = (fragment_in.uv - -1) / (1 - -1);
-    float4 landWater = landTexture.sample(textureSampler, uv);
+    float4 landWater = float4(0, 0, 0, 1.0);//landTexture.sample(textureSampler, uv);
     // Do this before clamping yo
     // I think i need to do a worldPosition comparision though.
     // Cause it gets all squirrely when I compare height maps
@@ -320,20 +337,33 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
     scaffoldPosition.y += scaffoldHeight.r;
     float4 scaffoldWorldPositions = uniforms.modelMatrix * scaffoldPosition;
     float diff = abs(scaffoldWorldPositions.y - fragment_in.worldPosition.y);
-    
+    float4 mixedColor = float4(0, 0, 0, 1.0);
     // Do a more relaxed check yo. like.....chill out dawg
     if (fragment_in.worldPosition.y > scaffoldWorldPositions.y) {
 //    if (diff > 1.0) {
         
         float2 ripple = (normalizedRippleX + normalizedRippleY) * waveStrength;
-        reflectionCoords += ripple;
-        refractionCoords += ripple;
-        landWater = float4(0.8, 0.1, 0.2, 1.0);
-    } else if (fragment_in.worldPosition.y > ifftPercentHeight.y) {
-        float2 ripple = (normalizedRippleX + normalizedRippleY) * waveStrength;
-        reflectionCoords += ripple;
-        refractionCoords += ripple;
-        landWater = float4(0.2, 0.4, 0.6, 1.0);
+
+//        reflectionCoords += ripple;
+//        refractionCoords += ripple;
+        // use distance from camera to determine color
+//        landWater = float4(0.2, 0.4, 0.6, 1.0);
+        
+//        float d = distance(light.position, position);
+//        float3 lightDirection = normalize(light.position - position);
+//        float attenuation = 1.0 / (light.attenuation.x + light.attenuation.y * d + light.attenuation.z * d * d);
+//        float diffuseIntensity = saturate(dot(lightDirection, normalDirection));
+//        float3 color = light.color * baseColor * diffuseIntensity;
+        
+        Light light = lights[0];
+        float3 normalDirection = normalize(uniforms.normalMatrix * (normalValue * 2.0f - 1.0f));
+        float d = distance(light.position, fragment_in.worldPosition.xyz);
+        float3 lightDirection = normalize(light.position - fragment_in.worldPosition.xyz);
+        float attenuation = 1.0 / (light.attenuation.x + light.attenuation.y * d + light.attenuation.z * d * d);
+        float diffuseIntensity = saturate(dot(lightDirection, normalDirection));
+        float3 color = lightDirection;
+        landWater = float4(light.color * color * diffuseIntensity, 1.0);
+//        landWater *= attenuation;
     }
 
     reflectionCoords = clamp(reflectionCoords, 0.001, 0.999);
@@ -343,25 +373,11 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
 //    float4 mixedColor = refractionTexture.sample(mainSampler, refractionCoords);
     float3 viewVector = normalize(fragment_in.toCamera);
     float mixRatio = dot(viewVector, float3(0.0, 1.0, 0.0));
-    float4 mixedColor = mix(reflectionTexture.sample(mainSampler, reflectionCoords),
+     mixedColor = mix(reflectionTexture.sample(mainSampler, reflectionCoords),
                             refractionTexture.sample(mainSampler, refractionCoords),
                             mixRatio);
-
-//    if (scaffoldHeight >= 0) {
-//        mixedColor = mix(mixedColor, float4(0.1, scaffoldSample.r, 0.1, 1), 0.3);
-//    } else {
-//        mixedColor = mix(mixedColor, float4(0.2, 0.2, 0.6, 1), 0.3);
-//    }
-    
     
     mixedColor = mix(mixedColor, landWater, 0.6);
-    
-//    mixedColor = fragment_in.landColor;
-
-    constexpr sampler sam(min_filter::linear, mag_filter::linear, mip_filter::nearest, address::repeat);
-    float3 vGradJacobian = gradientMap.sample(sam, fragment_in.vGradNormalTex.xy).xyz;
-    float2 noise_gradient = 0.3 * normalMap.sample(sam, fragment_in.vGradNormalTex.zw).xy;
-    float3 normalValue = normalMap.sample(mainSampler, fragment_in.uv).xzy;
     
     float jacobian = vGradJacobian.z;
     float turbulence = max(2.0 - jacobian + dot(abs(noise_gradient.xy), float2(1.2)), 0.0);
@@ -374,10 +390,11 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
 
 //  Need to double check creation of gradient map
 //    float color_mod = 1.0  * smoothstep(1.3, 1.8, turbulence);
-//
+////
     float3 specular = terrainDiffuseLighting(uniforms.normalMatrix * (normalValue * 2.0f - 1.0f), fragment_in.position.xyz, fragmentUniforms, lights, mixedColor.rgb);
 
-    return float4(specular, 1.0);
+//    return float4(specular, 1.0);
+    return sepiaShader(float4(specular, 1.0));
 }
 
 

@@ -106,8 +106,8 @@ final class Renderer: NSObject {
 
         super.init()
 
-        metalView.clearColor = MTLClearColor(red: 0.4, green: 0.4,
-                                             blue: 0.4, alpha: 1)
+        metalView.clearColor = MTLClearColor(red: 0, green: 0,
+                                             blue: 0, alpha: 1)
 
         metalView.delegate = self
         
@@ -134,7 +134,7 @@ final class Renderer: NSObject {
                                                  material: material))
         models.append(shape)
         
-        player = Model(name: "OldBoat", fragment: "fragment_pbr")
+        player = Model(name: "OldBoat", fragment: "fragment_main")
         player.scale = [0.5, 0.5, 0.5]
         terrain.add(child: player)
         models.append(player)
@@ -251,6 +251,7 @@ extension Renderer: MTKViewDelegate {
         reflectionCamera.position.y = -camera.position.y
         reflectionCamera.rotation.x = -camera.rotation.x
         uniforms.viewMatrix = reflectionCamera.viewMatrix
+        reflectEncoder.setVertexBytes(&lights, length: MemoryLayout<Light>.stride * lights.count, index: BufferIndex.lights.rawValue)
 //        uniforms.clipPlane = float4(0, 1, 0, 0.3)
         
         for renderable in models {
@@ -280,7 +281,7 @@ extension Renderer: MTKViewDelegate {
             length: MemoryLayout<Light>.stride * lights.count,
             index: BufferIndex.lights.rawValue
         )
-        
+        refractEncoder.setVertexBytes(&lights, length: MemoryLayout<Light>.stride * lights.count, index: BufferIndex.lights.rawValue)
         for renderable in models {
             guard let model = renderable as? Model, model.name == "OldBoat" else { continue }
             
@@ -364,6 +365,7 @@ extension Renderer: MTKViewDelegate {
         let renderEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: descriptor)!
         renderEncoder.setDepthStencilState(depthStencilState)
         renderEncoder.setFragmentBytes(&lights, length: MemoryLayout<Light>.stride * lights.count, index: BufferIndex.lights.rawValue)
+        renderEncoder.setVertexBytes(&lights, length: MemoryLayout<Light>.stride * lights.count, index: BufferIndex.lights.rawValue)
 
         if player.moveStates.contains(.forward) {
             uniforms.playerMovement += player.forwardVector * 0.001
@@ -391,7 +393,7 @@ extension Renderer: MTKViewDelegate {
         }
         
         renderEncoder.setDepthStencilState(depthStencilState)
-        skybox.draw(renderEncoder: renderEncoder, uniforms: &uniforms, fragmentUniforms: &fragmentUniforms)
+//        skybox.draw(renderEncoder: renderEncoder, uniforms: &uniforms, fragmentUniforms: &fragmentUniforms)
         
         uniforms.projectionMatrix = camera.projectionMatrix
         uniforms.viewMatrix = camera.viewMatrix
