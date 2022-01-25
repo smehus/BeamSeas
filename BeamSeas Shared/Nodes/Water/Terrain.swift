@@ -28,7 +28,7 @@ class Terrain: Node {
     )
 
     static let maxTessellation = 16
-    private static var patchNum = 8
+    private static var patchNum = 16
 
     let patches = (horizontal: Terrain.patchNum, vertical: Terrain.patchNum)
     var patchCount: Int {

@@ -326,12 +326,11 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
 //    float4 mixedColor = reflectionTexture.sample(reflectionSampler, reflectionCoords);
 //    float4 mixedColor = refractionTexture.sample(mainSampler, refractionCoords);
     float3 viewVector = normalize(fragment_in.toCamera);
-    float mixRatio = dot(viewVector, float3(0.0, 1.0, 0.0));
     mixedColor = mix(reflectionTexture.sample(mainSampler, reflectionCoords),
                      refractionTexture.sample(mainSampler, refractionCoords),
-                     0.7);
+                     0.4);
     
-    mixedColor = mix(mixedColor, landWater, 0.8);
+    mixedColor = mix(mixedColor, landWater, 0.6);
     
     float jacobian = vGradJacobian.z;
     float turbulence = max(2.0 - jacobian + dot(abs(noise_gradient.xy), float2(1.2)), 0.0);
@@ -344,11 +343,11 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
 
 //  Need to double check creation of gradient map
 //    float color_mod = 1.0  * smoothstep(1.3, 1.8, turbulence);
-////
-    float3 specular = terrainDiffuseLighting(uniforms.normalMatrix * (normalValue * 2.0 - 1.0), fragment_in.worldPosition.xyz, fragmentUniforms, lights, mixedColor.rgb);
+//////
+//    float3 specular = terrainDiffuseLighting(uniforms.normalMatrix * (normalValue * 2.0 - 1.0), fragment_in.worldPosition.xyz, fragmentUniforms, lights, mixedColor.rgb);
 
 //    return float4(specular, 1.0);
-    return sepiaShader(float4(specular, 1.0));
+    return sepiaShader(mixedColor);
 }
 
 
