@@ -152,7 +152,11 @@ class Water {
     }
 
 
-    private func downsample_distribution(displacement_real: inout [Float], displacement_img: inout [Float], in_real: [Float], in_imag: [Float], rate_log2: Int)
+    private func downsample_distribution(displacement_real: inout [Float],
+                                         displacement_img: inout [Float],
+                                         in_real: [Float],
+                                         in_imag: [Float],
+                                         rate_log2: Int)
     {
 
         
@@ -210,8 +214,8 @@ class Water {
                 let realRand = Float(gaus.x)
                 let imagRand = Float(gaus.y)
 
-                let phillips = philliphs(k: k, max_l: max_l)
-//                let phillips = normal_distribution.phillips(Float(k.x), y: Float(k.y))
+//                let phillips = philliphs(k: k, max_l: max_l)
+                let phillips = normal_distribution.phillips(Float(k.x), y: Float(k.y))
                 let newReal = realRand * amplitude * sqrt(0.5 * phillips)
                 let newImag = imagRand * amplitude * sqrt(0.5 * phillips)
 
