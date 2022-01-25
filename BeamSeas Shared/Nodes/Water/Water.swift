@@ -73,6 +73,7 @@ class Water {
 
     private let L: Float
     static var G: Float = 9.81
+    private var A: Float
 
     private let displacement_downsample: Int = 1
     private let normal_distribution = NormalDistributionBridge()
@@ -93,7 +94,7 @@ class Water {
         self.size_normal = size / normalmap_freq_mod
 
         let n = vDSP_Length(Nx * Nz)
-        var newamplitude = amplitude
+        A = amplitude
 //        newamplitude *= 0.3 / sqrt(size.x * size.y)
 
         // Factor in phillips spectrum
@@ -113,7 +114,7 @@ class Water {
             distribution_real: &distribution_real,
             distribution_imag: &distribution_imag,
             size: size,
-            amplitude: newamplitude
+            amplitude: A
         )
 
         distribution_real_buffer = Renderer.device.makeBuffer(
@@ -215,7 +216,7 @@ class Water {
                 let imagRand = Float(gaus.y)
 
 //                let phillips = philliphs(k: k, max_l: max_l)
-                let phillips = normal_distribution.phillips(Float(k.x), y: Float(k.y))
+                let phillips = normal_distribution.phillips(Float(k.x), y: Float(k.y), g: Water.G, a: A, dir: wind_dir)
                 let newReal = realRand * amplitude * sqrt(0.5 * phillips)
                 let newImag = imagRand * amplitude * sqrt(0.5 * phillips)
 

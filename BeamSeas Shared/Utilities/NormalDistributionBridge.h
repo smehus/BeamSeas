@@ -16,7 +16,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface NormalDistributionBridge : NSObject
 - (instancetype)init;
 - (float)getRandomNormal;
-- (float)phillips:(float)x y:(float)y;
+- (float)phillips:(float)x y:(float)y g:(float)g A:(float)A dir:(simd_float2)dir;
 - (vector_float2)gausRandom;
 
 @end

@@ -40,9 +40,9 @@
 //cOcean ocean(64, 0.0005f, vector2(0.0f,32.0f), 64, false);
 
 
-- (float)phillips:(float)x y:(float)y
+- (float)phillips:(float)x y:(float)y g:(float)g A:(float)A dir:(simd_float2)dir
 {
-    return self.dist->phillips(x, y);
+    return self.dist->phillips(x, y, g, A, dir);
 }
 
 

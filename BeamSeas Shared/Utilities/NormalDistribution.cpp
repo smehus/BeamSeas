@@ -20,7 +20,7 @@ float NormalDistribution::generate_normal_random()
 
 //cOcean ocean(64, 0.0005f, svector2(0.0f,32.0f), 64, false);
 
-float NormalDistribution::phillips(float x, float y)
+float NormalDistribution::phillips(float x, float y, float g, float A, simd_float2 dir)
 {
 
     svector2 k = svector2(x, y);
@@ -29,8 +29,6 @@ float NormalDistribution::phillips(float x, float y)
 //    float n_prime = x;
 //    float m_prime = y;
 //    svector2 k(M_PI * (2 * n_prime - N) / length, M_PI * (2 * m_prime - N) / length);
-    float g = 9.81;
-    float A = 3.0f;
     svector2 w = svector2(22.0f, -26.0f);
     float k_length  = k.length();
     if (k_length < 0.0000000000001) return 0.0;

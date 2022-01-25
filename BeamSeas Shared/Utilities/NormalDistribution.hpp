@@ -64,7 +64,7 @@ public:
 public:
     std::normal_distribution<float> normal_dist{0.0f, 1.0f};
     std::default_random_engine engine;
-    float phillips(float x, float y);
+    float phillips(float x, float y, float g, float A, simd_float2 dir);
     float generate_normal_random();
     vector_float2 gaussianRandomVariable();
 

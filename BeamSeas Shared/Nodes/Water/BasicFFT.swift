@@ -23,9 +23,6 @@ extension Int {
 
 class BasicFFT: Node {
 
-
-    static let distributionSize: Int = 128
-
     private var signalCount: Int = 0
 
     var distribution_real: MTLBuffer
@@ -64,6 +61,7 @@ class BasicFFT: Node {
     private var displacementMap: MTLTexture!
 
 
+    static let distributionSize: Int = 128
     static var wind_velocity = float2(x: 22, y: -26)
     static var amplitude = 1.2
 
