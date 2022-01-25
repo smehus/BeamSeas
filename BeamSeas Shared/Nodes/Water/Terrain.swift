@@ -381,7 +381,6 @@ extension Terrain: Renderable {
 
         renderEncoder.setFragmentSamplerState(samplerState, index: 0)
         renderEncoder.setVertexSamplerState(samplerState, index: 0)
-        // Myabe try using a different patch type like square or something
 //        renderEncoder.setTriangleFillMode(.lines)
         renderEncoder.drawPatches(
             numberOfPatchControlPoints: 4,

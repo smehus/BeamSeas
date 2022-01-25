@@ -148,38 +148,11 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
     
     // PercentiFFTHeight needs to be based on how close scaffoldHeight is to 0.
     // So that we an transition between ifftHeight & scaffoldHeight seamlessly
-    
-    
     position.y = max(scaffoldHeight, ifftPercentHeight.r);
-    
-//    if (scaffoldHeight >= 0) {
-//        position.y = scaffoldHeight;
-//        out.landColor = float4(0.2, 0.8, 0.2, 1.0);
-//    } else {
-//        if (ifftPercentHeight.r < scaffoldHeight) {
-//            position.y = scaffoldHeight;
-//            out.landColor = float4(0.2, 0.8, 0.2, 1.0);
-//        } else {
-//            position.y = ifftPercentHeight.r;
-//            out.landColor = float4(0.2, 0.2, 0.6, 1.0);
-//        }
-//    }
-
-     // Add a percentaged multiplied ifft height. So the higher the scaffold height, the less affect ifft height will have.
-    ////        position.x += (horizontalDisplacement.y);
-    ////        position.z += (horizontalDisplacement.z);
-    
-    
-    float adjustedHeight = heightDisplacement.y;
-//    adjustedHeight = 1 - adjustedHeight;
-    // Changing the modelMatrix here shouldn't have any affect on the texture coordinatores.... but it does....?
-    // Using scaffolding positon makes no sense here since its the position of the vertex ( or the calculated position of abstract vertext )
-    // Using scaffolding position just sets the same position for all fragments
-    
-    float4 finalColor = float4(heightDisplacement.x);
-
-    // reference AAPLTerrainRenderer in DynamicTerrainWithArgumentBuffers exmaple: EvaluateTerrainAtLocation line 235 -> EvaluateTerrainAtLocation in AAPLTerrainRendererUtilities line: 91
-//    out.normal = uniforms.normalMatrix * primaryLocalNormal;//mix(primaryLocalNormal, secondarLocalNormal, 0.5);
+    if (ifftPercentHeight.r > scaffoldHeight) {
+        position.x += (horizontalDisplacement.y);
+        position.z += (horizontalDisplacement.z);
+    }
 
     constexpr sampler normalSampler(min_filter::linear, mag_filter::linear, mip_filter::nearest);
     float3 normalValue = normalize(normalMap.sample(normalSampler, xy).xzy * 2.0f - 1.0f);
@@ -189,24 +162,14 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
     out.normal_cameraSpace = (normalize(uniforms.modelMatrix * float4(normal, 0.0))).xyz;
     float3 vertex_position_cameraspace = ( uniforms.viewMatrix * uniforms.modelMatrix * position ).xyz;
     out.eye_direction_cameraspace = float3(0,0,0) - vertex_position_cameraspace;
-//    finalColor += float4(0.1, 0.6, 0.988, 1);
-    out.color = finalColor;
+    out.color = float4(heightDisplacement.x);
     
     out.worldPosition = uniforms.modelMatrix * position;
-
-    // Imaginary world position if the terrain was a child of the scaffolding.
-    // World position to create texture coordinates
-    
-                                /// Imaginary position               // fragment position
-                                // scaffolding * terrain
-    
     /// This is just the world position of terrain if terrain were a child of scaffolding
     out.parentFragmentPosition = uniforms.parentTreeModelMatrix * position;
-    /// ^^^ forget about this for now
     out.toCamera = fragmentUniforms.camera_position - out.worldPosition.xyz;
-
-    
     out.position = uniforms.projectionMatrix * uniforms.viewMatrix * uniforms.modelMatrix * position;
+    
     return out;
 }
 
@@ -338,22 +301,13 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
     float4 scaffoldWorldPositions = uniforms.modelMatrix * scaffoldPosition;
     float diff = abs(scaffoldWorldPositions.y - fragment_in.worldPosition.y);
     float4 mixedColor = float4(0, 0, 0, 1.0);
-    // Do a more relaxed check yo. like.....chill out dawg
+    
+    // If we're on water
     if (fragment_in.worldPosition.y > scaffoldWorldPositions.y) {
-//    if (diff > 1.0) {
-        
-        float2 ripple = (normalizedRippleX + normalizedRippleY) * waveStrength;
 
-//        reflectionCoords += ripple;
-//        refractionCoords += ripple;
-        // use distance from camera to determine color
-//        landWater = float4(0.2, 0.4, 0.6, 1.0);
-        
-//        float d = distance(light.position, position);
-//        float3 lightDirection = normalize(light.position - position);
-//        float attenuation = 1.0 / (light.attenuation.x + light.attenuation.y * d + light.attenuation.z * d * d);
-//        float diffuseIntensity = saturate(dot(lightDirection, normalDirection));
-//        float3 color = light.color * baseColor * diffuseIntensity;
+        float2 ripple = (normalizedRippleX + normalizedRippleY) * waveStrength;
+        reflectionCoords += ripple;
+        refractionCoords += ripple;
         
         Light light = lights[0];
         float3 normalDirection = normalize(uniforms.normalMatrix * (normalValue * 2.0f - 1.0f));
@@ -391,7 +345,7 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
 //  Need to double check creation of gradient map
 //    float color_mod = 1.0  * smoothstep(1.3, 1.8, turbulence);
 ////
-    float3 specular = terrainDiffuseLighting(uniforms.normalMatrix * (normalValue * 2.0f - 1.0f), fragment_in.position.xyz, fragmentUniforms, lights, mixedColor.rgb);
+    float3 specular = terrainDiffuseLighting(uniforms.normalMatrix * (normalValue * 2.0 - 1.0), fragment_in.worldPosition.xyz, fragmentUniforms, lights, mixedColor.rgb);
 
 //    return float4(specular, 1.0);
     return sepiaShader(float4(specular, 1.0));
