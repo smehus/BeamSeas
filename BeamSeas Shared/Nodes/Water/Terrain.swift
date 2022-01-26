@@ -381,7 +381,7 @@ extension Terrain: Renderable {
 
         renderEncoder.setFragmentSamplerState(samplerState, index: 0)
         renderEncoder.setVertexSamplerState(samplerState, index: 0)
-//        renderEncoder.setTriangleFillMode(.lines)
+        renderEncoder.setTriangleFillMode(.lines)
         renderEncoder.drawPatches(
             numberOfPatchControlPoints: 4,
             patchStart: 0,

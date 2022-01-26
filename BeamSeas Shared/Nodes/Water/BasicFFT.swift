@@ -63,7 +63,7 @@ class BasicFFT: Node {
 
     static let distributionSize: Int = 128
     static var wind_velocity = float2(x: 22, y: -26)
-    static var amplitude = 1.2
+    static var amplitude = 1300
 
     override init() {
 

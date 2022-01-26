@@ -29,7 +29,7 @@ float NormalDistribution::phillips(float x, float y, float g, float A, simd_floa
 //    float n_prime = x;
 //    float m_prime = y;
 //    svector2 k(M_PI * (2 * n_prime - N) / length, M_PI * (2 * m_prime - N) / length);
-    svector2 w = svector2(22.0f, -26.0f);
+    svector2 w = svector2(dir.x, dir.y);
     float k_length  = k.length();
     if (k_length < 0.0000000000001) return 0.0;
 

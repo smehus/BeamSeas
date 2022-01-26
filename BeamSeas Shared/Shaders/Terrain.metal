@@ -240,12 +240,11 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
                                  sampler scaffoldingSampler [[ sampler(0) ]])
 {
     constexpr sampler mainSampler(filter::linear, address::repeat);
-    constexpr sampler textureSampler(filter::linear, address::repeat);
     float width = float(reflectionTexture.get_width() * 2.0);
     float height = float(reflectionTexture.get_height() * 2.0);
     float x = fragment_in.position.x / width;
     float y = fragment_in.position.y / height;
-    float z = fragment_in.position.z / height;
+//    float z = fragment_in.position.z / height;
     float2 reflectionCoords = float2(x, 1 - y);
     float2 refractionCoords = float2(x, y);
     
@@ -305,9 +304,9 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
     // If we're on water
     if (fragment_in.worldPosition.y > scaffoldWorldPositions.y) {
 
-        float2 ripple = (normalizedRippleX + normalizedRippleY) * waveStrength;
-        reflectionCoords += ripple;
-        refractionCoords += ripple;
+//        float2 ripple = (normalizedRippleX + normalizedRippleY) * waveStrength;
+//        reflectionCoords += ripple;
+//        refractionCoords += ripple;
         
         Light light = lights[0];
         float3 normalDirection = normalize(uniforms.normalMatrix * (normalValue * 2.0f - 1.0f));
