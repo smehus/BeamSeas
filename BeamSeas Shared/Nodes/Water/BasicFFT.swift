@@ -63,7 +63,7 @@ class BasicFFT: Node {
 
     static let distributionSize: Int = 128
     static var wind_velocity = float2(x: 12, y: -16)
-    static var amplitude = 1400
+    static var amplitude = 1200
 
     override init() {
 
@@ -124,7 +124,7 @@ class BasicFFT: Node {
             amplitude: Float(BasicFFT.amplitude),
             wind_velocity: BasicFFT.wind_velocity,
             resolution: SIMD2<Int>(x: BasicFFT.distributionSize, y: BasicFFT.distributionSize),
-            size: float2(x: Terrain.terrainSize * 4, y: Terrain.terrainSize * 4),
+            size: float2(x: Terrain.terrainSize * 8, y: Terrain.terrainSize * 8),
             normalmap_freq_mod: float2(repeating: 1)
         )
 

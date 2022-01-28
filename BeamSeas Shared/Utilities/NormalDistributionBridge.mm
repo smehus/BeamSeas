@@ -31,10 +31,15 @@
     return self.dist->generate_normal_random();
 }
 
-- (vector_float2)gausRandom
+- (float)gausRandom
 {
-//    return self.dist->gaussianRandomVariable();
+
     return self.dist->generate_normal_random();
+}
+
+-(vector_float2)gausNoEngine
+{
+    return self.dist->gaussianRandomVariable();
 }
 
 //cOcean ocean(64, 0.0005f, vector2(0.0f,32.0f), 64, false);

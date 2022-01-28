@@ -93,12 +93,11 @@ class Water {
         self.size = size
         self.size_normal = size / normalmap_freq_mod
 
-        let n = vDSP_Length(Nx * Nz)
-        A = amplitude * (0.3 / sqrt(size.x * size.y))
-
         // Factor in phillips spectrum
         L = simd_dot(wind_velocity, wind_velocity) / Self.G;
-
+        A = amplitude * (0.3 / sqrt(size.x * size.y))
+        
+        let n = vDSP_Length(Nx * Nz)
         distribution_real = [Float](repeating: 0, count: Int(n))
         distribution_imag = [Float](repeating: 0, count: Int(n))
 
@@ -181,18 +180,6 @@ class Water {
 
                 displacement_real[z * out_width + x] = in_real[alias_z * Nx + alias_x];
                 displacement_img[z * out_width + x] = in_imag[alias_z * Nx + alias_x];
-
-
-//                let index = z * Nx + x
-//                let kxx: Float = Float.pi * (2.0 * Float(x) - Float(Nx))
-//                let kzz: Float = 2.0 * Float(z) - Float(Nz)
-//
-//                let kx: Float = kxx / Float(BasicFFT.distributionSize)
-//                let kz: Float = kzz / Float(BasicFFT.distributionSize)
-//                let len = sqrt(kx * kx + kz * kz)
-//
-//                displacement_real[z * out_width + x] = in_real[index] * -kx/len;
-//                displacement_img[z * out_width + x] = in_imag[index] * -kz/len;
             }
         }
     }
@@ -210,9 +197,8 @@ class Water {
             for x in 0..<Nx {
 
                 let k = mod * SIMD2<Float>(x: Float(alias(x, N: Nx)), y: Float(alias(z, N: Nz)))
-                let gaus = normal_distribution.gausRandom()
-                let realRand = Float(gaus.x)
-                let imagRand = Float(gaus.y)
+                let realRand = Float(normal_distribution.gausRandom())
+                let imagRand = Float(normal_distribution.gausRandom())
 
 //                let phillips = philliphs(k: k, max_l: max_l)
                 let phillips = normal_distribution.phillips(Float(k.x), y: Float(k.y), g: Water.G, a: A, dir: wind_velocity)
