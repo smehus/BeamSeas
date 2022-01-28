@@ -46,3 +46,7 @@ different shader styles for each time of day. Morning evening night etc
 
 I guess just have set pieces for land masses. Add them randomly to the scaffolding / rotation.
 I will need to create a combined height map with the water height & the randomly placed land masses. 
+
+
+
+Lighting might be fucked becuase the play area is at Y: 5000

@@ -308,14 +308,14 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
 //        reflectionCoords += ripple;
 //        refractionCoords += ripple;
         
-        Light light = lights[0];
-        float3 normalDirection = normalize(uniforms.normalMatrix * (normalValue * 2.0f - 1.0f));
-        float d = distance(light.position, fragment_in.worldPosition.xyz);
-        float3 lightDirection = normalize(light.position - fragment_in.worldPosition.xyz);
-        float attenuation = 1.0 / (light.attenuation.x + light.attenuation.y * d + light.attenuation.z * d * d);
-        float diffuseIntensity = saturate(dot(lightDirection, normalDirection));
-        float3 color = normalize(lightDirection * d);
-        landWater = float4(light.color * color * diffuseIntensity, 1.0);
+//        Light light = lights[0];
+//        float3 normalDirection = normalize(uniforms.normalMatrix * (normalValue * 2.0f - 1.0f));
+//        float d = distance(light.position, fragment_in.worldPosition.xyz);
+//        float3 lightDirection = normalize(light.position - fragment_in.worldPosition.xyz);
+//        float attenuation = 1.0 / (light.attenuation.x + light.attenuation.y * d + light.attenuation.z * d * d);
+//        float diffuseIntensity = saturate(dot(lightDirection, normalDirection));
+//        float3 color = normalize(lightDirection * d);
+//        landWater = float4(light.color * color * diffuseIntensity, 1.0);
 //        landWater *= attenuation;
     }
 
@@ -329,24 +329,13 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
                      refractionTexture.sample(mainSampler, refractionCoords),
                      0.4);
     
-    mixedColor = mix(mixedColor, landWater, 0.6);
-    
-    float jacobian = vGradJacobian.z;
-    float turbulence = max(2.0 - jacobian + dot(abs(noise_gradient.xy), float2(1.2)), 0.0);
+    mixedColor = mix(mixedColor, float4(0.2, 0.4, 0.8, 1.0), 0.6);
     
     
-    // This is from example but not sure if i can use it \\
-//    float3 normal = float3(-vGradJacobian.x, 1.0, -vGradJacobian.y);
-//    normal.xz -= noise_gradient;
-//    normal = normalize(normal);
+    float3 specular = terrainDiffuseLighting(uniforms.normalMatrix * (normalValue * 2.0 - 1.0), fragment_in.worldPosition.xyz, fragmentUniforms, lights, mixedColor.rgb);
 
-//  Need to double check creation of gradient map
-//    float color_mod = 1.0  * smoothstep(1.3, 1.8, turbulence);
-//////
-//    float3 specular = terrainDiffuseLighting(uniforms.normalMatrix * (normalValue * 2.0 - 1.0), fragment_in.worldPosition.xyz, fragmentUniforms, lights, mixedColor.rgb);
-
-//    return float4(specular, 1.0);
-    return sepiaShader(mixedColor);
+    return float4(specular, 1.0);
+//    return sepiaShader(mixedColor);
 }
 
 

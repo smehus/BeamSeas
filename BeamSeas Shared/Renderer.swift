@@ -444,7 +444,7 @@ extension Renderer: MTKViewDelegate {
         drawSpotLight(renderEncoder: renderEncoder, position: playerRotation.position, direction: normalMap, color: float3(1, 0, 1)) // Blue
 
 //        drawDirectionalLight(renderEncoder: renderEncoder, direction: direction, color: float3(1, 0, 0), count: 5)
-//        debugLights(renderEncoder: renderEncoder, lightType: Sunlight)
+        debugLights(renderEncoder: renderEncoder, lightType: Sunlight)
         renderEncoder.endEncoding()
         if let drawable = view.currentDrawable {
             commandBuffer.present(drawable)
