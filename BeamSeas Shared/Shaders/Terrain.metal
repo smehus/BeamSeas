@@ -183,7 +183,8 @@ float3 terrainDiffuseLighting(float3 normal,
     for (uint i = 0; i < fragmentUniforms.light_count; i++) {
         Light light = lights[i];
         if (light.type == Sunlight) {
-            float3 lightDirection = normalize(light.position);
+            float3 zero = float3(0, 5000, 0);
+            float3 lightDirection = normalize(light.position - zero);
             float diffuseIntensity = saturate(dot(lightDirection, normalDirection));
             diffuseColor += light.color * light.intensity * baseColor * diffuseIntensity;
         } else if (light.type == Pointlight) {

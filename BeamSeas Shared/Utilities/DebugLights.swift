@@ -69,7 +69,7 @@ extension Renderer {
                 drawSpotLight(renderEncoder: renderEncoder, position: light.position,
                               direction: light.coneDirection, color: light.color)
             case Sunlight:
-                drawDirectionalLight(renderEncoder: renderEncoder, direction: light.position,
+                drawDirectionalLight(renderEncoder: renderEncoder, position: light.position,
                                      color: [1, 0, 0], count: 5)
             default:
                 break
@@ -98,9 +98,12 @@ extension Renderer {
     }
 
     func drawDirectionalLight (renderEncoder: MTLRenderCommandEncoder,
-                               direction: float3,
+                               position: float3,
                                color: float3, count: Int) {
         var vertices: [float3] = []
+        let zero = float3(0, 5000, 0)
+        let direction = zero - position
+        
         for i in -count..<count {
             let value = Float(i) * 0.4
             vertices.append(float3(value, 0, value))
@@ -110,7 +113,7 @@ extension Renderer {
         let buffer = Renderer.device.makeBuffer(bytes: &vertices,
                                                 length: MemoryLayout<float3>.stride * vertices.count,
                                                 options: [])
-        uniforms.modelMatrix = float4x4.identity()
+        uniforms.modelMatrix = .identity() * float4x4(translation: position) * .identity()
         renderEncoder.setVertexBytes(&uniforms,
                                      length: MemoryLayout<Uniforms>.stride, index: 1)
         var lightColor = color
@@ -127,16 +130,16 @@ extension Renderer {
         vertices.append(position)
         let newDirection = direction * 5
         vertices.append(float3(position.x + newDirection.x, position.y + newDirection.y, position.z + newDirection.z))
-//        print("""
-//              🧩🧩🧩🧩🧩
-//              position:     \(vertices[0])
-//              endPosition:  \(vertices[1])
-//              🧩🧩🧩🧩🧩
-//              """)
+        print("""
+              🧩🧩🧩🧩🧩
+              position:     \(vertices[0])
+              endPosition:  \(vertices[1])
+              🧩🧩🧩🧩🧩
+              """)
         let buffer = Renderer.device.makeBuffer(bytes: &vertices,
                                                 length: MemoryLayout<float3>.stride * vertices.count,
                                                 options: [])
-        uniforms.modelMatrix = float4x4.identity()
+        uniforms.modelMatrix = .identity() * float4x4(translation: position) * .identity()
         renderEncoder.setVertexBytes(&uniforms,
                                      length: MemoryLayout<Uniforms>.stride, index: 1)
         var lightColor = color
