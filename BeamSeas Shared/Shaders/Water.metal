@@ -161,7 +161,7 @@ half jacobian(half2 dDdx, half2 dDdy)
 
 #define LAMBDA -4.6
 
-kernel void compute_height_graident(uint2 pid [[ thread_position_in_grid]],
+kernel void compute_height_displacement_graident(uint2 pid [[ thread_position_in_grid]],
                                     constant float4 &uInvSize [[ buffer(0) ]],
                                     constant float4 &uScale [[ buffer(1) ]],
                    	                 texture2d<float> heightMap [[ texture(0) ]],

@@ -49,7 +49,7 @@ class BasicFFT: Node {
 
     private let distributionPipelineState: MTLComputePipelineState
     private let displacementPipelineState: MTLComputePipelineState
-    private let gradientPipelineState: MTLComputePipelineState
+    private let heightDisplacementGradientPipelineState: MTLComputePipelineState
     private let normalPipelineState: MTLComputePipelineState
 
     private var source: Water!
@@ -108,7 +108,7 @@ class BasicFFT: Node {
         fftPipelineState = Self.buildComputePipelineState(shader: "fft_kernel")
         distributionPipelineState = Self.buildComputePipelineState(shader: "generate_distribution_map_values")
         displacementPipelineState = Self.buildComputePipelineState(shader: "generate_displacement_map_values")
-        gradientPipelineState = Self.buildComputePipelineState(shader: "compute_height_graident")
+        heightDisplacementGradientPipelineState = Self.buildComputePipelineState(shader: "compute_height_displacement_graident")
         normalPipelineState = Self.buildComputePipelineState(shader: "TerrainKnl_ComputeNormalsFromHeightmap")
 
         let mainPipeDescriptor = MTLRenderPipelineDescriptor()
@@ -175,7 +175,7 @@ class BasicFFT: Node {
             real: distribution_displacement_real,
             imag: distribution_displacement_imag,
             count: source.distribution_displacement_real.count + source.distribution_displacement_imag.count,
-            fft: distributionFFT
+            fft: downsampledFFT
         )
         
         displacementBuffer = Renderer.device.makeBuffer(
@@ -352,13 +352,13 @@ extension BasicFFT: Renderable {
         // Bake height gradient - Combine displacement and height maps
         // Create final map to use for tessellation
 
-        let w = gradientPipelineState.threadExecutionWidth
-        let h = gradientPipelineState.maxTotalThreadsPerThreadgroup / w
+        let w = heightDisplacementGradientPipelineState.threadExecutionWidth
+        let h = heightDisplacementGradientPipelineState.maxTotalThreadsPerThreadgroup / w
         let threadGroupSize = MTLSizeMake(w, h, 1)
         let threadgroupCount = MTLSizeMake(BasicFFT.distributionSize, BasicFFT.distributionSize, 1)
 
         computeEncoder.pushDebugGroup("FFT-Gradient")
-        computeEncoder.setComputePipelineState(gradientPipelineState)
+        computeEncoder.setComputePipelineState(heightDisplacementGradientPipelineState)
 
         //        compute_height_graident will generate the draw texture used for terrain vertex
         computeEncoder.setTexture(heightMap, index: 0)
@@ -447,7 +447,7 @@ extension BasicFFT: Renderable {
         uniforms.modelMatrix = modelMatrix
         renderEncoder.setVertexBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: BufferIndex.uniforms.rawValue)
         renderEncoder.setFragmentBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: BufferIndex.uniforms.rawValue)
-        renderEncoder.setFragmentTexture(displacementMap, index: 0)
+        renderEncoder.setFragmentTexture(Self.normalMapTexture, index: 0)
 //        renderEncoder.setVertexBuffer(model.vertexBuffers.first!.buffer, offset: 0, index: BufferIndex.vertexBuffer.rawValue)
         renderEncoder.setTriangleFillMode(.fill)
         renderEncoder.drawIndexedPrimitives(

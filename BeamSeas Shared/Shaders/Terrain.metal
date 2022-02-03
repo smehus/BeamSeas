@@ -251,7 +251,6 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
     return float4(normalSample.xyz, 1.0);
 }
 
-// Original
 kernel void TerrainKnl_ComputeNormalsFromHeightmap(texture2d<float> height [[texture(0)]],
                                                    texture2d<float, access::write> normal [[texture(2)]],
                                                    constant TerrainParams &terrain [[ buffer(3) ]],
@@ -260,8 +259,7 @@ kernel void TerrainKnl_ComputeNormalsFromHeightmap(texture2d<float> height [[tex
     constexpr sampler sam(min_filter::nearest, mag_filter::nearest, mip_filter::none,
                           address::clamp_to_edge, coord::pixel);
 
-//    float xz_scale = TERRAIN_SCALE / height.get_width();
-    float xz_scale = terrain.size.x / height.get_width();
+    float xz_scale = 1.0;//TERRAIN_SCALE / height.get_width();
     float y_scale = terrain.height;
 
     if (tid.x < height.get_width() && tid.y < height.get_height()) {
