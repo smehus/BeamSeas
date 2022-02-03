@@ -150,8 +150,8 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
     // So that we an transition between ifftHeight & scaffoldHeight seamlessly
     position.y = max(scaffoldHeight, ifftPercentHeight.r);
     if (ifftPercentHeight.r > scaffoldHeight) {
-        position.x += (horizontalDisplacement.y);
-        position.z += (horizontalDisplacement.z);
+//        position.x += (horizontalDisplacement.y);
+//        position.z += (horizontalDisplacement.z);
     }
 
     constexpr sampler normalSampler(min_filter::linear, mag_filter::linear, mip_filter::nearest);
@@ -204,6 +204,9 @@ float4 sepiaShader(float4 color) {
     return output;
 }
 
+// Don't use water ripple texture when calculating lighting you dipshit.
+// Thats probably what makes the wave lighting so confusing to look at.
+
 fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
                                  constant Light *lights [[ buffer(BufferIndexLights) ]],
                                  constant Uniforms &uniforms [[ buffer(BufferIndexUniforms) ]],
@@ -216,71 +219,37 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
                                  texture2d<float> refractionTexture [[ texture(TextureIndexRefraction) ]],
                                  texture2d<float> waterRippleTexture [[ texture(TextureIndexWaterRipple) ]],
                                  texturecube<float> worldMapTexture [[ texture(TextureIndexWorldMap) ]],
-                                 texture2d<float> landTexture [[ texture(TextureIndexScaffoldLand) ]],
-                                 sampler scaffoldingSampler [[ sampler(0) ]])
+                                 texture2d<float> landTexture [[ texture(TextureIndexScaffoldLand) ]])
 {
+    constexpr sampler s(filter::linear, address::repeat);
     
-    // Don't use water ripple texture when calculating lighting you dipshit.
-    // Thats probably what makes the wave lighting so confusing to look at.
+    // Reflection
+    // Refraction - Mimicks see through water - see the ground below
+    // Fresnel - Refraction + Lighting Angles - the see througness is determined by camera angle
     
-    return float4(1, 0, 0, 1);
+    // Ripple
+    float2 rippleUV = fragment_in.uv * 4.0;
+    float waveStrength  = 0.1;
+    float2 rippleX = float2(rippleUV.x + uniforms.currentTime, rippleUV.y);
+    float2 rippleY = float2(-rippleUV.x, rippleUV.y) + uniforms.currentTime;
+    float2 ripple = ((normalMap.sample(s, rippleX).rg * 2.0 - 1.0) + (normalMap.sample(s, rippleY).rg * 2.0 - 1.0)) * waveStrength;
+    // Not using for now
+    
+    // Normal
+    // 128X128
+    float2 normalCoords = fragment_in.uv;
+    float4 normalSample = normalMap.sample(s, normalCoords);
+    float3 negPosNormal = float3(normalSample.r * 2.0 - 1.0,
+                                 normalSample.b,
+                                 normalSample.g * 2.0 - 1.0);
+    
+//    float3 color = terrainDiffuseLighting(negPosNormal,
+//                                          fragment_in.worldPosition.xyz,
+//                                          fragmentUniforms, lights,
+//                                          float3(0.2, 0.6, 0.9));
+    
+    return float4(normalSample.xyz, 1.0);
 }
-
-
-float normalCoordinates(uint2 coords, texture2d<float> map, sampler s, float delta)
-{
-
-    float2 xy = float2(coords.x, coords.y);
-    xy.x = fmod(xy.x + delta, 1);
-    float4 d = map.sample(s, xy);
-
-    return d.r;
-}
-
-// This is pulled directly from apples example: DynamicTerrainWithArgumentBuffers
-// Should move this to BasicFFT
-//kernel void TerrainKnl_ComputeNormalsFromHeightmap(texture2d<float> height [[texture(0)]],
-//                                                   texture2d<float, access::write> normal [[texture(2)]],
-//                                                   constant TerrainParams &terrain [[ buffer(3) ]],
-//                                                   constant Uniforms &uniforms [[ buffer(BufferIndexUniforms) ]],
-//                                                   uint2 tid [[thread_position_in_grid]])
-//{
-//    constexpr sampler sam(min_filter::nearest, mag_filter::nearest, mip_filter::none,
-//                          address::clamp_to_edge, coord::pixel);
-//
-//
-//
-////    constexpr sampler sam(filter::linear);
-////    float xz_scale = TERRAIN_SCALE / height.get_width();
-//    float xz_scale = terrain.size.x / height.get_width();
-//    float y_scale = terrain.height;
-//
-//    if (tid.x < height.get_width() && tid.y < height.get_height()) {
-//        // I think we can just compute the normals once for each map - pass both maps into the vertex shader
-//        // And mix the two samples. Don't need to do anything else other than handle the mix between maps & fmod something...
-////        // Which we're already doing in the vertex shader. So I think we can just add an altNormalMap to the vetex shader & use that for secondary shader
-//
-//        float h_up     = height.sample(sam, (float2)(tid + uint2(0, 1))).r;
-//        float h_down   = height.sample(sam, (float2)(tid - uint2(0, 1))).r;
-//        float h_right  = height.sample(sam, (float2)(tid + uint2(1, 0))).r;
-//        float h_left   = height.sample(sam, (float2)(tid - uint2(1, 0))).r;
-//        float h_center = height.sample(sam, (float2)(tid + uint2(0, 0))).r;
-//
-//        float3 v_up    = float3( 0,        (h_up    - h_center) * y_scale,  xz_scale);
-//        float3 v_down  = float3( 0,        (h_down  - h_center) * y_scale, -xz_scale);
-//        float3 v_right = float3( xz_scale, (h_right - h_center) * y_scale,  0);
-//        float3 v_left  = float3(-xz_scale, (h_left  - h_center) * y_scale,  0);
-//
-//        float3 n0 = cross(v_up, v_right);
-//        float3 n1 = cross(v_left, v_up);
-//        float3 n2 = cross(v_down, v_left);
-//        float3 n3 = cross(v_right, v_down);
-//
-//        float3 n = normalize(n0 + n1 + n2 + n3) * 0.5f + 0.5f;
-//
-//        normal.write(float4(n.xzy, 1), tid);
-//    }
-//}
 
 // Original
 kernel void TerrainKnl_ComputeNormalsFromHeightmap(texture2d<float> height [[texture(0)]],

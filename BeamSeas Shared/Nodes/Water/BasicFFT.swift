@@ -62,7 +62,7 @@ class BasicFFT: Node {
 
 
     static let distributionSize: Int = 128
-    static var wind_velocity = float2(x: 12, y: -26)
+    static var wind_velocity = float2(x: 1, y: -26)
     static var amplitude = 1200
 
     override init() {
@@ -157,15 +157,35 @@ class BasicFFT: Node {
     // This runs after 'generate_distributions' - so we get updated distribution_real / imag buffer values.
     // The source buffer values will all remain the same (Buffers in water.swift)
     func runfft(phase: Float) {
-        let recreatedSignal = runfft(real: distribution_real, imag: distribution_imag, count: source.distribution_real.count + source.distribution_imag.count, fft: distributionFFT)
-        dataBuffer = Renderer.device.makeBuffer(bytes: recreatedSignal, length: MemoryLayout<Float>.stride * recreatedSignal.count, options: [])
+        let recreatedSignal = runfft(
+            real: distribution_real,
+            imag: distribution_imag,
+            count: source.distribution_real.count + source.distribution_imag.count,
+            fft: distributionFFT
+        )
+        
+        dataBuffer = Renderer.device.makeBuffer(
+            bytes: recreatedSignal,
+            length: MemoryLayout<Float>.stride * recreatedSignal.count,
+            options: []
+        )
 
 
-        let displacementSignal = runfft(real: distribution_displacement_real, imag: distribution_displacement_imag, count: source.distribution_displacement_real.count + source.distribution_displacement_imag.count, fft: downsampledFFT, debug: true)
-        displacementBuffer = Renderer.device.makeBuffer(bytes: displacementSignal, length: MemoryLayout<Float>.stride * displacementSignal.count, options: [])
+        let displacementSignal = runfft(
+            real: distribution_displacement_real,
+            imag: distribution_displacement_imag,
+            count: source.distribution_displacement_real.count + source.distribution_displacement_imag.count,
+            fft: distributionFFT
+        )
+        
+        displacementBuffer = Renderer.device.makeBuffer(
+            bytes: displacementSignal,
+            length: MemoryLayout<Float>.stride * displacementSignal.count,
+            options: []
+        )
     }
 
-    private func runfft(real: MTLBuffer, imag: MTLBuffer, count: Int, fft transformer: vDSP.FFT<DSPSplitComplex>, debug: Bool = false)  -> [Float] {
+    private func runfft(real: MTLBuffer, imag: MTLBuffer, count: Int, fft transformer: vDSP.FFT<DSPSplitComplex>)  -> [Float] {
 
 //        let halfN = Int((BasicFFT.imgSize * BasicFFT.imgSize) / 2)
 
@@ -371,10 +391,10 @@ extension BasicFFT: Renderable {
 
     func generateTerrainNormals(computeEncoder: MTLComputeCommandEncoder, uniforms: inout Uniforms) {
 
+        computeEncoder.pushDebugGroup("Generate Terrain Normals")
         let w = normalPipelineState.threadExecutionWidth
         let h = normalPipelineState.maxTotalThreadsPerThreadgroup / w
         let threadsPerGroup = MTLSizeMake(w, h, 1)
-        computeEncoder.pushDebugGroup("Generate Normals")
         computeEncoder.setComputePipelineState(normalPipelineState)
         computeEncoder.setTexture(Self.heightDisplacementMap, index: 0)
         computeEncoder.setTexture(Self.normalMapTexture, index: 2)

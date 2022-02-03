@@ -18,11 +18,11 @@ class Terrain: Node {
     static var primarySlopeMap: MTLTexture!
     static var secondarySlopeMap: MTLTexture!
 
-    static let terrainSize: Float = 300
+    static let terrainSize: Float = 128
     
     static var terrainParams = TerrainParams(
         size: [Terrain.terrainSize, Terrain.terrainSize],
-        height: 75,
+        height: 30,
         maxTessellation: UInt32(Terrain.maxTessellation),
         numberOfPatches: UInt32(Terrain.patchNum * Terrain.patchNum)
     )
@@ -379,7 +379,6 @@ extension Terrain: Renderable {
             index: TextureIndex.scaffoldLand.rawValue
             )
 
-        renderEncoder.setFragmentSamplerState(samplerState, index: 0)
         renderEncoder.setVertexSamplerState(samplerState, index: 0)
 //        renderEncoder.setTriangleFillMode(.lines)
         renderEncoder.drawPatches(
