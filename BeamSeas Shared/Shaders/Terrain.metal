@@ -251,6 +251,7 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
     return float4(color, 1.0);
 }
 
+// This relies on the ehight an dnormal textures to be teh same size. 128x128
 kernel void TerrainKnl_ComputeNormalsFromHeightmap(texture2d<float> height [[texture(0)]],
                                                    texture2d<float, access::write> normal [[texture(2)]],
                                                    constant TerrainParams &terrain [[ buffer(3) ]],
