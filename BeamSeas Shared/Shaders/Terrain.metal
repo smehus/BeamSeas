@@ -187,27 +187,6 @@ float3 terrainDiffuseLighting(float3 normal,
             float3 lightDirection = normalize(light.position - zero);
             float diffuseIntensity = saturate(dot(lightDirection, normalDirection));
             diffuseColor += light.color * light.intensity * baseColor * diffuseIntensity;
-        } else if (light.type == Pointlight) {
-            float d = distance(light.position, position);
-            float3 lightDirection = normalize(light.position - position);
-            float attenuation = 1.0 / (light.attenuation.x + light.attenuation.y * d + light.attenuation.z * d * d);
-            float diffuseIntensity = saturate(dot(lightDirection, normalDirection));
-            float3 color = light.color * baseColor * diffuseIntensity;
-            color *= attenuation;
-            diffuseColor += color;
-        } else if (light.type == Spotlight) {
-            float d = distance(light.position, position);
-            float3 lightDirection = normalize(light.position - position);
-            float3 coneDirection = normalize(-light.coneDirection);
-            float spotResult = (dot(lightDirection, coneDirection));
-            if (spotResult > cos(light.coneAngle)) {
-                float attenuation = 1.0 / (light.attenuation.x + light.attenuation.y * d + light.attenuation.z * d * d);
-                attenuation *= pow(spotResult, light.coneAttenuation);
-                float diffuseIntensity = saturate(dot(lightDirection, normalDirection));
-                float3 color = light.color * baseColor * diffuseIntensity;
-                color *= attenuation;
-                diffuseColor += color;
-            }
         }
     }
     return diffuseColor;
@@ -240,103 +219,11 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
                                  texture2d<float> landTexture [[ texture(TextureIndexScaffoldLand) ]],
                                  sampler scaffoldingSampler [[ sampler(0) ]])
 {
-    constexpr sampler mainSampler(filter::linear, address::repeat);
-    float width = float(reflectionTexture.get_width() * 2.0);
-    float height = float(reflectionTexture.get_height() * 2.0);
-    float x = fragment_in.position.x / width;
-    float y = fragment_in.position.y / height;
-//    float z = fragment_in.position.z / height;
-    float2 reflectionCoords = float2(x, 1 - y);
-    float2 refractionCoords = float2(x, y);
     
-    float4 directionToFragment = fragment_in.parentFragmentPosition - fragmentUniforms.scaffoldingPosition;
-    float4 terrainToScaffold = normalize(directionToFragment);
-    float4 scaffoldSample = worldMapTexture.sample(scaffoldingSampler, terrainToScaffold.xyz);
-    // so that white is 0 and black is one
-    float4 invertedScaffoldColor = (1 - scaffoldSample);
-    // transform to -1 to 1 * constant variable
-    float4 scaffoldHeight = (invertedScaffoldColor * 2 - 1) * terrainParams.height;
+    // Don't use water ripple texture when calculating lighting you dipshit.
+    // Thats probably what makes the wave lighting so confusing to look at.
     
-    
-    // Multiplier determines ripple size
-    float timer = uniforms.currentTime * 0.007;
-    float2 rippleUV = fragment_in.uv * 0.5;
-    float waveStrength = 0.1;
-    float2 rippleX = float2(rippleUV.x/* + timer*/, rippleUV.y) + timer;
-    float2 rippleY = float2(rippleUV.x - timer, rippleUV.y);
-
-    float4 rippleSampleX = waterRippleTexture.sample(mainSampler, rippleX);
-    float4 rippleSampleY = waterRippleTexture.sample(mainSampler, rippleY);
-    float2 normalizedRippleX = rippleSampleX.rg * 2.0 - 1.0;
-    float2 normalizedRippleY = rippleSampleY.rg * 2.0 - 1.0;
-    
-    constexpr sampler sam(min_filter::linear, mag_filter::linear, mip_filter::nearest, address::repeat);
-    float3 vGradJacobian = gradientMap.sample(sam, fragment_in.vGradNormalTex.xy).xyz;
-    float2 noise_gradient = 0.3 * normalMap.sample(sam, fragment_in.vGradNormalTex.zw).xy;
-    float3 normalValue = normalMap.sample(mainSampler, fragment_in.uv).xzy;
-
-    // Is the problem that scaffold is a world map so i'm using 3d coords
-    // And this is a 2d texture so i'm using refractionCoords
-    // Maybe i can just take this from vertex shader - since this should map to position.y.
-    // so maybe check position.y & scaffold height.// But then it will just be the scaffold height from vertex so idk.
-    
-    // TEST - ONLY USE SCAFFOLD HEIGHT IN THE VERTEX.
-    // THAN GRAB THE SCAFFOLD WORLD HEIGHT HERE & CHECK TO MAKE SURE THEY ARE KINDA THE SAME.
-    // THAN DO THE SAME THING WITH THE POSITION.Y & THE WORLDIFFTHEIGHT DAWGGGGGGG
-    // THAN NEED TO JUST DECIDE? IDK - FIGURE IT OUT FROM THERE DIPSHIT
-    float4 heightDisplacement = heightMap.sample(mainSampler, refractionCoords);
-    float4 ifftHeight = (heightDisplacement * 2 - 1) * terrainParams.height;
-    float4 ifftPercentHeight = ifftHeight * scaffoldSample.r;
-    
-    
-    // This needs to be stationary....so when the user moves - don't move this uv?
-    // Or when the boat moves forward, the texture for the sand shouldn't also move forward
-    float2 uv = (fragment_in.uv - -1) / (1 - -1);
-    float4 landWater = float4(0, 0, 0, 1.0);//landTexture.sample(textureSampler, uv);
-    // Do this before clamping yo
-    // I think i need to do a worldPosition comparision though.
-    // Cause it gets all squirrely when I compare height maps
-    float4 scaffoldPosition = fragmentUniforms.scaffoldingPosition;
-    scaffoldPosition.y += scaffoldHeight.r;
-    float4 scaffoldWorldPositions = uniforms.modelMatrix * scaffoldPosition;
-    float diff = abs(scaffoldWorldPositions.y - fragment_in.worldPosition.y);
-    float4 mixedColor = float4(0, 0, 0, 1.0);
-    
-    // If we're on water
-    if (fragment_in.worldPosition.y > scaffoldWorldPositions.y) {
-
-//        float2 ripple = (normalizedRippleX + normalizedRippleY) * waveStrength;
-//        reflectionCoords += ripple;
-//        refractionCoords += ripple;
-        
-//        Light light = lights[0];
-//        float3 normalDirection = normalize(uniforms.normalMatrix * (normalValue * 2.0f - 1.0f));
-//        float d = distance(light.position, fragment_in.worldPosition.xyz);
-//        float3 lightDirection = normalize(light.position - fragment_in.worldPosition.xyz);
-//        float attenuation = 1.0 / (light.attenuation.x + light.attenuation.y * d + light.attenuation.z * d * d);
-//        float diffuseIntensity = saturate(dot(lightDirection, normalDirection));
-//        float3 color = normalize(lightDirection * d);
-//        landWater = float4(light.color * color * diffuseIntensity, 1.0);
-//        landWater *= attenuation;
-    }
-
-    reflectionCoords = clamp(reflectionCoords, 0.001, 0.999);
-    refractionCoords = clamp(refractionCoords, 0.001, 0.999);
-
-//    float4 mixedColor = reflectionTexture.sample(reflectionSampler, reflectionCoords);
-//    float4 mixedColor = refractionTexture.sample(mainSampler, refractionCoords);
-    float3 viewVector = normalize(fragment_in.toCamera);
-    mixedColor = mix(reflectionTexture.sample(mainSampler, reflectionCoords),
-                     refractionTexture.sample(mainSampler, refractionCoords),
-                     0.4);
-    
-    mixedColor = mix(mixedColor, float4(0.2, 0.4, 0.8, 1.0), 0.6);
-    
-    
-    float3 specular = terrainDiffuseLighting(uniforms.normalMatrix * (normalValue * 2.0 - 1.0), fragment_in.worldPosition.xyz, fragmentUniforms, lights, mixedColor.rgb);
-
-    return float4(specular, 1.0);
-//    return sepiaShader(mixedColor);
+    return float4(1, 0, 0, 1);
 }
 
 
