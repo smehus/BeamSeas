@@ -233,21 +233,17 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
     float2 rippleX = float2(rippleUV.x + uniforms.currentTime, rippleUV.y);
     float2 rippleY = float2(-rippleUV.x, rippleUV.y) + uniforms.currentTime;
     float2 ripple = ((normalMap.sample(s, rippleX).rg * 2.0 - 1.0) + (normalMap.sample(s, rippleY).rg * 2.0 - 1.0)) * waveStrength;
-    // Not using for nowg
+    // Not using for now
     
     // Normal
     // 128X128
     float2 normalCoords = fragment_in.uv;
-    float4 normalSample = normalMap.sample(s, normalCoords);
-    float3 negPosNormal = float3(normalSample.r * 2.0 - 1.0,
-                                 normalSample.b,
-                                 normalSample.g * 2.0 - 1.0);
+    float4 normal = normalMap.sample(s, normalCoords) * 2.0 - 1.0;
     
-    float3 color = terrainDiffuseLighting(negPosNormal,
+    float3 color = terrainDiffuseLighting(normal.rgb,
                                           fragment_in.worldPosition.xyz,
                                           fragmentUniforms, lights,
                                           float3(0.2, 0.6, 0.9));
-    
     return float4(color, 1.0);
 }
 
@@ -260,7 +256,7 @@ kernel void TerrainKnl_ComputeNormalsFromHeightmap(texture2d<float> height [[tex
     constexpr sampler sam(min_filter::nearest, mag_filter::nearest, mip_filter::none,
                           address::clamp_to_edge, coord::pixel);
 
-    float xz_scale = 1.0;//TERRAIN_SCALE / height.get_width();
+    float xz_scale = 0.2;
     float y_scale = terrain.height;
 
     if (tid.x < height.get_width() && tid.y < height.get_height()) {

@@ -199,7 +199,7 @@ kernel void compute_height_displacement_graident(uint2 pid [[ thread_position_in
     // This needs to be rethought through
     // Can i just use one map that already has displacement & height?
 //    float heighDis = mix(h, displacement, 0.5);
-    heightDisplacementMap.write(float4(h, displacement, 0.0), pid);
+    heightDisplacementMap.write(float4(h, h, h, 0.0), pid);
 
     // write to gradient texture for final sampling in fragment
     gradientMap.write(float4(grad, j, 0.0), pid);

@@ -100,8 +100,9 @@ class BasicFFT: Node {
 
         texDesc.width = BasicFFT.distributionSize
         texDesc.height = BasicFFT.distributionSize
+//        texDesc.pixelFormat = .rg11b10Floa
         texDesc.pixelFormat = .rg11b10Float
-        texDesc.mipmapLevelCount = Int(log2(Double(max(BasicFFT.heightDisplacementMap.width, BasicFFT.heightDisplacementMap.height))) + 1);
+//        texDesc.mipmapLevelCount = Int(log2(Double(max(BasicFFT.heightDisplacementMap.width, BasicFFT.heightDisplacementMap.height))) + 1);
         texDesc.storageMode = .private
         Self.normalMapTexture = Renderer.device.makeTexture(descriptor: texDesc)!
 

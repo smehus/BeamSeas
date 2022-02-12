@@ -12,7 +12,7 @@ struct Lighting {
     // Lights
     let sunlight: Light = {
         var light = Lighting.buildDefaultLight()
-        light.position = [-400, 5150, 0]
+        light.position = [-100, 5150, 0]
         light.intensity = 0.9
         light.type = Sunlight
         return light
