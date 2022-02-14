@@ -251,11 +251,18 @@ kernel void fft_kernel(texture2d<float, access::write> output_texture [[ texture
 {
     uint width = output_texture.get_width();
     uint height = output_texture.get_height();
+    
+    float yScale = 128.0 / height;
+    float xScale = 128.0 / width;
 
     if (tid.x < width && tid.y < height) {
-        uint index = (uint)(tid.y * width + tid.x);
-        float val = data[index];
-        val = (val - -1) / (1 - -1);
+        uint y = uint(tid.y * yScale);
+        uint x = uint(tid.x * xScale);
+        
+        uint index = (uint)(y * 128 + x);
+
+        float val = float(0.3);//data[index];
+//        val = (val - -1) / (1 - -1);
 //        val = val * 0.5 + 0.5;
         
         output_texture.write(float4(val, val, val, 1), tid);

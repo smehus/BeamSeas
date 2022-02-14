@@ -62,6 +62,7 @@ class BasicFFT: Node {
 
 
     static let distributionSize: Int = 128
+    static let textureSize: Int = 512
     static var wind_velocity = float2(x: 1, y: -26)
     static var amplitude = 1200
 
@@ -79,8 +80,8 @@ class BasicFFT: Node {
         downsampledFFT = vDSP.FFT(log2n: downdSampledLog2n, radix: .radix5, ofType: DSPSplitComplex.self)!
 
         let texDesc = MTLTextureDescriptor()
-        texDesc.width = BasicFFT.distributionSize
-        texDesc.height = BasicFFT.distributionSize
+        texDesc.width = BasicFFT.textureSize
+        texDesc.height = BasicFFT.textureSize
         // ooohhhh my god - it was the fucking pixel format
         // Second time! Changing from 32 bit to 16 bit fixed phone choppiness when moving texture coordinates.
         texDesc.pixelFormat = .rgba16Float
@@ -97,9 +98,6 @@ class BasicFFT: Node {
         texDesc.pixelFormat = .rgba16Float
         displacementMap = Renderer.device.makeTexture(descriptor: texDesc)!
 
-
-        texDesc.width = BasicFFT.distributionSize
-        texDesc.height = BasicFFT.distributionSize
 //        texDesc.pixelFormat = .rg11b10Floa
         texDesc.pixelFormat = .rg11b10Float
 //        texDesc.mipmapLevelCount = Int(log2(Double(max(BasicFFT.heightDisplacementMap.width, BasicFFT.heightDisplacementMap.height))) + 1);
@@ -165,6 +163,8 @@ class BasicFFT: Node {
             fft: distributionFFT
         )
         
+        // I think this count is wrong yo. Should be 16k instead of 32.
+        // Do i need to get rid of the imageinary numbers? Cause thats whats happening
         dataBuffer = Renderer.device.makeBuffer(
             bytes: recreatedSignal,
             length: MemoryLayout<Float>.stride * recreatedSignal.count,
@@ -208,6 +208,8 @@ class BasicFFT: Node {
             realPointer = realPointer.advanced(by: 1)
             imagPointer = imagPointer.advanced(by: 1)
         }
+        
+        /
 
         let recreatedSignal: [Float] =
             inputReal.withUnsafeMutableBufferPointer { forwardOutputRealPtr in
@@ -289,8 +291,8 @@ extension BasicFFT: Renderable {
         computeEncoder.setBuffer(source.distribution_imag_buffer, offset: 0, index: 15)
         computeEncoder.setTexture(BasicFFT.heightDisplacementMap, index: 0)
 
-        let w = fftPipelineState.threadExecutionWidth
-        let h = fftPipelineState.maxTotalThreadsPerThreadgroup / w
+        let w = distributionPipelineState.threadExecutionWidth
+        let h = distributionPipelineState.maxTotalThreadsPerThreadgroup / w
         var threadGroupSize = MTLSizeMake(w, h, 1)
         var threadgroupCount = MTLSizeMake(BasicFFT.distributionSize, BasicFFT.distributionSize, 1)
 
@@ -327,8 +329,8 @@ extension BasicFFT: Renderable {
         computeEncoder.pushDebugGroup("FFT-Drawing-Height")
         let w = fftPipelineState.threadExecutionWidth
         let h = fftPipelineState.maxTotalThreadsPerThreadgroup / w
-        let threadGroupSize = MTLSizeMake(w, h, 1)
-        var threadgroupCount = MTLSizeMake(BasicFFT.distributionSize, BasicFFT.distributionSize, 1)
+        let threadGroupSize = MTLSizeMake(1, 1, 1)
+        var threadgroupCount = MTLSizeMake(BasicFFT.textureSize, BasicFFT.textureSize, 1)
 
         computeEncoder.setComputePipelineState(fftPipelineState)
         computeEncoder.setTexture(heightMap, index: 0)
@@ -338,8 +340,8 @@ extension BasicFFT: Renderable {
 
         computeEncoder.pushDebugGroup("FFT-Drawing-Displacement")
 
-        threadgroupCount.width = BasicFFT.distributionSize >> 1
-        threadgroupCount.height = BasicFFT.distributionSize >> 1
+        threadgroupCount.width = BasicFFT.textureSize >> 1
+        threadgroupCount.height = BasicFFT.textureSize >> 1
 
         computeEncoder.setComputePipelineState(fftPipelineState)
         computeEncoder.setTexture(displacementMap, index: 0)
@@ -441,25 +443,25 @@ extension BasicFFT: Renderable {
 
 
 
-        renderEncoder.pushDebugGroup("Tiny Map - Displacement")
-        position.x = -0.75
-        position.y = 0.25
-
-        uniforms.modelMatrix = modelMatrix
-        renderEncoder.setVertexBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: BufferIndex.uniforms.rawValue)
-        renderEncoder.setFragmentBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: BufferIndex.uniforms.rawValue)
-        renderEncoder.setFragmentTexture(Self.normalMapTexture, index: 0)
-//        renderEncoder.setVertexBuffer(model.vertexBuffers.first!.buffer, offset: 0, index: BufferIndex.vertexBuffer.rawValue)
-        renderEncoder.setTriangleFillMode(.fill)
-        renderEncoder.drawIndexedPrimitives(
-            type: .triangle,
-            indexCount: mesh.indexCount,
-            indexType: mesh.indexType,
-            indexBuffer: mesh.indexBuffer.buffer,
-            indexBufferOffset: mesh.indexBuffer.offset
-        )
-
-        renderEncoder.popDebugGroup()
+//        renderEncoder.pushDebugGroup("Tiny Map - Displacement")
+//        position.x = -0.75
+//        position.y = 0.25
+//
+//        uniforms.modelMatrix = modelMatrix
+//        renderEncoder.setVertexBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: BufferIndex.uniforms.rawValue)
+//        renderEncoder.setFragmentBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: BufferIndex.uniforms.rawValue)
+//        renderEncoder.setFragmentTexture(Self.normalMapTexture, index: 0)
+////        renderEncoder.setVertexBuffer(model.vertexBuffers.first!.buffer, offset: 0, index: BufferIndex.vertexBuffer.rawValue)
+//        renderEncoder.setTriangleFillMode(.fill)
+//        renderEncoder.drawIndexedPrimitives(
+//            type: .triangle,
+//            indexCount: mesh.indexCount,
+//            indexType: mesh.indexType,
+//            indexBuffer: mesh.indexBuffer.buffer,
+//            indexBufferOffset: mesh.indexBuffer.offset
+//        )
+//
+//        renderEncoder.popDebugGroup()
     }
 
 }
