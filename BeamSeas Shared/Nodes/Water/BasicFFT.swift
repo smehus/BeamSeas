@@ -89,25 +89,38 @@ class BasicFFT: Node {
         //        texDesc.mipmapLevelCount = Int(log2(Double(max(Terrain.normalMapTexture.width, Terrain.normalMapTexture.height))) + 1);
         texDesc.storageMode = .private
 
+        // Final textures for main pass
         Self.heightDisplacementMap = Renderer.device.makeTexture(descriptor: texDesc)!
         Self.gradientMap = Renderer.device.makeTexture(descriptor: texDesc)!
+        
+        // Setup Textures for eventually creating the final textures above
         heightMap = Renderer.device.makeTexture(descriptor: texDesc)!
-
-        texDesc.width = BasicFFT.distributionSize >> 1
-        texDesc.height = BasicFFT.distributionSize >> 1
+        texDesc.width = BasicFFT.textureSize >> 1
+        texDesc.height = BasicFFT.textureSize >> 1
         texDesc.pixelFormat = .rgba16Float
         displacementMap = Renderer.device.makeTexture(descriptor: texDesc)!
 
+        
+        
 //        texDesc.pixelFormat = .rg11b10Floa
         texDesc.pixelFormat = .rg11b10Float
 //        texDesc.mipmapLevelCount = Int(log2(Double(max(BasicFFT.heightDisplacementMap.width, BasicFFT.heightDisplacementMap.height))) + 1);
         texDesc.storageMode = .private
         Self.normalMapTexture = Renderer.device.makeTexture(descriptor: texDesc)!
 
+        // Drawing distribution & displacement values onto textures
         fftPipelineState = Self.buildComputePipelineState(shader: "fft_kernel")
+        
+        // Generate distribution values
         distributionPipelineState = Self.buildComputePipelineState(shader: "generate_distribution_map_values")
+        
+        // Generate displacement values
         displacementPipelineState = Self.buildComputePipelineState(shader: "generate_displacement_map_values")
+        
+        // Combining displacement teuxture & height texture onto one combined texture
         heightDisplacementGradientPipelineState = Self.buildComputePipelineState(shader: "compute_height_displacement_graident")
+        
+        // Generate normal values from height texture & draw onto normal texture
         normalPipelineState = Self.buildComputePipelineState(shader: "TerrainKnl_ComputeNormalsFromHeightmap")
 
         let mainPipeDescriptor = MTLRenderPipelineDescriptor()
@@ -122,9 +135,9 @@ class BasicFFT: Node {
         source = Water(
             amplitude: Float(BasicFFT.amplitude),
             wind_velocity: BasicFFT.wind_velocity,
-            resolution: SIMD2<Int>(x: BasicFFT.distributionSize, y: BasicFFT.distributionSize),
-            size: float2(x: Terrain.terrainSize * 8, y: Terrain.terrainSize * 8),
-            normalmap_freq_mod: float2(repeating: 1)
+            resolution: SIMD2<Int>(x: BasicFFT.distributionSize, y: BasicFFT.distributionSize), // Determines the amount of random numbers
+            size: float2(x: Terrain.terrainSize, y: Terrain.terrainSize), // Size is used for amplitude modifiers
+            normalmap_freq_mod: float2(repeating: 1) // Don't use this.... idk
         )
 
         guard
@@ -209,7 +222,7 @@ class BasicFFT: Node {
             imagPointer = imagPointer.advanced(by: 1)
         }
         
-        /
+    
 
         let recreatedSignal: [Float] =
             inputReal.withUnsafeMutableBufferPointer { forwardOutputRealPtr in
