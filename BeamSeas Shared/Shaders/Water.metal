@@ -252,13 +252,26 @@ kernel void fft_kernel(texture2d<float, access::write> output_texture [[ texture
     uint width = output_texture.get_width();
     uint height = output_texture.get_height();
 
+    // output_text: 512
+    // data:        128
+    // Data is 1/4 the size of the image
+    // Need to divide index by 4 & then mix between whole number max / min
+    // No, wait, i need to multiplyl the tid by 4
+    
+    // TID SHOULD MATCH TEXTURE YO
+    // with the tid being correct - or the right amount of data - can we just use that and not have to fuck up the index with width?
+    // or... something
+    float scale = 1.0/4.0;
     if (tid.x < width && tid.y < height) {
-        uint index = (uint)(tid.y * width + tid.x);
-        float val = data[index];
-        val = (val - -1) / (1 - -1);
-//        val = val * 0.5 + 0.5;
+//        uint floorIndex = (uint)floor(float(tid.y * width + tid.x) * scale);
+//        uint ceilIndex = (uint)ceil(float(tid.y * width + tid.x) * scale);
         
-        output_texture.write(float4(val, val, val, 1), tid);
+//        float val = mix(data[floorIndex], data[ceilIndex], 0.5);
+//        float val = data[index];
+//        val = (val - -1) / (1 - -1);
+        
+//        val = val * 0.5 + 0.5; // DONT USE
 
+        output_texture.write(float4(1.0, 0, 0, 1), tid);
     }
 }

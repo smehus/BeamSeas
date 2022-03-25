@@ -340,27 +340,31 @@ extension BasicFFT: Renderable {
         // Create diplacement & height maps
 
         computeEncoder.pushDebugGroup("FFT-Drawing-Height")
-        let w = fftPipelineState.threadExecutionWidth
-        let h = fftPipelineState.maxTotalThreadsPerThreadgroup / w
-        let threadGroupSize = MTLSizeMake(1, 1, 1)
-        var threadgroupCount = MTLSizeMake(BasicFFT.textureSize, BasicFFT.textureSize, 1)
+//        let w = fftPipelineState.threadExecutionWidth
+//        let h = fftPipelineState.maxTotalThreadsPerThreadgroup / w
 
         computeEncoder.setComputePipelineState(fftPipelineState)
         computeEncoder.setTexture(heightMap, index: 0)
         computeEncoder.setBuffer(dataBuffer, offset: 0, index: 0)
-        computeEncoder.dispatchThreadgroups(threadgroupCount, threadsPerThreadgroup: threadGroupSize)
+        computeEncoder.dispatchThreadgroups(
+            MTLSizeMake(1, 512, 1), // Adds up to the amount of values in ROWS (512)
+            threadsPerThreadgroup: MTLSizeMake(512, 1, 1) // Add up to amount of values in COLUMNS (512)
+        )
         computeEncoder.popDebugGroup()
 
-        computeEncoder.pushDebugGroup("FFT-Drawing-Displacement")
+//        computeEncoder.pushDebugGroup("FFT-Drawing-Displacement")
 
-        threadgroupCount.width = BasicFFT.textureSize >> 1
-        threadgroupCount.height = BasicFFT.textureSize >> 1
+//        threadgroupCount.width = BasicFFT.textureSize >> 1
+//        threadgroupCount.height = BasicFFT.textureSize >> 1
 
-        computeEncoder.setComputePipelineState(fftPipelineState)
-        computeEncoder.setTexture(displacementMap, index: 0)
-        computeEncoder.setBuffer(displacementBuffer, offset: 0, index: 0)
-
-        computeEncoder.dispatchThreadgroups(threadgroupCount, threadsPerThreadgroup: threadGroupSize)
+//        computeEncoder.setComputePipelineState(fftPipelineState)
+//        computeEncoder.setTexture(displacementMap, index: 0)
+//        computeEncoder.setBuffer(displacementBuffer, offset: 0, index: 0)
+//
+//        computeEncoder.dispatchThreadgroups(
+//            MTLSizeMake(BasicFFT.textureSize, BasicFFT.textureSize, 1),
+//            threadsPerThreadgroup: MTLSizeMake(w, h, 1)
+//        )
         computeEncoder.popDebugGroup()
     }
 
