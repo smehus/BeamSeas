@@ -94,6 +94,8 @@ class BasicFFT: Node {
         Self.gradientMap = Renderer.device.makeTexture(descriptor: texDesc)!
         
         // Setup Textures for eventually creating the final textures above
+//        texDesc.width = 128
+//        texDesc.height = 128
         heightMap = Renderer.device.makeTexture(descriptor: texDesc)!
         texDesc.width = BasicFFT.textureSize >> 1
         texDesc.height = BasicFFT.textureSize >> 1
@@ -346,6 +348,8 @@ extension BasicFFT: Renderable {
         computeEncoder.setComputePipelineState(fftPipelineState)
         computeEncoder.setTexture(heightMap, index: 0)
         computeEncoder.setBuffer(dataBuffer, offset: 0, index: 0)
+        uniforms.distrubtionSize = UInt32(Self.distributionSize)
+        computeEncoder.setBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: BufferIndex.uniforms.rawValue)
         computeEncoder.dispatchThreadgroups(
             MTLSizeMake(1, 512, 1), // Adds up to the amount of values in ROWS (512)
             threadsPerThreadgroup: MTLSizeMake(512, 1, 1) // Add up to amount of values in COLUMNS (512)

@@ -246,6 +246,7 @@ fragment float4 fft_fragment(const FFTVertexOut in [[ stage_in ]],
 }
 
 kernel void fft_kernel(texture2d<float, access::write> output_texture [[ texture(0) ]],
+                       constant Uniforms &uniforms [[ buffer(BufferIndexUniforms) ]],
                        uint2 tid [[ thread_position_in_grid]],
                        constant float *data [[ buffer(0) ]])
 {
@@ -261,17 +262,22 @@ kernel void fft_kernel(texture2d<float, access::write> output_texture [[ texture
     // TID SHOULD MATCH TEXTURE YO
     // with the tid being correct - or the right amount of data - can we just use that and not have to fuck up the index with width?
     // or... something
-    float scale = 1.0/4.0;
-    if (tid.x < width && tid.y < height) {
-//        uint floorIndex = (uint)floor(float(tid.y * width + tid.x) * scale);
-//        uint ceilIndex = (uint)ceil(float(tid.y * width + tid.x) * scale);
+    float scale = float(uniforms.distrubtionSize) / float(width);
+//    if (tid.x < width && tid.y < height) {
+        uint floorIndex = (uint)floor(float(tid.y * width + tid.x) * scale);
+        uint ceilIndex = (uint)ceil(float(tid.y * width + tid.x) * scale);
+//
+        float val = mix(data[floorIndex], data[ceilIndex], 0.5);
+        val = (val - -1) / (1 - -1);
+//
+        output_texture.write(float4(val, val, val, 1), tid);
+
         
-//        float val = mix(data[floorIndex], data[ceilIndex], 0.5);
+        // ============ this shit works
+//        uint index = (uint)(tid.y * width + tid.x);
 //        float val = data[index];
 //        val = (val - -1) / (1 - -1);
-        
-//        val = val * 0.5 + 0.5; // DONT USE
-
-        output_texture.write(float4(1.0, 0, 0, 1), tid);
-    }
+//
+//        output_texture.write(float4(val, val, val, 1), tid);
+//    }
 }

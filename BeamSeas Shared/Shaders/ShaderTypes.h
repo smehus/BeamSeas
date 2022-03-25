@@ -73,6 +73,7 @@ typedef struct
     float currentTime;
     vector_float3 playerMovement;
     vector_float4 clipPlane;
+    uint distrubtionSize;
 } Uniforms;
 
 typedef struct
