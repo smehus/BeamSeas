@@ -375,11 +375,8 @@ extension BasicFFT: Renderable {
     func generateGradient(computeEncoder: MTLComputeCommandEncoder, uniforms: inout Uniforms) {
         // Bake height gradient - Combine displacement and height maps
         // Create final map to use for tessellation
-
-        let w = heightDisplacementGradientPipelineState.threadExecutionWidth
-        let h = heightDisplacementGradientPipelineState.maxTotalThreadsPerThreadgroup / w
-        let threadGroupSize = MTLSizeMake(w, h, 1)
-        let threadgroupCount = MTLSizeMake(BasicFFT.distributionSize, BasicFFT.distributionSize, 1)
+        let threadsPerGroup = MTLSizeMake(512, 1, 1)
+        let threadgroupCount = MTLSizeMake(1, 512, 1)
 
         computeEncoder.pushDebugGroup("FFT-Gradient")
         computeEncoder.setComputePipelineState(heightDisplacementGradientPipelineState)
@@ -409,7 +406,10 @@ extension BasicFFT: Renderable {
         computeEncoder.setBytes(&uScale, length: MemoryLayout<SIMD4<Float>>.stride, index: 1)
 
 
-        computeEncoder.dispatchThreads(threadgroupCount, threadsPerThreadgroup: threadGroupSize)
+        computeEncoder.dispatchThreadgroups(
+            MTLSizeMake(1, 512, 1), // Adds up to the amount of values in ROWS (512)
+            threadsPerThreadgroup: MTLSizeMake(512, 1, 1) // Add up to amount of values in COLUMNS (512)
+        )
         computeEncoder.popDebugGroup()
     }
 

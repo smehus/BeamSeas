@@ -262,12 +262,16 @@ kernel void fft_kernel(texture2d<float, access::write> output_texture [[ texture
     // TID SHOULD MATCH TEXTURE YO
     // with the tid being correct - or the right amount of data - can we just use that and not have to fuck up the index with width?
     // or... something
-    float scale = float(uniforms.distrubtionSize) / float(width);
+    float distSize = float(uniforms.distrubtionSize * uniforms.distrubtionSize);
+    float texSize = float(width * width);
+    
+    float scale =  distSize / texSize;
 //    if (tid.x < width && tid.y < height) {
-        uint floorIndex = (uint)floor(float(tid.y * width + tid.x) * scale);
-        uint ceilIndex = (uint)ceil(float(tid.y * width + tid.x) * scale);
+        float index = float(tid.y * width + tid.x) * scale;
+        uint floorIndex = (uint)floor(index);
+        uint ceilIndex = (uint)ceil(index);
 //
-        float val = mix(data[floorIndex], data[ceilIndex], 0.5);
+        float val = smoothstep(data[floorIndex], data[ceilIndex], 0.5);
         val = (val - -1) / (1 - -1);
 //
         output_texture.write(float4(val, val, val, 1), tid);
