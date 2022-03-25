@@ -388,10 +388,10 @@ extension BasicFFT: Renderable {
         computeEncoder.setTexture(Self.gradientMap, index: 3)
 
         var invSize = float4(
-            x: 1.0 / Float(BasicFFT.distributionSize),
-            y: 1.0 / Float(BasicFFT.distributionSize),
-            z: 1.0 / Float(BasicFFT.distributionSize >> 1),
-            w: 1.0 / Float(BasicFFT.distributionSize >> 1)
+            x: 1.0 / Float(BasicFFT.textureSize),
+            y: 1.0 / Float(BasicFFT.textureSize),
+            z: 1.0 / Float(BasicFFT.textureSize >> 1),
+            w: 1.0 / Float(BasicFFT.textureSize >> 1)
         )
 
         computeEncoder.setBytes(&invSize, length: MemoryLayout<SIMD4<Float>>.stride, index: 0)

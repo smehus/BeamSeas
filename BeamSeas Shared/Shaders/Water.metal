@@ -171,7 +171,7 @@ kernel void compute_height_displacement_graident(uint2 pid [[ thread_position_in
 {
 
     constexpr sampler s;
-    float4 uv = (float2(pid.xy) * uInvSize.xy).xyxy + 0.5 * uInvSize;
+    float4 uv = (float2(pid.xy) * uInvSize.xy).xyxy;
 
     float h = heightMap.sample(s, uv.xy).r;
 

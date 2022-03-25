@@ -317,3 +317,9 @@ extension float4x4 {
         simd_quatf(self)
     }
 }
+
+extension Int {
+    var squared: Int {
+        return self * self
+    }
+}
