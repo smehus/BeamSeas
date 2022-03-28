@@ -193,12 +193,6 @@ kernel void compute_height_displacement_graident(uint2 pid [[ thread_position_in
 
     float j = jacobian(half2(dDdx * uScale.z), half2(dDdy * uScale.z));
 
-
-    // write to heightDisplacement texture for final sampling in vertex
-    // Wait wat, we're drawing the texture in the bottom method
-    // This needs to be rethought through
-    // Can i just use one map that already has displacement & height?
-//    float heighDis = mix(h, displacement, 0.5);
     heightDisplacementMap.write(float4(h, h, h, 0.0), pid);
 
     // write to gradient texture for final sampling in fragment
@@ -266,18 +260,32 @@ kernel void fft_kernel(texture2d<float, access::write> output_texture [[ texture
     float texSize = float(width * width);
     
     float scale =  distSize / texSize;
-//    if (tid.x < width && tid.y < height) {
-        float index = float(tid.y * width + tid.x) * scale;
-        uint floorIndex = (uint)floor(index);
-        uint ceilIndex = (uint)ceil(index);
-//
-        float val = smoothstep(data[floorIndex], data[ceilIndex], 0.5);
-        val = (val - -1) / (1 - -1);
-//
-        output_texture.write(float4(val, val, val, 1), tid);
+    //    if (tid.x < width && tid.y < height) {
+    float index = float(tid.y * width + tid.x);
+    float scaledIndex = index * scale;
+    uint scaledFloorIndex = (uint)floor(scaledIndex);
+    uint scaledCeilIndex = (uint)ceil(scaledIndex);
+    
+    float floorVal = data[scaledFloorIndex];
+    float ceilVal = data[scaledCeilIndex];
+    // something like this
+//    float val = mix(floorVAl, ceilVal, interpolatedPercentValueBetweenTheTwo)
+    
+    uint unscaledFloorIndex = (uint)scaledFloorIndex / scale;
+    uint unscaledCeilIndex = (uint)scaledCeilIndex / scale;
+    
+    uint unscaledChunk = unscaledCeilIndex - unscaledFloorIndex;
+    uint indexPosition = unscaledCeilIndex - index;
 
-        
-        // ============ this shit works
+    float val = mix(floorVal, ceilVal, indexPosition / unscaledChunk);
+    val = (val - -1) / (1 - -1);
+    output_texture.write(float4(val, val, val, 1), tid);
+    
+
+    // Fuck it up real good with smoothstep
+//        float val = smoothstep(data[floorIndex], data[ceilIndex], 0.5);
+    
+        // ============ this shit works - but its old
 //        uint index = (uint)(tid.y * width + tid.x);
 //        float val = data[index];
 //        val = (val - -1) / (1 - -1);
