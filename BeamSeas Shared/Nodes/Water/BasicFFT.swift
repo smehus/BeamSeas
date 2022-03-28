@@ -64,7 +64,7 @@ class BasicFFT: Node {
     static let distributionSize: Int = 128
     static let textureSize: Int = 512
     static var wind_velocity = float2(x: 1, y: -26)
-    static var amplitude = 1200
+    static var amplitude = 3000
 
     override init() {
 

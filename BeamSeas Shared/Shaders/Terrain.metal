@@ -244,7 +244,7 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
                                           fragment_in.worldPosition.xyz,
                                           fragmentUniforms, lights,
                                           float3(0.2, 0.6, 0.9));
-    return float4(color, 1.0);
+    return float4(fragment_in.color.rgb, 1.0);
 }
 
 // This relies on the ehight an dnormal textures to be teh same size. 128x128
@@ -256,7 +256,7 @@ kernel void TerrainKnl_ComputeNormalsFromHeightmap(texture2d<float> height [[tex
     constexpr sampler sam(min_filter::nearest, mag_filter::nearest, mip_filter::none,
                           address::clamp_to_edge, coord::pixel);
 
-    float xz_scale = 0.2;
+    float xz_scale = 1.0;
     float y_scale = terrain.height;
 
     if (tid.x < height.get_width() && tid.y < height.get_height()) {
