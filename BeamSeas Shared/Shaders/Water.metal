@@ -303,5 +303,5 @@ kernel void fft_kernel(texture2d<float, access::write> output_texture [[ texture
     val = (val - -1) / (1 - -1);
     output_texture.write(float4(val, val, val, 1), tid);
     
-    // I THINK THIS IS SLOW AND SHITTY BECAUSE I'M INDEXING OUT OF BOUNDS YO \\
+    // I THINK THIS IS SLOW AND SHITTY BECAUSE I'M INDEXING OUT OF BOUNDS YO
 }
