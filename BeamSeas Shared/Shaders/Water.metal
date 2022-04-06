@@ -259,17 +259,27 @@ kernel void fft_kernel(texture2d<float, access::write> output_texture [[ texture
     
     float scale = 0.25;//width / uniforms.distrubtionSize;
     float2 distributionTID = float2(tid) * scale;
-    uint scaledTextureWidth = uniforms.distrubtionSize;
+    uint gridWidth = uniforms.distrubtionSize - 1;
     
+    // Index calculations
     uint distributionFloorY = (uint)floor(distributionTID.y);
     uint distributionCeilY = (uint)ceil(distributionTID.y);
     uint textureFloorY = distributionFloorY / scale;
     uint textureCeilY = distributionCeilY / scale;
-    uint yChunk = textureCeilY - textureFloorY;
-    uint yPosition = textureCeilY - tid.y;
     
-    uint floorYIndex = (uint)distributionFloorY * scaledTextureWidth + distributionTID.x;
-    uint ceilYIndex = (uint)distributionCeilY * scaledTextureWidth + distributionTID.x;
+    // How many texture coordinate units will equate to moving on distribution unit (scale is 0.25, 128 vs 512)
+    uint yChunk = textureCeilY - textureFloorY;
+    // Where the kernel tid (texture tid) fits  in the range of of yChunke
+    // if we break up the texture tid total (512, texture width) into chunks of 8.
+    // Which chunk of 8 does the current tid fit in.
+    // And how far in that range are we. between 0 - 8.
+    uint yPosition = yChunk - (textureCeilY - tid.y);
+    
+    // Floor and ceil shoudl be one off here. But they fucking aren't. Stupid maths.
+    // wait.... maybe they are supposed be way different because
+    // We're thinking inside the texture. So we need one y row above. Which is not 
+    uint floorYIndex = (uint)distributionFloorY * gridWidth + distributionTID.x;
+    uint ceilYIndex = (uint)distributionCeilY * gridWidth + distributionTID.x;
     float floorYVal = data[floorYIndex];
     float ceilYVal = data[ceilYIndex];
     float yVal = mix(floorYVal, ceilYVal, yPosition / yChunk);
@@ -280,10 +290,11 @@ kernel void fft_kernel(texture2d<float, access::write> output_texture [[ texture
     uint textureFloorX = distributionFloorX / scale;
     uint textureCeilX = distributionCeilX / scale;
     uint xChunk = textureCeilX - textureFloorX;
-    uint xPosition = textureCeilX - tid.x;
+    uint xPosition = xChunk - (textureCeilX - tid.x);
     
-    uint floorXIndex = (uint)distributionFloorX * scaledTextureWidth + distributionTID.x;
-    uint ceilXIndex = (uint)distributionCeilX * scaledTextureWidth + distributionTID.x;
+    gridWidth += 1; // i don't know why - maths
+    uint floorXIndex = (uint)distributionTID.y * gridWidth + distributionFloorX;
+    uint ceilXIndex = (uint)distributionTID.y * gridWidth + distributionCeilX;
     float floorXVal = data[floorXIndex];
     float ceilXVal = data[ceilXIndex];
     float xVal = mix(floorXVal, ceilXVal, xPosition / xChunk);
@@ -292,64 +303,5 @@ kernel void fft_kernel(texture2d<float, access::write> output_texture [[ texture
     val = (val - -1) / (1 - -1);
     output_texture.write(float4(val, val, val, 1), tid);
     
-//    float distSize = float(uniforms.distrubtionSize * uniforms.distrubtionSize);
-//    float texSize = float(width * width);
-//
-//
-//    float distributionIndex = (tid.y * width + tid.x);
-
-    
-    
-    
-    
-    
-//    float2 scaledTID = float2(tid) * scale;
-
-//    // Distribution index
-//    uint scaledVertFloorIndex = (uint)floor(scaledTID.y);
-//    uint scaledVertCeilIndex = (uint)ceil(scaledTID.y);
-//    uint scaledHorzFloorIndex = (uint)floor(scaledTID.x);
-//    uint scaledHorzCeilIndex = (uint)ceil(scaledTID.x);
-//
-//    // Texture index
-//    uint unscaledVertFloorIndex = (uint)scaledVertFloorIndex / scale;
-//    uint unscaledVertCeilIndex = (uint)scaledVertCeilIndex / scale;
-//    uint unscaledHorzFloorIndex = scaledHorzFloorIndex / scale;
-//    uint unscaledHorzCeilIndex = scaledHorzCeilIndex / scale;
-//
-//
-//    uint unscaledVertChunk = unscaledVertCeilIndex - unscaledVertFloorIndex;
-//    uint vertIndexPosition = unscaledVertCeilIndex - index;
-//
-    
-    
-//    uint scaledFloorIndex = (uint)floor(scaledIndex);
-//    uint scaledCeilIndex = (uint)ceil(scaledIndex);
-//
-//    float floorVal = data[scaledFloorIndex];
-//    float ceilVal = data[scaledCeilIndex];
-//    // something like this
-////    float val = mix(floorVAl, ceilVal, interpolatedPercentValueBetweenTheTwo)
-//
-//    uint unscaledFloorIndex = (uint)scaledFloorIndex / scale;
-//    uint unscaledCeilIndex = (uint)scaledCeilIndex / scale;
-//
-//    uint unscaledChunk = unscaledCeilIndex - unscaledFloorIndex;
-//    uint indexPosition = unscaledCeilIndex - index;
-//
-//    float val = mix(floorVal, ceilVal, indexPosition / unscaledChunk);
-//    val = (val - -1) / (1 - -1);
-//    output_texture.write(float4(val, val, val, 1), tid);
-//
-
-    // Fuck it up real good with smoothstep
-//        float val = smoothstep(data[floorIndex], data[ceilIndex], 0.5);
-    
-        // ============ this shit works - but its old
-//        uint index = (uint)(tid.y * width + tid.x);
-//        float val = data[index];
-//        val = (val - -1) / (1 - -1);
-//
-//        output_texture.write(float4(val, val, val, 1), tid);
-//    }
+    // I THINK THIS IS SLOW AND SHITTY BECAUSE I'M INDEXING OUT OF BOUNDS YO \\
 }
