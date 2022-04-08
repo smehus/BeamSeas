@@ -356,19 +356,16 @@ extension BasicFFT: Renderable {
         )
         computeEncoder.popDebugGroup()
 
-//        computeEncoder.pushDebugGroup("FFT-Drawing-Displacement")
+        computeEncoder.pushDebugGroup("FFT-Drawing-Displacement")
+        computeEncoder.setComputePipelineState(fftPipelineState)
+        computeEncoder.setTexture(displacementMap, index: 0)
+        computeEncoder.setBuffer(displacementBuffer, offset: 0, index: 0)
 
-//        threadgroupCount.width = BasicFFT.textureSize >> 1
-//        threadgroupCount.height = BasicFFT.textureSize >> 1
-
-//        computeEncoder.setComputePipelineState(fftPipelineState)
-//        computeEncoder.setTexture(displacementMap, index: 0)
-//        computeEncoder.setBuffer(displacementBuffer, offset: 0, index: 0)
-//
-//        computeEncoder.dispatchThreadgroups(
-//            MTLSizeMake(BasicFFT.textureSize, BasicFFT.textureSize, 1),
-//            threadsPerThreadgroup: MTLSizeMake(w, h, 1)
-//        )
+        computeEncoder.dispatchThreadgroups(
+            MTLSizeMake(1, BasicFFT.textureSize, 1),
+            threadsPerThreadgroup: MTLSizeMake(1, BasicFFT.textureSize, 1)
+        )
+        
         computeEncoder.popDebugGroup()
     }
 
@@ -464,25 +461,25 @@ extension BasicFFT: Renderable {
 
 
 
-//        renderEncoder.pushDebugGroup("Tiny Map - Displacement")
-//        position.x = -0.75
-//        position.y = 0.25
-//
-//        uniforms.modelMatrix = modelMatrix
-//        renderEncoder.setVertexBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: BufferIndex.uniforms.rawValue)
-//        renderEncoder.setFragmentBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: BufferIndex.uniforms.rawValue)
-//        renderEncoder.setFragmentTexture(Self.normalMapTexture, index: 0)
-////        renderEncoder.setVertexBuffer(model.vertexBuffers.first!.buffer, offset: 0, index: BufferIndex.vertexBuffer.rawValue)
-//        renderEncoder.setTriangleFillMode(.fill)
-//        renderEncoder.drawIndexedPrimitives(
-//            type: .triangle,
-//            indexCount: mesh.indexCount,
-//            indexType: mesh.indexType,
-//            indexBuffer: mesh.indexBuffer.buffer,
-//            indexBufferOffset: mesh.indexBuffer.offset
-//        )
-//
-//        renderEncoder.popDebugGroup()
+        renderEncoder.pushDebugGroup("Tiny Map - Displacement")
+        position.x = -0.75
+        position.y = 0.25
+
+        uniforms.modelMatrix = modelMatrix
+        renderEncoder.setVertexBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: BufferIndex.uniforms.rawValue)
+        renderEncoder.setFragmentBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: BufferIndex.uniforms.rawValue)
+        renderEncoder.setFragmentTexture(Self.normalMapTexture, index: 0)
+//        renderEncoder.setVertexBuffer(model.vertexBuffers.first!.buffer, offset: 0, index: BufferIndex.vertexBuffer.rawValue)
+        renderEncoder.setTriangleFillMode(.fill)
+        renderEncoder.drawIndexedPrimitives(
+            type: .triangle,
+            indexCount: mesh.indexCount,
+            indexType: mesh.indexType,
+            indexBuffer: mesh.indexBuffer.buffer,
+            indexBufferOffset: mesh.indexBuffer.offset
+        )
+
+        renderEncoder.popDebugGroup()
     }
 
 }
