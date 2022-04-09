@@ -256,7 +256,7 @@ kernel void TerrainKnl_ComputeNormalsFromHeightmap(texture2d<float> height [[tex
     constexpr sampler sam(min_filter::nearest, mag_filter::nearest, mip_filter::none,
                           address::clamp_to_edge, coord::pixel);
 
-    float xz_scale = 1.0;
+    float xz_scale = 128.0 / height.get_width();
     float y_scale = terrain.height;
 
     if (tid.x < height.get_width() && tid.y < height.get_height()) {

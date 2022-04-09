@@ -406,15 +406,20 @@ extension BasicFFT: Renderable {
     func generateTerrainNormals(computeEncoder: MTLComputeCommandEncoder, uniforms: inout Uniforms) {
 
         computeEncoder.pushDebugGroup("Generate Terrain Normals")
-        let w = normalPipelineState.threadExecutionWidth
-        let h = normalPipelineState.maxTotalThreadsPerThreadgroup / w
-        let threadsPerGroup = MTLSizeMake(w, h, 1)
         computeEncoder.setComputePipelineState(normalPipelineState)
         computeEncoder.setTexture(Self.heightDisplacementMap, index: 0)
         computeEncoder.setTexture(Self.normalMapTexture, index: 2)
         computeEncoder.setBytes(&Terrain.terrainParams, length: MemoryLayout<TerrainParams>.size, index: 3)
-        computeEncoder.setBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: BufferIndex.uniforms.rawValue)
-        computeEncoder.dispatchThreadgroups(MTLSizeMake(Self.normalMapTexture.width, Self.normalMapTexture.height, 1), threadsPerThreadgroup: threadsPerGroup)
+        computeEncoder.setBytes(
+            &uniforms,
+            length: MemoryLayout<Uniforms>.stride,
+            index: BufferIndex.uniforms.rawValue
+        )
+        
+        computeEncoder.dispatchThreadgroups(
+            MTLSizeMake(1, 512, 1),
+            threadsPerThreadgroup: MTLSizeMake(512, 1, 1)
+        )
         computeEncoder.popDebugGroup()
     }
 
