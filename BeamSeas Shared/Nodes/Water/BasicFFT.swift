@@ -92,14 +92,7 @@ class BasicFFT: Node {
         // Final textures for main pass
         Self.heightDisplacementMap = Renderer.device.makeTexture(descriptor: texDesc)!
         Self.gradientMap = Renderer.device.makeTexture(descriptor: texDesc)!
-        
-        // Setup Textures for eventually creating the final textures above
-//        texDesc.width = 128
-//        texDesc.height = 128
         heightMap = Renderer.device.makeTexture(descriptor: texDesc)!
-        texDesc.width = BasicFFT.textureSize >> 1
-        texDesc.height = BasicFFT.textureSize >> 1
-        texDesc.pixelFormat = .rgba16Float
         displacementMap = Renderer.device.makeTexture(descriptor: texDesc)!
 
         
@@ -191,7 +184,7 @@ class BasicFFT: Node {
             real: distribution_displacement_real,
             imag: distribution_displacement_imag,
             count: source.distribution_displacement_real.count + source.distribution_displacement_imag.count,
-            fft: downsampledFFT
+            fft: distributionFFT// use this for downsampling - downsampledFFT
         )
         
         displacementBuffer = Renderer.device.makeBuffer(
@@ -318,8 +311,8 @@ extension BasicFFT: Renderable {
 
 //        threadGroupSize.width = 64
 //        threadGroupSize.height = 1
-        threadgroupCount.width = (BasicFFT.distributionSize >> 1)// / 64
-        threadgroupCount.height = BasicFFT.distributionSize >> 1
+//        threadgroupCount.width = (BasicFFT.distributionSize >> 1)// / 64
+//        threadgroupCount.height = BasicFFT.distributionSize >> 1
 
         computeEncoder.pushDebugGroup("FFT-Displacement")
         computeEncoder.setComputePipelineState(displacementPipelineState)
@@ -362,16 +355,16 @@ extension BasicFFT: Renderable {
         computeEncoder.setBuffer(displacementBuffer, offset: 0, index: 0)
 
         computeEncoder.dispatchThreadgroups(
-            MTLSizeMake(1, BasicFFT.textureSize, 1),
-            threadsPerThreadgroup: MTLSizeMake(1, BasicFFT.textureSize, 1)
+            MTLSizeMake(1, 512, 1), // Adds up to the amount of values in ROWS (512)
+            threadsPerThreadgroup: MTLSizeMake(512, 1, 1) // Add up to amount of values in COLUMNS (512)
         )
         
         computeEncoder.popDebugGroup()
     }
-
+    
+    // Bake height gradient - Combine displacement and height maps
+    // Create final map to use for tessellation
     func generateGradient(computeEncoder: MTLComputeCommandEncoder, uniforms: inout Uniforms) {
-        // Bake height gradient - Combine displacement and height maps
-        // Create final map to use for tessellation
         let threadsPerGroup = MTLSizeMake(512, 1, 1)
         let threadgroupCount = MTLSizeMake(1, 512, 1)
 
