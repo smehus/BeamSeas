@@ -407,7 +407,7 @@ extension BasicFFT: Renderable {
 
         computeEncoder.pushDebugGroup("Generate Terrain Normals")
         computeEncoder.setComputePipelineState(normalPipelineState)
-        computeEncoder.setTexture(Self.heightDisplacementMap, index: 0)
+        computeEncoder.setTexture(heightMap, index: 0)
         computeEncoder.setTexture(Self.normalMapTexture, index: 2)
         computeEncoder.setBytes(&Terrain.terrainParams, length: MemoryLayout<TerrainParams>.size, index: 3)
         computeEncoder.setBytes(

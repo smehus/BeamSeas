@@ -244,9 +244,17 @@ kernel void fft_kernel(texture2d<float, access::write> output_texture [[ texture
                        uint2 tid [[ thread_position_in_grid]],
                        constant float *data [[ buffer(0) ]])
 {
-    uint width = output_texture.get_width();
-    uint height = output_texture.get_height();
-
+//    uint width = output_texture.get_width();
+//    uint height = output_texture.get_height();
+//
+//    if (tid.x < width && tid.y < height) {
+//        uint index = (uint)(tid.y * width + tid.x);
+//        float val = data[index];
+//        val = (val - -1) / (1 - -1);
+//        output_texture.write(float4(val, val, val, 1), tid);
+//    }
+    
+    
     // output_text: 512
     // data:        128
     // Data is 1/4 the size of the image
@@ -305,3 +313,18 @@ kernel void fft_kernel(texture2d<float, access::write> output_texture [[ texture
     
     // I THINK THIS IS SLOW AND SHITTY BECAUSE I'M INDEXING OUT OF BOUNDS YO
 }
+
+
+// Original body
+//uint width = output_texture.get_width();
+//uint height = output_texture.get_height();
+//
+//if (tid.x < width && tid.y < height) {
+//    uint index = (uint)(tid.y * width + tid.x);
+//    float val = data[index];
+//    val = (val - -1) / (1 - -1);
+////        val = val * 0.5 + 0.5;
+//
+//    output_texture.write(float4(val, val, val, 1), tid);
+//
+//}
