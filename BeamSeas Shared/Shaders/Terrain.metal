@@ -251,13 +251,14 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
 kernel void TerrainKnl_ComputeNormalsFromHeightmap(texture2d<float> height [[texture(0)]],
                                                    texture2d<float, access::write> normal [[texture(2)]],
                                                    constant TerrainParams &terrain [[ buffer(3) ]],
+                                                   constant Uniforms &uniforms [[ buffer(BufferIndexUniforms) ]],
                                                    uint2 tid [[thread_position_in_grid]])
 {
     constexpr sampler sam(min_filter::nearest, mag_filter::nearest, mip_filter::none,
                           address::clamp_to_edge, coord::pixel);
 
-    float xz_scale = 128.0 / height.get_width();
-    float y_scale = terrain.height;
+    float xz_scale = float(uniforms.distrubtionSize) / float(height.get_width());
+    float y_scale = terrain.height / xz_scale;
 
     if (tid.x < height.get_width() && tid.y < height.get_height()) {
         float h_up     = height.sample(sam, (float2)(tid + uint2(0, 1))).r;

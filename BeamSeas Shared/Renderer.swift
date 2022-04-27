@@ -31,14 +31,14 @@ final class Renderer: NSObject {
         
 //        let instance = ArcballCamera()
 //        instance.distance = 80
-//        instance.target = terrain.position
+//        instance.target = player.position
 //        instance.rotation.x = Float(-10).degreesToRadians
 //        instance.rotation.y = Float(-60).degreesToRadians
  
 
         let instance = BaseThirdPersonCamera(focus: player)
-        instance.focusDistance = 100
-        instance.focusHeight = 50
+        instance.focusDistance = 50
+        instance.focusHeight = 25
         
 //        let instance = ThirdPersonCamera(focus: player, scaffolding: mapScaffolding)
 //        instance.focusDistance = 300
