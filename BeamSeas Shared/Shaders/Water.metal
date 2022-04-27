@@ -244,87 +244,11 @@ kernel void fft_kernel(texture2d<float, access::write> output_texture [[ texture
                        uint2 tid [[ thread_position_in_grid]],
                        constant float *data [[ buffer(0) ]])
 {
-//    uint width = output_texture.get_width();
-//    uint height = output_texture.get_height();
-//
-//    if (tid.x < width && tid.y < height) {
-//        uint index = (uint)(tid.y * width + tid.x);
-//        float val = data[index];
-//        val = (val - -1) / (1 - -1);
-//        output_texture.write(float4(val, val, val, 1), tid);
-//    }
-    
-    
-    // output_text: 512
-    // data:        128
-    // Data is 1/4 the size of the image
-    // Need to divide index by 4 & then mix between whole number max / min
-    // No, wait, i need to multiplyl the tid by 4
-    
-    // TID SHOULD MATCH TEXTURE YO
-    // with the tid being correct - or the right amount of data - can we just use that and not have to fuck up the index with width?
-    // or... something
-    
-    float scale = 0.25;//width / uniforms.distrubtionSize;
-    float2 distributionTID = float2(tid) * scale;
-    uint gridWidth = uniforms.distrubtionSize - 1;
-    
-    // Index calculations
-    uint distributionFloorY = (uint)floor(distributionTID.y);
-    uint distributionCeilY = (uint)ceil(distributionTID.y);
-    uint textureFloorY = distributionFloorY / scale;
-    uint textureCeilY = distributionCeilY / scale;
-    
-    // How many texture coordinate units will equate to moving on distribution unit (scale is 0.25, 128 vs 512)
-    uint yChunk = textureCeilY - textureFloorY;
-    // Where the kernel tid (texture tid) fits  in the range of of yChunke
-    // if we break up the texture tid total (512, texture width) into chunks of 8.
-    // Which chunk of 8 does the current tid fit in.
-    // And how far in that range are we. between 0 - 8.
-    uint yPosition = yChunk - (textureCeilY - tid.y);
-    
-    // Floor and ceil shoudl be one off here. But they fucking aren't. Stupid maths.
-    // wait.... maybe they are supposed be way different because
-    // We're thinking inside the texture. So we need one y row above. Which is not 
-    uint floorYIndex = (uint)distributionFloorY * gridWidth + distributionTID.x;
-    uint ceilYIndex = (uint)distributionCeilY * gridWidth + distributionTID.x;
-    float floorYVal = data[floorYIndex];
-    float ceilYVal = data[ceilYIndex];
-    float yVal = mix(floorYVal, ceilYVal, yPosition / yChunk);
-    
-    
-    uint distributionFloorX = (uint)floor(distributionTID.x);
-    uint distributionCeilX = (uint)ceil(distributionTID.x);
-    uint textureFloorX = distributionFloorX / scale;
-    uint textureCeilX = distributionCeilX / scale;
-    uint xChunk = textureCeilX - textureFloorX;
-    uint xPosition = xChunk - (textureCeilX - tid.x);
-    
-    gridWidth += 1; // i don't know why - maths
-    uint floorXIndex = (uint)distributionTID.y * gridWidth + distributionFloorX;
-    uint ceilXIndex = (uint)distributionTID.y * gridWidth + distributionCeilX;
-    float floorXVal = data[floorXIndex];
-    float ceilXVal = data[ceilXIndex];
-    float xVal = mix(floorXVal, ceilXVal, xPosition / xChunk);
-    
-    float val = mix(xVal, yVal, 0.5);
+    uint y = tid.y - (uint(tid.y / uniforms.distrubtionSize) * uniforms.distrubtionSize);
+    uint x = tid.x - (uint(tid.x / uniforms.distrubtionSize) * uniforms.distrubtionSize);
+    uint index = (uint)(y * uniforms.distrubtionSize + x);
+    float val = data[index];
     val = (val - -1) / (1 - -1);
+        
     output_texture.write(float4(val, val, val, 1), tid);
-    
-    // I THINK THIS IS SLOW AND SHITTY BECAUSE I'M INDEXING OUT OF BOUNDS YO
 }
-
-
-// Original body
-//uint width = output_texture.get_width();
-//uint height = output_texture.get_height();
-//
-//if (tid.x < width && tid.y < height) {
-//    uint index = (uint)(tid.y * width + tid.x);
-//    float val = data[index];
-//    val = (val - -1) / (1 - -1);
-////        val = val * 0.5 + 0.5;
-//
-//    output_texture.write(float4(val, val, val, 1), tid);
-//
-//}
