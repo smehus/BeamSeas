@@ -239,12 +239,12 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
     // 128X128
     float2 normalCoords = fragment_in.uv;
     float4 normal = normalMap.sample(s, normalCoords) * 2.0 - 1.0;
-    
+    float4 landTextureColor = landTexture.sample(s, normalCoords);
     float3 color = terrainDiffuseLighting(normal.rgb,
                                           fragment_in.worldPosition.xyz,
                                           fragmentUniforms, lights,
-                                          float3(0.2, 0.6, 0.9));
-    return float4(color, 1.0);
+                                          landTextureColor.rgb);
+    return fragment_in.color;
 }
 
 // This relies on the ehight an dnormal textures to be teh same size. 128x128

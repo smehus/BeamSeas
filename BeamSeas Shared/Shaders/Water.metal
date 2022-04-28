@@ -18,6 +18,7 @@ struct FFTVertexOut {
 
 struct FFTVertexIn {
     float4 position [[ attribute(VertexAttributePosition) ]];
+    float2 UV [[ attribute(VertexAttributeUV) ]];
 };
 
 float2 alias(float2 i, float2 N)
@@ -193,7 +194,7 @@ kernel void compute_height_displacement_graident(uint2 pid [[ thread_position_in
 
     float j = jacobian(half2(dDdx * uScale.z), half2(dDdy * uScale.z));
 
-    heightDisplacementMap.write(float4(h, h, h, 0.0), pid);
+    heightDisplacementMap.write(float4(h, displacement, 0.0), pid);
 
     // write to gradient texture for final sampling in fragment
     gradientMap.write(float4(grad, j, 0.0), pid);
@@ -205,36 +206,16 @@ vertex FFTVertexOut fft_vertex(const FFTVertexIn in [[ stage_in ]],
                                constant float2 &viewPort [[ buffer(BufferIndexViewport) ]]) {
     return {
         .position = uniforms.modelMatrix * in.position,
-        .textureCoordinates =  in.position.xy
+        .textureCoordinates =  in.UV
     };
 }
 
 fragment float4 fft_fragment(const FFTVertexOut in [[ stage_in ]],
                              constant Uniforms &uniforms [[ buffer(BufferIndexUniforms)]],
                              constant float2 &viewPort [[ buffer(BufferIndexViewport) ]],
-                             texture2d<float> noiseMap [[ texture(0) ]],
-                             texture2d<float> testMap [[ texture(1) ]]) {
-    constexpr sampler sam;
-
-    float2 xy;
-    float3 screenCoord = uniforms.modelMatrix.columns[3].xyz;
-    float width = viewPort.x * 0.25;
-    float height = viewPort.y * 0.25;
-
-    if (screenCoord.y == 0.25) {
-        float yOrigin = viewPort.y * screenCoord.y;
-
-        float x = in.position.x / width;
-        float normalizedY = in.position.y - yOrigin;
-        float y = normalizedY / height;
-        xy = float2(x, y);
-    } else {
-        float x = in.position.x / width;
-        float y = in.position.y / height;
-        xy = float2(x, y);
-    }
-
-    float4 color = noiseMap.sample(sam, xy);
+                             texture2d<float> noiseMap [[ texture(0) ]]) {
+    constexpr sampler s(filter::linear);
+    float4 color = noiseMap.sample(s, in.textureCoordinates);
 
     return float4(color.xyz, 1.0);
 }

@@ -68,7 +68,7 @@ class Water {
     private let Nx: Int
     private let Nz: Int
     private let size: SIMD2<Float>
-    private let size_normal: SIMD2<Float>
+//    private let size_normal: SIMD2<Float>
 
 
     private let L: Float
@@ -91,7 +91,7 @@ class Water {
         self.Nx = resolution.x
         self.Nz = resolution.y
         self.size = size
-        self.size_normal = size / normalmap_freq_mod
+//        self.size_normal = size / normalmap_freq_mod
 
         // Factor in phillips spectrum
         L = simd_dot(wind_velocity, wind_velocity) / Self.G;

@@ -128,7 +128,7 @@ class Terrain: Node {
         
         samplerState = Renderer.device.makeSamplerState(descriptor: samplerDescriptor)
         
-        landTexture = Self.loadTexture(imageName: "sand", path: "jpg")
+        landTexture = Self.loadTexture(imageName: "water", path: "jpg")
 
 //        texDesc.width = altHeightMap.width
 //        texDesc.height = altHeightMap.height
