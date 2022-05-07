@@ -31,9 +31,7 @@ final class Renderer: NSObject {
         
 //        let instance = ArcballCamera()
 //        instance.distance = 80
-//        instance.target = player.position
-//        instance.rotation.x = Float(-10).degreesToRadians
-//        instance.rotation.y = Float(-60).degreesToRadians
+//        instance.target = SIMD3<Float>(0, 5200, 0)
  
 
         let instance = BaseThirdPersonCamera(focus: player)
@@ -246,7 +244,11 @@ extension Renderer: MTKViewDelegate {
 
         var lights = lighting.lights
         let fps = Float(Float(1) / Float(view.preferredFramesPerSecond))
-        lastUpdateTime += fps
+//        lastUpdateTime += fps
+        
+        var light = lights.first!
+        light.position.x += 0.5
+        lighting.lights = [light]
         
         uniforms.currentTime = lastUpdateTime
         uniforms.projectionMatrix = camera.projectionMatrix

@@ -64,7 +64,7 @@ class BasicFFT: Node {
     static let distributionSize: Int = 128
     static let textureSize: Int = 256
     static var wind_velocity = float2(x: -8, y: 30)
-    static var amplitude = 500
+    static var amplitude = 1000
 
     override init() {
 
@@ -86,7 +86,7 @@ class BasicFFT: Node {
         // Second time! Changing from 32 bit to 16 bit fixed phone choppiness when moving texture coordinates.
         texDesc.pixelFormat = .rgba16Float
         texDesc.usage = [.shaderRead, .shaderWrite]
-        //        texDesc.mipmapLevelCount = Int(log2(Double(max(Terrain.normalMapTexture.width, Terrain.normalMapTexture.height))) + 1);
+        
         texDesc.storageMode = .private
 
         // Final textures for main pass
@@ -95,11 +95,18 @@ class BasicFFT: Node {
         heightMap = Renderer.device.makeTexture(descriptor: texDesc)!
         displacementMap = Renderer.device.makeTexture(descriptor: texDesc)!
 
+//
+//        MTLTextureDescriptor* texDesc = [[MTLTextureDescriptor alloc] init];
+//        texDesc.width = heightMapWidth;
+//        texDesc.height = heightMapHeight;
+//        texDesc.pixelFormat = MTLPixelFormatRG11B10Float;
+//        texDesc.usage = MTLTextureUsageShaderRead | MTLTextureUsageShaderWrite;
+//        texDesc.mipmapLevelCount = std::log2(MAX(heightMapWidth, heightMapHeight)) + 1;
+//        texDesc.storageMode = MTLStorageModePrivate;
+//        _terrainNormalMap = [device newTextureWithDescriptor:texDesc];
         
-        
-//        texDesc.pixelFormat = .rg11b10Floa
+        texDesc.mipmapLevelCount = Int(log2(Double(max(BasicFFT.textureSize, BasicFFT.textureSize))) + 1);
         texDesc.pixelFormat = .rg11b10Float
-//        texDesc.mipmapLevelCount = Int(log2(Double(max(BasicFFT.heightDisplacementMap.width, BasicFFT.heightDisplacementMap.height))) + 1);
         texDesc.storageMode = .private
         Self.normalMapTexture = Renderer.device.makeTexture(descriptor: texDesc)!
 

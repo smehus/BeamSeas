@@ -60,7 +60,7 @@ extension Renderer {
             switch light.type {
             case Pointlight:
                 drawPointLight(renderEncoder: renderEncoder, position: light.position,
-                               color: light.color)
+                               color: float3(0, 1, 0))
             case Spotlight:
                 drawPointLight(renderEncoder: renderEncoder, position: light.position,
                                color: light.color)
@@ -85,7 +85,7 @@ extension Renderer {
         let buffer = Renderer.device.makeBuffer(bytes: &vertices,
                                                 length: MemoryLayout<float3>.stride * vertices.count,
                                                 options: [])
-        uniforms.modelMatrix = float4x4.identity()
+        uniforms.modelMatrix = .identity() * float4x4(translation: position) * .identity()
         renderEncoder.setVertexBytes(&uniforms,
                                      length: MemoryLayout<Uniforms>.stride, index: 1)
         var lightColor = color

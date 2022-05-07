@@ -150,8 +150,8 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
     // So that we an transition between ifftHeight & scaffoldHeight seamlessly
     position.y = max(scaffoldHeight, ifftPercentHeight.r);
     if (ifftPercentHeight.r > scaffoldHeight) {
-        position.x += (horizontalDisplacement.y);
-        position.z += (horizontalDisplacement.z);
+//        position.x += (horizontalDisplacement.y);
+//        position.z += (horizontalDisplacement.z);
     }
 
     constexpr sampler normalSampler(min_filter::linear, mag_filter::linear, mip_filter::nearest);
@@ -174,22 +174,38 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
 }
 
 float3 terrainDiffuseLighting(float3 normal,
-                       float3 position,
-                       constant FragmentUniforms &fragmentUniforms,
-                       constant Light *lights,
-                       float3 baseColor) {
+                              float3 position,
+                              constant FragmentUniforms &fragmentUniforms,
+                              constant Light *lights,
+                              float3 baseColor) {
+//    float3 baseColor = float3(1, 1, 1);
     float3 diffuseColor = 0;
+    float3 ambientColor = 0;
+    float3 specularColor = 0;
+    float materialShininess = 32;
+    float3 materialSpecularColor = float3(1, 1, 1);
+    
     float3 normalDirection = normalize(normal);
     for (uint i = 0; i < fragmentUniforms.light_count; i++) {
         Light light = lights[i];
         if (light.type == Sunlight) {
-            float3 zero = float3(0, 5000, 0);
-            float3 lightDirection = normalize(light.position - zero);
-            float diffuseIntensity = saturate(dot(lightDirection, normalDirection));
-            diffuseColor += light.color * light.intensity * baseColor * diffuseIntensity;
+            float3 lightDirection = normalize(float3(light.position.x, light.position.y - 5000, light.position.z));
+            float dotVal = dot(lightDirection, normalDirection);
+            float diffuseIntensity = saturate(dotVal);
+            diffuseColor += light.color * baseColor * diffuseIntensity;
+            
+            if (diffuseIntensity > 0) {
+                float3 reflection = reflect(lightDirection, normalDirection);
+                float3 cameraDirection = normalize(position - fragmentUniforms.camera_position);
+                float specularIntensity = pow(saturate(-dot(reflection, cameraDirection)), materialShininess);
+                specularColor += light.specularColor * materialSpecularColor * specularIntensity;
+            }
+        } else if (light.type == Ambientlight) {
+            ambientColor += light.color * light.intensity;
         }
     }
-    return diffuseColor;
+    
+    return diffuseColor + ambientColor + specularColor;
 }
 
 float4 sepiaShader(float4 color) {
@@ -221,7 +237,7 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
                                  texturecube<float> worldMapTexture [[ texture(TextureIndexWorldMap) ]],
                                  texture2d<float> landTexture [[ texture(TextureIndexScaffoldLand) ]])
 {
-    constexpr sampler s(filter::linear, address::repeat);
+    constexpr sampler s(min_filter::linear, mag_filter::linear, mip_filter::nearest);
     
     // Reflection
     // Refraction - Mimicks see through water - see the ground below
@@ -240,11 +256,20 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
     float2 normalCoords = fragment_in.uv;
     float4 normal = normalMap.sample(s, normalCoords) * 2.0 - 1.0;
     float4 landTextureColor = landTexture.sample(s, normalCoords);
+
+    // DEBUG
+//    float3 normalDirection = normalize(normal.rgb);
+//    float3 lightPosition = float3(lights[0].position.x, lights[0].position.y - 5000, lights[0].position.z);
+//    float3 lightDirection = normalize(lightPosition);
+//    float dotVal = dot(lightDirection, normalDirection);
+//    return float4(dotVal, dotVal, dotVal, 1.0);
+    // DEBUG
+    
     float3 color = terrainDiffuseLighting(normal.rgb,
                                           fragment_in.worldPosition.xyz,
                                           fragmentUniforms, lights,
-                                          landTextureColor.rgb);
-    return fragment_in.color;
+                                          float3(0.2, 0.4, 0.9));
+    return float4(color, 1.0);
 }
 
 // This relies on the ehight an dnormal textures to be teh same size. 128x128
@@ -257,8 +282,9 @@ kernel void TerrainKnl_ComputeNormalsFromHeightmap(texture2d<float> height [[tex
     constexpr sampler sam(min_filter::nearest, mag_filter::nearest, mip_filter::none,
                           address::clamp_to_edge, coord::pixel);
 
-    float xz_scale = float(uniforms.distrubtionSize) / float(height.get_width());
-    float y_scale = terrain.height / xz_scale;
+//    float xz_scale = (float(uniforms.distrubtionSize) / float(height.get_width()) / 2);
+    float xz_scale = 0.001;
+    float y_scale = 0.2;
 
     if (tid.x < height.get_width() && tid.y < height.get_height()) {
         float h_up     = height.sample(sam, (float2)(tid + uint2(0, 1))).r;
