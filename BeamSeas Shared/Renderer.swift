@@ -244,11 +244,7 @@ extension Renderer: MTKViewDelegate {
 
         var lights = lighting.lights
         let fps = Float(Float(1) / Float(view.preferredFramesPerSecond))
-//        lastUpdateTime += fps
-        
-//        var light = lights.first!
-//        light.position.x += 0.5
-//        lighting.lights = [light]
+        lastUpdateTime += fps
         
         uniforms.currentTime = lastUpdateTime
         uniforms.projectionMatrix = camera.projectionMatrix

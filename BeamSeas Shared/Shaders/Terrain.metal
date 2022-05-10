@@ -236,7 +236,9 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
                                  texturecube<float> worldMapTexture [[ texture(TextureIndexWorldMap) ]],
                                  texture2d<float> landTexture [[ texture(TextureIndexScaffoldLand) ]])
 {
-    constexpr sampler s(min_filter::linear, mag_filter::linear, mip_filter::nearest);
+    constexpr sampler s(filter::linear, address::repeat);
+//    constexpr sampler s(min_filter::linear, mag_filter::linear, mip_filter::nearest);
+
     
     // Reflection
     // Refraction - Mimicks see through water - see the ground below
