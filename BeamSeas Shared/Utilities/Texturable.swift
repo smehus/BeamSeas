@@ -95,12 +95,20 @@ extension Texturable {
 //                                   "negz.jpg"],
 //                           options: options)
         
-        return loadCubeMap(names: ["ridged_+x.png",
-                                   "ridged_-x.png",
-                                   "ridged_+y.png",
-                                   "ridged_-y.png",
-                                   "ridged_+z.png",
-                                   "ridged_-z.png"],
+//        return loadCubeMap(names: ["ridged_+x.png",
+//                                   "ridged_-x.png",
+//                                   "ridged_+y.png",
+//                                   "ridged_-y.png",
+//                                   "ridged_+z.png",
+//                                   "ridged_-z.png"],
+//                           options: options)
+        
+        return loadCubeMap(names: ["world_map_+x.png",
+                                   "world_map_-x.png",
+                                   "world_map_+y.png",
+                                   "world_map_-y.png",
+                                   "world_map_+z.png",
+                                   "world_map_-z.png"],
                            options: options)
     }
 }
