@@ -178,11 +178,10 @@ float3 terrainDiffuseLighting(float3 normal,
                               constant FragmentUniforms &fragmentUniforms,
                               constant Light *lights,
                               float3 baseColor) {
-//    float3 baseColor = float3(1, 1, 1);
     float3 diffuseColor = 0;
     float3 ambientColor = 0;
     float3 specularColor = 0;
-    float materialShininess = 32;
+    float materialShininess = 64;
     float3 materialSpecularColor = float3(1, 1, 1);
     
     float3 normalDirection = normalize(normal);
@@ -201,7 +200,7 @@ float3 terrainDiffuseLighting(float3 normal,
                 specularColor += light.specularColor * materialSpecularColor * specularIntensity;
             }
         } else if (light.type == Ambientlight) {
-            ambientColor += light.color * light.intensity;
+            ambientColor += baseColor * 0.01;
         }
     }
     
@@ -268,7 +267,7 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
     float3 color = terrainDiffuseLighting(normal.rgb,
                                           fragment_in.worldPosition.xyz,
                                           fragmentUniforms, lights,
-                                          float3(0.2, 0.4, 0.9));
+                                          float3(0.0 / 255.0, 105.0 / 255.0, 148.0 / 255.0));
     return float4(color, 1.0);
 }
 

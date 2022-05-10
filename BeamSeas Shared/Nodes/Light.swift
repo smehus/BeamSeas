@@ -34,16 +34,14 @@ struct Lighting {
     let ambientLight: Light = {
         var light = Lighting.buildDefaultLight()
         light.position = [0, 5200, 0]
-//        light.color = [0.3, 0.6, 0.8]
+        light.color = [Float(0.0 / 255.0), Float(105.0 / 255.0), Float(148.0 / 255.0)]
         light.type = Ambientlight
-        light.intensity = 0.2
+        light.intensity = 0.01
         return light
     }()
     let fillLight: Light = {
         var light = Lighting.buildDefaultLight()
         light.position = [0, 5200, 0]
-        light.specularColor = [0.3, 0.3, 0.3]
-        light.color = [0.3, 0.3, 0.3]
         light.type = Ambientlight
         return light
     }()
@@ -53,7 +51,7 @@ struct Lighting {
 
     init() {
 
-        lights = [sunlight]
+        lights = [fillLight, sunlight]
         count = UInt32(lights.count)
     }
 
