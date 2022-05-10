@@ -286,7 +286,8 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
                                  texture2d<float> refractionTexture [[ texture(TextureIndexRefraction) ]],
                                  texture2d<float> waterRippleTexture [[ texture(TextureIndexWaterRipple) ]],
                                  texturecube<float> worldMapTexture [[ texture(TextureIndexWorldMap) ]],
-                                 texture2d<float> landTexture [[ texture(TextureIndexScaffoldLand) ]]) {
+                                 sampler scaffoldingSampler [[ sampler(0) ]])
+{
     
     constexpr sampler mainSampler(filter::linear, address::repeat);
     float width = float(reflectionTexture.get_width() * 2.0);
