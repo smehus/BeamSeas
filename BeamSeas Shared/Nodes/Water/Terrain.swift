@@ -69,9 +69,6 @@ class Terrain: Node {
     
     override init() {
 
-//        heightMap = Self.loadTexture(imageName: Terrain.heightMapName, path: "jpg")
-//        altHeightMap = Self.loadTexture(imageName: Self.alterHeightMapName)
-
         let controlPoints = Self.createControlPoints(
             patches: patches,
             size: (width: Terrain.terrainParams.size.x,
