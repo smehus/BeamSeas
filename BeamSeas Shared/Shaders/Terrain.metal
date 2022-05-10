@@ -222,6 +222,7 @@ float4 sepiaShader(float4 color) {
 // Don't use water ripple texture when calculating lighting you dipshit.
 // Thats probably what makes the wave lighting so confusing to look at.
 
+/*
 fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
                                  constant Light *lights [[ buffer(BufferIndexLights) ]],
                                  constant Uniforms &uniforms [[ buffer(BufferIndexUniforms) ]],
@@ -271,6 +272,127 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
                                           fragmentUniforms, lights,
                                           float3(0.0 / 255.0, 105.0 / 255.0, 148.0 / 255.0));
     return float4(color, 1.0);
+}
+*/
+fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
+                                 constant Light *lights [[ buffer(BufferIndexLights) ]],
+                                 constant Uniforms &uniforms [[ buffer(BufferIndexUniforms) ]],
+                                 constant TerrainParams &terrainParams [[ buffer(BufferIndexTerrainParams) ]],
+                                 constant FragmentUniforms &fragmentUniforms [[ buffer(BufferIndexFragmentUniforms) ]],
+                                 texture2d<float> heightMap [[ texture(TextureIndexHeight) ]],
+                                 texture2d<float> gradientMap [[ texture(TextureIndexGradient) ]],
+                                 texture2d<float> normalMap [[ texture(TextureIndexNormal) ]],
+                                 texture2d<float> reflectionTexture [[ texture(TextureIndexReflection) ]],
+                                 texture2d<float> refractionTexture [[ texture(TextureIndexRefraction) ]],
+                                 texture2d<float> waterRippleTexture [[ texture(TextureIndexWaterRipple) ]],
+                                 texturecube<float> worldMapTexture [[ texture(TextureIndexWorldMap) ]],
+                                 texture2d<float> landTexture [[ texture(TextureIndexScaffoldLand) ]]) {
+    
+    constexpr sampler mainSampler(filter::linear, address::repeat);
+    float width = float(reflectionTexture.get_width() * 2.0);
+    float height = float(reflectionTexture.get_height() * 2.0);
+    float x = fragment_in.position.x / width;
+    float y = fragment_in.position.y / height;
+    float z = fragment_in.position.z / height;
+    float2 reflectionCoords = float2(x, 1 - y);
+    float2 refractionCoords = float2(x, y);
+    
+    float4 directionToFragment = fragment_in.parentFragmentPosition - fragmentUniforms.scaffoldingPosition;
+    float4 terrainToScaffold = normalize(directionToFragment);
+    float4 scaffoldSample = worldMapTexture.sample(scaffoldingSampler, terrainToScaffold.xyz);
+    // so that white is 0 and black is one
+    float4 invertedScaffoldColor = (1 - scaffoldSample);
+    // transform to -1 to 1 * constant variable
+    float4 scaffoldHeight = (invertedScaffoldColor * 2 - 1) * terrainParams.height;
+    
+    
+    // Multiplier determines ripple size
+    float timer = uniforms.currentTime * 0.007;
+    float2 rippleUV = fragment_in.uv * 0.5;
+    float waveStrength = 0.1;
+    float2 rippleX = float2(rippleUV.x/* + timer*/, rippleUV.y) + timer;
+    float2 rippleY = float2(rippleUV.x - timer, rippleUV.y);
+    
+    float4 rippleSampleX = waterRippleTexture.sample(mainSampler, rippleX);
+    float4 rippleSampleY = waterRippleTexture.sample(mainSampler, rippleY);
+    float2 normalizedRippleX = rippleSampleX.rg * 2.0 - 1.0;
+    float2 normalizedRippleY = rippleSampleY.rg * 2.0 - 1.0;
+    
+    // Is the problem that scaffold is a world map so i'm using 3d coords
+    // And this is a 2d texture so i'm using refractionCoords
+    // Maybe i can just take this from vertex shader - since this should map to position.y.
+    // so maybe check position.y & scaffold height.// But then it will just be the scaffold height from vertex so idk.
+    
+    // TEST - ONLY USE SCAFFOLD HEIGHT IN THE VERTEX.
+    // THAN GRAB THE SCAFFOLD WORLD HEIGHT HERE & CHECK TO MAKE SURE THEY ARE KINDA THE SAME.
+    // THAN DO THE SAME THING WITH THE POSITION.Y & THE WORLDIFFTHEIGHT DAWGGGGGGG
+    // THAN NEED TO JUST DECIDE? IDK - FIGURE IT OUT FROM THERE DIPSHIT
+    float4 heightDisplacement = heightMap.sample(mainSampler, refractionCoords);
+    float4 ifftHeight = (heightDisplacement * 2 - 1) * terrainParams.height;
+    float4 ifftPercentHeight = ifftHeight * scaffoldSample.r;
+    
+    float4 landWater = float4(0.4, 0.0, 0.2, 1.0);
+    // Do this before clamping yo
+    // I think i need to do a worldPosition comparision though.
+    // Cause it gets all squirrely when I compare height maps
+    float4 scaffoldPosition = fragmentUniforms.scaffoldingPosition;
+    scaffoldPosition.y += scaffoldHeight.r;
+    float4 scaffoldWorldPositions = uniforms.modelMatrix * scaffoldPosition;
+    
+    if (fragment_in.worldPosition.y < scaffoldWorldPositions.y) {
+        
+        float2 ripple = (normalizedRippleX + normalizedRippleY) * waveStrength;
+        reflectionCoords += ripple;
+        refractionCoords += ripple;
+        landWater = float4(0.8, 0.4, 0.6, 1.0);
+    }
+    
+    reflectionCoords = clamp(reflectionCoords, 0.001, 0.999);
+    refractionCoords = clamp(refractionCoords, 0.001, 0.999);
+    
+    //    float4 mixedColor = reflectionTexture.sample(reflectionSampler, reflectionCoords);
+    //    float4 mixedColor = refractionTexture.sample(mainSampler, refractionCoords);
+    float3 viewVector = normalize(fragment_in.toCamera);
+    float mixRatio = dot(viewVector, float3(0.0, 1.0, 0.0));
+    float4 mixedColor = mix(reflectionTexture.sample(mainSampler, reflectionCoords),
+                            refractionTexture.sample(mainSampler, refractionCoords),
+                            mixRatio);
+    
+    //    if (scaffoldHeight >= 0) {
+    //        mixedColor = mix(mixedColor, float4(0.1, scaffoldSample.r, 0.1, 1), 0.3);
+    //    } else {
+    //        mixedColor = mix(mixedColor, float4(0.2, 0.2, 0.6, 1), 0.3);
+    //    }
+    
+    
+    mixedColor = mix(mixedColor, landWater, 0.6);
+    
+    //    mixedColor = fragment_in.landColor;
+    
+    constexpr sampler sam(min_filter::linear, mag_filter::linear, mip_filter::nearest, address::repeat);
+    float3 vGradJacobian = gradientMap.sample(sam, fragment_in.vGradNormalTex.xy).xyz;
+    float2 noise_gradient = 0.3 * normalMap.sample(sam, fragment_in.vGradNormalTex.zw).xy;
+    float3 normalValue = normalMap.sample(mainSampler, fragment_in.uv).xzy;
+    
+    float jacobian = vGradJacobian.z;
+    float turbulence = max(2.0 - jacobian + dot(abs(noise_gradient.xy), float2(1.2)), 0.0);
+    
+    
+    // This is from example but not sure if i can use it \\
+    //    float3 normal = float3(-vGradJacobian.x, 1.0, -vGradJacobian.y);
+    //    normal.xz -= noise_gradient;
+    //    normal = normalize(normal);
+    
+    //  Need to double check creation of gradient map
+    //    float color_mod = 1.0  * smoothstep(1.3, 1.8, turbulence);
+    //
+    float3 specular = terrainDiffuseLighting(uniforms.normalMatrix * (normalValue * 2.0f - 1.0f), fragment_in.position.xyz, fragmentUniforms, lights, mixedColor.rgb);
+    //    return float4(1, 1, 1, 1);
+    //    return float4(1, 0, 0, 1);
+    //    return fragment_in.color;
+    //    return mixedColor;
+    return float4(specular, 1.0);
+    
 }
 
 // This relies on the ehight an dnormal textures to be teh same size. 128x128
