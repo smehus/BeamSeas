@@ -121,7 +121,6 @@ extension Model: Renderable {
         
         let heightValue = heightBuffer.contents().bindMemory(to: Float.self, capacity: 1).pointee
         assert(meshes.count == 1)
-//        let size = meshes.first!.mdlMesh.boundingBox.maxBounds - meshes.first!.mdlMesh.boundingBox.minBounds
         position.y = heightValue// - (size.y * 0.3)
 
         for state in moveStates {

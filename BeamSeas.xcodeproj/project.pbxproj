@@ -491,17 +491,17 @@
 		02419D81249851EF00BCB203 /* Shaders */ = {
 			isa = PBXGroup;
 			children = (
-				0240A112277A4821000780CD /* DebugBoundingBox.metal */,
-				02D773EE24B7571900811B88 /* PBR.metal */,
-				02419D4C249850BF00BCB203 /* ShaderTypes.h */,
-				02419D4A249850BF00BCB203 /* Shaders.metal */,
-				022B51E024B0E33B00FC5C81 /* Terrain.metal */,
-				02482E6A24DC4C750000B762 /* Water.metal */,
-				0276CF16256196540016910A /* ComputeHeight.metal */,
-				02A98655267A3F9C003C68FC /* Skybox.metal */,
-				022174F4268A11F600F9BCC9 /* WorldMap.metal */,
 				0240A11B277A50E6000780CD /* BasicShape.metal */,
 				02A5A1EA27988AE500679F4F /* CelShader.metal */,
+				0276CF16256196540016910A /* ComputeHeight.metal */,
+				0240A112277A4821000780CD /* DebugBoundingBox.metal */,
+				02D773EE24B7571900811B88 /* PBR.metal */,
+				02419D4A249850BF00BCB203 /* Shaders.metal */,
+				02419D4C249850BF00BCB203 /* ShaderTypes.h */,
+				02A98655267A3F9C003C68FC /* Skybox.metal */,
+				022B51E024B0E33B00FC5C81 /* Terrain.metal */,
+				02482E6A24DC4C750000B762 /* Water.metal */,
+				022174F4268A11F600F9BCC9 /* WorldMap.metal */,
 			);
 			path = Shaders;
 			sourceTree = "<group>";

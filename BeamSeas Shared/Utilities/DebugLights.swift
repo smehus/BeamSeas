@@ -130,12 +130,12 @@ extension Renderer {
         vertices.append(position)
         let newDirection = direction * 5
         vertices.append(float3(position.x + newDirection.x, position.y + newDirection.y, position.z + newDirection.z))
-        print("""
-              🧩🧩🧩🧩🧩
-              position:     \(vertices[0])
-              endPosition:  \(vertices[1])
-              🧩🧩🧩🧩🧩
-              """)
+//        print("""
+//              🧩🧩🧩🧩🧩
+//              position:     \(vertices[0])
+//              endPosition:  \(vertices[1])
+//              🧩🧩🧩🧩🧩
+//              """)
         let buffer = Renderer.device.makeBuffer(bytes: &vertices,
                                                 length: MemoryLayout<float3>.stride * vertices.count,
                                                 options: [])

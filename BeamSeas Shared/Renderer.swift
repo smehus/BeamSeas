@@ -26,8 +26,10 @@ final class Renderer: NSObject {
     lazy var camera: Camera = {
         
 //        let instance = Camera()
-//        instance.position = [0, 5100, -100]
-//        instance.rotation.x = Float(30).degreesToRadians
+//        instance.position = [-50, 5030, 0]
+//        instance.rotation.y = Float(90).degreesToRadians
+//        instance.rotation.x = Float(20).degreesToRadians
+        
         
 //        let instance = ArcballCamera()
 //        instance.distance = 80
@@ -39,8 +41,8 @@ final class Renderer: NSObject {
         instance.focusHeight = 25
         
 //        let instance = ThirdPersonCamera(focus: player, scaffolding: mapScaffolding)
-//        instance.focusDistance = 300
-//        instance.focusHeight = 50
+//        instance.focusDistance = 50
+//        instance.focusHeight = 30
 
 //        let instance = Camera()
 //        instance.position.y = (mapScaffolding.size.x / 2) + 200
@@ -136,7 +138,7 @@ final class Renderer: NSObject {
         models.append(shape)
         
         player = Model(name: "OldBoat", fragment: "fragment_main")
-        player.scale = [0.5, 0.5, 0.5]
+        player.scale = [0.2, 0.2, 0.2]
         terrain.add(child: player)
         models.append(player)
         
