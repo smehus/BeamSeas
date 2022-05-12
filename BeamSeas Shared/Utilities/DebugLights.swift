@@ -55,7 +55,6 @@ extension Renderer {
     // uncomment when you have defined `lights`
 
     func debugLights(renderEncoder: MTLRenderCommandEncoder, lightType: LightType) {
-        renderEncoder.pushDebugGroup("Debug Lights")
         for light in lighting.lights where light.type == lightType {
             switch light.type {
             case Pointlight:
@@ -75,8 +74,6 @@ extension Renderer {
                 break
             }
         }
-
-        renderEncoder.popDebugGroup()
     }
 
 
@@ -126,16 +123,19 @@ extension Renderer {
     }
 
     func drawSpotLight(renderEncoder: MTLRenderCommandEncoder, position: float3, direction: float3, color: float3) {
+        renderEncoder.pushDebugGroup("Debug Spotlight")
         var vertices: [float3] = []
+        let position = float3(0, 5010, 0)
+        var direction = float3(0, 1, 0)
         vertices.append(position)
         let newDirection = direction * 5
         vertices.append(float3(position.x + newDirection.x, position.y + newDirection.y, position.z + newDirection.z))
-//        print("""
-//              🧩🧩🧩🧩🧩
-//              position:     \(vertices[0])
-//              endPosition:  \(vertices[1])
-//              🧩🧩🧩🧩🧩
-//              """)
+        print("""
+              🧩🧩🧩🧩🧩
+              position:     \(vertices[0])
+              endPosition:  \(vertices[1])
+              🧩🧩🧩🧩🧩
+              """)
         let buffer = Renderer.device.makeBuffer(bytes: &vertices,
                                                 length: MemoryLayout<float3>.stride * vertices.count,
                                                 options: [])
@@ -148,8 +148,8 @@ extension Renderer {
         renderEncoder.setRenderPipelineState(lightPipelineState)
         renderEncoder.drawPrimitives(type: .line, vertexStart: 0,
                                      vertexCount: vertices.count)
+        
+        renderEncoder.popDebugGroup()
     }
-
-
 }
 
