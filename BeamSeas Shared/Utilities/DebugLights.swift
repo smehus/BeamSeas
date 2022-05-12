@@ -125,8 +125,7 @@ extension Renderer {
     func drawSpotLight(renderEncoder: MTLRenderCommandEncoder, position: float3, direction: float3, color: float3) {
         renderEncoder.pushDebugGroup("Debug Spotlight")
         var vertices: [float3] = []
-        let vetexPos = float3(0, 0, 0)
-        var direction = float3(0, 1, 0)
+        let vetexPos = position - float3(0, 5000, 0)
         vertices.append(vetexPos)
         let newDirection = direction * 5
         vertices.append(float3(vetexPos.x + newDirection.x, vetexPos.y + newDirection.y, vetexPos.z + newDirection.z))
