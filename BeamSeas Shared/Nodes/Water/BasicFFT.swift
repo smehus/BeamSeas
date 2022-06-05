@@ -412,11 +412,16 @@ extension BasicFFT: Renderable {
 
     func generateTerrainNormals(computeEncoder: MTLComputeCommandEncoder, uniforms: inout Uniforms) {
 
+        var xz_scale: Float = 0.09
+        var y_scale: Float = 10.0
+        
         computeEncoder.pushDebugGroup("Generate Terrain Normals")
         computeEncoder.setComputePipelineState(normalPipelineState)
         computeEncoder.setTexture(heightMap, index: 0)
         computeEncoder.setTexture(Self.normalMapTexture, index: 2)
         computeEncoder.setBytes(&Terrain.terrainParams, length: MemoryLayout<TerrainParams>.size, index: 3)
+        computeEncoder.setBytes(&xz_scale, length: MemoryLayout<Float>.stride, index: 4)
+        computeEncoder.setBytes(&y_scale, length: MemoryLayout<Float>.stride, index: 5)
         computeEncoder.setBytes(
             &uniforms,
             length: MemoryLayout<Uniforms>.stride,
