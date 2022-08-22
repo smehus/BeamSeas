@@ -129,12 +129,12 @@ extension Renderer {
         vertices.append(vetexPos)
         let newDirection = direction * 5
         vertices.append(float3(vetexPos.x + newDirection.x, vetexPos.y + newDirection.y, vetexPos.z + newDirection.z))
-        print("""
-              🧩🧩🧩🧩🧩
-              position:     \(vertices[0])
-              endPosition:  \(vertices[1])
-              🧩🧩🧩🧩🧩
-              """)
+//        print("""
+//              🧩🧩🧩🧩🧩
+//              position:     \(vertices[0])
+//              endPosition:  \(vertices[1])
+//              🧩🧩🧩🧩🧩
+//              """)
         let buffer = Renderer.device.makeBuffer(bytes: &vertices,
                                                 length: MemoryLayout<float3>.stride * vertices.count,
                                                 options: [])
