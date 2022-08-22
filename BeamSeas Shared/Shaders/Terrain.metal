@@ -276,29 +276,46 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
 */
 
 struct Rectangle {
-    float2 center;
+    float3 center;
     float2 size;
 };
 
-float distanceToRectangle(float2 point, Rectangle rectangle) {
-    float2 distances = abs(point - rectangle.center) - rectangle.size / 2;
-    return all(sign(distances) > 0) ? length(distances) : max(distances.x, distances.y);
+float distanceToRectangle(float3 point, Rectangle rectangle) {
+    float3 distances = abs(point - rectangle.center) - 20;
+    if (all(sign(distances) > 0)) {
+        return length(distances);
+    } else {
+        return max(distances.x, distances.y);
+    }
 }
 
 float differenceOperator(float d0, float d1) {
     return max(d0, -d1);
 }
 
-float distanceToScene(float2 point) {
-    Rectangle r1 = Rectangle{float2(0.0), float2(0.3)};
+float distanceToScene(float3 point) {
+    // Thing thats blocking the sun?
+    float3 pos = float3(0, 5100, 0);
+    Rectangle r1 = Rectangle{pos, float2(50) };
     float d2r1 = distanceToRectangle(point, r1);
+
+    return d2r1;
+}
+
+float getShadow(float3 point, float3 lightPos) {
+    float3 lightDir = lightPos - point;
     
-    Rectangle r2 = Rectangle{float2(0.05), float2(0.04)};
-    float2 mod = point - 0.1 * floor(point / 0.1);
-    float d2r2 = distanceToRectangle(mod, r2);
+    for (float lerp = 0; lerp < 1; lerp += 1 / 100.0) {
+        
+        float3 currentPoint = point + lightDir * lerp;
+        
+        float d2scene = distanceToScene(currentPoint);
+        // Raised the comparison a little
+        if (d2scene <= 1.0) { return 0.0; }
+    }
     
-    float diff = differenceOperator(d2r1, d2r2);
-    return diff;
+    return 1.0;
+    
 }
 
 
@@ -393,12 +410,12 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
 //                                          fragment_in.worldPosition.xyz,
 //                                          fragmentUniforms, lights,
 //
+    float shadow = getShadow(fragment_in.worldPosition.xyz, float3(0, 5200, 0));
+    if (shadow == 0.0) {
+        return float4(0.0, 0.0, 0.0, 1.0);
+    }
     
-    float d2scene = distanceToScene(fragment_in.worldPosition.xz);
-    bool inside = d2scene < 0.0;
-    float4 color = inside ? mixedColor : float4(1.0, 1.0, 1.0, 1.0);
-    
-    return color;
+    return mixedColor;
 }
 
 // This relies on the ehight an dnormal textures to be teh same size. 128x128
