@@ -274,6 +274,34 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
     return float4(color, 1.0);
 }
 */
+
+struct Rectangle {
+    float2 center;
+    float2 size;
+};
+
+float distanceToRectangle(float2 point, Rectangle rectangle) {
+    float2 distances = abs(point - rectangle.center) - rectangle.size / 2;
+    return all(sign(distances) > 0) ? length(distances) : max(distances.x, distances.y);
+}
+
+float differenceOperator(float d0, float d1) {
+    return max(d0, -d1);
+}
+
+float distanceToScene(float2 point) {
+    Rectangle r1 = Rectangle{float2(0.0), float2(0.3)};
+    float d2r1 = distanceToRectangle(point, r1);
+    
+    Rectangle r2 = Rectangle{float2(0.05), float2(0.04)};
+    float2 mod = point - 0.1 * floor(point / 0.1);
+    float d2r2 = distanceToRectangle(mod, r2);
+    
+    float diff = differenceOperator(d2r1, d2r2);
+    return diff;
+}
+
+
 fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
                                  constant Light *lights [[ buffer(BufferIndexLights) ]],
                                  constant Uniforms &uniforms [[ buffer(BufferIndexUniforms) ]],
@@ -361,12 +389,16 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
     float2 normalCoords = fragment_in.uv;
     float4 normal = normalMap.sample(mainSampler, normalCoords) * 2.0 - 1.0;
     
-    float3 color = terrainDiffuseLighting(normal.rgb,
-                                          fragment_in.worldPosition.xyz,
-                                          fragmentUniforms, lights,
-                                          mixedColor.rgb);
-    return float4(color, 1.0);
+//    float3 color = terrainDiffuseLighting(normal.rgb,
+//                                          fragment_in.worldPosition.xyz,
+//                                          fragmentUniforms, lights,
+//
     
+    float d2scene = distanceToScene(fragment_in.worldPosition.xz);
+    bool inside = d2scene < 0.0;
+    float4 color = inside ? mixedColor : float4(1.0, 1.0, 1.0, 1.0);
+    
+    return color;
 }
 
 // This relies on the ehight an dnormal textures to be teh same size. 128x128
