@@ -139,7 +139,7 @@ class BasicFFT: Node {
             wind_velocity: BasicFFT.wind_velocity,
             resolution: SIMD2<Int>(x: BasicFFT.distributionSize, y: BasicFFT.distributionSize), // Determines the amount of random numbers
             size: float2(x: Terrain.terrainSize, y: Terrain.terrainSize), // Size is used for amplitude modifiers
-            normalmap_freq_mod: float2(repeating: 1) // Don't use this.... idk
+            normalmap_freq_mod: float2(repeating: 1) // @TODO: -- FUCK I NEED THIS!!!!!
         )
 
         guard
