@@ -64,7 +64,8 @@ class BasicFFT: Node {
     static let distributionSize: Int = 128
     static let textureSize: Int = 256
     static var wind_velocity = float2(x: -23, y: 30)
-    static var amplitude = 1000
+    static var amplitude = 1.0
+    static let NORMALMAP_FREQ_MOD: Float = 7.3
 
     override init() {
 
@@ -139,7 +140,7 @@ class BasicFFT: Node {
             wind_velocity: BasicFFT.wind_velocity,
             resolution: SIMD2<Int>(x: BasicFFT.distributionSize, y: BasicFFT.distributionSize), // Determines the amount of random numbers
             size: float2(x: Terrain.terrainSize, y: Terrain.terrainSize), // Size is used for amplitude modifiers
-            normalmap_freq_mod: float2(repeating: 1) // @TODO: -- FUCK I NEED THIS!!!!!
+            normalmap_freq_mod: float2(repeating: Self.NORMALMAP_FREQ_MOD) // @TODO: -- FUCK I NEED THIS!!!!!
         )
 
         guard

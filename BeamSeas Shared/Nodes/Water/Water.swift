@@ -57,7 +57,7 @@ class Water {
     var distribution_displacement_real_buffer: MTLBuffer!
     var distribution_displacement_imag_buffer: MTLBuffer!
 
-
+// Shitttttt i wonder if its this....
 //    var distribution_normal_real: [Float]
 //    var distribution_normal_imag: [Float]
 //    var distribution_normal_real_buffer: MTLBuffer!
@@ -68,7 +68,8 @@ class Water {
     private let Nx: Int
     private let Nz: Int
     private let size: SIMD2<Float>
-//    private let size_normal: SIMD2<Float>
+    // NEED THIS
+    private let size_normal: SIMD2<Float>
 
 
     private let L: Float
@@ -91,7 +92,7 @@ class Water {
         self.Nx = resolution.x
         self.Nz = resolution.y
         self.size = size
-//        self.size_normal = size / normalmap_freq_mod
+        self.size_normal = size / normalmap_freq_mod
 
         // Factor in phillips spectrum
         L = simd_dot(wind_velocity, wind_velocity) / Self.G;
@@ -112,7 +113,8 @@ class Water {
             distribution_real: &distribution_real,
             distribution_imag: &distribution_imag,
             size: size,
-            amplitude: A
+            amplitude: A,
+            max_l: 0.2
         )
 
         distribution_real_buffer = Renderer.device.makeBuffer(
@@ -128,6 +130,8 @@ class Water {
         )!
 
 
+        // TODO: -- Normal distribution....
+        
         // Displacement
         downsample_distribution(
             displacement_real: &distribution_displacement_real,
@@ -188,7 +192,7 @@ class Water {
                                        distribution_imag: inout [Float],
                                        size: SIMD2<Float>,
                                        amplitude: Float,
-                                       max_l: Float = 0.02) {
+                                       max_l: Float) {
 
         // Modifier to find spatial frequency
         let mod = SIMD2<Float>(repeating: 2.0 * Float.pi) / size
