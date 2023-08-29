@@ -25,12 +25,13 @@ class BasicFFT: Node {
 
     private var signalCount: Int = 0
 
+    // Used to run ifft
     var distribution_real: MTLBuffer
     var distribution_imag: MTLBuffer
-
     var distribution_displacement_real: MTLBuffer
     var distribution_displacement_imag: MTLBuffer
-
+    var distribution_normal_real: MTLBuffer
+    var distribution_normal_imag: MTLBuffer
 
     private let fftPipelineState: MTLComputePipelineState
     private let mainPipelineState: MTLRenderPipelineState
@@ -64,7 +65,7 @@ class BasicFFT: Node {
     static let distributionSize: Int = 128
     static let textureSize: Int = 256
     static var wind_velocity = float2(x: -23, y: 30)
-    static var amplitude = 1.0
+    static var amplitude = 1000
     static let NORMALMAP_FREQ_MOD: Float = 7.3
 
     override init() {
@@ -146,6 +147,8 @@ class BasicFFT: Node {
         guard
             let real = Renderer.device.makeBuffer(length: MemoryLayout<Float>.stride * source.distribution_real.count, options: .storageModeShared),
             let imag  = Renderer.device.makeBuffer(length: MemoryLayout<Float>.stride * source.distribution_imag.count, options: .storageModeShared),
+            let normal_real = Renderer.device.makeBuffer(length: MemoryLayout<Float>.stride * source.distribution_normal_real.count, options: .storageModeShared),
+            let normal_imag = Renderer.device.makeBuffer(length: MemoryLayout<Float>.stride * source.distribution_normal_imag.count, options: .storageModeShared),
             let displacement_real  = Renderer.device.makeBuffer(length: MemoryLayout<Float>.size * source.distribution_displacement_real.count, options: .storageModeShared),
             let displacement_imag  = Renderer.device.makeBuffer(length: MemoryLayout<Float>.size * source.distribution_displacement_imag.count, options: .storageModeShared)
         else {
@@ -156,13 +159,8 @@ class BasicFFT: Node {
         distribution_imag = imag
         distribution_displacement_real = displacement_real
         distribution_displacement_imag = displacement_imag
-
-//        let randomSource = Distributions.Normal(m: 0, v: 1)
-//        var randos = (0..<n).map { _ in
-//            float2(x: Float(randomSource.random()), y: Float(randomSource.random()))
-//        }
-
-//        randomBuffer = Renderer.device.makeBuffer(bytes: &randos, length: MemoryLayout<float2>.stride * Int(n), options: .storageModeShared)!
+        distribution_normal_real = normal_real
+        distribution_normal_imag = normal_imag
 
         super.init()
 
@@ -299,6 +297,7 @@ extension BasicFFT: Renderable {
         computeEncoder.setBytes(&gausUniforms, length: MemoryLayout<GausUniforms>.stride, index: BufferIndex.gausUniforms.rawValue)
         computeEncoder.setBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: BufferIndex.uniforms.rawValue)
         // Output
+        // TODO: -- arrrgggghh do I need to do all this for the normal distributions?? yeahhhhhhh
         computeEncoder.setBuffer(distribution_real, offset: 0, index: 12)
         computeEncoder.setBuffer(distribution_imag, offset: 0, index: 13)
 
@@ -316,6 +315,17 @@ extension BasicFFT: Renderable {
         computeEncoder.popDebugGroup()
 
 
+        
+        // TODO: -- NORMAL DISTRIBUTIONS
+        
+        
+        
+        // :(
+        
+        
+        
+        
+        
 
 //        threadGroupSize.width = 64
 //        threadGroupSize.height = 1

@@ -225,7 +225,14 @@ class Water {
                 let imagRand = Float(normal_distribution.gausRandom())
 
 //                let phillips = philliphs(k: k, max_l: max_l)
-                let phillips = normal_distribution.phillips(Float(k.x), y: Float(k.y), g: Water.G, a: A, dir: wind_velocity)
+                let phillips = normal_distribution.phillips(
+                    Float(k.x),
+                    y: Float(k.y),
+                    g: Water.G,
+                    a: amplitude,
+                    dir: wind_velocity
+                )
+                
                 let newReal = realRand * amplitude * sqrt(0.5 * phillips)
                 let newImag = imagRand * amplitude * sqrt(0.5 * phillips)
 

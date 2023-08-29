@@ -127,7 +127,9 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
     float3 heightDisplacement = heightMap.sample(sample, xy).xyz;
 
 //    float inverseColor = color.r;//1 - color.r;
-    float3 ifftHeight = (heightDisplacement * 2 - 1) * terrainParams.height;
+    float3 ifftHeight = ((heightDisplacement * 2) - 1) * terrainParams.height;
+    
+    
 
     // OHHHHH shit - displacment maps dispalce in the horizontal plane.....
     //Using only a straight heightmap, this is not easy to implement, however, we can have another "displacement" map which computes displacement in the horizontal plane as well. If we compute the inverse Fourier transform of the gradient of the heightmap, we can find a horizontal displacement vector which we will push vertices toward. This gives a great choppy look to the waves.
@@ -136,7 +138,7 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
     // Y & Z values represent the horizontal displacment inside the height map
     // Height displacement would only be between -1 & 1. So we need to modify it somehow to values that
     // are relevant....
-    float3 horizontalDisplacement = heightDisplacement * 2 - 1;
+    float3 horizontalDisplacement = (heightDisplacement * 2) - 1;
     float4 directionToFragment = (uniforms.parentTreeModelMatrix * position) - fragmentUniforms.scaffoldingPosition;
     float3 terrainToScaffold = normalize(directionToFragment).xyz;
     float4 scaffoldSample = worldMapTexture.sample(scaffoldingSampler, terrainToScaffold);
