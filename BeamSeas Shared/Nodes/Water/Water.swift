@@ -58,10 +58,10 @@ class Water {
     var distribution_displacement_imag_buffer: MTLBuffer!
 
 // Shitttttt i wonder if its this....
-//    var distribution_normal_real: [Float]
-//    var distribution_normal_imag: [Float]
-//    var distribution_normal_real_buffer: MTLBuffer!
-//    var distribution_normal_imag_buffer: MTLBuffer!
+    var distribution_normal_real: [Float]
+    var distribution_normal_imag: [Float]
+    var distribution_normal_real_buffer: MTLBuffer!
+    var distribution_normal_imag_buffer: MTLBuffer!
 
     private let wind_velocity: SIMD2<Float>
     private let wind_dir: SIMD2<Float>
@@ -101,8 +101,10 @@ class Water {
         let n = vDSP_Length(Nx * Nz)
         distribution_real = [Float](repeating: 0, count: Int(n))
         distribution_imag = [Float](repeating: 0, count: Int(n))
+        
+        distribution_normal_real = [Float](repeating: 0, count: Int(n))
+        distribution_normal_imag = [Float](repeating: 0, count: Int(n))
 
-        // TODO: - Downsampling was breaking fft for some reason
         let displacementLength = n//(Nx * Nz) >> (displacement_downsample * 2)
         distribution_displacement_real = [Float](repeating: 0, count: Int(displacementLength))
         distribution_displacement_imag = [Float](repeating: 0, count: Int(displacementLength))
@@ -128,7 +130,25 @@ class Water {
             length: MemoryLayout<Float>.stride * Int(n),
             options: .storageModeShared
         )!
+        
+        
+        generate_distribution(
+            distribution_real: &distribution_normal_real,
+            distribution_imag: &distribution_normal_imag,
+            size: size_normal,
+            amplitude: A * sqrt(normalmap_freq_mod.x * normalmap_freq_mod.y), // sqrtf ???? idk
+            max_l: 0.2
+        )
 
+        distribution_normal_real_buffer = Renderer.device.makeBuffer(
+            bytes: &distribution_normal_real,
+            length: MemoryLayout<Float>.stride * Int(n)
+        )
+        
+        distribution_normal_imag_buffer = Renderer.device.makeBuffer(
+            bytes: &distribution_normal_imag,
+            length: MemoryLayout<Float>.stride * Int(n)
+        )
 
         // TODO: -- Normal distribution....
         
