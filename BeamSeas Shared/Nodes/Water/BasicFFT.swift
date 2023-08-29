@@ -41,6 +41,7 @@ class BasicFFT: Node {
     static var normalMapTexture: MTLTexture!
 
     private var dataBuffer: MTLBuffer!
+    private var normalBuffer: MTLBuffer!
     private var displacementBuffer: MTLBuffer!
 
 
@@ -184,7 +185,18 @@ class BasicFFT: Node {
             length: MemoryLayout<Float>.stride * recreatedSignal.count,
             options: []
         )
+        
+        let normalSignal = runfft(
+            real: distribution_normal_real,
+            imag: distribution_normal_imag,
+            count: source.distribution_normal_real.count + source.distribution_normal_imag.count,
+            fft: distributionFFT
+        )
 
+        normalBuffer = Renderer.device.makeBuffer(
+            bytes: normalSignal,
+            length: MemoryLayout<Float>.stride * normalSignal.count
+        )
 
         let displacementSignal = runfft(
             real: distribution_displacement_real,
