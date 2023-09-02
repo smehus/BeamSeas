@@ -106,12 +106,14 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
     float2 xy = ((position.xz + terrainParams.size / 2) / terrainParams.size);
     xy += uniforms.playerMovement.xz;
     out.uv = xy;
+    
     float2 uInvHeightmapSize = float2(1.0 / terrainParams.size.x, 1.0 / terrainParams.size.y);
     float2 tex = position.xz * uInvHeightmapSize;
-    out.vGradNormalTex = float4(tex.x + 0.5 * uInvHeightmapSize.x,
-                                tex.y + 0.5 * uInvHeightmapSize.y,
-                                tex.x,
-                                tex.y);
+    
+    // From example
+//    vGradNormalTex = vec4(tex + 0.5 * uInvHeightmapSize.xy, tex * uScale.zw);
+    float2 uScale = terrainParams.normal_scale;
+    out.vGradNormalTex = float4(tex.xy + 0.5 * uInvHeightmapSize.xy, tex.xy * uScale);
     
 //    out.vGradNormalTex = float4(position + 0.5 * terrainParams.size)
     // Why was i doing this??

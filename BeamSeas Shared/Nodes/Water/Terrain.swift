@@ -22,6 +22,7 @@ class Terrain: Node {
     
     static var terrainParams = TerrainParams(
         size: [Terrain.terrainSize, Terrain.terrainSize],
+        distributionSize: SIMD2<Float>(repeating: BasicFFT.distributionSize.float),
         height: 30,
         maxTessellation: UInt32(Terrain.maxTessellation),
         numberOfPatches: UInt32(Terrain.patchNum * Terrain.patchNum),
