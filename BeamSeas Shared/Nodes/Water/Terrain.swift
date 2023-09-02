@@ -24,7 +24,8 @@ class Terrain: Node {
         size: [Terrain.terrainSize, Terrain.terrainSize],
         height: 30,
         maxTessellation: UInt32(Terrain.maxTessellation),
-        numberOfPatches: UInt32(Terrain.patchNum * Terrain.patchNum)
+        numberOfPatches: UInt32(Terrain.patchNum * Terrain.patchNum),
+        normal_scale: vector_float2(repeating: BasicFFT.NORMALMAP_FREQ_MOD)
     )
 
     static let maxTessellation = 16

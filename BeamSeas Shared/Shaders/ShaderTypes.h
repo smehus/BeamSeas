@@ -129,6 +129,7 @@ typedef struct {
     float height;
     uint maxTessellation;
     uint numberOfPatches;
+    vector_flot2 normal_scale;
 } TerrainParams;
 
 #endif /* ShaderTypes_h */
