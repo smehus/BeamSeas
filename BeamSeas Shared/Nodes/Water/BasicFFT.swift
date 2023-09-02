@@ -40,6 +40,7 @@ class BasicFFT: Node {
     static var gradientMap: MTLTexture!
     static var normalMapTexture: MTLTexture!
 
+    // Output of FFT
     private var dataBuffer: MTLBuffer!
     private var normalBuffer: MTLBuffer!
     private var displacementBuffer: MTLBuffer!
@@ -145,6 +146,7 @@ class BasicFFT: Node {
             normalmap_freq_mod: float2(repeating: Self.NORMALMAP_FREQ_MOD) // @TODO: -- FUCK I NEED THIS!!!!!
         )
 
+        // Creating buffers to fill up with distribution_real(etc) -> FFT -> Our buffer here
         guard
             let real = Renderer.device.makeBuffer(length: MemoryLayout<Float>.stride * source.distribution_real.count, options: .storageModeShared),
             let imag  = Renderer.device.makeBuffer(length: MemoryLayout<Float>.stride * source.distribution_imag.count, options: .storageModeShared),
@@ -167,7 +169,7 @@ class BasicFFT: Node {
 
     } // init
 
-
+    
     // This runs after 'generate_distributions' - so we get updated distribution_real / imag buffer values.
     // The source buffer values will all remain the same (Buffers in water.swift)
     func runfft(phase: Float) {
@@ -300,7 +302,7 @@ extension BasicFFT: Renderable {
 //            wind_velocity: vector_float2(x: BasicFFT.wind_velocity.x, y: BasicFFT.wind_velocity.y),
             resolution: vector_uint2(x: BasicFFT.distributionSize.unsigned, y: BasicFFT.distributionSize.unsigned),
             size: vector_float2(x: Terrain.terrainSize, y: Terrain.terrainSize),
-            normalmap_freq_mod: vector_float2(repeating: 7.3),
+            normalmap_freq_mod: vector_float2(repeating: Self.NORMALMAP_FREQ_MOD),
             seed: seed
         )
 
@@ -310,6 +312,7 @@ extension BasicFFT: Renderable {
         computeEncoder.setBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: BufferIndex.uniforms.rawValue)
         // Output
         // TODO: -- arrrgggghh do I need to do all this for the normal distributions?? yeahhhhhhh
+        // Orrrrr how do I calculate these normals....
         computeEncoder.setBuffer(distribution_real, offset: 0, index: 12)
         computeEncoder.setBuffer(distribution_imag, offset: 0, index: 13)
 

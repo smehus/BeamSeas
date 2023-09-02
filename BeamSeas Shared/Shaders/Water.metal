@@ -152,6 +152,10 @@ kernel void generate_displacement_map_values(constant GausUniforms &uniforms [[ 
     output_imag[i.y * N.x + i.x] = grad.y;
 }
 
+// TODO: -- So....there should be a normal distribtution generation here buttttt.....
+// I compute the normals in terrain.metal TerrainKnl_ComputeNormalsFromHeightmap
+// I pulled this from a wwdc metal example from apple
+// Maybe I can just use those values instead of re-doing all this normal BS.
 
 //kernel void generate_normals
 
