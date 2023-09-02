@@ -107,7 +107,7 @@ vertex TerrainVertexOut vertex_terrain(patch_control_point<ControlPoint> control
     xy += uniforms.playerMovement.xz;
     out.uv = xy;
     
-    float2 uInvHeightmapSize = float2(1.0 / terrainParams.size.x, 1.0 / terrainParams.size.y);
+    float2 uInvHeightmapSize = float2(1.0 / terrainParams.size);
     float2 tex = position.xz * uInvHeightmapSize;
     
     // From example
