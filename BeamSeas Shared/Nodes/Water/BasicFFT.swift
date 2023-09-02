@@ -332,7 +332,8 @@ extension BasicFFT: Renderable {
 
         
         // TODO: -- NORMAL DISTRIBUTIONS
-        
+        // lets make sure we need to do this
+        // Also do we need to be use the normal freq mod in these distribution generations?
         
         
         // :(
