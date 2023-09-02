@@ -354,16 +354,18 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
                             refractionTexture.sample(mainSampler, refractionCoords),
                             mixRatio);
     
-    mixedColor = landWater;//mix(mixedColor, landWater, 0.6);
-    
+    // Displacement gradient
     constexpr sampler sam(min_filter::linear, mag_filter::linear, mip_filter::nearest, address::repeat);
     float3 vGradJacobian = gradientMap.sample(sam, fragment_in.vGradNormalTex.xy).xyz;
     float2 noise_gradient = 0.3 * normalMap.sample(sam, fragment_in.vGradNormalTex.zw).xy;
     float jacobian = vGradJacobian.z;
     float turbulence = max(2.0 - jacobian + dot(abs(noise_gradient.xy), float2(1.2)), 0.0);
+    float color_mod = 1.0 + 3.0 * smoothstep(1.2, 1.8, turbulence);
     
     float2 normalCoords = fragment_in.uv;
     float4 normal = normalMap.sample(mainSampler, normalCoords) * 2.0 - 1.0;
+    
+    mixedColor = color_mod * landWater;//mix(mixedColor, landWater, 0.6);
     
     float3 color = terrainDiffuseLighting(normal.rgb,
                                           fragment_in.worldPosition.xyz,
