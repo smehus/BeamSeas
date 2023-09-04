@@ -10,7 +10,21 @@ import MetalKit
 import MetalPerformanceShaders
 
 class Terrain: Node {
-
+    
+    struct K {
+        /// The size in world space for a heightmap block.
+        static let DIST: Float = 128
+        /// Number of samples in heightmap
+        static let SIZE: Int = 128
+        static let textureSize: Int = 256
+        static let wind_velocity = float2(x: -23, y: 30)
+        static let amplitude = 1000
+        static let NORMALMAP_FREQ_MOD: Float = 7.3
+        static let maxTessellation = 16
+        static let patchNum = 16
+        static let edgeFactors: Float = 8
+        static let insideFactors: Float = 8
+    }
 
     static var heightMapName = "simuwater"
     static var alterHeightMapName = "Heightmap_Plateau"
@@ -18,37 +32,31 @@ class Terrain: Node {
     static var primarySlopeMap: MTLTexture!
     static var secondarySlopeMap: MTLTexture!
 
-    static let terrainSize: Float = 128
-    
+
     static var terrainParams = TerrainParams(
-        size: [Terrain.terrainSize, Terrain.terrainSize],
-        distributionSize: SIMD2<Float>(repeating: BasicFFT.distributionSize.float),
+        size: [K.DIST, K.DIST],
+        distributionSize: SIMD2<Float>(repeating: K.SIZE.float),
         height: 30,
-        maxTessellation: UInt32(Terrain.maxTessellation),
-        numberOfPatches: UInt32(Terrain.patchNum * Terrain.patchNum),
-        normal_scale: vector_float2(repeating: BasicFFT.NORMALMAP_FREQ_MOD)
+        maxTessellation: UInt32(K.maxTessellation),
+        numberOfPatches: UInt32(K.patchNum * K.patchNum),
+        normal_scale: vector_float2(repeating: K.NORMALMAP_FREQ_MOD)
     )
 
-    static let maxTessellation = 16
-    private static var patchNum = 16
 
-    let patches = (horizontal: Terrain.patchNum, vertical: Terrain.patchNum)
+    let patches = (horizontal: Terrain.K.patchNum, vertical: Terrain.K.patchNum)
     var patchCount: Int {
         return patches.horizontal * patches.vertical
     }
-    
-    static let edgeFactors: Float = 8
-    static let insideFactors: Float = 8
 
-    var edgeFactors: [Float] = [Terrain.edgeFactors]
-    var insideFactors: [Float] = [Terrain.insideFactors]
+    var edgeFactors: [Float] = [K.edgeFactors]
+    var insideFactors: [Float] = [K.insideFactors]
     var allPatches: [Patch] = []
     var waterNormalTexture: MTLTexture?
     var worldMapTexture: MTLTexture!
     var landTexture: MTLTexture!
 //    var scaffoldingPosition: float3 = [0, 0, 0]
     lazy var tessellationFactorsBuffer: MTLBuffer? = {
-        let count = patchCount * Int(Terrain.edgeFactors + Terrain.insideFactors)
+        let count = patchCount * Int(K.edgeFactors + K.insideFactors)
         let size = count * MemoryLayout<Float>.size / 2
         return Renderer.device.makeBuffer(length: size, options: .storageModePrivate)
     }()
@@ -94,7 +102,7 @@ class Terrain: Node {
         descriptor.vertexFunction = Renderer.library.makeFunction(name: "vertex_terrain")
         descriptor.fragmentFunction = Renderer.library.makeFunction(name: "fragment_terrain")
         descriptor.tessellationFactorStepFunction = .perPatch
-        descriptor.maxTessellationFactor = Self.maxTessellation
+        descriptor.maxTessellationFactor = K.maxTessellation
         descriptor.tessellationPartitionMode = .pow2
 //        descriptor.isTessellationFactorScaleEnabled = false
 //        descriptor.tessellationFactorFormat = .half

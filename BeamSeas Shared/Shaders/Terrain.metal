@@ -367,11 +367,11 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
     
     mixedColor = color_mod * landWater;//mix(mixedColor, landWater, 0.6);
     
-    float3 color = terrainDiffuseLighting(normal.rgb,
-                                          fragment_in.worldPosition.xyz,
-                                          fragmentUniforms, lights,
-                                          mixedColor.rgb);
-    return float4(color, 1.0);
+//    float3 color = terrainDiffuseLighting(normal.rgb,
+//                                          fragment_in.worldPosition.xyz,
+//                                          fragmentUniforms, lights,
+//                                          mixedColor.rgb);
+    return mixedColor;//float4(color, 1.0);
     
 }
 

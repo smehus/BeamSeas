@@ -58,14 +58,13 @@ kernel void generate_distribution_map_values(constant GausUniforms &uniforms [[ 
                                   device float *input_imag [[ buffer(15) ]],
                                   uint2 i [[ thread_position_in_grid ]])
 {
+    // TODO: -- Check these frome example
     uint2 N = uniforms.resolution;
     float G = 9.81; // Gravity
     float2 uMod = float2(2.0 * M_PI_F) / uniforms.size;
 
     // Pick out the negative frequency variant.
-    float2 wi = mix(float2(N - i),
-                    float2(0u),
-                    float2(i == uint2(0u)));
+    float2 wi = mix(float2(N - i), float2(0), float2(i == uint2(0)));
 
 
 //    // Pick out positive and negative travelling waves.
