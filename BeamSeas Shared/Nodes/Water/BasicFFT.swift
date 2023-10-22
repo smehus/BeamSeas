@@ -332,7 +332,8 @@ extension BasicFFT: Renderable {
         
         // :(
         
-        
+        // I think I was getting the constant values correct before I was going to transfer over to using the xamples normal mapping
+        // right now I use that apple example in Terrain.metal.
         
         
         
