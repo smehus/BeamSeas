@@ -156,6 +156,43 @@ kernel void generate_displacement_map_values(constant GausUniforms &uniforms [[ 
 // I pulled this from a wwdc metal example from apple
 // Maybe I can just use those values instead of re-doing all this normal BS.
 
+// Nah I think i need to do this:
+
+kernel void generate_normal_map_values(constant GausUniforms &uniforms [[ buffer(BufferIndexGausUniforms) ]],
+                                  constant Uniforms &mainUniforms [[ buffer(BufferIndexUniforms) ]],
+                                  device float *output_real [[ buffer(12) ]],
+                                  device float *output_imag [[ buffer(13) ]],
+                                  texture2d<float> drawTexture [[ texture(0) ]],
+                                  device float *input_real [[ buffer(14) ]],
+                                  device float *input_imag [[ buffer(15) ]],
+                                  uint2 i [[ thread_position_in_grid ]])
+{
+//    uvec2 N = gl_WorkGroupSize.xy * gl_NumWorkGroups.xy;
+//    uvec2 i = gl_GlobalInvocationID.xy;
+//    uvec2 wi = mix(N - i, uvec2(0u), equal(i, uvec2(0u)));
+//
+//    vec2 a = distribution_normal[i.y * N.x + i.x];
+//    vec2 b = distribution_normal[wi.y * N.x + wi.x];
+//
+//    vec2 k = uMod * alias(vec2(i), vec2(N));
+//    float k_len = length(k);
+//
+//    const float G = 9.81;
+//    float w = sqrt(G * k_len) * uTime; // Do phase accumulation later ...
+//
+//    float cw = cos(w);
+//    float sw = sin(w);
+//
+//    a = cmul(a, vec2(cw, sw));
+//    b = cmul(b, vec2(cw, sw));
+//    b = vec2(b.x, -b.y);
+//    vec2 res = a + b;
+//    vec2 grad = cmul(res, vec2(-k.y, k.x));
+//
+//    grads_normal[i.y * N.x + i.x] = pack2(grad);
+}
+
+
 //kernel void generate_normals
 
 half jacobian(half2 dDdx, half2 dDdy)

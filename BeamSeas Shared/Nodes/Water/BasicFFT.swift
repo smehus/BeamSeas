@@ -337,6 +337,10 @@ extension BasicFFT: Renderable {
         
         
         
+        
+        
+        
+        
 
 //        threadGroupSize.width = 64
 //        threadGroupSize.height = 1
@@ -432,29 +436,30 @@ extension BasicFFT: Renderable {
         computeEncoder.popDebugGroup()
     }
 
+    // Going to try and do this in distributions
     func generateTerrainNormals(computeEncoder: MTLComputeCommandEncoder, uniforms: inout Uniforms) {
-
-        var xz_scale: Float = 0.09
-        var y_scale: Float = 10.0
-        
-        computeEncoder.pushDebugGroup("Generate Terrain Normals")
-        computeEncoder.setComputePipelineState(normalPipelineState)
-        computeEncoder.setTexture(heightMap, index: 0)
-        computeEncoder.setTexture(Self.normalMapTexture, index: 2)
-        computeEncoder.setBytes(&Terrain.terrainParams, length: MemoryLayout<TerrainParams>.size, index: 3)
-        computeEncoder.setBytes(&xz_scale, length: MemoryLayout<Float>.stride, index: 4)
-        computeEncoder.setBytes(&y_scale, length: MemoryLayout<Float>.stride, index: 5)
-        computeEncoder.setBytes(
-            &uniforms,
-            length: MemoryLayout<Uniforms>.stride,
-            index: BufferIndex.uniforms.rawValue
-        )
-        
-        computeEncoder.dispatchThreadgroups(
-            MTLSizeMake(1, Terrain.K.textureSize, 1),
-            threadsPerThreadgroup: MTLSizeMake(Terrain.K.textureSize, 1, 1)
-        )
-        computeEncoder.popDebugGroup()
+//
+//        var xz_scale: Float = 0.09
+//        var y_scale: Float = 10.0
+//
+//        computeEncoder.pushDebugGroup("Generate Terrain Normals")
+//        computeEncoder.setComputePipelineState(normalPipelineState)
+//        computeEncoder.setTexture(heightMap, index: 0)
+//        computeEncoder.setTexture(Self.normalMapTexture, index: 2)
+//        computeEncoder.setBytes(&Terrain.terrainParams, length: MemoryLayout<TerrainParams>.size, index: 3)
+//        computeEncoder.setBytes(&xz_scale, length: MemoryLayout<Float>.stride, index: 4)
+//        computeEncoder.setBytes(&y_scale, length: MemoryLayout<Float>.stride, index: 5)
+//        computeEncoder.setBytes(
+//            &uniforms,
+//            length: MemoryLayout<Uniforms>.stride,
+//            index: BufferIndex.uniforms.rawValue
+//        )
+//
+//        computeEncoder.dispatchThreadgroups(
+//            MTLSizeMake(1, Terrain.K.textureSize, 1),
+//            threadsPerThreadgroup: MTLSizeMake(Terrain.K.textureSize, 1, 1)
+//        )
+//        computeEncoder.popDebugGroup()
     }
 
 
