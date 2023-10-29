@@ -192,17 +192,17 @@ float3 terrainDiffuseLighting(float3 normal,
     for (uint i = 0; i < fragmentUniforms.light_count; i++) {
         Light light = lights[i];
         if (light.type == Sunlight) {
-            float3 lightDirection = normalize(float3(light.position.x, light.position.y - 5000, light.position.z));
+            float3 lightDirection = normalize(float3(light.position.x, light.position.y, light.position.z));
             float dotVal = dot(lightDirection, normalDirection);
             float diffuseIntensity = saturate(dotVal);
-            diffuseColor += light.color * baseColor * diffuseIntensity;
+            diffuseColor += light.color * baseColor * 0.4;
             
-//            if (diffuseIntensity > 0) {
-//                float3 reflection = reflect(lightDirection, normalDirection);
-//                float3 cameraDirection = normalize(position - fragmentUniforms.camera_position);
-//                float specularIntensity = pow(saturate(-dot(reflection, cameraDirection)), materialShininess);
-//                specularColor += light.specularColor * materialSpecularColor * specularIntensity;
-//            }
+            if (diffuseIntensity > 0) {
+                float3 reflection = reflect(lightDirection, normalDirection);
+                float3 cameraDirection = normalize(position - fragmentUniforms.camera_position);
+                float specularIntensity = pow(saturate(-dot(reflection, cameraDirection)), materialShininess);
+                specularColor += light.specularColor * materialSpecularColor * specularIntensity;
+            }
         } else if (light.type == Ambientlight) {
             ambientColor += baseColor * 0.01;
         }
@@ -350,9 +350,10 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
     
     float3 viewVector = normalize(fragment_in.toCamera);
     float mixRatio = dot(viewVector, float3(0.0, 1.0, 0.0));
-    float4 mixedColor = mix(reflectionTexture.sample(mainSampler, reflectionCoords),
-                            refractionTexture.sample(mainSampler, refractionCoords),
-                            mixRatio);
+//    float4 mixedColor = mix(reflectionTexture.sample(mainSampler, reflectionCoords),
+//                            refractionTexture.sample(mainSampler, refractionCoords),
+//                            mixRatio);
+    float4 mixedColor = float4(0.4, 0.6, 1.0, 1.0);
     
     // Displacement gradient
     constexpr sampler sam(min_filter::linear, mag_filter::linear, mip_filter::nearest, address::repeat);
@@ -365,13 +366,13 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
     float2 normalCoords = fragment_in.uv;
     float4 normal = normalMap.sample(mainSampler, normalCoords) * 2.0 - 1.0;
     
-    mixedColor = color_mod * landWater;//mix(mixedColor, landWater, 0.6);
+    mixedColor = mixedColor * color_mod;
     
-//    float3 color = terrainDiffuseLighting(normal.rgb,
-//                                          fragment_in.worldPosition.xyz,
-//                                          fragmentUniforms, lights,
-//                                          mixedColor.rgb);
-    return mixedColor;//float4(color, 1.0);
+    float3 color = terrainDiffuseLighting(normal.rgb,
+                                          fragment_in.worldPosition.xyz,
+                                          fragmentUniforms, lights,
+                                          mixedColor.rgb);
+    return float4(color, 1.0);
     
 }
 

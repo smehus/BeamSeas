@@ -292,7 +292,6 @@ extension BasicFFT: Renderable {
 
     // Modify the rando's created by 'water'
     func generateDistributions(computeEncoder: MTLComputeCommandEncoder, uniforms: Uniforms) {
-        computeEncoder.pushDebugGroup("FFT-Distribution")
         var gausUniforms = GausUniforms(
             dataLength: Int32(Terrain.K.SIZE * Terrain.K.SIZE),
             amplitude: Float(Terrain.K.amplitude),
@@ -304,6 +303,8 @@ extension BasicFFT: Renderable {
         )
 
         var uniforms = uniforms
+        
+        computeEncoder.pushDebugGroup("FFT-Distribution")
         computeEncoder.setComputePipelineState(distributionPipelineState)
         computeEncoder.setBytes(&gausUniforms, length: MemoryLayout<GausUniforms>.stride, index: BufferIndex.gausUniforms.rawValue)
         computeEncoder.setBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: BufferIndex.uniforms.rawValue)
@@ -325,27 +326,12 @@ extension BasicFFT: Renderable {
 
         computeEncoder.dispatchThreads(threadgroupCount, threadsPerThreadgroup: threadGroupSize)
         computeEncoder.popDebugGroup()
-
-
-        
-        // TODO: -- NORMAL DISTRIBUTIONS
-        // lets make sure we need to do this
-        // Also do we need to be use the normal freq mod in these distribution generations?
-        
-        
-        // :(
-        
-        // I think I was getting the constant values correct before I was going to transfer over to using the xamples normal mapping
-        // right now I use that apple example in Terrain.metal.
-        
         
         computeEncoder.pushDebugGroup("FFT-Normal_Distributions")
         computeEncoder.setComputePipelineState(normalPipelineState)
         computeEncoder.setBytes(&gausUniforms, length: MemoryLayout<GausUniforms>.stride, index: BufferIndex.gausUniforms.rawValue)
         computeEncoder.setBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: BufferIndex.uniforms.rawValue)
         // Output
-        // TODO: -- arrrgggghh do I need to do all this for the normal distributions?? yeahhhhhhh
-        // Orrrrr how do I calculate these normals....
         computeEncoder.setBuffer(distribution_normal_real, offset: 0, index: 12)
         computeEncoder.setBuffer(distribution_normal_imag, offset: 0, index: 13)
 
@@ -358,13 +344,6 @@ extension BasicFFT: Renderable {
         computeEncoder.dispatchThreads(threadgroupCount, threadsPerThreadgroup: threadGroupSize)
         computeEncoder.popDebugGroup()
         
-        
-        
-
-//        threadGroupSize.width = 64
-//        threadGroupSize.height = 1
-//        threadgroupCount.width = (BasicFFT.distributionSize >> 1)// / 64
-//        threadgroupCount.height = BasicFFT.distributionSize >> 1
 
         computeEncoder.pushDebugGroup("FFT-Displacement")
         computeEncoder.setComputePipelineState(displacementPipelineState)
@@ -400,6 +379,21 @@ extension BasicFFT: Renderable {
             threadsPerThreadgroup: MTLSizeMake(Terrain.K.textureSize, 1, 1) // Add up to amount of values in COLUMNS (512)
         )
         computeEncoder.popDebugGroup()
+        
+        
+        computeEncoder.pushDebugGroup("FFT-Drawing-Normal")
+
+        computeEncoder.setComputePipelineState(fftPipelineState)
+        computeEncoder.setTexture(Self.normalMapTexture, index: 0)
+        computeEncoder.setBuffer(normalBuffer, offset: 0, index: 0)
+        uniforms.distrubtionSize = UInt32(Terrain.K.SIZE)
+        computeEncoder.setBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: BufferIndex.uniforms.rawValue)
+        computeEncoder.dispatchThreadgroups(
+            MTLSizeMake(1, Terrain.K.textureSize, 1), // Adds up to the amount of values in ROWS (512)
+            threadsPerThreadgroup: MTLSizeMake(Terrain.K.textureSize, 1, 1) // Add up to amount of values in COLUMNS (512)
+        )
+        computeEncoder.popDebugGroup()
+        
 
         computeEncoder.pushDebugGroup("FFT-Drawing-Displacement")
         computeEncoder.setComputePipelineState(fftPipelineState)
