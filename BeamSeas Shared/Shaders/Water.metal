@@ -197,8 +197,9 @@ kernel void generate_normal_map_values(constant GausUniforms &uniforms [[ buffer
     b = float2(b.x, -b.y);
     float2 res = a + b;
     float2 grad = cmul(res, float2(-k.y, k.x));
-//
-//    grads_normal[i.y * N.x + i.x] = pack2(grad);
+    
+    output_real[i.y * N.x + i.x] = grad.x;
+    output_imag[i.y * N.x + i.x] = grad.y;
 }
 
 
