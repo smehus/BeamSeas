@@ -124,9 +124,6 @@ kernel void generate_displacement_map_values(constant GausUniforms &uniforms [[ 
     uint aIndex = i.y * N.x + i.x;
     uint bIndex = wi.y * N.x + wi.x;
 
-//    if (aIndex > 16383) { return; }
-//    if (bIndex > 16383) { return; }
-
     float aReal = input_real[aIndex];
     float aImag = input_imag[aIndex];
     float bReal = input_real[bIndex];
@@ -167,27 +164,39 @@ kernel void generate_normal_map_values(constant GausUniforms &uniforms [[ buffer
                                   device float *input_imag [[ buffer(15) ]],
                                   uint2 i [[ thread_position_in_grid ]])
 {
-//    uvec2 N = gl_WorkGroupSize.xy * gl_NumWorkGroups.xy;
-//    uvec2 i = gl_GlobalInvocationID.xy;
-//    uvec2 wi = mix(N - i, uvec2(0u), equal(i, uvec2(0u)));
-//
-//    vec2 a = distribution_normal[i.y * N.x + i.x];
-//    vec2 b = distribution_normal[wi.y * N.x + wi.x];
-//
-//    vec2 k = uMod * alias(vec2(i), vec2(N));
-//    float k_len = length(k);
-//
-//    const float G = 9.81;
-//    float w = sqrt(G * k_len) * uTime; // Do phase accumulation later ...
-//
-//    float cw = cos(w);
-//    float sw = sin(w);
-//
-//    a = cmul(a, vec2(cw, sw));
-//    b = cmul(b, vec2(cw, sw));
-//    b = vec2(b.x, -b.y);
-//    vec2 res = a + b;
-//    vec2 grad = cmul(res, vec2(-k.y, k.x));
+    
+    float2 uMod = float2(2.0f * M_PI_F) / uniforms.size;
+//    uint2 resolution = uniforms.resolution >> 1;
+    uint2 N = uniforms.resolution;// >> 1;//uint2(64, 1) * thread_size;
+
+    // I think this just uses 0 if i === 0
+    float2 wi = mix(float2(N - i),
+                    float2(0u),
+                    float2(i == uint2(0u)));
+
+    uint aIndex = i.y * N.x + i.x;
+    uint bIndex = wi.y * N.x + wi.x;
+
+    float aReal = input_real[aIndex];
+    float aImag = input_imag[aIndex];
+    float bReal = input_real[bIndex];
+    float bImag = input_imag[bIndex];
+  
+    
+    float2 k = uMod * alias(float2(i), float2(N));
+    float k_len = length(k);
+
+    float G = 9.81;
+    float w = sqrt(G * k_len) * (mainUniforms.currentTime);
+
+    float cw = cos(w);
+    float sw = sin(w);
+
+    float2 a = cmul(float2(aReal, aImag), float2(cw, sw));
+    float2 b = cmul(float2(bReal, bImag), float2(cw, sw));
+    b = float2(b.x, -b.y);
+    float2 res = a + b;
+    float2 grad = cmul(res, float2(-k.y, k.x));
 //
 //    grads_normal[i.y * N.x + i.x] = pack2(grad);
 }
