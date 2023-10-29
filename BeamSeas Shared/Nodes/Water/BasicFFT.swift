@@ -121,7 +121,10 @@ class BasicFFT: Node {
         heightDisplacementGradientPipelineState = Self.buildComputePipelineState(shader: "compute_height_displacement_graident")
         
         // Generate normal values from height texture & draw onto normal texture
-        normalPipelineState = Self.buildComputePipelineState(shader: "TerrainKnl_ComputeNormalsFromHeightmap")
+//        normalPipelineState = Self.buildComputePipelineState(shader: "TerrainKnl_ComputeNormalsFromHeightmap")
+        
+        // Instead of ^ - generate normal distributions with the other distribtuions
+        normalPipelineState = Self.buildComputePipelineState(shader: "generate_normal_map_values")
 
         let mainPipeDescriptor = MTLRenderPipelineDescriptor()
         mainPipeDescriptor.colorAttachments[0].pixelFormat = .bgra8Unorm
@@ -336,8 +339,24 @@ extension BasicFFT: Renderable {
         // right now I use that apple example in Terrain.metal.
         
         
-        
-        
+        computeEncoder.pushDebugGroup("FFT-Normal_Distributions")
+        computeEncoder.setComputePipelineState(normalPipelineState)
+        computeEncoder.setBytes(&gausUniforms, length: MemoryLayout<GausUniforms>.stride, index: BufferIndex.gausUniforms.rawValue)
+        computeEncoder.setBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: BufferIndex.uniforms.rawValue)
+        // Output
+        // TODO: -- arrrgggghh do I need to do all this for the normal distributions?? yeahhhhhhh
+        // Orrrrr how do I calculate these normals....
+        computeEncoder.setBuffer(distribution_normal_real, offset: 0, index: 12)
+        computeEncoder.setBuffer(distribution_normal_imag, offset: 0, index: 13)
+
+        // Input
+        computeEncoder.setBuffer(source.distribution_normal_real_buffer, offset: 0, index: 14)
+        computeEncoder.setBuffer(source.distribution_normal_imag_buffer, offset: 0, index: 15)
+        computeEncoder.setTexture(BasicFFT.heightDisplacementMap, index: 0)
+
+
+        computeEncoder.dispatchThreads(threadgroupCount, threadsPerThreadgroup: threadGroupSize)
+        computeEncoder.popDebugGroup()
         
         
         
