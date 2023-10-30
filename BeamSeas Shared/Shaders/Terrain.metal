@@ -195,14 +195,14 @@ float3 terrainDiffuseLighting(float3 normal,
             float3 lightDirection = normalize(float3(light.position.x, light.position.y, light.position.z));
             float dotVal = dot(lightDirection, normalDirection);
             float diffuseIntensity = saturate(dotVal);
-            diffuseColor += light.color * baseColor * 0.4;
+            diffuseColor += light.color * baseColor * 0.7;
             
-            if (diffuseIntensity > 0) {
-                float3 reflection = reflect(lightDirection, normalDirection);
-                float3 cameraDirection = normalize(position - fragmentUniforms.camera_position);
-                float specularIntensity = pow(saturate(-dot(reflection, cameraDirection)), materialShininess);
-                specularColor += light.specularColor * materialSpecularColor * specularIntensity;
-            }
+//            if (diffuseIntensity > 0) {
+//                float3 reflection = reflect(lightDirection, normalDirection);
+//                float3 cameraDirection = normalize(position - fragmentUniforms.camera_position);
+//                float specularIntensity = pow(saturate(-dot(reflection, cameraDirection)), materialShininess);
+//                specularColor += light.specularColor * materialSpecularColor * specularIntensity;
+//            }
         } else if (light.type == Ambientlight) {
             ambientColor += baseColor * 0.01;
         }
