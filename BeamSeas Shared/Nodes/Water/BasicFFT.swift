@@ -77,14 +77,14 @@ class BasicFFT: Node {
         let downdSampledLog2n = vDSP_Length(log2(Float(s)))
         downsampledFFT = vDSP.FFT(log2n: downdSampledLog2n, radix: .radix5, ofType: DSPSplitComplex.self)!
 
-        let texDesc = MTLTextureDescriptor()
-        texDesc.width = Terrain.K.textureSize
-        texDesc.height = Terrain.K.textureSize
-        // ooohhhh my god - it was the fucking pixel format
-        // Second time! Changing from 32 bit to 16 bit fixed phone choppiness when moving texture coordinates.
-        texDesc.pixelFormat = .rgba16Float
+        let texDesc = MTLTextureDescriptor.texture2DDescriptor(
+            pixelFormat: .rgba32Float, // <---- This thing sucks
+            width: Terrain.K.textureSize,
+            height: Terrain.K.textureSize,
+            mipmapped: false
+        )
+
         texDesc.usage = [.shaderRead, .shaderWrite]
-        
         texDesc.storageMode = .private
 
         // Final textures for main pass
@@ -93,18 +93,7 @@ class BasicFFT: Node {
         heightMap = Renderer.device.makeTexture(descriptor: texDesc)!
         displacementMap = Renderer.device.makeTexture(descriptor: texDesc)!
 
-//
-//        MTLTextureDescriptor* texDesc = [[MTLTextureDescriptor alloc] init];
-//        texDesc.width = heightMapWidth;
-//        texDesc.height = heightMapHeight;
 //        texDesc.pixelFormat = MTLPixelFormatRG11B10Float;
-//        texDesc.usage = MTLTextureUsageShaderRead | MTLTextureUsageShaderWrite;
-//        texDesc.mipmapLevelCount = std::log2(MAX(heightMapWidth, heightMapHeight)) + 1;
-//        texDesc.storageMode = MTLStorageModePrivate;
-//        _terrainNormalMap = [device newTextureWithDescriptor:texDesc];
-        
-//        texDesc.mipmapLevelCount = 3
-//        texDesc.pixelFormat = .rg11b10Float
         Self.normalMapTexture = Renderer.device.makeTexture(descriptor: texDesc)!
 
         // Drawing distribution & displacement values onto textures

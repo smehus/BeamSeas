@@ -195,7 +195,7 @@ float3 terrainDiffuseLighting(float3 normal,
             float3 lightDirection = normalize(float3(light.position.x, light.position.y, light.position.z));
             float dotVal = dot(lightDirection, normalDirection);
             float diffuseIntensity = saturate(dotVal);
-            diffuseColor += light.color * baseColor * 0.7;
+            diffuseColor += light.color * baseColor * diffuseIntensity;
             
             if (diffuseIntensity > 0) {
                 float3 reflection = reflect(lightDirection, normalDirection);
@@ -296,16 +296,24 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
     float4 mixedColor = float4(0.4, 0.6, 1.0, 1.0);
     
     // Displacement gradient
-    constexpr sampler sam(min_filter::linear, mag_filter::linear, mip_filter::nearest, address::repeat);
-    float3 vGradJacobian = gradientMap.sample(sam, fragment_in.vGradNormalTex.xy).xyz;
-    float2 noise_gradient = 0.3 * normalMap.sample(sam, fragment_in.vGradNormalTex.zw).xy;
-    float jacobian = vGradJacobian.z;
-    float turbulence = max(2.0 - jacobian + dot(abs(noise_gradient.xy), float2(1.2)), 0.0);
-    float color_mod = 1.0 + 3.0 * smoothstep(1.2, 1.8, turbulence);
+    constexpr sampler sam(min_filter::linear);
+//    float3 vGradJacobian = gradientMap.sample(sam, fragment_in.vGradNormalTex.xy).xyz;
     
-    mixedColor = mixedColor * color_mod;
+    float4 normal = normalMap.sample(sam, fragment_in.uv) * 2.0 - 1.0;
+//    float2 noise_gradient = 0.3 * normal.xy;
     
-    return mixedColor;
+//    float jacobian = vGradJacobian.z;
+//    float turbulence = max(2.0 - jacobian + dot(abs(noise_gradient.xy), float2(1.2)), 0.0);
+//    float color_mod = 1.0 + 3.0 * smoothstep(1.2, 1.8, turbulence);
+//
+    mixedColor = mixedColor;// * color_mod;
+    
+    float3 color = terrainDiffuseLighting(normal.rgb,
+                                          fragment_in.worldPosition.xyz,
+                                          fragmentUniforms, lights,
+                                          mixedColor.rgb);
+    
+    return float4(color, 1.0);
     
 }
 
