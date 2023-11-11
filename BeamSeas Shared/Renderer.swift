@@ -357,9 +357,10 @@ extension Renderer: MTKViewDelegate {
         fft.generateGradient(computeEncoder: gradientEncoder, uniforms: &uniforms)
         gradientEncoder.endEncoding()
 
-        let normalEncoder = commandBuffer.makeComputeCommandEncoder()!
-        fft.generateTerrainNormals(computeEncoder: normalEncoder, uniforms: &uniforms)
-        normalEncoder.endEncoding()
+        // Normals through distribution instead
+//        let normalEncoder = commandBuffer.makeComputeCommandEncoder()!
+//        fft.generateTerrainNormals(computeEncoder: normalEncoder, uniforms: &uniforms)
+//        normalEncoder.endEncoding()
 
 
         // MARK: - TERRAIN PASS
