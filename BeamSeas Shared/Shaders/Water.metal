@@ -222,25 +222,29 @@ kernel void compute_height_displacement_graident(uint2 pid [[ thread_position_in
 {
 
     constexpr sampler s;
-    float4 uv = (float2(pid.xy) * uInvSize.xy).xyxy;
+    float4 uv = (float2(pid.xy) * uInvSize.xy).xyxy + 0.5 * uInvSize;
+    float4 uvX0 = (float2(pid.xy + uint2(-1, 0)) * uInvSize.xy).xyxy + 0.5 * uInvSize;
+    float4 uvX1 = (float2(pid.xy + uint2(1, 0)) * uInvSize.xy).xyxy + 0.5 * uInvSize;
+    float4 uvY0 = (float2(pid.xy + uint2(0, -1)) * uInvSize.xy).xyxy + 0.5 * uInvSize;
+    float4 uvY1 = (float2(pid.xy + uint2(0, 1)) * uInvSize.xy).xyxy + 0.5 * uInvSize;
 
     float h = heightMap.sample(s, uv.xy).r;
 
-    float x0 = heightMap.sample(s, (float2)uv.xy + float2(-1, 0)).x;
-    float x1 = heightMap.sample(s, (float2)uv.xy + float2(1, 0)).x;
-    float y0 = heightMap.sample(s, (float2)uv.xy + float2(0, -1)).x;
-    float y1 = heightMap.sample(s, (float2)uv.xy + float2(0, 1)).x;
+    float x0 = heightMap.sample(s, uvX0.xy).x;
+    float x1 = heightMap.sample(s, uvX1.xy).x;
+    float y0 = heightMap.sample(s, uvY0.xy).x;
+    float y1 = heightMap.sample(s, uvY1.xy).x;
     float2 grad = uScale.xy * 0.5 * float2(x1 - x0, y1 - y0);
 
     // Displacement map must be sampled with a different offset since it's a smaller texture.
     float2 displacement = LAMBDA * displacementMap.sample(s, uv.zw).xy;
     // Compute jacobian.
     float2 dDdx = 0.5 * LAMBDA * (
-                                  displacementMap.sample(s, uv.zw + float2(1, 0)).xy -
-                                  displacementMap.sample(s, uv.zw + float2(-1, 0)).xy);
+                                  displacementMap.sample(s, uvX1.zw).xy -
+                                  displacementMap.sample(s, uvX0.zw).xy);
     float2 dDdy = 0.5 * LAMBDA * (
-                                  displacementMap.sample(s, uv.zw + float2(0,   1)).xy -
-                                  displacementMap.sample(s, uv.zw + float2(0, -1)).xy);
+                                  displacementMap.sample(s, uvY1.zw).xy -
+                                  displacementMap.sample(s, uvY0.zw).xy);
 
     float j = jacobian(half2(dDdx * uScale.z), half2(dDdy * uScale.z));
 

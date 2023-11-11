@@ -103,9 +103,8 @@ class BasicFFT: Node {
 //        texDesc.storageMode = MTLStorageModePrivate;
 //        _terrainNormalMap = [device newTextureWithDescriptor:texDesc];
         
-        texDesc.mipmapLevelCount = Int(log2(Double(max(Terrain.K.textureSize, Terrain.K.textureSize))) + 1);
-        texDesc.pixelFormat = .rg11b10Float
-        texDesc.storageMode = .private
+//        texDesc.mipmapLevelCount = 3
+//        texDesc.pixelFormat = .rg11b10Float
         Self.normalMapTexture = Renderer.device.makeTexture(descriptor: texDesc)!
 
         // Drawing distribution & displacement values onto textures
@@ -395,7 +394,6 @@ extension BasicFFT: Renderable {
         computeEncoder.setComputePipelineState(fftPipelineState)
         computeEncoder.setTexture(Self.normalMapTexture, index: 0)
         computeEncoder.setBuffer(normalBuffer, offset: 0, index: 0)
-        uniforms.distrubtionSize = UInt32(Terrain.K.SIZE)
         computeEncoder.setBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: BufferIndex.uniforms.rawValue)
         computeEncoder.dispatchThreadgroups(
             MTLSizeMake(1, Terrain.K.textureSize, 1), // Adds up to the amount of values in ROWS (512)
@@ -426,8 +424,12 @@ extension BasicFFT: Renderable {
         //        compute_height_graident will generate the draw texture used for terrain vertex
         computeEncoder.setTexture(heightMap, index: 0)
         computeEncoder.setTexture(displacementMap, index: 1)
-        computeEncoder.setTexture(Self.heightDisplacementMap, index: 2)
-        computeEncoder.setTexture(Self.gradientMap, index: 3)
+        computeEncoder.setTexture(Self.heightDisplacementMap, index: 2) // separate these out?
+        computeEncoder.setTexture(Self.gradientMap, index: 3)// what is this?
+        // should have
+        // - heightdisplacementmap
+        // - gradientjacobianmap
+        // I guess i have that...
 
         var invSize = float4(
             x: 1.0 / Float(Terrain.K.textureSize),

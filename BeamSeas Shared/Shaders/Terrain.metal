@@ -292,67 +292,7 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
                                  texturecube<float> worldMapTexture [[ texture(TextureIndexWorldMap) ]],
                                  sampler scaffoldingSampler [[ sampler(0) ]])
 {
-    
-    constexpr sampler mainSampler(filter::linear, address::repeat);
-    float width = float(reflectionTexture.get_width() * 2.0);
-    float height = float(reflectionTexture.get_height() * 2.0);
-    float x = fragment_in.position.x / width;
-    float y = fragment_in.position.y / height;
-    float z = fragment_in.position.z / height;
-    float2 reflectionCoords = float2(x, 1 - y);
-    float2 refractionCoords = float2(x, y);
-    
-    float4 directionToFragment = fragment_in.parentFragmentPosition - fragmentUniforms.scaffoldingPosition;
-    float4 terrainToScaffold = normalize(directionToFragment);
-    float4 scaffoldSample = worldMapTexture.sample(scaffoldingSampler, terrainToScaffold.xyz);
-    // so that white is 0 and black is one
-    float4 invertedScaffoldColor = (1 - scaffoldSample);
-    // transform to -1 to 1 * constant variable
-    float4 scaffoldHeight = (invertedScaffoldColor * 2 - 1) * terrainParams.height;
-    
-    
-    // Multiplier determines ripple size
-    float timer = uniforms.currentTime * 0.007;
-    float2 rippleUV = fragment_in.uv * 0.5;
-    float waveStrength = 0.1;
-    float2 rippleX = float2(rippleUV.x/* + timer*/, rippleUV.y) + timer;
-    float2 rippleY = float2(rippleUV.x - timer, rippleUV.y);
-    
-    float4 rippleSampleX = waterRippleTexture.sample(mainSampler, rippleX);
-    float4 rippleSampleY = waterRippleTexture.sample(mainSampler, rippleY);
-    float2 normalizedRippleX = rippleSampleX.rg * 2.0 - 1.0;
-    float2 normalizedRippleY = rippleSampleY.rg * 2.0 - 1.0;
 
-    
-    // TEST - ONLY USE SCAFFOLD HEIGHT IN THE VERTEX.
-    // THAN GRAB THE SCAFFOLD WORLD HEIGHT HERE & CHECK TO MAKE SURE THEY ARE KINDA THE SAME.
-    // THAN DO THE SAME THING WITH THE POSITION.Y & THE WORLDIFFTHEIGHT DAWGGGGGGG
-    // THAN NEED TO JUST DECIDE? IDK - FIGURE IT OUT FROM THERE DIPSHIT
-    float4 heightDisplacement = heightMap.sample(mainSampler, refractionCoords);
-    float4 ifftHeight = (heightDisplacement * 2 - 1) * terrainParams.height;
-    float4 ifftPercentHeight = ifftHeight * scaffoldSample.r;
-    
-    float4 landWater = float4(0.0 / 255.0, 105.0 / 255.0, 148.0 / 255.0, 1.0);
-    float4 scaffoldPosition = fragmentUniforms.scaffoldingPosition;
-    scaffoldPosition.y += scaffoldHeight.r;
-    float4 scaffoldWorldPositions = uniforms.modelMatrix * scaffoldPosition;
-    
-//    if (fragment_in.worldPosition.y < scaffoldWorldPositions.y) {
-//        
-////        float2 ripple = (normalizedRippleX + normalizedRippleY) * waveStrength;
-////        reflectionCoords += ripple;
-////        refractionCoords += ripple;
-//        landWater = float4(1.0, 0, 0, 1.0);
-//    }
-    
-    reflectionCoords = clamp(reflectionCoords, 0.001, 0.999);
-    refractionCoords = clamp(refractionCoords, 0.001, 0.999);
-    
-    float3 viewVector = normalize(fragment_in.toCamera);
-    float mixRatio = dot(viewVector, float3(0.0, 1.0, 0.0));
-//    float4 mixedColor = mix(reflectionTexture.sample(mainSampler, reflectionCoords),
-//                            refractionTexture.sample(mainSampler, refractionCoords),
-//                            mixRatio);
     float4 mixedColor = float4(0.4, 0.6, 1.0, 1.0);
     
     // Displacement gradient
@@ -363,16 +303,9 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
     float turbulence = max(2.0 - jacobian + dot(abs(noise_gradient.xy), float2(1.2)), 0.0);
     float color_mod = 1.0 + 3.0 * smoothstep(1.2, 1.8, turbulence);
     
-    float2 normalCoords = fragment_in.uv;
-    float4 normal = normalMap.sample(mainSampler, normalCoords) * 2.0 - 1.0;
-    
     mixedColor = mixedColor * color_mod;
     
-    float3 color = terrainDiffuseLighting(normal.rgb,
-                                          fragment_in.worldPosition.xyz,
-                                          fragmentUniforms, lights,
-                                          mixedColor.rgb);
-    return float4(color, 1.0);
+    return mixedColor;
     
 }
 
