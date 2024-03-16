@@ -34,6 +34,7 @@ class BasicFFT: Node {
     var distribution_normal_imag: MTLBuffer
 
     private let fftPipelineState: MTLComputePipelineState
+    private let normalDrawingPipepline: MTLComputePipelineState
     private let mainPipelineState: MTLRenderPipelineState
 
     static var heightDisplacementMap: MTLTexture!
@@ -98,6 +99,9 @@ class BasicFFT: Node {
 
         // Drawing distribution & displacement values onto textures
         fftPipelineState = Self.buildComputePipelineState(shader: "fft_kernel")
+        
+        // Drawing (non apple) generated normals. Need separate because val = (val - -1) / (1 - -1); ! needs to change to scale down. Or maybe the distribution?
+        normalDrawingPipepline = Self.buildComputePipelineState(shader: "normal_draw_kernel")
         
         // Generate distribution values
         distributionPipelineState = Self.buildComputePipelineState(shader: "generate_distribution_map_values")
@@ -380,7 +384,7 @@ extension BasicFFT: Renderable {
         
         computeEncoder.pushDebugGroup("FFT-Drawing-Normal")
 
-        computeEncoder.setComputePipelineState(fftPipelineState)
+        computeEncoder.setComputePipelineState(normalDrawingPipepline)
         computeEncoder.setTexture(Self.normalMapTexture, index: 0)
         computeEncoder.setBuffer(normalBuffer, offset: 0, index: 0)
         computeEncoder.setBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: BufferIndex.uniforms.rawValue)

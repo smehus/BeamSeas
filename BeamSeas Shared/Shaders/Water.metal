@@ -289,3 +289,19 @@ kernel void fft_kernel(texture2d<float, access::write> output_texture [[ texture
         
     output_texture.write(float4(val, val, val, 1), tid);
 }
+
+/// I think I use this for drawing out the normal / height / displacement textures
+kernel void normal_draw_kernel(texture2d<float, access::write> output_texture [[ texture(0) ]],
+                       constant Uniforms &uniforms [[ buffer(BufferIndexUniforms) ]],
+                       uint2 tid [[ thread_position_in_grid]],
+                       constant float *data [[ buffer(0) ]])
+{
+    uint y = tid.y - (uint(tid.y / uniforms.distrubtionSize) * uniforms.distrubtionSize);
+    uint x = tid.x - (uint(tid.x / uniforms.distrubtionSize) * uniforms.distrubtionSize);
+    uint index = (uint)(y * uniforms.distrubtionSize + x);
+    float val = data[index];
+    float delta = 0.03;
+    val = (val - -delta) / (delta - -delta);
+        
+    output_texture.write(float4(val, val, val, 1), tid);
+}
