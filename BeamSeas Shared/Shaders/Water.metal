@@ -124,9 +124,6 @@ kernel void generate_displacement_map_values(constant GausUniforms &uniforms [[ 
     uint aIndex = i.y * N.x + i.x;
     uint bIndex = wi.y * N.x + wi.x;
 
-//    if (aIndex > 16383) { return; }
-//    if (bIndex > 16383) { return; }
-
     float aReal = input_real[aIndex];
     float aImag = input_imag[aIndex];
     float bReal = input_real[bIndex];
@@ -156,6 +153,56 @@ kernel void generate_displacement_map_values(constant GausUniforms &uniforms [[ 
 // I pulled this from a wwdc metal example from apple
 // Maybe I can just use those values instead of re-doing all this normal BS.
 
+// Nah I think i need to do this:
+
+kernel void generate_normal_map_values(constant GausUniforms &uniforms [[ buffer(BufferIndexGausUniforms) ]],
+                                  constant Uniforms &mainUniforms [[ buffer(BufferIndexUniforms) ]],
+                                  device float *output_real [[ buffer(12) ]],
+                                  device float *output_imag [[ buffer(13) ]],
+                                  texture2d<float> drawTexture [[ texture(0) ]],
+                                  device float *input_real [[ buffer(14) ]],
+                                  device float *input_imag [[ buffer(15) ]],
+                                  uint2 i [[ thread_position_in_grid ]])
+{
+    
+    float2 uMod = float2(2.0f * M_PI_F) / uniforms.size;
+//    uint2 resolution = uniforms.resolution >> 1;
+    uint2 N = uniforms.resolution;// >> 1;//uint2(64, 1) * thread_size;
+
+    // I think this just uses 0 if i === 0
+    float2 wi = mix(float2(N - i),
+                    float2(0u),
+                    float2(i == uint2(0u)));
+
+    uint aIndex = i.y * N.x + i.x;
+    uint bIndex = wi.y * N.x + wi.x;
+
+    float aReal = input_real[aIndex];
+    float aImag = input_imag[aIndex];
+    float bReal = input_real[bIndex];
+    float bImag = input_imag[bIndex];
+  
+    
+    float2 k = uMod * alias(float2(i), float2(N));
+    float k_len = length(k);
+
+    float G = 9.81;
+    float w = sqrt(G * k_len) * (mainUniforms.currentTime);
+
+    float cw = cos(w);
+    float sw = sin(w);
+
+    float2 a = cmul(float2(aReal, aImag), float2(cw, sw));
+    float2 b = cmul(float2(bReal, bImag), float2(cw, sw));
+    b = float2(b.x, -b.y);
+    float2 res = a + b;
+    float2 grad = cmul(res, float2(-k.y, k.x));
+    
+    output_real[i.y * N.x + i.x] = grad.x;
+    output_imag[i.y * N.x + i.x] = grad.y;
+}
+
+
 //kernel void generate_normals
 
 half jacobian(half2 dDdx, half2 dDdy)
@@ -175,25 +222,29 @@ kernel void compute_height_displacement_graident(uint2 pid [[ thread_position_in
 {
 
     constexpr sampler s;
-    float4 uv = (float2(pid.xy) * uInvSize.xy).xyxy;
+    float4 uv = (float2(pid.xy) * uInvSize.xy).xyxy + 0.5 * uInvSize;
+    float4 uvX0 = (float2(pid.xy + uint2(-1, 0)) * uInvSize.xy).xyxy + 0.5 * uInvSize;
+    float4 uvX1 = (float2(pid.xy + uint2(1, 0)) * uInvSize.xy).xyxy + 0.5 * uInvSize;
+    float4 uvY0 = (float2(pid.xy + uint2(0, -1)) * uInvSize.xy).xyxy + 0.5 * uInvSize;
+    float4 uvY1 = (float2(pid.xy + uint2(0, 1)) * uInvSize.xy).xyxy + 0.5 * uInvSize;
 
     float h = heightMap.sample(s, uv.xy).r;
 
-    float x0 = heightMap.sample(s, (float2)uv.xy + float2(-1, 0)).x;
-    float x1 = heightMap.sample(s, (float2)uv.xy + float2(1, 0)).x;
-    float y0 = heightMap.sample(s, (float2)uv.xy + float2(0, -1)).x;
-    float y1 = heightMap.sample(s, (float2)uv.xy + float2(0, 1)).x;
+    float x0 = heightMap.sample(s, uvX0.xy).x;
+    float x1 = heightMap.sample(s, uvX1.xy).x;
+    float y0 = heightMap.sample(s, uvY0.xy).x;
+    float y1 = heightMap.sample(s, uvY1.xy).x;
     float2 grad = uScale.xy * 0.5 * float2(x1 - x0, y1 - y0);
 
     // Displacement map must be sampled with a different offset since it's a smaller texture.
     float2 displacement = LAMBDA * displacementMap.sample(s, uv.zw).xy;
     // Compute jacobian.
     float2 dDdx = 0.5 * LAMBDA * (
-                                  displacementMap.sample(s, uv.zw + float2(1, 0)).xy -
-                                  displacementMap.sample(s, uv.zw + float2(-1, 0)).xy);
+                                  displacementMap.sample(s, uvX1.zw).xy -
+                                  displacementMap.sample(s, uvX0.zw).xy);
     float2 dDdy = 0.5 * LAMBDA * (
-                                  displacementMap.sample(s, uv.zw + float2(0,   1)).xy -
-                                  displacementMap.sample(s, uv.zw + float2(0, -1)).xy);
+                                  displacementMap.sample(s, uvY1.zw).xy -
+                                  displacementMap.sample(s, uvY0.zw).xy);
 
     float j = jacobian(half2(dDdx * uScale.z), half2(dDdy * uScale.z));
 
@@ -223,6 +274,8 @@ fragment float4 fft_fragment(const FFTVertexOut in [[ stage_in ]],
     return float4(color.xyz, 1.0);
 }
 
+
+/// I think I use this for drawing out the normal / height / displacement textures
 kernel void fft_kernel(texture2d<float, access::write> output_texture [[ texture(0) ]],
                        constant Uniforms &uniforms [[ buffer(BufferIndexUniforms) ]],
                        uint2 tid [[ thread_position_in_grid]],
@@ -233,6 +286,22 @@ kernel void fft_kernel(texture2d<float, access::write> output_texture [[ texture
     uint index = (uint)(y * uniforms.distrubtionSize + x);
     float val = data[index];
     val = (val - -1) / (1 - -1);
+        
+    output_texture.write(float4(val, val, val, 1), tid);
+}
+
+/// I think I use this for drawing out the normal / height / displacement textures
+kernel void normal_draw_kernel(texture2d<float, access::write> output_texture [[ texture(0) ]],
+                       constant Uniforms &uniforms [[ buffer(BufferIndexUniforms) ]],
+                       uint2 tid [[ thread_position_in_grid]],
+                       constant float *data [[ buffer(0) ]])
+{
+    uint y = tid.y - (uint(tid.y / uniforms.distrubtionSize) * uniforms.distrubtionSize);
+    uint x = tid.x - (uint(tid.x / uniforms.distrubtionSize) * uniforms.distrubtionSize);
+    uint index = (uint)(y * uniforms.distrubtionSize + x);
+    float val = data[index];
+    float delta = 0.05;
+    val = (val - -delta) / (delta - -delta);
         
     output_texture.write(float4(val, val, val, 1), tid);
 }

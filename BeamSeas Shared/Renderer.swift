@@ -357,6 +357,7 @@ extension Renderer: MTKViewDelegate {
         fft.generateGradient(computeEncoder: gradientEncoder, uniforms: &uniforms)
         gradientEncoder.endEncoding()
 
+        // Normals through distribution instead
         let normalEncoder = commandBuffer.makeComputeCommandEncoder()!
         fft.generateTerrainNormals(computeEncoder: normalEncoder, uniforms: &uniforms)
         normalEncoder.endEncoding()
