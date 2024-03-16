@@ -192,17 +192,23 @@ float3 terrainDiffuseLighting(float3 normal,
     for (uint i = 0; i < fragmentUniforms.light_count; i++) {
         Light light = lights[i];
         if (light.type == Sunlight) {
-            float3 lightDirection = normalize(float3(light.position.x, light.position.y, light.position.z));
+            float3 lightDirection = normalize(float3(-light.position.x, -light.position.y, -light.position.z));
             float dotVal = dot(lightDirection, normalDirection);
             float diffuseIntensity = saturate(dotVal);
-            diffuseColor += light.color * baseColor * diffuseIntensity;
-            
-            if (diffuseIntensity > 0) {
-                float3 reflection = reflect(lightDirection, normalDirection);
-                float3 cameraDirection = normalize(position - fragmentUniforms.camera_position);
-                float specularIntensity = pow(saturate(-dot(reflection, cameraDirection)), materialShininess);
-                specularColor += light.specularColor * materialSpecularColor * specularIntensity;
+            if (diffuseIntensity < 0.2) {
+                diffuseIntensity = diffuseIntensity;
+            } else {
+                diffuseIntensity = 1.0;
             }
+            
+            diffuseColor += baseColor * light.color * diffuseIntensity;
+            
+//            if (diffuseIntensity > 0) {
+//                float3 reflection = reflect(lightDirection, normalDirection);
+//                float3 cameraDirection = normalize(position - fragmentUniforms.camera_position);
+//                float specularIntensity = pow(saturate(-dot(reflection, cameraDirection)), materialShininess);
+//                specularColor += light.specularColor * materialSpecularColor * specularIntensity;
+//            }
         } else if (light.type == Ambientlight) {
             ambientColor += baseColor * 0.01;
         }
@@ -305,20 +311,26 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
     float3 normal = sampledNormalMap * 2.0 - 1.0;
     
     float3 secondarySampledNormalMap = secondaryNormalMap.sample(sam, fragment_in.uv).rgb;
-    float3 secondaryNormal = secondarySampledNormalMap * 0.1 - 0.05;
+    float3 secondaryNormal = secondarySampledNormalMap * 0.06 - 0.03;
+    
+    float3 lightDirection = normalize(float3(lights[0].position.x, lights[0].position.y, lights[0].position.z));
+    float cosTheta = clamp(dot(lightDirection, secondaryNormal), 0.0, 1.0);
+    
+    const float c_spec = 0.2; // F(0) for water.
+    float rTheta = c_spec + (1.0 - c_spec) * pow(1.0 - cosTheta, 100.0);
+    
+//    float3 color = terrainDiffuseLighting(normal,
+//                                          fragment_in.worldPosition.xyz,
+//                                          fragmentUniforms, lights,
+//                                          mixedColor.rgb);
+
     
     float3 color = terrainDiffuseLighting(secondaryNormal,
                                           fragment_in.worldPosition.xyz,
                                           fragmentUniforms, lights,
                                           mixedColor.rgb);
 
-    
-//    color = color + terrainDiffuseLighting(secondaryNormal,
-//                                   fragment_in.worldPosition.xyz,
-//                                   fragmentUniforms, lights,
-//                                   mixedColor.rgb);
-
-    return float4(color, 1.0);
+    return float4(mixedColor.rgb * rTheta, 1.0);
     
 }
 

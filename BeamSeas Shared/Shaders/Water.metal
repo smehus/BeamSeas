@@ -300,7 +300,7 @@ kernel void normal_draw_kernel(texture2d<float, access::write> output_texture [[
     uint x = tid.x - (uint(tid.x / uniforms.distrubtionSize) * uniforms.distrubtionSize);
     uint index = (uint)(y * uniforms.distrubtionSize + x);
     float val = data[index];
-    float delta = 0.05;
+    float delta = 0.03;
     val = (val - -delta) / (delta - -delta);
         
     output_texture.write(float4(val, val, val, 1), tid);
