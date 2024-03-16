@@ -298,8 +298,9 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
     // Displacement gradient
     constexpr sampler sam(min_filter::linear);
 //    float3 vGradJacobian = gradientMap.sample(sam, fragment_in.vGradNormalTex.xy).xyz;
+//    val = (val - -delta) / (delta - -delta);
     
-    float4 normal = normalMap.sample(sam, fragment_in.uv) * 2.0 - 1.0;
+    float4 normal = normalMap.sample(sam, fragment_in.uv) * 0.6 - 0.3;
 //    float2 noise_gradient = 0.3 * normal.xy;
     
 //    float jacobian = vGradJacobian.z;
@@ -316,6 +317,13 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
     return float4(color, 1.0);
     
 }
+
+//var maxRange = 0.3
+//var val = 0.12
+//let doubleMaxRange = (maxRange - -maxRange)
+//let valuePlusMaxRange = (val - -maxRange)
+//let convertedToPositiveScale = valuePlusMaxRange / doubleMaxRange
+//let revertedToPositiveNegative = convertedToPositiveScale * doubleMaxRange - maxRange
 
 // This relies on the ehight an dnormal textures to be teh same size. 128x128
 //kernel void TerrainKnl_ComputeNormalsFromHeightmap(texture2d<float> height [[texture(0)]],

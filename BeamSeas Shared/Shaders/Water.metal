@@ -187,7 +187,7 @@ kernel void generate_normal_map_values(constant GausUniforms &uniforms [[ buffer
     float k_len = length(k);
 
     float G = 9.81;
-    float w = sqrt(G * k_len) * (mainUniforms.currentTime);
+    float w = sqrt(G * k_len) * (-mainUniforms.currentTime);
 
     float cw = cos(w);
     float sw = sin(w);
