@@ -274,6 +274,8 @@ fragment float4 fft_fragment(const FFTVertexOut in [[ stage_in ]],
     return float4(color.xyz, 1.0);
 }
 
+
+/// I think I use this for drawing out the normal / height / displacement textures
 kernel void fft_kernel(texture2d<float, access::write> output_texture [[ texture(0) ]],
                        constant Uniforms &uniforms [[ buffer(BufferIndexUniforms) ]],
                        uint2 tid [[ thread_position_in_grid]],

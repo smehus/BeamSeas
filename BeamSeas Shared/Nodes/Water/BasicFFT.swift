@@ -488,7 +488,8 @@ extension BasicFFT: Renderable {
 
         var viewPort = SIMD2<Float>(x: Float(Renderer.metalView.drawableSize.width), y: Float(Renderer.metalView.drawableSize.height))
         renderEncoder.setFragmentBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: BufferIndex.uniforms.rawValue)
-        renderEncoder.setFragmentTexture(heightMap, index: 0)
+//        renderEncoder.setFragmentTexture(heightMap, index: 0)
+        renderEncoder.setFragmentTexture(Self.normalMapTexture, index: 0)
         renderEncoder.setFragmentBytes(&viewPort, length: MemoryLayout<SIMD2<Float>>.stride, index: BufferIndex.viewport.rawValue)
 
         let mesh = model.submeshes.first!
@@ -507,26 +508,26 @@ extension BasicFFT: Renderable {
 
 
 
-
-        renderEncoder.pushDebugGroup("Tiny Map - Normal")
-        position.x = -0.75
-        position.y = 0.25
-
-        uniforms.modelMatrix = modelMatrix
-        renderEncoder.setVertexBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: BufferIndex.uniforms.rawValue)
-        renderEncoder.setFragmentBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: BufferIndex.uniforms.rawValue)
-        renderEncoder.setFragmentTexture(Self.normalMapTexture, index: 0)
+//
+//        renderEncoder.pushDebugGroup("Tiny Map - Normal")
+//        position.x = -0.75
+//        position.y = 0.25
+//
+//        uniforms.modelMatrix = modelMatrix
+//        renderEncoder.setVertexBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: BufferIndex.uniforms.rawValue)
+//        renderEncoder.setFragmentBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: BufferIndex.uniforms.rawValue)
+//        renderEncoder.setFragmentTexture(Self.normalMapTexture, index: 0)
 //        renderEncoder.setVertexBuffer(model.vertexBuffers.first!.buffer, offset: 0, index: BufferIndex.vertexBuffer.rawValue)
-        renderEncoder.setTriangleFillMode(.fill)
-        renderEncoder.drawIndexedPrimitives(
-            type: .triangle,
-            indexCount: mesh.indexCount,
-            indexType: mesh.indexType,
-            indexBuffer: mesh.indexBuffer.buffer,
-            indexBufferOffset: mesh.indexBuffer.offset
-        )
-
-        renderEncoder.popDebugGroup()
+//        renderEncoder.setTriangleFillMode(.fill)
+//        renderEncoder.drawIndexedPrimitives(
+//            type: .triangle,
+//            indexCount: mesh.indexCount,
+//            indexType: mesh.indexType,
+//            indexBuffer: mesh.indexBuffer.buffer,
+//            indexBufferOffset: mesh.indexBuffer.offset
+//        )
+//
+//        renderEncoder.popDebugGroup()
     }
 
 }
