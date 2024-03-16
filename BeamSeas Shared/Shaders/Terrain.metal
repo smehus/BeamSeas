@@ -286,6 +286,7 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
                                  texture2d<float> heightMap [[ texture(TextureIndexHeight) ]],
                                  texture2d<float> gradientMap [[ texture(TextureIndexGradient) ]],
                                  texture2d<float> normalMap [[ texture(TextureIndexNormal) ]],
+                                 texture2d<float> secondaryNormalMap [[ texture(TextureIndexSecondaryNormal)]],
                                  texture2d<float> reflectionTexture [[ texture(TextureIndexReflection) ]],
                                  texture2d<float> refractionTexture [[ texture(TextureIndexRefraction) ]],
                                  texture2d<float> waterRippleTexture [[ texture(TextureIndexWaterRipple) ]],
@@ -300,20 +301,23 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
 //    float3 vGradJacobian = gradientMap.sample(sam, fragment_in.vGradNormalTex.xy).xyz;
 //    val = (val - -delta) / (delta - -delta);
     
-    float4 normal = normalMap.sample(sam, fragment_in.uv) * 0.6 - 0.3;
-//    float2 noise_gradient = 0.3 * normal.xy;
+    float3 sampledNormalMap = normalMap.sample(sam, fragment_in.uv).rgb;
+    float3 normal = sampledNormalMap * 2.0 - 1.0;
     
-//    float jacobian = vGradJacobian.z;
-//    float turbulence = max(2.0 - jacobian + dot(abs(noise_gradient.xy), float2(1.2)), 0.0);
-//    float color_mod = 1.0 + 3.0 * smoothstep(1.2, 1.8, turbulence);
-//
-    mixedColor = mixedColor;// * color_mod;
+    float3 secondarySampledNormalMap = secondaryNormalMap.sample(sam, fragment_in.uv).rgb;
+    float3 secondaryNormal = secondarySampledNormalMap * 0.1 - 0.05;
     
-    float3 color = terrainDiffuseLighting(normal.rgb,
+    float3 color = terrainDiffuseLighting(secondaryNormal,
                                           fragment_in.worldPosition.xyz,
                                           fragmentUniforms, lights,
                                           mixedColor.rgb);
+
     
+//    color = color + terrainDiffuseLighting(secondaryNormal,
+//                                   fragment_in.worldPosition.xyz,
+//                                   fragmentUniforms, lights,
+//                                   mixedColor.rgb);
+
     return float4(color, 1.0);
     
 }
@@ -326,41 +330,41 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
 //let revertedToPositiveNegative = convertedToPositiveScale * doubleMaxRange - maxRange
 
 // This relies on the ehight an dnormal textures to be teh same size. 128x128
-//kernel void TerrainKnl_ComputeNormalsFromHeightmap(texture2d<float> height [[texture(0)]],
-//                                                   texture2d<float, access::write> normal [[texture(2)]],
-//                                                   constant TerrainParams &terrain [[ buffer(3) ]],
-//                                                   constant Uniforms &uniforms [[ buffer(BufferIndexUniforms) ]],
-//                                                   uint2 tid [[thread_position_in_grid]],
-//                                                   constant float &xz_scale [[ buffer(4) ]],
-//                                                   constant float &y_scale [[ buffer(5) ]])
-//{
-//    constexpr sampler sam(min_filter::nearest, mag_filter::nearest, mip_filter::none,
-//                          address::clamp_to_edge, coord::pixel);
-//
-////    float xz_scale = (float(uniforms.distrubtionSize) / float(height.get_width()) / 2);
-//
-//    if (tid.x < height.get_width() && tid.y < height.get_height()) {
-//        float h_up     = height.sample(sam, (float2)(tid + uint2(0, 1))).r;
-//        float h_down   = height.sample(sam, (float2)(tid - uint2(0, 1))).r;
-//        float h_right  = height.sample(sam, (float2)(tid + uint2(1, 0))).r;
-//        float h_left   = height.sample(sam, (float2)(tid - uint2(1, 0))).r;
-//        float h_center = height.sample(sam, (float2)(tid + uint2(0, 0))).r;
-//
-//        float3 v_up    = float3( 0,        (h_up    - h_center) * y_scale,  xz_scale);
-//        float3 v_down  = float3( 0,        (h_down  - h_center) * y_scale, -xz_scale);
-//        float3 v_right = float3( xz_scale, (h_right - h_center) * y_scale,  0);
-//        float3 v_left  = float3(-xz_scale, (h_left  - h_center) * y_scale,  0);
-//
-//        float3 n0 = cross(v_up, v_right);
-//        float3 n1 = cross(v_left, v_up);
-//        float3 n2 = cross(v_down, v_left);
-//        float3 n3 = cross(v_right, v_down);
-//
-//        float3 n = normalize(n0 + n1 + n2 + n3) * 0.5f + 0.5f;
-//
-//        normal.write(float4(n.xzy, 1), tid);
-//    }
-//}
+kernel void TerrainKnl_ComputeNormalsFromHeightmap(texture2d<float> height [[texture(0)]],
+                                                   texture2d<float, access::write> normal [[texture(2)]],
+                                                   constant TerrainParams &terrain [[ buffer(3) ]],
+                                                   constant Uniforms &uniforms [[ buffer(BufferIndexUniforms) ]],
+                                                   uint2 tid [[thread_position_in_grid]],
+                                                   constant float &xz_scale [[ buffer(4) ]],
+                                                   constant float &y_scale [[ buffer(5) ]])
+{
+    constexpr sampler sam(min_filter::nearest, mag_filter::nearest, mip_filter::none,
+                          address::clamp_to_edge, coord::pixel);
+
+//    float xz_scale = (float(uniforms.distrubtionSize) / float(height.get_width()) / 2);
+
+    if (tid.x < height.get_width() && tid.y < height.get_height()) {
+        float h_up     = height.sample(sam, (float2)(tid + uint2(0, 1))).r;
+        float h_down   = height.sample(sam, (float2)(tid - uint2(0, 1))).r;
+        float h_right  = height.sample(sam, (float2)(tid + uint2(1, 0))).r;
+        float h_left   = height.sample(sam, (float2)(tid - uint2(1, 0))).r;
+        float h_center = height.sample(sam, (float2)(tid + uint2(0, 0))).r;
+
+        float3 v_up    = float3( 0,        (h_up    - h_center) * y_scale,  xz_scale);
+        float3 v_down  = float3( 0,        (h_down  - h_center) * y_scale, -xz_scale);
+        float3 v_right = float3( xz_scale, (h_right - h_center) * y_scale,  0);
+        float3 v_left  = float3(-xz_scale, (h_left  - h_center) * y_scale,  0);
+
+        float3 n0 = cross(v_up, v_right);
+        float3 n1 = cross(v_left, v_up);
+        float3 n2 = cross(v_down, v_left);
+        float3 n3 = cross(v_right, v_down);
+
+        float3 n = normalize(n0 + n1 + n2 + n3) * 0.5f + 0.5f;
+
+        normal.write(float4(n.xzy, 1), tid);
+    }
+}
 
 
 // ORIGINAL

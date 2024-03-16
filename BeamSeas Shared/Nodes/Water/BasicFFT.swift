@@ -35,11 +35,13 @@ class BasicFFT: Node {
 
     private let fftPipelineState: MTLComputePipelineState
     private let normalDrawingPipepline: MTLComputePipelineState
+    private let secondaryNormalPipeline: MTLComputePipelineState
     private let mainPipelineState: MTLRenderPipelineState
 
     static var heightDisplacementMap: MTLTexture!
     static var gradientMap: MTLTexture!
     static var normalMapTexture: MTLTexture!
+    static var secondaryNormalMapTexture: MTLTexture!
 
     // Output of FFT
     private var dataBuffer: MTLBuffer!
@@ -79,7 +81,7 @@ class BasicFFT: Node {
         downsampledFFT = vDSP.FFT(log2n: downdSampledLog2n, radix: .radix5, ofType: DSPSplitComplex.self)!
 
         let texDesc = MTLTextureDescriptor.texture2DDescriptor(
-            pixelFormat: .rgba32Float, // <---- This thing sucks
+            pixelFormat: .rgba16Float, // <---- This thing sucks
             width: Terrain.K.textureSize,
             height: Terrain.K.textureSize,
             mipmapped: false
@@ -96,6 +98,7 @@ class BasicFFT: Node {
 
 //        texDesc.pixelFormat = MTLPixelFormatRG11B10Float;
         Self.normalMapTexture = Renderer.device.makeTexture(descriptor: texDesc)!
+        Self.secondaryNormalMapTexture = Renderer.device.makeTexture(descriptor: texDesc)!
 
         // Drawing distribution & displacement values onto textures
         fftPipelineState = Self.buildComputePipelineState(shader: "fft_kernel")
@@ -113,10 +116,10 @@ class BasicFFT: Node {
         heightDisplacementGradientPipelineState = Self.buildComputePipelineState(shader: "compute_height_displacement_graident")
         
         // Generate normal values from height texture & draw onto normal texture
-//        normalPipelineState = Self.buildComputePipelineState(shader: "TerrainKnl_ComputeNormalsFromHeightmap")
+        normalPipelineState = Self.buildComputePipelineState(shader: "TerrainKnl_ComputeNormalsFromHeightmap")
         
         // Instead of ^ - generate normal distributions with the other distribtuions
-        normalPipelineState = Self.buildComputePipelineState(shader: "generate_normal_map_values")
+        secondaryNormalPipeline = Self.buildComputePipelineState(shader: "generate_normal_map_values")
 
         let mainPipeDescriptor = MTLRenderPipelineDescriptor()
         mainPipeDescriptor.colorAttachments[0].pixelFormat = .bgra8Unorm
@@ -295,7 +298,7 @@ extension BasicFFT: Renderable {
         )
         
         
-        var makeThreadGroup: ((MTLComputePipelineState) -> (count: MTLSize, size: MTLSize)) = { pipeline in
+        let makeThreadGroup: ((MTLComputePipelineState) -> (count: MTLSize, size: MTLSize)) = { pipeline in
             let w = pipeline.threadExecutionWidth
             let h = pipeline.maxTotalThreadsPerThreadgroup / w
             
@@ -327,10 +330,10 @@ extension BasicFFT: Renderable {
         computeEncoder.popDebugGroup()
         
         
-        
+        // Create normals the non apple way
         computeEncoder.pushDebugGroup("FFT-Normal_Distributions")
-        computeEncoder.setComputePipelineState(normalPipelineState)
-        threadGroup = makeThreadGroup(normalPipelineState)
+        computeEncoder.setComputePipelineState(secondaryNormalPipeline)
+        threadGroup = makeThreadGroup(secondaryNormalPipeline)
         computeEncoder.setBytes(&gausUniforms, length: MemoryLayout<GausUniforms>.stride, index: BufferIndex.gausUniforms.rawValue)
         computeEncoder.setBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: BufferIndex.uniforms.rawValue)
         // Output
@@ -385,7 +388,7 @@ extension BasicFFT: Renderable {
         computeEncoder.pushDebugGroup("FFT-Drawing-Normal")
 
         computeEncoder.setComputePipelineState(normalDrawingPipepline)
-        computeEncoder.setTexture(Self.normalMapTexture, index: 0)
+        computeEncoder.setTexture(Self.secondaryNormalMapTexture, index: 0)
         computeEncoder.setBuffer(normalBuffer, offset: 0, index: 0)
         computeEncoder.setBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: BufferIndex.uniforms.rawValue)
         computeEncoder.dispatchThreadgroups(
@@ -452,28 +455,28 @@ extension BasicFFT: Renderable {
 
     // Going to try and do this in `generateDistributions`
     func generateTerrainNormals(computeEncoder: MTLComputeCommandEncoder, uniforms: inout Uniforms) {
-//
-//        var xz_scale: Float = 0.09
-//        var y_scale: Float = 10.0
-//
-//        computeEncoder.pushDebugGroup("Generate Terrain Normals")
-//        computeEncoder.setComputePipelineState(normalPipelineState)
-//        computeEncoder.setTexture(heightMap, index: 0)
-//        computeEncoder.setTexture(Self.normalMapTexture, index: 2)
-//        computeEncoder.setBytes(&Terrain.terrainParams, length: MemoryLayout<TerrainParams>.size, index: 3)
-//        computeEncoder.setBytes(&xz_scale, length: MemoryLayout<Float>.stride, index: 4)
-//        computeEncoder.setBytes(&y_scale, length: MemoryLayout<Float>.stride, index: 5)
-//        computeEncoder.setBytes(
-//            &uniforms,
-//            length: MemoryLayout<Uniforms>.stride,
-//            index: BufferIndex.uniforms.rawValue
-//        )
-//
-//        computeEncoder.dispatchThreadgroups(
-//            MTLSizeMake(1, Terrain.K.textureSize, 1),
-//            threadsPerThreadgroup: MTLSizeMake(Terrain.K.textureSize, 1, 1)
-//        )
-//        computeEncoder.popDebugGroup()
+
+        var xz_scale: Float = 0.09
+        var y_scale: Float = 10.0
+
+        computeEncoder.pushDebugGroup("Generate Terrain Normals")
+        computeEncoder.setComputePipelineState(normalPipelineState)
+        computeEncoder.setTexture(heightMap, index: 0)
+        computeEncoder.setTexture(Self.normalMapTexture, index: 2)
+        computeEncoder.setBytes(&Terrain.terrainParams, length: MemoryLayout<TerrainParams>.size, index: 3)
+        computeEncoder.setBytes(&xz_scale, length: MemoryLayout<Float>.stride, index: 4)
+        computeEncoder.setBytes(&y_scale, length: MemoryLayout<Float>.stride, index: 5)
+        computeEncoder.setBytes(
+            &uniforms,
+            length: MemoryLayout<Uniforms>.stride,
+            index: BufferIndex.uniforms.rawValue
+        )
+
+        computeEncoder.dispatchThreadgroups(
+            MTLSizeMake(1, Terrain.K.textureSize, 1),
+            threadsPerThreadgroup: MTLSizeMake(Terrain.K.textureSize, 1, 1)
+        )
+        computeEncoder.popDebugGroup()
     }
 
 

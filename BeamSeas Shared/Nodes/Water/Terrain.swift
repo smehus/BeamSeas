@@ -28,7 +28,6 @@ class Terrain: Node {
 
     static var heightMapName = "simuwater"
     static var alterHeightMapName = "Heightmap_Plateau"
-//    static var secondaryNormalMapTexture: MTLTexture!
     static var primarySlopeMap: MTLTexture!
     static var secondarySlopeMap: MTLTexture!
 
@@ -366,9 +365,16 @@ extension Terrain: Renderable {
             index: TextureIndex.gradient.rawValue
         )
 
+        // Apple Normals
         renderEncoder.setFragmentTexture(
             BasicFFT.normalMapTexture,
             index: TextureIndex.normal.rawValue
+        )
+        
+        // Generated normals
+        renderEncoder.setFragmentTexture(
+            BasicFFT.secondaryNormalMapTexture,
+            index: TextureIndex.secondaryNormal.rawValue
         )
 
         renderEncoder.setFragmentTexture(
