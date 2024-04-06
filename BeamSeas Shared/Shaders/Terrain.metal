@@ -302,35 +302,20 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
 
     float4 mixedColor = float4(0.4, 0.6, 1.0, 1.0);
     
-    // Displacement gradient
     constexpr sampler sam(min_filter::linear);
-//    float3 vGradJacobian = gradientMap.sample(sam, fragment_in.vGradNormalTex.xy).xyz;
-//    val = (val - -delta) / (delta - -delta);
     
+    // I have two shading techniques (technically two normal creation techniques). These are the two normal maps.
     float3 sampledNormalMap = normalMap.sample(sam, fragment_in.uv).rgb;
     float3 normal = sampledNormalMap * 2.0 - 1.0;
     
+    // Forget which one is which
     float3 secondarySampledNormalMap = secondaryNormalMap.sample(sam, fragment_in.uv).rgb;
-    float3 secondaryNormal = secondarySampledNormalMap * 0.06 - 0.03;
+    float3 secondaryNormal = normalize(secondarySampledNormalMap * 0.06 - 0.03);
     
-    float3 lightDirection = normalize(float3(lights[0].position.x, lights[0].position.y, lights[0].position.z));
-    float cosTheta = clamp(dot(lightDirection, secondaryNormal), 0.0, 1.0);
-    
-    const float c_spec = 0.2; // F(0) for water.
-    float rTheta = c_spec + (1.0 - c_spec) * pow(1.0 - cosTheta, 100.0);
-    
-//    float3 color = terrainDiffuseLighting(normal,
-//                                          fragment_in.worldPosition.xyz,
-//                                          fragmentUniforms, lights,
-//                                          mixedColor.rgb);
+    float3 lightDirection = normalize(float3(-lights[0].position.x, -lights[0].position.y, -lights[0].position.z));
+    float diffuse = saturate(dot(lightDirection, secondaryNormal));
 
-    
-    float3 color = terrainDiffuseLighting(secondaryNormal,
-                                          fragment_in.worldPosition.xyz,
-                                          fragmentUniforms, lights,
-                                          mixedColor.rgb);
-
-    return float4(mixedColor.rgb * rTheta, 1.0);
+    return mixedColor * diffuse;
     
 }
 
