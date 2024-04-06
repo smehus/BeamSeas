@@ -111,6 +111,7 @@
 		02419D73249850C100BCB203 /* ShaderTypes.h in Resources */ = {isa = PBXBuildFile; fileRef = 02419D4C249850BF00BCB203 /* ShaderTypes.h */; };
 		02419D7F249851C700BCB203 /* Math.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02419D7E249851C700BCB203 /* Math.swift */; };
 		02419D80249851C700BCB203 /* Math.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02419D7E249851C700BCB203 /* Math.swift */; };
+		0247E00F2BC18C7A000597B9 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 0247E00E2BC18C7A000597B9 /* README.md */; };
 		02482E6B24DC4C750000B762 /* Water.metal in Sources */ = {isa = PBXBuildFile; fileRef = 02482E6A24DC4C750000B762 /* Water.metal */; };
 		02482E6C24DC4C750000B762 /* Water.metal in Sources */ = {isa = PBXBuildFile; fileRef = 02482E6A24DC4C750000B762 /* Water.metal */; };
 		02491AC924D21B170091395A /* BasicFFT.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02491AC824D21B170091395A /* BasicFFT.swift */; };
@@ -281,6 +282,7 @@
 		02419D6B249850C100BCB203 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		02419D6D249850C100BCB203 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		02419D7E249851C700BCB203 /* Math.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Math.swift; sourceTree = "<group>"; };
+		0247E00E2BC18C7A000597B9 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		02482E6A24DC4C750000B762 /* Water.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Water.metal; sourceTree = "<group>"; };
 		02491ABB24D128100091395A /* Water.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Water.swift; sourceTree = "<group>"; };
 		02491AC824D21B170091395A /* BasicFFT.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BasicFFT.swift; sourceTree = "<group>"; };
@@ -433,6 +435,7 @@
 		02419D44249850BE00BCB203 = {
 			isa = PBXGroup;
 			children = (
+				0247E00E2BC18C7A000597B9 /* README.md */,
 				02419D49249850BE00BCB203 /* BeamSeas Shared */,
 				02419D54249850C100BCB203 /* BeamSeas iOS */,
 				02419D65249850C100BCB203 /* BeamSeas macOS */,
@@ -862,6 +865,7 @@
 				023A332D26ADB81D008E220E /* negz.jpg in Resources */,
 				0236A76C249D8ED6008F197E /* cottage2.obj in Resources */,
 				023A333726ADB81D008E220E /* posz.jpg in Resources */,
+				0247E00F2BC18C7A000597B9 /* README.md in Resources */,
 				02A5A1EF27989DB900679F4F /* sand.jpg in Resources */,
 				0231B80724CE87CB00C794B8 /* simuwater2.jpg in Resources */,
 				0262715C279DB2C9001DB82D /* star_sky_+y.png in Resources */,
