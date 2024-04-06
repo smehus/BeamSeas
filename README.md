@@ -1,2 +1,2 @@
 
-![Current State](BeamSeas/screenshot.png)
+![Current State](screenshot.png)
