@@ -96,7 +96,8 @@ class BasicFFT: Node {
         heightMap = Renderer.device.makeTexture(descriptor: texDesc)!
         displacementMap = Renderer.device.makeTexture(descriptor: texDesc)!
 
-//        texDesc.pixelFormat = MTLPixelFormatRG11B10Float;
+
+//        texDesc.pixelFormat = .rg11b10Float
         Self.normalMapTexture = Renderer.device.makeTexture(descriptor: texDesc)!
         Self.secondaryNormalMapTexture = Renderer.device.makeTexture(descriptor: texDesc)!
 
@@ -333,7 +334,7 @@ extension BasicFFT: Renderable {
         // Create normals the non apple way
         computeEncoder.pushDebugGroup("FFT-Normal_Distributions")
         computeEncoder.setComputePipelineState(secondaryNormalPipeline)
-        threadGroup = makeThreadGroup(secondaryNormalPipeline)
+//        threadGroup = makeThreadGroup(secondaryNormalPipeline)
         computeEncoder.setBytes(&gausUniforms, length: MemoryLayout<GausUniforms>.stride, index: BufferIndex.gausUniforms.rawValue)
         computeEncoder.setBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: BufferIndex.uniforms.rawValue)
         // Output

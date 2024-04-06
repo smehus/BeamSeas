@@ -306,11 +306,11 @@ fragment float4 fragment_terrain(TerrainVertexOut fragment_in [[ stage_in ]],
     
     // I have two shading techniques (technically two normal creation techniques). These are the two normal maps.
     float3 sampledNormalMap = normalMap.sample(sam, fragment_in.uv).rgb;
-    float3 normal = sampledNormalMap * 2.0 - 1.0;
+    float3 normal = normalize(sampledNormalMap * 2.0 - 1.0);
     
     // Forget which one is which
     float3 secondarySampledNormalMap = secondaryNormalMap.sample(sam, fragment_in.uv).rgb;
-    float3 secondaryNormal = normalize(secondarySampledNormalMap * 0.06 - 0.03);
+    float3 secondaryNormal = normalize(secondarySampledNormalMap * 2.0 - 1.0);
     
     float3 lightDirection = normalize(float3(-lights[0].position.x, -lights[0].position.y, -lights[0].position.z));
     float diffuse = saturate(dot(lightDirection, secondaryNormal));

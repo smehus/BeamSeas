@@ -98,6 +98,10 @@ class Water {
         L = simd_dot(wind_velocity, wind_velocity) / Self.G;
         A = amplitude * (0.3 / sqrt(size.x * size.y))
         
+        
+        
+        // Array Init \\
+         
         let n = vDSP_Length(Nx * Nz)
         distribution_real = [Float](repeating: 0, count: Int(n))
         distribution_imag = [Float](repeating: 0, count: Int(n))
@@ -109,8 +113,11 @@ class Water {
         distribution_displacement_real = [Float](repeating: 0, count: Int(displacementLength))
         distribution_displacement_imag = [Float](repeating: 0, count: Int(displacementLength))
 
-
-        // Distribution
+        
+        
+        // HEIGHT DISTRIBUTION \\
+        
+        // Create distribution Array
         generate_distribution(
             distribution_real: &distribution_real,
             distribution_imag: &distribution_imag,
@@ -119,6 +126,7 @@ class Water {
             max_l: 0.2
         )
 
+        // Put that array in to buffer so we can send off to gpu!
         distribution_real_buffer = Renderer.device.makeBuffer(
             bytes: &distribution_real,
             length: MemoryLayout<Float>.stride * Int(n),
@@ -131,6 +139,9 @@ class Water {
             options: .storageModeShared
         )!
         
+        
+        
+        // NORMAL DISTRIBUTION \\
         
         generate_distribution(
             distribution_real: &distribution_normal_real,
@@ -150,7 +161,9 @@ class Water {
             length: MemoryLayout<Float>.stride * Int(n)
         )
 
-        // TODO: -- Normal distribution....
+        
+        
+        // DISPLACEMENT DISTRIBUTIONS \\
         
         // Displacement
         downsample_distribution(
