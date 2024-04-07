@@ -9,6 +9,7 @@
 import Foundation
 import Accelerate
 import MetalKit
+import Numerics
 
 extension Int {
     var float: Float {
@@ -25,13 +26,9 @@ class BasicFFT: Node {
 
     private var signalCount: Int = 0
 
-    // Used to run ifft
-    var distribution_real: MTLBuffer
-    var distribution_imag: MTLBuffer
-    var distribution_displacement_real: MTLBuffer
-    var distribution_displacement_imag: MTLBuffer
-    var distribution_normal_real: MTLBuffer
-    var distribution_normal_imag: MTLBuffer
+    var distribution: MTLBuffer
+    var displacement: MTLBuffer
+    var normal: MTLBuffer
 
     private let fftPipelineState: MTLComputePipelineState
     private let normalDrawingPipepline: MTLComputePipelineState
@@ -74,7 +71,7 @@ class BasicFFT: Node {
         model = try! MTKMesh(mesh: prim, device: Renderer.device)
 
         let log2n = vDSP_Length(log2(Float((Terrain.K.SIZE * Terrain.K.SIZE))))
-        distributionFFT = vDSP.FFT(log2n: log2n, radix: .radix5, ofType: DSPSplitComplex.self)!
+        distributionFFT = vDSP.FFT(log2n: log2n, radix: .radix2, ofType: DSPSplitComplex.self)!
 
         let s = (Terrain.K.SIZE * Terrain.K.SIZE) >> (1 * 2)
         let downdSampledLog2n = vDSP_Length(log2(Float(s)))
@@ -141,22 +138,16 @@ class BasicFFT: Node {
 
         // Creating buffers to fill up with distribution_real(etc) -> FFT -> Our buffer here
         guard
-            let real = Renderer.device.makeBuffer(length: MemoryLayout<Float>.stride * source.distribution_real.count, options: .storageModeShared),
-            let imag  = Renderer.device.makeBuffer(length: MemoryLayout<Float>.stride * source.distribution_imag.count, options: .storageModeShared),
-            let normal_real = Renderer.device.makeBuffer(length: MemoryLayout<Float>.stride * source.distribution_normal_real.count, options: .storageModeShared),
-            let normal_imag = Renderer.device.makeBuffer(length: MemoryLayout<Float>.stride * source.distribution_normal_imag.count, options: .storageModeShared),
-            let displacement_real  = Renderer.device.makeBuffer(length: MemoryLayout<Float>.size * source.distribution_displacement_real.count, options: .storageModeShared),
-            let displacement_imag  = Renderer.device.makeBuffer(length: MemoryLayout<Float>.size * source.distribution_displacement_imag.count, options: .storageModeShared)
+            let dist = Renderer.device.makeBuffer(length: MemoryLayout<Float>.stride * source.distribution.count, options: .storageModeShared),
+            let norm = Renderer.device.makeBuffer(length: MemoryLayout<Float>.stride * source.distribution_normal.count, options: .storageModeShared),
+            let disp  = Renderer.device.makeBuffer(length: MemoryLayout<Float>.size * source.distribution_displacement.count, options: .storageModeShared)
         else {
             fatalError()
         }
 
-        distribution_real = real
-        distribution_imag = imag
-        distribution_displacement_real = displacement_real
-        distribution_displacement_imag = displacement_imag
-        distribution_normal_real = normal_real
-        distribution_normal_imag = normal_imag
+        distribution = dist
+        displacement = disp
+        normal = norm
 
         super.init()
 
@@ -167,9 +158,8 @@ class BasicFFT: Node {
     // The source buffer values will all remain the same (Buffers in water.swift)
     func runfft(phase: Float) {
         let recreatedSignal = runfft(
-            real: distribution_real,
-            imag: distribution_imag,
-            count: source.distribution_real.count + source.distribution_imag.count,
+            dist: distribution,
+            count: source.distribution.count + source.distribution.count,
             fft: distributionFFT
         )
         
@@ -182,9 +172,8 @@ class BasicFFT: Node {
         )
         
         let normalSignal = runfft(
-            real: distribution_normal_real,
-            imag: distribution_normal_imag,
-            count: source.distribution_normal_real.count + source.distribution_normal_imag.count,
+            dist: normal,
+            count: source.distribution_normal.count + source.distribution_normal.count,
             fft: distributionFFT
         )
 
@@ -194,9 +183,8 @@ class BasicFFT: Node {
         )
 
         let displacementSignal = runfft(
-            real: distribution_displacement_real,
-            imag: distribution_displacement_imag,
-            count: source.distribution_displacement_real.count + source.distribution_displacement_imag.count,
+            dist: displacement,
+            count: source.distribution_displacement.count + source.distribution_displacement.count,
             fft: distributionFFT// use this for downsampling - downsampledFFT
         )
         
@@ -207,30 +195,21 @@ class BasicFFT: Node {
         )
     }
 
-    private func runfft(real: MTLBuffer, imag: MTLBuffer, count: Int, fft transformer: vDSP.FFT<DSPSplitComplex>)  -> [Float] {
-
-//        let halfN = Int((BasicFFT.imgSize * BasicFFT.imgSize) / 2)
-
+    private func runfft(dist: MTLBuffer, count: Int, fft transformer: vDSP.FFT<DSPSplitComplex>)  -> [Float] {
         var inverseOutputReal = [Float](repeating: 0, count: count / 2)
         var inverseOutputImag = [Float](repeating: 0, count: count / 2)
 
         var inputReal = [Float](repeating: 0, count: count / 2)
         var inputImag = [Float](repeating: 0, count: count / 2)
 
-        var realPointer = real.contents().bindMemory(to: Float.self, capacity: count / 2)
-        var imagPointer = imag.contents().bindMemory(to: Float.self, capacity: count / 2)
-
+        var pointer = dist.contents().bindMemory(to: Complex<Float>.self, capacity: count / 2)
 
         for index in 0..<(count / 2) {
+            inputReal[index] = pointer.pointee.real
+            inputImag[index] = pointer.pointee.imaginary
 
-            inputReal[index] = realPointer.pointee
-            inputImag[index] = imagPointer.pointee
-
-            realPointer = realPointer.advanced(by: 1)
-            imagPointer = imagPointer.advanced(by: 1)
+            pointer = pointer.advanced(by: 1)
         }
-        
-    
 
         let recreatedSignal: [Float] =
             inputReal.withUnsafeMutableBufferPointer { forwardOutputRealPtr in
