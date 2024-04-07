@@ -130,13 +130,13 @@ class BasicFFT: Node {
         mainPipeDescriptor.vertexDescriptor = MTKMetalVertexDescriptorFromModelIO(model.vertexDescriptor)
 
         mainPipelineState = try! Renderer.device.makeRenderPipelineState(descriptor: mainPipeDescriptor)
-
+        
         source = Water(
-            amplitude: Float(Terrain.K.amplitude),
-            wind_velocity: Terrain.K.wind_velocity,
-            resolution: SIMD2<Int>(x: Terrain.K.SIZE, y: Terrain.K.SIZE), // Determines the amount of random numbers
-            size: float2(x: Terrain.K.DIST, y: Terrain.K.DIST), // Size is used for amplitude modifiers
-            normalmap_freq_mod: float2(repeating: Terrain.K.NORMALMAP_FREQ_MOD) // @TODO: -- FUCK I NEED THIS!!!!!
+            amplitude: Float(Terrain.K.amplitude), // 1.0
+            wind_velocity: Terrain.K.wind_velocity, // 26, -22
+            resolution: SIMD2<Int>(x: Terrain.K.SIZE, y: Terrain.K.SIZE), // Determines the amount of random numbers // 128
+            size: float2(x: Terrain.K.DIST, y: Terrain.K.DIST), // Size is used for amplitude modifiers // 128
+            normalmap_freq_mod: float2(repeating: Terrain.K.NORMALMAP_FREQ_MOD) // @TODO: -- FUCK I NEED THIS!!!!! // 7.3
         )
 
         // Creating buffers to fill up with distribution_real(etc) -> FFT -> Our buffer here

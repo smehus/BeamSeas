@@ -16,7 +16,7 @@ class Terrain: Node {
         static let DIST: Float = 128
         /// Number of samples in heightmap
         static let SIZE: Int = 128
-        static let textureSize: Int = 256
+        static let textureSize: Int = 128
         static let wind_velocity = float2(x: 26, y: -22)
         static let amplitude = 1.0
         static let NORMALMAP_FREQ_MOD: Float = 7.3

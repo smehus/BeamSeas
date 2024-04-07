@@ -11,57 +11,15 @@ import simd
 import GameplayKit
 import Accelerate
 
-struct Complex<T: FloatingPoint> {
-    let real: T
-    let imaginary: T
-
-    static func +(lhs: Complex<T>, rhs: Complex<T>) -> Complex<T> {
-        return Complex(real: lhs.real + rhs.real, imaginary: lhs.imaginary + rhs.imaginary)
-    }
-
-    static func -(lhs: Complex<T>, rhs: Complex<T>) -> Complex<T> {
-        return Complex(real: lhs.real - rhs.real, imaginary: lhs.imaginary - rhs.imaginary)
-    }
-
-    static func *(lhs: Complex<T>, rhs: Complex<T>) -> Complex<T> {
-        return Complex(real: lhs.real * rhs.real - lhs.imaginary * rhs.imaginary,
-                       imaginary: lhs.imaginary * rhs.real + lhs.real * rhs.imaginary)
-    }
-}
-
-// you can print it any way you want, but I'd probably do:
-
-extension Complex: CustomStringConvertible {
-    var description: String {
-        switch (real, imaginary) {
-        case (_, 0):
-            return "\(real)"
-        case (0, _):
-            return "\(imaginary)i"
-        case (_, let b) where b < 0:
-            return "\(real) - \(abs(imaginary))i"
-        default:
-            return "\(real) + \(imaginary)i"
-        }
-    }
-}
-
 class Water {
-    var distribution_real: [Float]
-    var distribution_imag: [Float]
-    var distribution_real_buffer: MTLBuffer!
-    var distribution_imag_buffer: MTLBuffer!
+    var distribution: [COMPLEX]
+    var distribution_buffer: MTLBuffer!
 
-    var distribution_displacement_real: [Float]
-    var distribution_displacement_imag: [Float]
-    var distribution_displacement_real_buffer: MTLBuffer!
-    var distribution_displacement_imag_buffer: MTLBuffer!
+    var distribution_displacement: [COMPLEX]
+    var distribution_displacement_buffer: MTLBuffer!
 
-// Shitttttt i wonder if its this....
-    var distribution_normal_real: [Float]
-    var distribution_normal_imag: [Float]
-    var distribution_normal_real_buffer: MTLBuffer!
-    var distribution_normal_imag_buffer: MTLBuffer!
+    var distribution_normal: [COMPLEX]
+    var distribution_normal_buffer: MTLBuffer!
 
     private let wind_velocity: SIMD2<Float>
     private let wind_dir: SIMD2<Float>
@@ -96,6 +54,8 @@ class Water {
 
         // Factor in phillips spectrum
         L = simd_dot(wind_velocity, wind_velocity) / Self.G;
+        
+        // Normalize amplitude a bit based on the heightmap size.
         A = amplitude * (0.3 / sqrt(size.x * size.y))
         
         
@@ -103,15 +63,11 @@ class Water {
         // Array Init \\
          
         let n = vDSP_Length(Nx * Nz)
-        distribution_real = [Float](repeating: 0, count: Int(n))
-        distribution_imag = [Float](repeating: 0, count: Int(n))
-        
-        distribution_normal_real = [Float](repeating: 0, count: Int(n))
-        distribution_normal_imag = [Float](repeating: 0, count: Int(n))
+        distribution = Array(repeating: COMPLEX(), count: Int(n))
+        distribution_normal = Array(repeating: COMPLEX(), count: Int(n))
 
         let displacementLength = n//(Nx * Nz) >> (displacement_downsample * 2)
-        distribution_displacement_real = [Float](repeating: 0, count: Int(displacementLength))
-        distribution_displacement_imag = [Float](repeating: 0, count: Int(displacementLength))
+        distribution_displacement = Array(repeating: COMPLEX(), count: Int(displacementLength))
 
         
         
@@ -147,7 +103,7 @@ class Water {
             distribution_real: &distribution_normal_real,
             distribution_imag: &distribution_normal_imag,
             size: size_normal,
-            amplitude: A * sqrt(normalmap_freq_mod.x * normalmap_freq_mod.y), // sqrtf ???? idk
+            amplitude: A * sqrtf(normalmap_freq_mod.x * normalmap_freq_mod.y), // sqrtf ???? idk
             max_l: 0.2
         )
 
@@ -221,8 +177,7 @@ class Water {
         }
     }
 
-    private func generate_distribution(distribution_real: inout [Float],
-                                       distribution_imag: inout [Float],
+    private func generate_distribution(distribution: inout [COMPLEX],
                                        size: SIMD2<Float>,
                                        amplitude: Float,
                                        max_l: Float) {
@@ -252,9 +207,8 @@ class Water {
 
                 let idx = z * Nx + x
 
-                if distribution_real.indices.contains(idx), distribution_imag.indices.contains(idx) {
-                    distribution_real[idx] = newReal
-                    distribution_imag[idx] = newImag
+                if distribution.indices.contains(idx){
+//                    distribution[idx] = newReal
                 }
             }
         }

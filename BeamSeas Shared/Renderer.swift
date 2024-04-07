@@ -37,8 +37,8 @@ final class Renderer: NSObject {
  
 
         let instance = BaseThirdPersonCamera(focus: player)
-        instance.focusDistance = 50
-        instance.focusHeight = 10
+        instance.focusDistance = 200
+        instance.focusHeight = 50
         
 //        let instance = ThirdPersonCamera(focus: player, scaffolding: mapScaffolding)
 //        instance.focusDistance = 50
