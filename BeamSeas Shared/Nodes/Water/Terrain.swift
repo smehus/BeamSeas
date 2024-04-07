@@ -18,7 +18,7 @@ class Terrain: Node {
         static let SIZE: Int = 128
         static let textureSize: Int = 128
         static let wind_velocity = float2(x: 26, y: -22)
-        static let amplitude = 1.0
+        static let amplitude = 60
         static let NORMALMAP_FREQ_MOD: Float = 7.3
         static let maxTessellation = 16
         static let patchNum = 16

@@ -80,8 +80,9 @@ class Water {
         )
 
         // Put that array in to buffer so we can send off to gpu!
+        var dis = distribution.gpuPackage()
         distribution_buffer = Renderer.device.makeBuffer(
-            bytes: &distribution,
+            bytes: &dis,
             length: MemoryLayout<Float>.stride * Int(n),
             options: .storageModeShared
         )!
@@ -96,8 +97,9 @@ class Water {
             max_l: 0.2
         )
 
+        var norm = distribution_normal.gpuPackage()
         distribution_normal_buffer = Renderer.device.makeBuffer(
-            bytes: &distribution_normal,
+            bytes: &norm,
             length: MemoryLayout<Float>.stride * Int(n)
         )
         
@@ -110,8 +112,9 @@ class Water {
             rate_log2: displacement_downsample
         )
 
+        var disp = distribution_displacement.gpuPackage()
         distribution_displacement_buffer = Renderer.device.makeBuffer(
-            bytes: &distribution_displacement,
+            bytes: &disp,
             length: MemoryLayout<Float>.stride * Int(displacementLength),
             options: .storageModeShared
         )!

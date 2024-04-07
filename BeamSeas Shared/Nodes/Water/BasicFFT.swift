@@ -138,9 +138,9 @@ class BasicFFT: Node {
 
         // Creating buffers to fill up with distribution_real(etc) -> FFT -> Our buffer here
         guard
-            let dist = Renderer.device.makeBuffer(length: MemoryLayout<Float>.stride * source.distribution.count, options: .storageModeShared),
-            let norm = Renderer.device.makeBuffer(length: MemoryLayout<Float>.stride * source.distribution_normal.count, options: .storageModeShared),
-            let disp  = Renderer.device.makeBuffer(length: MemoryLayout<Float>.size * source.distribution_displacement.count, options: .storageModeShared)
+            let dist = Renderer.device.makeBuffer(length: MemoryLayout<SIMD2<Float>>.stride * source.distribution.count, options: .storageModeShared),
+            let norm = Renderer.device.makeBuffer(length: MemoryLayout<SIMD2<Float>>.stride * source.distribution_normal.count, options: .storageModeShared),
+            let disp  = Renderer.device.makeBuffer(length: MemoryLayout<SIMD2<Float>>.size * source.distribution_displacement.count, options: .storageModeShared)
         else {
             fatalError()
         }
@@ -302,12 +302,12 @@ extension BasicFFT: Renderable {
 
         // Input
         computeEncoder.setBuffer(source.distribution_buffer, offset: 0, index: 14)
-        computeEncoder.setTexture(BasicFFT.heightDisplacementMap, index: 0)
+//        computeEncoder.setTexture(BasicFFT.heightDisplacementMap, index: 0) // Don't need this?
 
         computeEncoder.dispatchThreads(threadGroup.count, threadsPerThreadgroup: threadGroup.size)
         computeEncoder.popDebugGroup()
         
-        
+        /*
         // Create normals the non apple way
         computeEncoder.pushDebugGroup("FFT-Normal_Distributions")
         computeEncoder.setComputePipelineState(secondaryNormalPipeline)
@@ -338,6 +338,7 @@ extension BasicFFT: Renderable {
         computeEncoder.setBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: BufferIndex.uniforms.rawValue)
         computeEncoder.dispatchThreads(threadGroup.count, threadsPerThreadgroup: threadGroup.size)
         computeEncoder.popDebugGroup()
+         */
     }
 
 
@@ -514,3 +515,16 @@ extension BasicFFT: Renderable {
 }
 
 extension BasicFFT: Texturable { }
+
+
+extension Array where Element == Complex<Float> {
+    func gpuPackage() -> [Distribution] {
+        return map(\.gpuPackage)
+    }
+}
+
+extension Complex where RealType == Float {
+    var gpuPackage: Distribution {
+        Distribution(distribution: SIMD2(real, imaginary))
+    }
+}

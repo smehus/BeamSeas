@@ -134,5 +134,9 @@ typedef struct {
     vector_float2 normal_scale;
 } TerrainParams;
 
+typedef struct {
+    vector_float2 distribution;
+} Distribution;
+
 #endif /* ShaderTypes_h */
 

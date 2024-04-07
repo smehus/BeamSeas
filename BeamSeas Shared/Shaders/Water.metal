@@ -51,13 +51,40 @@ float2 cmul(float2 a, float2 b)
 
 kernel void generate_distribution_map_values(constant GausUniforms &uniforms [[ buffer(BufferIndexGausUniforms) ]],
                                   constant Uniforms &mainUniforms [[ buffer(BufferIndexUniforms) ]],
-                                  device float *output_real [[ buffer(12) ]],
-                                  device float *output_imag [[ buffer(13) ]],
-                                  texture2d<float> drawTexture [[ texture(0) ]],
-                                  device complex *input [[ buffer(14) ]],
+                                  device float2 *output [[ buffer(12) ]],
+                                  device Distribution *input [[ buffer(14) ]],
                                   uint2 i [[ thread_position_in_grid ]])
 {
-  
+    // TODO: -- Check these frome example
+    uint2 N = uniforms.resolution;
+    float G = 9.81; // Gravity
+    float2 uMod = float2(2.0 * M_PI_F) / uniforms.size;
+    // Pick out the negative frequency variant.
+    float2 wi = mix(float2(N - i), float2(0), float2(i == uint2(0)));
+    
+
+    // Pick out positive and negative travelling waves.
+    float2 a = input[i.y * N.x + i.x].distribution;
+    float2 b = input[int(wi.y) * N.x + (int)wi.x].distribution;
+
+    float2 k = uMod * alias(float2(i), float2(N));
+    float k_len = length(k);
+
+    // If this sample runs for hours on end, the cosines of very large numbers will eventually become unstable.
+    // It is fairly easy to fix this by wrapping uTime,
+    // and quantizing w such that wrapping uTime does not change the result.
+    // See Tessendorf's paper for how to do it.
+    // The sqrt(G * k_len) factor represents how fast ocean waves at different frequencies propagate.
+    float w = sqrt(G * k_len) * mainUniforms.currentTime;
+    float cw = cos(w);
+    float sw = sin(w);
+
+    // Complex multiply to rotate our frequency samples.
+    a = cmul(a, float2(cw, sw));
+    b = cmul(b, float2(cw, sw));
+    b = float2(b.x, -b.y); // Complex conjugate since we picked a frequency with the opposite direction.
+    float2 res = a + b; // Sum up forward and backwards travelling waves.
+    output[i.y * N.x + i.x] = res;
 }
 
 kernel void generate_displacement_map_values(constant GausUniforms &uniforms [[ buffer(BufferIndexGausUniforms) ]],
