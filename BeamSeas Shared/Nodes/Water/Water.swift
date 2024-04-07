@@ -9,16 +9,17 @@
 import MetalKit
 import simd
 import GameplayKit
+import Numerics
 import Accelerate
 
 class Water {
-    var distribution: [COMPLEX]
+    var distribution: [Complex<Float>]
     var distribution_buffer: MTLBuffer!
 
-    var distribution_displacement: [COMPLEX]
+    var distribution_displacement: [Complex<Float>]
     var distribution_displacement_buffer: MTLBuffer!
 
-    var distribution_normal: [COMPLEX]
+    var distribution_normal: [Complex<Float>]
     var distribution_normal_buffer: MTLBuffer!
 
     private let wind_velocity: SIMD2<Float>
@@ -58,96 +59,67 @@ class Water {
         // Normalize amplitude a bit based on the heightmap size.
         A = amplitude * (0.3 / sqrt(size.x * size.y))
         
-        
-        
         // Array Init \\
          
         let n = vDSP_Length(Nx * Nz)
-        distribution = Array(repeating: COMPLEX(), count: Int(n))
-        distribution_normal = Array(repeating: COMPLEX(), count: Int(n))
+        distribution = Array(repeating: 0, count: Int(n))
+        distribution_normal = Array(repeating: 0, count: Int(n))
 
         let displacementLength = n//(Nx * Nz) >> (displacement_downsample * 2)
-        distribution_displacement = Array(repeating: COMPLEX(), count: Int(displacementLength))
+        distribution_displacement = Array(repeating: 0, count: Int(displacementLength))
 
-        
         
         // HEIGHT DISTRIBUTION \\
         
         // Create distribution Array
         generate_distribution(
-            distribution_real: &distribution_real,
-            distribution_imag: &distribution_imag,
+            distribution: &distribution,
             size: size,
             amplitude: A,
             max_l: 0.2
         )
 
         // Put that array in to buffer so we can send off to gpu!
-        distribution_real_buffer = Renderer.device.makeBuffer(
-            bytes: &distribution_real,
+        distribution_buffer = Renderer.device.makeBuffer(
+            bytes: &distribution,
             length: MemoryLayout<Float>.stride * Int(n),
             options: .storageModeShared
         )!
-
-        distribution_imag_buffer = Renderer.device.makeBuffer(
-            bytes: &distribution_imag,
-            length: MemoryLayout<Float>.stride * Int(n),
-            options: .storageModeShared
-        )!
-        
         
         
         // NORMAL DISTRIBUTION \\
         
         generate_distribution(
-            distribution_real: &distribution_normal_real,
-            distribution_imag: &distribution_normal_imag,
+            distribution: &distribution_normal,
             size: size_normal,
             amplitude: A * sqrtf(normalmap_freq_mod.x * normalmap_freq_mod.y), // sqrtf ???? idk
             max_l: 0.2
         )
 
-        distribution_normal_real_buffer = Renderer.device.makeBuffer(
-            bytes: &distribution_normal_real,
+        distribution_normal_buffer = Renderer.device.makeBuffer(
+            bytes: &distribution_normal,
             length: MemoryLayout<Float>.stride * Int(n)
         )
-        
-        distribution_normal_imag_buffer = Renderer.device.makeBuffer(
-            bytes: &distribution_normal_imag,
-            length: MemoryLayout<Float>.stride * Int(n)
-        )
-
         
         
         // DISPLACEMENT DISTRIBUTIONS \\
         
-        // Displacement
         downsample_distribution(
-            displacement_real: &distribution_displacement_real,
-            displacement_img: &distribution_displacement_imag,
-            in_real: distribution_real,
-            in_imag: distribution_imag,
+            displacement: &distribution_displacement,
+            in: distribution,
             rate_log2: displacement_downsample
         )
 
-        distribution_displacement_real_buffer = Renderer.device.makeBuffer(
-            bytes: &distribution_displacement_real,
-            length: MemoryLayout<Float>.stride * Int(displacementLength),
-            options: .storageModeShared
-        )!
-
-        distribution_displacement_imag_buffer = Renderer.device.makeBuffer(
-            bytes: &distribution_displacement_imag,
+        distribution_displacement_buffer = Renderer.device.makeBuffer(
+            bytes: &distribution_displacement,
             length: MemoryLayout<Float>.stride * Int(displacementLength),
             options: .storageModeShared
         )!
     }
 
 
-    private func downsample_distribution(displacement_real: inout [Float],
-                                         displacement_img: inout [Float],
-                                         in_real: [Float],
-                                         in_imag: [Float],
+    private func downsample_distribution(displacement: inout [Complex<Float>],
+                                         in: [Complex<Float>],
                                          rate_log2: Int)
     {
 
@@ -171,13 +143,13 @@ class Water {
                     alias_z += Nz;
                 }
 
-                displacement_real[z * out_width + x] = in_real[alias_z * Nx + alias_x];
-                displacement_img[z * out_width + x] = in_imag[alias_z * Nx + alias_x];
+//                displacement_real[z * out_width + x] = in_real[alias_z * Nx + alias_x];
+//                displacement_img[z * out_width + x] = in_imag[alias_z * Nx + alias_x];
             }
         }
     }
 
-    private func generate_distribution(distribution: inout [COMPLEX],
+    private func generate_distribution(distribution: inout [Complex<Float>],
                                        size: SIMD2<Float>,
                                        amplitude: Float,
                                        max_l: Float) {
@@ -189,26 +161,20 @@ class Water {
             for x in 0..<Nx {
 
                 let k = mod * SIMD2<Float>(x: Float(alias(x, N: Nx)), y: Float(alias(z, N: Nz)))
-                let realRand = Float(normal_distribution.gausRandom())
-                let imagRand = Float(normal_distribution.gausRandom())
-
+                let dist: Complex<Float> = Complex(normal_distribution.gausRandom(), normal_distribution.gausRandom())
+                
 //                let phillips = philliphs(k: k, max_l: max_l)
-                let phillips = normal_distribution.phillips(
+                let phillips: Float = normal_distribution.phillips(
                     Float(k.x),
                     y: Float(k.y),
                     g: Water.G,
                     a: amplitude,
                     dir: wind_velocity
                 )
-                
-                let newReal = realRand * amplitude * sqrt(0.5 * phillips)
-                let newImag = imagRand * amplitude * sqrt(0.5 * phillips)
-
-
                 let idx = z * Nx + x
 
                 if distribution.indices.contains(idx){
-//                    distribution[idx] = newReal
+                    distribution[idx] = (dist |*| amplitude) |*| phillips
                 }
             }
         }

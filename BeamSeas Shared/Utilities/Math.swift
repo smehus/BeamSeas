@@ -7,12 +7,19 @@
 //
 
 import Foundation
+import Numerics
 
 typealias float2 = SIMD2<Float>
 typealias float3 = SIMD3<Float>
 typealias float4 = SIMD4<Float>
 
 let π = Float.pi
+
+infix operator |*|
+
+public func |*| (lhs: Complex<Float>, rhs: Float) -> Complex<Float> {
+    Complex(lhs.real * rhs, lhs.imaginary * rhs)
+}
 
 extension float3 {
     var xy: float2 {
