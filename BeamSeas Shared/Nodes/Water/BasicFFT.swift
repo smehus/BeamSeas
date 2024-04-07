@@ -298,12 +298,10 @@ extension BasicFFT: Renderable {
         computeEncoder.setBytes(&gausUniforms, length: MemoryLayout<GausUniforms>.stride, index: BufferIndex.gausUniforms.rawValue)
         computeEncoder.setBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: BufferIndex.uniforms.rawValue)
         // Output
-        computeEncoder.setBuffer(distribution_real, offset: 0, index: 12)
-        computeEncoder.setBuffer(distribution_imag, offset: 0, index: 13)
+        computeEncoder.setBuffer(distribution, offset: 0, index: 12)
 
         // Input
-        computeEncoder.setBuffer(source.distribution_real_buffer, offset: 0, index: 14)
-        computeEncoder.setBuffer(source.distribution_imag_buffer, offset: 0, index: 15)
+        computeEncoder.setBuffer(source.distribution_buffer, offset: 0, index: 14)
         computeEncoder.setTexture(BasicFFT.heightDisplacementMap, index: 0)
 
         computeEncoder.dispatchThreads(threadGroup.count, threadsPerThreadgroup: threadGroup.size)
@@ -317,12 +315,10 @@ extension BasicFFT: Renderable {
         computeEncoder.setBytes(&gausUniforms, length: MemoryLayout<GausUniforms>.stride, index: BufferIndex.gausUniforms.rawValue)
         computeEncoder.setBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: BufferIndex.uniforms.rawValue)
         // Output
-        computeEncoder.setBuffer(distribution_normal_real, offset: 0, index: 12)
-        computeEncoder.setBuffer(distribution_normal_imag, offset: 0, index: 13)
+        computeEncoder.setBuffer(normal, offset: 0, index: 12)
 
         // Input
-        computeEncoder.setBuffer(source.distribution_normal_real_buffer, offset: 0, index: 14)
-        computeEncoder.setBuffer(source.distribution_normal_imag_buffer, offset: 0, index: 15)
+        computeEncoder.setBuffer(source.distribution_normal_buffer, offset: 0, index: 14)
         computeEncoder.setTexture(BasicFFT.heightDisplacementMap, index: 0)
 
 
@@ -334,12 +330,10 @@ extension BasicFFT: Renderable {
         computeEncoder.setComputePipelineState(displacementPipelineState)
         threadGroup = makeThreadGroup(displacementPipelineState)
         // output
-        computeEncoder.setBuffer(distribution_displacement_real, offset: 0, index: 12)
-        computeEncoder.setBuffer(distribution_displacement_imag, offset: 0, index: 13)
+        computeEncoder.setBuffer(displacement, offset: 0, index: 12)
 
         // Input
-        computeEncoder.setBuffer(source.distribution_displacement_real_buffer, offset: 0, index: 14)
-        computeEncoder.setBuffer(source.distribution_displacement_imag_buffer, offset: 0, index: 15)
+        computeEncoder.setBuffer(source.distribution_displacement_buffer, offset: 0, index: 14)
 
         computeEncoder.setBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: BufferIndex.uniforms.rawValue)
         computeEncoder.dispatchThreads(threadGroup.count, threadsPerThreadgroup: threadGroup.size)
